@@ -51,6 +51,7 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>
 */
 
 /* definitions */
@@ -82,6 +83,13 @@ FLTRNAME       FLTR-[[:alnum:]_-]*[[:alnum:]]
 IPV4           [0-9]+(\.[0-9]+){3,3}
 PRFXV4         {IPV4}\/[0-9]+
 PRFXV4RNG      {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
+QUAD           [0-9A-F]{1,4}
+IPV6           {QUAD}(:{QUAD}){7}
+IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
+PRFXV6         {IPV6}\/{INT}
+PRFXV6DC       {IPV6DC}\/{INT}
+PRFXV6RNG      {PRFXV6}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
+PRFXV6DCRNG    {PRFXV6DC}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
 ENAMECHAR      [^()<>,;:\\\"\.[\] \t\r]
 ENAME          ({ENAMECHAR}+(\.{ENAMECHAR}+)*\.?)|(\"[^\"@\\\r\n]+\")
 DNAME          [[:alnum:]_-]+
@@ -352,6 +360,60 @@ extern void atollRA(...);
      LEXER_RETURN(TKN_INT);
   }
 
+  {PRFXV6DCRNG}  {
+     yylval.prfxv6rng = new IPv6PrefixRange(yytext);
+     if (yylval.prfxv6rng->valid()) {
+       LEXER_RETURN(TKN_PRFXV6RNG);
+     }
+     else 
+       LEXER_RETURN(TKN_ERROR);
+  }
+
+  {PRFXV6RNG}  {
+     yylval.prfxv6rng = new IPv6PrefixRange(yytext);
+     if (yylval.prfxv6rng->valid()) {
+       LEXER_RETURN(TKN_PRFXV6RNG);
+     }
+     else 
+       LEXER_RETURN(TKN_ERROR);
+  }
+
+  {PRFXV6DC}  {
+     yylval.prfxv6 = new IPv6Prefix(yytext);
+     if (yylval.prfxv6->valid()) {
+       LEXER_RETURN(TKN_PRFXV6);
+     }
+     else
+       LEXER_RETURN(TKN_ERROR);
+  }
+
+  {PRFXV6}  {
+     yylval.prfxv6 = new IPv6Prefix(yytext);
+     if (yylval.prfxv6->valid()) {
+       LEXER_RETURN(TKN_PRFXV6);
+     }
+     else
+       LEXER_RETURN(TKN_ERROR);
+  }
+
+  {IPV6DC}  {
+     yylval.ipv6 = new IPv6Addr(yytext);
+     if (yylval.ipv6->valid()) {
+       LEXER_RETURN(TKN_IPV6);
+     }
+     else
+       LEXER_RETURN(TKN_ERROR);
+  }
+
+  {IPV6}  {
+     yylval.ipv6 = new IPv6Addr(yytext);
+     if (yylval.ipv6->valid()) {
+       LEXER_RETURN(TKN_IPV6);
+     }
+     else
+       LEXER_RETURN(TKN_ERROR);
+  }
+
   {INT}:{INT} {
      unsigned int ms, ls;
      char *colon = strchr(yytext, ':');
@@ -450,6 +512,16 @@ extern void atollRA(...);
      }
 
      yylval.string = strdup(yytext);
+
+     // in case of afi
+     RPType *type1 = schema.searchTypedef("address_family");
+     
+     if (   (type1 != NULL) 
+         && (type1->validate(new ItemWORD(yytext))) ) {
+          yylval.afi = new AddressFamily(yytext);
+          LEXER_RETURN(TKN_AFI);
+     }  
+
      LEXER_RETURN(TKN_WORD);
   }
 
@@ -467,6 +539,23 @@ extern void atollRA(...);
 	*p = '.';
      }
 
+     // in case of afi containing "."
+     RPType *type1 = schema.searchTypedef("address_family");
+     RPType *type2 = schema.searchTypedef("address_sub_family");
+	   char *p = strchr(yytext, '.');
+     char *a = (char *) calloc(sizeof(yytext),1);
+     strncpy (a, yytext, (p-yytext)); 
+     
+     if (   (type1 != NULL) 
+         && (type2 != NULL)
+         && (type1->validate(new ItemWORD(a))) 
+         && (type2->validate(new ItemWORD(p+1))) ) {
+          free (a);
+            yylval.afi = new AddressFamily(yytext);
+          LEXER_RETURN(TKN_AFI);
+     }  
+
+     free(a);
      yylval.sid = symbols.symID(yytext);
      LEXER_RETURN(TKN_DNS);
   }

@@ -50,20 +50,38 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>
 
 #ifndef PREFIX_HH
 #define PREFIX_HH
 
 #include "config.h"
+#include <sys/types.h>
 
 class ostream;
+class AddressFamily;
+
+typedef u_int64_t       ip_v6word_t;
+
+typedef struct {
+  ip_v6word_t high; 
+  ip_v6word_t low;
+} ipv6_addr_t;
+
+#define IPV6_LENGTH 40
 
 char* int2quad(char *buffer, unsigned int i);
 unsigned int quad2int(char *quad);
+char* ipv62hex(ipv6_addr_t *ip, char *buffer);
+ipv6_addr_t* hex2ipv6(char *hex);
 
 extern class PrefixRange NullPrefixRange;
 extern class Prefix      NullPrefix;
 extern class IPAddr      NullIPAddr;
+extern class IPv6PrefixRange NullIPv6PrefixRange;
+extern class IPv6Prefix    NullIPv6Prefix;
+extern class IPv6Addr    NullIPv6Addr;
+
 
 class PrefixRange {
  protected:
@@ -73,6 +91,9 @@ class PrefixRange {
    unsigned char length;
    unsigned char n;
    unsigned char m;
+
+// protected:
+//   AddressFamily *afi;
 
   public:
    PrefixRange(void);
@@ -151,6 +172,98 @@ public:
       Prefix::define(ipaddr, 32);
    }
    char *get_text(char *buffer = formattingbuffer) const;
+};
+
+class IPv6PrefixRange {
+ protected:
+   static char formattingbuffer[256];
+
+   ipv6_addr_t  *ipaddr;
+   unsigned char length;
+
+   unsigned char n;
+   unsigned char m;
+
+ protected:
+   AddressFamily *afi;
+
+  public:
+   IPv6PrefixRange(void);
+   IPv6PrefixRange(const IPv6PrefixRange &p);
+   IPv6PrefixRange(ipv6_addr_t *ipaddr, unsigned char length, 
+	  unsigned char n, unsigned char m);
+
+   IPv6PrefixRange(char *name);
+
+   void define(ipv6_addr_t *ipaddr, unsigned char length, 
+	       unsigned char n, unsigned char m);
+
+   // return false if it is an invalid operation and do nothing, 
+   // or make the prefix more specific
+   bool makeMoreSpecific(int code, int n, int m); 
+
+   void print(void);
+   int valid(void);
+
+   bool isNull() const {
+      return (*this) == NullIPv6PrefixRange;
+   }
+
+   IPv6PrefixRange& operator=(const IPv6PrefixRange& other);
+   int operator<(const IPv6PrefixRange& other) const;
+   int operator<=(const IPv6PrefixRange& other) const;
+   int operator==(const IPv6PrefixRange& other) const;
+   int operator!=(const IPv6PrefixRange& other) const {
+      return ! (*this == other);
+   }
+   int compare(const IPv6PrefixRange& other) const;
+   int contains(const IPv6PrefixRange& other) const;
+
+   char *get_text(char *buffer = formattingbuffer) const;
+   ipv6_addr_t *get_ipaddr() const { return ipaddr; }
+   unsigned int get_length() const { return length; }
+   unsigned int get_n() const { return n; }
+   unsigned int get_m() const { return m; }
+   unsigned long long int get_low_mask() const;
+   unsigned long long int get_high_mask() const;
+   unsigned long long int get_range() const;
+
+   friend ostream& operator<<(ostream& stream, const IPv6PrefixRange& p);
+
+   void parse(char *name);
+
+};
+
+class IPv6Prefix : public IPv6PrefixRange {
+public:
+   IPv6Prefix() : IPv6PrefixRange(NULL, 0, 0, 0) {
+   }
+   IPv6Prefix(ipv6_addr_t *ipaddr, unsigned char length) :
+      IPv6PrefixRange(ipaddr, length, length, length) {
+   }
+   IPv6Prefix(char *name);
+
+   void define(ipv6_addr_t *ipaddr, unsigned char length) {
+      IPv6PrefixRange::define(ipaddr, length, length, length);
+   }
+   char *get_text(char *buffer = formattingbuffer) const;
+
+   friend ostream& operator<<(ostream& stream, const IPv6Prefix& p);
+};
+
+class IPv6Addr : public IPv6Prefix {
+public:
+   IPv6Addr() : IPv6Prefix(NULL, 128) {
+   }
+   IPv6Addr(ipv6_addr_t *ipaddr) :
+      IPv6Prefix(ipaddr, 128) {
+   }
+   IPv6Addr(char *name);
+   void define(ipv6_addr_t *ipaddr) {
+      IPv6Prefix::define(ipaddr, 128);
+   }
+   char *get_text(char *buffer = formattingbuffer) const;
+   friend ostream& operator<<(ostream& stream, const IPv6Addr& p);
 };
 
 #endif // PREFIX_HH
