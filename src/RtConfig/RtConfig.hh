@@ -100,6 +100,7 @@ public:
       cerr << "Error: outbound_pkt_filter not implemented" << endl;
    }
    virtual void configureRouter(char *name);
+   void printPolicyWarning(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr, const char* policy);
 
 protected:
    void printPrefixes_(SetOfPrefix& nets, char *fmt);
