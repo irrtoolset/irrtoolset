@@ -1,25 +1,28 @@
 4.7.2
-* various bugfixes in aoe - it works now
+* various bugfixes in aoe: it is RIPE compliant, bug fixed, 
+  error reporting improved.
 * some bugs in RtConfig, roe and prpath fixed
 
 4.7.1
 * various bug fixes
 
 4.7.0
-* Added support for the new ripe server, please use -protocol ripe for   it.
-  For the perl based old ripe server, please use -protocol ripe_perl
-  Note that the new ripe server support is at best beta quality. Please   watch out for and report any problems.
-* ~*/~+ rpsl as path regular expressions are now supported for cisco   configs. These lead to shorter regular expressions.
+* Added support for the new ripe server, please use -protocol ripe for it.
+ For the perl based old ripe server, please use -protocol ripe_perl
+ Note that the new ripe server support is at best beta quality. 
+ Please watch out for and report any problems.
+* ~*/~+ rpsl as path regular expressions are now supported for cisco configs.
+  These lead to shorter regular expressions.
 * If you are hitting cisco line limitation, you can force * and + to be
-  interpreted as ~*, and ~+ which will shorten the config lines by using
-  -cisco_force_tilda command line option. (i.e. without modifying your
-   aut-num in IRR).
+ interpreted as ~*, and ~+ which will shorten the config lines by using
+ -cisco_force_tilda command line option. (i.e. without modifying your
+ aut-num in IRR).
 * We try to generate less parenthesis in as paths for ciscos.
 * The limitation with JunOS as path printing regarding [^ ] operator is
-  now removed. The JunOS can now handle all RPSL as path expressions. I
-  did not implement ~*, ~+ in JunOS since they do not have a line   length
-  limitation. If your aut-num has ~*/~+, they are treated as if */+
-  respectively .
+ now removed. The JunOS can now handle all RPSL as path expressions. I
+ did not implement ~*, ~+ in JunOS since they do not have a line length
+ limitation. If your aut-num has ~*/~+, they are treated as if */+
+ respectively .
 * JunOS access lists are now compressed correctly (if turned on).
 * bug fixes in map name format
 * many other bug fixes
@@ -98,10 +101,9 @@
                            \n  carriage return
                            \t  tab
                      Example, use:
-                        @RtConfig printPrefixes "net %p \tmask %k\n" filter AS1
+              @RtConfig printPrefixes "net %p \tmask %k\n" filter AS1
 
-              @RtConfig printPrefixRanges <format> filter <fil-
-                     ter>
+              @RtConfig printPrefixRanges <format> filter <filter>
                      This command is same as the  "printPrefixes"
                      command, except the consecutive address pre-
                      fixes are compressed into a  single  address

@@ -18,6 +18,7 @@ o filter-set names resolving added
 
 Aoe is alive now, several bugfixes and changes made:
 
+o is RPSL compliant and not RIPE-181 compliant
 o bugs fixed; all documented features are in place
 o peer list can be saved to a file
 o syntax error reporting improved
