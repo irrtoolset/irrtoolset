@@ -345,7 +345,7 @@ extern Object *current_object;
 %type<filter>    mp_filter_prefix_operand
 %type<filter>    opt_mp_filter_prefix_list
 %type<filter>    mp_filter_prefix_list
-%type<prfxrng>   mp_filter_prefix_list_prefix
+%type<mpprefix>   mp_filter_prefix_list_prefix
 
 
 %type<filter>    opt_as_expr
@@ -1580,53 +1580,59 @@ mp_filter_prefix_operand: TKN_ASNO {
 }
 | '{' opt_mp_filter_prefix_list '}' { 
    $$ = $2; 
+   
 }
 ;
 
 opt_mp_filter_prefix_list: {
-   $$ = new FilterPRFXList;
+   $$ = new FilterMPPRFXList;
 }
-| mp_filter_prefix_list
+| mp_filter_prefix_list {
+  $$ = $1;
+  cout << *$$;
+  printf ("prefix list found!\n");
+}
 ;
 
 mp_filter_prefix_list: mp_filter_prefix_list_prefix {
-   ((FilterPRFXList *) ($$ = new FilterPRFXList))->add_high(*$1);
-   delete $1;
+ //  ((FilterPRFXList *) ($$ = new FilterPRFXList))->add_high(*$1);
+
+   ((FilterMPPRFXList *) ($$ = new FilterMPPRFXList))->push_back(*$1);
+
+   //delete $1;
 }
 | mp_filter_prefix_list ',' mp_filter_prefix_list_prefix {
    $$ = $1;
-   ((FilterPRFXList *) ($$))->add_high(*$3);
-   delete $3;
+   ((FilterMPPRFXList *) ($$))->push_back(*$3);
+//   delete $3;
 }
 ;
 
-mp_filter_prefix_list_prefix: 
-/*
-KEYW_AFI afi TKN_PRFXV6 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+mp_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;          
   }
 }
 | KEYW_AFI afi TKN_PRFXV6RNG {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
-*/
-KEYW_AFI afi TKN_PRFXV4 {
-  $$ = $3;
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+| KEYW_AFI afi TKN_PRFXV4 {
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 
 }
 | KEYW_AFI afi TKN_PRFXV4RNG {
-  $$ = $3;
-
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+    $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
@@ -1819,13 +1825,13 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
 
 /// mp-filter attribute TBD ///
 
-mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
+mp_filter_attribute: ATTR_MP_FILTER KEYW_AFI afi mp_filter TKN_EOA {
   // check that "filter:" is not present
    if (current_object->hasAttr("filter")) {
     handle_error("Error: mp-filter and filter attributes can't be used together\n");
     yyerrok;
   } else {
-    $$ = changeCurrentAttr(new AttrMPFilter($2));
+    $$ = changeCurrentAttr(new AttrMPFilter($4));
   }
 }
 | ATTR_MP_FILTER error TKN_EOA {

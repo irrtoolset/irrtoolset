@@ -154,6 +154,28 @@ ostream &FilterPRFXList::print(ostream &out) const {
    return out;
 }
 
+ostream &FilterMPPRFXList::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+/*
+   int i = low();
+   if (i < fence()) {
+      out << (*this)[i].get_text();
+      for (++i; i < fence(); ++i)
+   out << ", " << (*this)[i].get_text();
+   }
+*/
+   for (p = begin(); p != end(); ++p) {
+     out << *p ;
+     out << ',';
+   }
+
+   out << "}";
+
+   return out;
+}
+
+
 ostream &FilterRPAttribute::print(ostream &out) const {
    out << rp_attr->name;
    if (rp_method->isOperator)
