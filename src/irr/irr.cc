@@ -95,19 +95,19 @@ void IRR::SetDefaultPort(const int _port) {
 
 void IRR::SetDefaultProtocol(const char *_protocol) {
   strcpy(protocol, _protocol);
-  if (strcmp(_protocol, "rawhoisd") == 0)
+  if (strcasecmp(_protocol, "rawhoisd") == 0)
     dflt_protocol = rawhoisd;
   else
-    if (strcmp(_protocol, "irrd") == 0)
+    if (strcasecmp(_protocol, "irrd") == 0)
       dflt_protocol = rawhoisd;
     else
-      if (strcmp(_protocol, "ripe_perl") == 0)
+      if (strcasecmp(_protocol, "ripe_perl") == 0)
 	dflt_protocol = ripe;
       else
-	 if (strcmp(_protocol, "ripe") == 0)
+	 if (strcasecmp(_protocol, "ripe") == 0)
 	    dflt_protocol = bird;
 	 else
-	    if (strcmp(_protocol, "bird") == 0)
+	    if (strcasecmp(_protocol, "bird") == 0)
 	       dflt_protocol = bird;
 	    else {
 	       cerr << "Error: unknown irr protocol " << _protocol 
