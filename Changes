@@ -3,6 +3,7 @@
 * bugfixes & new in RtConfig, fixes in prpath, rpslcheck, libirr.
 * man pages updated
 * configure script patched for NetBSD (thanks to Jeff Rizzo (riz@equinix.com) for the patch)
+* '-V RAToolSet' switch for whois queries using ripe whois is renamed to '-V IRRToolSet'
 
 4.7.2
 * various bugfixes in aoe: it is RIPE compliant, bug fixed, 
