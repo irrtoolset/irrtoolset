@@ -3,13 +3,12 @@ Release Notes for IRRToolSet version 4.8.0
 
 This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval and rpslcheck.
 
-* RPSLng dictionary implemented according to:
-  http://www.radb.net/rpslng.html
+* RPSLng dictionary implemented according to the latest RPSLng draft:
+  http://www.ietf.org/internet-drafts/draft-blunk-rpslng-01.txt
 
 * peval, rpslcheck already work
 
-* Tools have been tested to work with RIPE whois software. IRRD is expected to be available for testing very soon, patch will be available.
-  Therefore irrd protocol may not work properly.
+* Tools have been tested to work with RIPE whois software. IRRD is expected to be available for testing very soon, necessary patch will be published. Due to this irrd protocol may not work properly yet.
 
 * peval now accepts both RPSL and RPSLng filters (extended to support ipv6)
    for peval, the syntax for evaluation of mp-filter is:
