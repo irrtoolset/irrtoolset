@@ -1,7 +1,7 @@
 id: 019
 summary: documented command-line options are not processed 
 owner: katie
-status: wait
+status: closed
 priority: high
 program: rpslcheck
 module(s): rpslcheck
@@ -11,4 +11,6 @@ closed: unknown
 detail:
 
 workaround: use STDIN as input.
+
+fixed segv, -as <asno> accepted, stdin accepted as well.
 
