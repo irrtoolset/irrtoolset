@@ -1,14 +1,17 @@
 4.7.3
 
 * bugfixes & new in RtConfig
-	- -cisco_empty_lists option implemented: prints ANY/NOT ANY access/prefix lists where applicable. Although works for cisco format only. By default, the warning about empty/universal filter is issued.
+	- -cisco_empty_lists option implemented: prints ANY/NOT ANY access/prefix lists where applicable. 
+	  Although it works for cisco format only. 
+	  By default, the warning about empty/universal filter is issued.
 	- if policy for specified peering is not found in aut-num, more detailed warning is issued.
-	- fixed the bug with non-existent inet-rtr object
-	- muptiple ifaddr attributes in inet-rtr object are now handled properly
+	- fixed the bug with non-existent inet-rtr object;
+	- multiple "ifaddr" attributes in inet-rtr object are now handled properly.
+	- see RtConfig manpage for updates
 
 * prpath:
 	- fixed the bug with <destination_specification> handling, now queries for /32 route for a single IP
-	- address, and issued the warning if not found.
+	  address, and the warning is issued if route not found.
 
 * rpslcheck:
 	- fixed the command-line flags handling
@@ -21,6 +24,8 @@
 
 * new Errors man page added
 	- explains IRRToolSet's errors common for all the tools with references to relevant documentation.
+
+* configure script patched for NetBSD (thanks to Jeff Rizzo (riz@equinix.com) for the patch)
 
 4.7.2
 * various bugfixes in aoe: it is RIPE compliant, bug fixed, 
