@@ -261,7 +261,7 @@ bool BirdWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len)
 
 // REIMP
 bool BirdWhoisClient::expandAS(char *as, MPPrefixRanges *result) {
-  if (!sendQuery("-K -T route,route6 -i origin %s", as)) 
+  if (!sendQuery("-K -i origin %s", as)) 
     return false;
   char *pzcKeys;
   int iKeyLen;
@@ -354,15 +354,15 @@ bool BirdWhoisClient::expandRSSet(SymID sname, MPPrefixRanges *result) {
 
   // ripev3 support
   if (!strcasecmp(protocol, "ripe") && !strcasecmp(sname, "rs-any")) 
-     strcpy(buffer, "-T route -M 0.0.0.0/0");
+     strcpy(buffer, "-Troute -M 0.0.0.0/0");
   else
-     sprintf(buffer, "-T route,route6 -i member-of %s", sname);
+     sprintf(buffer, "-i member-of %s", sname);
   getIndirectMembers(sname, set, buffer, collectPrefix, result);
   
 
   bzero(buffer, sizeof(buffer));
   if (!strcasecmp(protocol, "ripe") && !strcasecmp(sname, "rs-any")) {
-     strcpy(buffer, "-T route6 -M ::/0");
+     strcpy(buffer, "-Troute6 -M ::/0");
      getIndirectMembers(sname, set, buffer, collectPrefix, result);
   }
 

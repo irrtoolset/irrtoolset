@@ -70,12 +70,12 @@
 
 class Peering : public ListNode {
 public:
-   ASt    peerAS;
-   IPAddr peerIP;
-   IPAddr localIP;
+   ASt      peerAS;
+   MPPrefix peerIP;
+   MPPrefix localIP;
 
 public:
-   Peering(ASt _peerAS, const IPAddr &_peerIP, const IPAddr &_localIP) 
+   Peering(ASt _peerAS, const MPPrefix &_peerIP, const MPPrefix &_localIP) 
       : ListNode(), peerAS(_peerAS), peerIP(_peerIP), localIP(_localIP) {
    }
    Peering(const Peering &b) 
@@ -101,7 +101,7 @@ private:
    void gatherPeerings(PolicyExpr *policy, SortedList<Peering> *peerings);
    void gatherPeerings(PolicyPeering *peering, SortedList<Peering> *peerings);
    void gatherASes(Filter *f, SetOfUInt *result);
-   void gatherRouters(Filter *f, SetOfUInt *result);
+   void gatherRouters(Filter *f, MPPrefixRanges *result);
 
 public:
    AutNum() : Object(), peerings(NULL) {}
@@ -171,16 +171,7 @@ static bool isPeeringMatching(Filter *f, const MPPrefix *ip) {
    if (typeid(*f) == typeid(FilterANY))
       return true;
    if (typeid(*f) == typeid(FilterRouter)) {
-      if (ip->ipv4) {
-        return ((FilterRouter *) f)->ip->get_ipaddr() == ip->ipv4->get_ipaddr();
-      }
-      return false;
-   }
-   if (typeid(*f) == typeid(FilterIPv6Router)) {
-      if (ip->ipv6) {
-        return (*((FilterIPv6Router *) f)->ip->get_ipaddr()) == ip->get_ipaddr();
-      }
-      return false;
+      return ((*((FilterRouter *) f)->ip) == *ip);
    }
    if (typeid(*f) == typeid(FilterRouterName)) {
       char *dns = ((FilterRouterName *) f)->name;
@@ -253,7 +244,7 @@ static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
 	 for (AttrIterator<AttrPeering> itr(peers, "peering"); itr; itr++)
 	    if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
 	       return true;
-   for (AttrIterator<AttrMPPeering> itr(peers, "mp-peering"); itr; itr++)
+   for (AttrIterator<AttrPeering> itr(peers, "mp-peering"); itr; itr++)
       if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
          return true;
 	 

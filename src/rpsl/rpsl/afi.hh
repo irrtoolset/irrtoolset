@@ -48,6 +48,7 @@ class AddressFamily {
    bool is_Matching (char *name); // exact match
    bool is_ipv4 ();  
    bool is_ipv6 ();  
+   bool is_default ();
    virtual bool is_valid(MPPrefix *p);
    virtual bool is_valid(PrefixRange *p);
    virtual bool is_valid(IPv6PrefixRange *p);

@@ -168,6 +168,22 @@ void RAWhoisClient::Close() {
    _is_open = 0;
 }
 
+void RAWhoisClient::GetVersion() {
+   char *buffer = (char *) calloc (80,1);
+   char *start;
+
+   if (! _is_open)
+      Open();
+
+   Trace(TR_WHOIS_QUERY) << "Whois: Version " << "!v" << endl;
+   QueryResponse(buffer, "!v");
+   start = strstr(buffer, "version");
+   start = start + 8; //jump
+   version = atoi(start)*10 + atoi(start+2); // x.x... format  
+   Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
+   free(buffer);
+}
+
 void RAWhoisClient::SetSources(const char *_sources) {
    int err = 0;
 
@@ -259,8 +275,25 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
    if (*buffer != 'A') { // we are expecting a byte-count line
-      error.Die("Warning: no byte count error for query %s.\n", last_query);
-      return 0;
+      if (is_rpslng()) { // but not if it is rpslng-compatible
+        // DEBUG
+        char result[10000];
+        do {
+          char attr[1024];
+          char val[1024];
+          sscanf(buffer, "%s %s", &attr, &val);
+          if (!strcmp(attr, "route:") || !strcmp(attr,"route6:")) {
+            strncat(result, val, strlen(val));
+            strncat(result, " ", 1); 
+          }
+        } while (fgets(buffer, sizeof(buffer), in) &&
+                 !(strcmp(buffer, "\n"))
+                );
+        return 0;
+      } else {
+        error.Die("Warning: no byte count error for query %s.\n", last_query);
+        return 0;
+      }
    }
 
    int count = atoi(buffer + 1);
@@ -385,7 +418,7 @@ void RAWhoisClient::Query(const char *format, ...) {
 int RAWhoisClient::QueryResponse(char *&response, const char *format, ...) { 
    if (!_is_open)
       Open();
-
+   
    va_list ap;
    va_start(ap, format);
 
@@ -438,13 +471,25 @@ bool RAWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len) {
 
 bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
   char *response;
-  if (!QueryResponse(response, "!g%s", as)) return false;
-  for (char *word = strtok(response, " \t\n");
+
+  if (!version)
+    GetVersion();
+  
+  if (! is_rpslng()) {   
+    if (!QueryResponse(response, "!g%s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
        word; 
        word = strtok(NULL, " \t\n")) 
-    result->push_back(MPPrefix(word));
+       result->push_back(MPPrefix(word));
+  } else {
+    if (!QueryResponse(response, "-K -r -i origin %s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
+       word; 
+       word = strtok(NULL, " \t\n")) 
+       result->push_back(MPPrefix(word));
+  }
   if (response)
-     delete [] response;
+   delete [] response;
   return true;
 }
 

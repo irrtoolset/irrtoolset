@@ -578,6 +578,9 @@ public:
    ItemAFI(AddressFamily *af) {
       afi = af->afi;
    }
+   ItemAFI(char *af_text) {
+      afi = af_text;
+   }
    ItemAFI(const ItemAFI &pt) {
       afi = strdup(pt.afi);
    }
@@ -596,6 +599,12 @@ public:
       INDENT(indent); os << "afi = \"" << *afi << "\"" << endl;
    }
 #endif // DEBUG
+   int operator==(ItemAFI &af) {
+      return ((AddressFamily &) af == (AddressFamily &) *this);
+   }
+   int operator!=(ItemAFI &af) {
+      return ! ((AddressFamily &) af == (AddressFamily &) *this);
+   }
 };
 
 class ItemConnection : public Item {

@@ -117,14 +117,6 @@ ostream &AttrPeering::print(ostream &out) const {
    return out;
 }
 
-ostream &AttrMPPeering::print(ostream &out) const {
-   out << "peering: " << *peering;
-  // out << "********** NOT IMPLEMENTED ******* " << endl; //*peering;
-
-   return out;
-}
-
-
 ostream &AttrIfAddr::print(ostream &out) const {
    static char buffer[128];
    out << "ifaddr:\t" << int2quad(buffer, ifaddr.get_ipaddr())
