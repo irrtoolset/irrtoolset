@@ -1,0 +1,15 @@
+id: 013
+summary: cisco aspath prefix lists have too long regexps for cisco 
+owner: cengiz
+status: closed
+priority: high
+program: RtConfig
+module(s): f_cisco.cc
+reported: unknown
+closed: unknown
+
+detail:
+
+
+
+

@@ -1,0 +1,18 @@
+id: 017
+summary: destination-specification=IP is handled as /32 always! 
+owner: katie
+status: wait
+priority: high
+program: prpath
+module(s): prpath
+reported: unknown
+closed: unknown
+
+detail:
+
+Ambrose. in prpath, destination-specification=IP is handled as /32. which is
+ not correct! Error when such route doest not exist in the DB. We must query fo
+r most specific route and consider it destination.
+
+Need to be checked.
+
