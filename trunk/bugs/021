@@ -1,0 +1,25 @@
+id: 021
+summary: ifaddr in inet-rtr object works wrong for RtConfig 
+owner: katie
+status: solving
+priority: high
+program: RtConfig
+module(s): RtConfig
+reported: unknown
+closed: unknown
+
+detail:
+
+command: @RtConfig configureRouter <inet-rtr-name>
+
+inet-rtr:
+ifaddr: x.x.x.x/x
+peer: 
+
+It converted x.x.x.x/x to x.x.x.x/32 and considere it and _only_ it as local interface address.
+Tried to fix it by adding expansion to multiple /32's and selecting the policy from aut-num for each of these /32's.  However, not sure if this is right way of how ifaddr attribute works... Need to be considered.
+
+
+
+
+
