@@ -239,12 +239,12 @@ static const short yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined. */
 static const short yyrline[] =
 {
-       0,   142,   146,   152,   153,   154,   157,   158,   159,   160,
-     161,   162,   163,   164,   165,   166,   167,   168,   169,   170,
-     171,   172,   173,   175,   176,   177,   185,   186,   189,   201,
-     213,   223,   233,   248,   263,   278,   282,   286,   291,   297,
-     303,   308,   313,   320,   327,   341,   348,   355,   361,   367,
-     373,   379,   430,   439
+       0,   142,   146,   152,   153,   156,   159,   160,   161,   162,
+     163,   164,   165,   166,   167,   168,   169,   170,   171,   172,
+     173,   174,   175,   177,   178,   179,   187,   188,   191,   203,
+     215,   225,   235,   250,   265,   280,   284,   288,   293,   299,
+     305,   310,   315,   322,   329,   343,   350,   357,   363,   369,
+     375,   381,   432,   441
 };
 #endif
 
@@ -1103,8 +1103,14 @@ case 2:
       cout << opt_prompt;
 }
     break;
+case 4:
+#line 153 "command.y"
+{
+  yyerrok;
+}
+    break;
 case 28:
-#line 189 "command.y"
+#line 191 "command.y"
 {
    /*
    cout << "!" << endl
@@ -1117,7 +1123,7 @@ case 28:
 }
     break;
 case 29:
-#line 201 "command.y"
+#line 203 "command.y"
 {
    /*
    cout << "!" << endl
@@ -1130,7 +1136,7 @@ case 29:
 }
     break;
 case 30:
-#line 213 "command.y"
+#line 215 "command.y"
 {
    /* 
    cout << "!" << endl
@@ -1141,7 +1147,7 @@ case 30:
 }
     break;
 case 31:
-#line 223 "command.y"
+#line 225 "command.y"
 {
    /* 
    cout << "!" << endl
@@ -1152,7 +1158,7 @@ case 31:
 }
     break;
 case 32:
-#line 233 "command.y"
+#line 235 "command.y"
 {
    char *p = yyvsp[-1].val;
    while (p = strchr(p, '\\')) {
@@ -1169,7 +1175,7 @@ case 32:
 }
     break;
 case 33:
-#line 248 "command.y"
+#line 250 "command.y"
 {
    char *p = yyvsp[-1].val;
    while (p = strchr(p, '\\')) {
@@ -1186,7 +1192,7 @@ case 33:
 }
     break;
 case 34:
-#line 263 "command.y"
+#line 265 "command.y"
 {
    char *p = yyvsp[-1].val;
    while (p = strchr(p, '\\')) {
@@ -1203,51 +1209,51 @@ case 34:
 }
     break;
 case 35:
-#line 278 "command.y"
+#line 280 "command.y"
 {
    rtConfig->accessList(yyvsp[0].val);
 }
     break;
 case 36:
-#line 282 "command.y"
+#line 284 "command.y"
 {
    rtConfig->aspathAccessList(yyvsp[0].val);
 }
     break;
 case 37:
-#line 286 "command.y"
+#line 288 "command.y"
 {
    rtConfig->deflt(yyvsp[-1].as, yyvsp[0].as);
 }
     break;
 case 38:
-#line 291 "command.y"
+#line 293 "command.y"
 {
    rtConfig->configureRouter(yyvsp[0].val);
    free(yyvsp[0].val);
 }
     break;
 case 39:
-#line 297 "command.y"
+#line 299 "command.y"
 {
    rtConfig->static2bgp(yyvsp[-1].as, yyvsp[0].ip);
    delete yyvsp[0].ip;
 }
     break;
 case 40:
-#line 303 "command.y"
+#line 305 "command.y"
 {
    rtConfig->networks(yyvsp[0].as);
 }
     break;
 case 41:
-#line 308 "command.y"
+#line 310 "command.y"
 {
    rtConfig->IPv6networks(yyvsp[0].as);
 }
     break;
 case 42:
-#line 313 "command.y"
+#line 315 "command.y"
 {
    rtConfig->packetFilter(yyvsp[-4].val, yyvsp[-3].as, yyvsp[-2].ip, yyvsp[-1].as, yyvsp[0].ip);
    delete yyvsp[-2].ip;
@@ -1255,7 +1261,7 @@ case 42:
 }
     break;
 case 43:
-#line 320 "command.y"
+#line 322 "command.y"
 {
    rtConfig->outboundPacketFilter(yyvsp[-4].val, yyvsp[-3].as, yyvsp[-2].ip, yyvsp[-1].as, yyvsp[0].ip);
    delete yyvsp[-2].ip;
@@ -1263,7 +1269,7 @@ case 43:
 }
     break;
 case 44:
-#line 327 "command.y"
+#line 329 "command.y"
 {
    strcpy(CiscoConfig::mapNameFormat, yyvsp[0].val);
    Trace(TR_INPUT) << "RtConfig: cisco_map_name '"
@@ -1271,7 +1277,7 @@ case 44:
 }
     break;
 case 45:
-#line 341 "command.y"
+#line 343 "command.y"
 {
    CiscoConfig::mapIncrements = yyvsp[0].i;
    Trace(TR_INPUT) << "RtConfig: cisco_map_increment_by '" 
@@ -1279,7 +1285,7 @@ case 45:
 }
     break;
 case 46:
-#line 348 "command.y"
+#line 350 "command.y"
 {
    CiscoConfig::mapNumbersStartAt = yyvsp[0].i;
    Trace(TR_INPUT) << "RtConfig: cisco_map_first_no '" 
@@ -1287,7 +1293,7 @@ case 46:
 }
     break;
 case 47:
-#line 355 "command.y"
+#line 357 "command.y"
 {
    if (yyvsp[0].i > 0)
       prefixMgr.setNextID(yyvsp[0].i);
@@ -1296,7 +1302,7 @@ case 47:
 }
     break;
 case 48:
-#line 361 "command.y"
+#line 363 "command.y"
 {
    if (yyvsp[0].i > 0)
       aspathMgr.setNextID(yyvsp[0].i);
@@ -1305,7 +1311,7 @@ case 48:
 }
     break;
 case 49:
-#line 367 "command.y"
+#line 369 "command.y"
 {
    if (yyvsp[0].i > 0)
       pktFilterMgr.setNextID(yyvsp[0].i);
@@ -1314,7 +1320,7 @@ case 49:
 }
     break;
 case 50:
-#line 373 "command.y"
+#line 375 "command.y"
 {
    if (yyvsp[0].i > 0)
       communityMgr.setNextID(yyvsp[0].i);
@@ -1323,7 +1329,7 @@ case 50:
 }
     break;
 case 51:
-#line 379 "command.y"
+#line 381 "command.y"
 {
    if (yyvsp[0].i > 0) {
       communityMgr.setNextID(yyvsp[0].i);
@@ -1336,7 +1342,7 @@ case 51:
 }
     break;
 case 52:
-#line 430 "command.y"
+#line 432 "command.y"
 {
    if (yyvsp[0].i >= 0)
       RtConfig::preferenceCeiling = yyvsp[0].i;
@@ -1346,7 +1352,7 @@ case 52:
 }
     break;
 case 53:
-#line 439 "command.y"
+#line 441 "command.y"
 {
    irr->SetSources(yyvsp[0].val);
    Trace(TR_INPUT) << "RtConfig: database order is changed to'"
@@ -1586,13 +1592,11 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 447 "command.y"
+#line 449 "command.y"
 
-
-extern char *yytext;
 
 int yyerror(char *s) {
-   cerr << "Error in template file\n";
+   printf ("Error in template file at line %d: %s\n", yylineno, s);
    return(0);
 }
 
