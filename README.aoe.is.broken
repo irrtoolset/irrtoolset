@@ -1,3 +1,0 @@
-aoe (Autonomous System Object Editor) is currently broken. Please dont try
-to build it. It is not a matter of porting, it needs to be redesigned
-around RPSL. 
