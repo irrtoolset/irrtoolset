@@ -55,19 +55,20 @@
 .\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
 .\"
 .\"
-.TH prcheck 1 local
+.TH rpslcheck 1 local
 .SH NAME
-prcheck
+rpslcheck
 .SH SYNOPSIS
-.B prcheck
+.B rpslcheck
 .RI [ flags ]\ [<as-no>]
 .SH DESCRIPTION
 .PP
-prcheck syntax-checks the aut-num object for <as-no> registered 
-in the Internet Routing Registry (IRR).
-It only checks the syntax of policy related attributes 
+rpslcheck syntax-checks the aut-num object for <as-no> registered 
+in the Internet Routing Registry (IRR). If <as-no> is not specified,
+object is expected as a standard input. 
+Rpslcheck only checks the syntax of policy related attributes 
 such as as-in, and default.
-If an aut-num passes prcheck's syntax checking,
+If an aut-num passes rpslcheck's syntax checking,
 it will not create cause errors to any of the tools in RAToolSet, 
 such as RtConfig.
 Future versions of this tool will generate better error messages and do
@@ -108,16 +109,17 @@ database server or parsing policy objects.
 .SH OTHER OPTIONS
 .RS
 .IP "\-as <as-no>"
-Syntax check the aut-num object for <as-no>.
-.IP "\-echo_as"
+Syntax check the aut-num object for <as-no>. 
+If this option is not supplied, stdin is parsed.
+.IP "\-echo"
 Print the aut-num object before matching.
 .RE
 .SH ENVIRONMENT VARIABLES
 .RS
 .IP IRR_HOST
-Specifies the radbserver host to connect.
+Specifies the irr host to connect.
 .IP IRR_PORT
-Specifies the radbserver port number to connect.
+Specifies the irr port number to connect.
 .IP IRR_SOURCES
 Specifies the source list (comma separated) to consider.
 .RE
@@ -126,14 +128,16 @@ Command line options take precedence over environment variables.
 .SH EXAMPLES
 .PP
 .nf
-	% ./prcheck 
+	% ./rpslcheck 
 	Congratulations no errors were found in parsing AS226	
-	% prcheck AS3130
+	% rpslcheck AS3130
 	Congratulations no errors were found in parsing AS3130
-	% prcheck AS86
+	% rpslcheck AS86
 	Error: *it: AS701 192.41.177.6/32 192.41.177.249 (pref=MED) ANY
 	Error:                            ^^^^^^^^^^^^^^
 .fi
 .PP
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
+
+Katie Petrusha <katie@ripe.net>
