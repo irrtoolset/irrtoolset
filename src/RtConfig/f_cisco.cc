@@ -1497,7 +1497,7 @@ void CiscoConfig::deflt(ASt asno, ASt peerAS) {
       ne = NormalExpression::evaluate(deflt->filter, peerAS);
 
       if (ne->is_universal()) {
-         cout << "ip default-network 0.0.0.0n";
+         cout << "ip default-network 0.0.0.0\n";
       } else {
          NormalTerm *nt = ne->first();
 
@@ -1592,6 +1592,9 @@ int CiscoConfig::printPacketFilter(SetOfPrefix &set) {
       cout << int2quad(buffer, ~masks[leng]) << " any \n";
    }
 
+   if (set.universal()) // handle 0.0.0.0/0
+     allow_flag = false;
+
    if (allow_flag)
       cout << "access-list " << aclID << " deny ip any any\n";
    else
@@ -1599,11 +1602,55 @@ int CiscoConfig::printPacketFilter(SetOfPrefix &set) {
 
    return aclID;
 }
-// REIMPLEMENTED
+
+int CiscoConfig::printPacketFilter(SetOfIPv6Prefix &set) {
+   IPv6RadixSet::SortedPrefixIterator itr(&set.members);
+   ipv6_addr_t addr;
+   u_int leng;
+   ipv6_addr_t rngs;
+   char buffer[256];
+   bool allow_flag = ! set.negated();
+   ListOf2Ints *result;
+
+   // check to see if we already printed an identical access list, 
+   if (useAclCaches && (result = ipv6pktFilterMgr.search(set)))
+      return result->head()->start;
+
+   result = ipv6pktFilterMgr.add(set);
+   int aclID = ipv6prefixMgr.newID();
+   result->add(aclID, aclID);
+
+   cout << "!\nno ipv6 access-list " << ipv6_acl << aclID << "\n";
+
+   for (bool ok = itr.first(addr, leng); ok; ok = itr.next(addr, leng)) {
+      if (!addr && !leng)
+        continue;
+
+      cout << "ipv6 access-list " << ipv6_acl << aclID;
+      if (allow_flag)
+   cout << " permit ip ";
+      else
+   cout << " deny ip ";
+
+      cout << ipv62hex(&addr, buffer) << " ";
+      cout << ipv62hex(&(addr.getmask(leng)), buffer) << " any \n";
+   }
+
+   if (set.universal()) // handle ::/0
+     allow_flag = false;
+
+   if (allow_flag)
+      cout << "ipv6 access-list " << ipv6_acl << aclID << " deny ip any any\n";
+   else
+      cout << "ipv6 access-list " << ipv6_acl << aclID << " permit ip any any\n";
+
+   return aclID;
+}
+
+
 void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr, 
 			       ASt peerAS, MPPrefix* peerAddr) {
-   /*
-   SetOfPrefix set;
+
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(as);
 
@@ -1612,33 +1659,52 @@ void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr,
       return;
     }
 
-   // get matching import attributes
+   // get matching import & mp-import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
-				  NULL, peerAS, peerAddr, addr);
-   const FilterAction *fa = itr.first();
-   if (! fa)
-      cerr << "Warning: AS" << as 
-	   << " has no import policy for AS" << peerAS << endl;
+                                  NULL, peerAS, peerAddr, addr);
+   AutNumSelector<AttrImport> itr1(autnum, "mp-import",
+          NULL, peerAS, peerAddr, addr);
 
-   NormalExpression *ne;
-   int last = 0;
-   for (; fa && !last; fa = itr.next()) {
-      ne = NormalExpression::evaluate(fa->filter, peerAS);
-
-      for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
-	 set |= nt->prfx_set;
-      
-      delete ne;
+   List<FilterAction> *common_list = itr.get_fa_list();
+   common_list->splice(*(itr1.get_fa_list()));
+   
+   FilterAction *fa = common_list->head();
+   if (! fa) {
+     printPolicyWarning(as, addr, peerAS, peerAddr, "import/mp-import");
+     return;
    }
+   ItemList *afi_list = itr.get_afi_list();
+   afi_list->splice(*(itr1.get_afi_list()));
+   int last = 0;
+   SetOfPrefix set;
+   SetOfIPv6Prefix ipv6_set;
 
-   int aclid = printPacketFilter(set);
+   for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+     NormalExpression *ne = NormalExpression::evaluate(new FilterAFI(afi_list,fa->filter), peerAS);
+     for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) { //either v4 or v6
+       if (nt->ipv6_prfx_set.universal())
+         set |= nt->prfx_set;
+       else 
+         ipv6_set |= nt->ipv6_prfx_set;
+     }
+   }
+  
+   int aclid;
+   int ipv6_aclid;
 
-   static char neighbor[128];
-   int2quad(neighbor, peerAddr->get_ipaddr());
+   if (!set.isEmpty())
+      aclid = printPacketFilter(set);
+   if (!ipv6_set.isEmpty())
+      ipv6_aclid = printPacketFilter(ipv6_set);
 
-   cout << "interface " << ifname 
-	<< "\n ip access-group " << aclid << " in\n";
-   */
+   if (!set.isEmpty())
+     cout << "\n!\ninterface " << ifname << "\n ip access-group " << aclid << " in\n";
+
+   if (!ipv6_set.isEmpty()) {
+     cout << "address family ipv6" << endl;
+     cout << " interface " << ifname << "\n ipv6 access-group " << ipv6_acl << ipv6_aclid << " in\n";
+     cout << "exit" << endl;
+   }
 
 }
 

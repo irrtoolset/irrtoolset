@@ -114,13 +114,10 @@ public:
    void exportGroup(ASt as, char *pset);
    void importGroup(ASt as, char *pset);
    void deflt(ASt as, ASt peerAS);
-   //void static2bgp(ASt as, IPAddr* addr);
    void static2bgp(ASt as, MPPrefix* addr);
    void networks(ASt as);
    void IPv6networks(ASt as);
-   //void packetFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
    void packetFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
-   //void outboundPacketFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
    void outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
 
 public:
@@ -162,12 +159,19 @@ private:
    void         printRE(ostream& os, const regexp& r, int aclID, bool permit);
 
    int          printPacketFilter(SetOfPrefix &set);
+   int          printPacketFilter(SetOfIPv6Prefix &set);
    inline void  printCommunity(ostream &os, unsigned int i);
    void         printCommunityList(ostream &os, ItemList *args);
    void         printActions(ostream &os, PolicyActionList *action, ItemAFI *afi);
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
    bool         printNeighbor(int import, ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
    void printAccessList(SetOfPrefix& nets) {
+      bool save = useAclCaches;
+      useAclCaches = false;
+      printRoutes(nets);
+      useAclCaches = save;
+   }
+   void printAccessList(SetOfIPv6Prefix& nets) {
       bool save = useAclCaches;
       useAclCaches = false;
       printRoutes(nets);

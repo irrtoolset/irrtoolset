@@ -123,6 +123,9 @@ protected:
    virtual void printAccessList(SetOfPrefix& nets) {
       cerr << "Error: accessList not implemented" << endl;
    }
+   virtual void printAccessList(SetOfIPv6Prefix& nets) {
+      cerr << "Error: accessList not implemented" << endl;
+   }
    virtual void printAspathAccessList(FilterOfASPath& path) {
        cerr << "Error: aspathAccessList not implemented" << endl;
   }
