@@ -444,21 +444,41 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
 
 // ipv6_addr_t to string - pointers should be provided
 char* compact(ipv6_addr_t *ip, char *buffer) {
-   char *str = (char *) calloc (IPV6_LENGTH,1);
-   char *begin;
-   unsigned long long int d;
+   char *str = strdup(buffer);
+   char buf[3];
+   unsigned int i[8];
+   int j = 0;
 
    ipv62hex(ip, buffer);
-   /*
-   begin = buffer;
-   while (buffer <= begin + strlen(begin)) {
-     sscanf (buffer, "%llX:", d);
-     if (d != 0) 
-       sprintf (str, "%llX:", d);
-     buffer = strstr(buffer, ":") + 1;
+   sscanf(buffer, "%X:%X:%X:%X:%X:%X:%X:%X", &i[0],  &i[1],  &i[2],  &i[3],  &i[4], &i[5],  &i[6],  &i[7]);
+   bzero(str, strlen(str));
+
+   while ((j <= 7) && (i[j] != 0)) {
+     sprintf(buf, "%X", i[j]);
+     strcat (str, buf);
+     if (j != 7)
+       strcat (str, ":");
+     j++;
    }
-   cout << "COMPACT " << str << endl;
-   */
+
+   if (i[j] == 0) {
+     while ((j <= 7) && (i[j] == 0)) {
+       if (j == 0)
+         strcat (str, ":");
+       j++;
+     }
+     strcat (str, ":");
+   }
+
+   while ((j <= 7) && (i[j] != 0)) {
+     sprintf(buf, "%X", i[j]);
+     strcat (str, buf);
+     if (j != 7)
+       strcat (str, ":");
+     j++;
+   } 
+   bzero(buffer, strlen(buffer));
+   strncpy(buffer, str, strlen(str));
    return(buffer);
 
 }
@@ -633,6 +653,7 @@ void IPv6PrefixRange::parse(char *name)
     length = 128;
     n = 128;
     m = 128;
+    compact(ipaddr, address);
   }
   t = *ipaddr;
   t = t & (t.getmask(length));
@@ -680,7 +701,7 @@ void IPv6PrefixRange::print(void)
 
 char *IPv6PrefixRange::get_ip_text(char *buffer) const
 {
-  ipv62hex(ipaddr, buffer);
+  compact(ipaddr, buffer);
   return buffer;
 }
 
