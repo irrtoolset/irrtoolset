@@ -280,6 +280,40 @@ TclList &operator<<(TclList &tl, List<ASPeer> &lh)
    return tl;
 }
 
+// List<ASPeer> to file
+FILE * &operator<<(FILE *fd, List<ASPeer> &lh)
+{
+   strstream ss;
+   for (ASPeer *pcASPeer = lh.head();
+        pcASPeer;
+        pcASPeer = lh.next(pcASPeer))
+      {
+      ss << "AS" << pcASPeer->getNo();
+      switch (pcASPeer->getType())
+         {
+         case dASPeerFromIRR:
+            ss << "(IRR)";
+            break;
+         case dASPeerFromBGP:
+            ss << "(BGP)";
+            break;
+         case dASPeerFromBoth:
+            ss << "(IRR & BGP)";
+            break;
+         case dASPeerNew:
+            ss << "(NEW)";
+            break;
+         default:
+            ss << "{Shoudn't happen!}";
+            break;
+         }
+      ss << endl;
+      }
+   ss << '\0';
+   fputs(ss.str(), fd);
+   return(fd);
+}
+
 List<ASPeer> &operator<<(List<ASPeer> &lh, BgpASPath &ap)
 {
    ASPeer *pcASPeer;
@@ -377,12 +411,19 @@ int ListPeer::generatePolicyFromBGP(int iImport, int iExport,
 	       << "        action pref = 10;"
 	       << endl
 	       << "        accept ";
+
 	    FirstAndLastAS *pcFirstAndLastAS = pcBgpASPath->find(tPeerAS);
+	    int c = 0;  // for tidy printing 10 ASes per line
 	    for (int i = pcFirstAndLastAS->getLast().first(); 
 		 i >= 0; 
 		 i = pcFirstAndLastAS->getLast().next(i))
-	       ss << "AS" << i << " ";
-	    ss << endl;
+	       {
+			if (c == 0 && i != pcFirstAndLastAS->getLast().first()) ss << "\t";
+	       		ss << "AS" << i << " ";
+			c++;
+		        if (c >= 9) { ss << endl; c = 0; }
+	       }
+	    if (c < 10) ss << endl;
 	 }
       if (iExport)
 	 // export
@@ -414,48 +455,73 @@ int ListPeer::generatePolicyFromPeer(int iImport, int iExport,
    pcText->clear();   
    
    if (pcPeerAutNum && (iPeerASType & dASPeerFromIRR))
-      {
-      if (iImport) 
-	{
-        // Get the peer's export attribute
-	for (AutNumExportIterator itr(pcPeerAutNum, tMyAS); itr; itr++)
-	  {
-	  PolicyExpr *policy = itr()->policy;
-	  if (typeid(*policy) == typeid(PolicyTerm)) 
-	    {
-	    ListIterator<PolicyFactor> pf(*(PolicyTerm *)policy);
-	    if (pf)
-	      ss << "import: from "
-		 << "AS" << tPeerAS
-		 << endl
-		 << "        action pref = 10;"
-		 << endl
-		 << "        accept "
-		 << *(pf()->filter)
-		 << endl;
-	    }
-	  }
+   {
+      	if (iImport)
+   	{
+                // iterate all peerings of AS
+		AutNumPeeringIterator peerings(pcPeerAutNum);
+	        const Peering *peering = peerings.first();
+      		for (peering; peering; peering = peerings.next())
+                        // if requested peer
+       			if (peering->peerAS == tMyAS)
+       			{
+                                // gather all the matching policies 				      	      // for requested peer and all router's IPs
+				AutNumSelector<AttrExport> itr(pcPeerAutNum, "export", NULL, tMyAS, &peering->peerIP, &peering->localIP);
+
+                                // get filter-action
+				const FilterAction *fa = itr.first();
+		       		int last = 0;
+        			for (; fa && !last; fa = itr.next())	{
+              				ss << "import: from "
+                 			<< "AS" << tPeerAS << " ";
+                                        // if local IP defined for peering
+					if (peering->localIP != NullIPAddr)
+                 				ss << peering->localIP.get_text();
+                                        // if peer IP defined for peering
+					if (peering->localIP != NullIPAddr)
+                 				ss << " at " << peering->peerIP.get_text();
+                 			ss << endl
+                 			<< "        action pref = 100;"
+                 			<< endl
+                 			<< "        accept "
+                                        // extract filter for this peering
+                 			<< *(fa)->filter
+                 			<< endl;
+				}
+			}
 	}
-      if (iExport)
-	{
-        // Get the peer's export attribute
-	for (AutNumImportIterator itr(pcPeerAutNum, tMyAS); itr; itr++)
-	  {
-	  PolicyExpr *policy = itr()->policy;
-	  if (typeid(*policy) == typeid(PolicyTerm)) 
-	    {
-	    ListIterator<PolicyFactor> pf(*(PolicyTerm *)policy);
-	    if (pf)
-	      ss << "export: to "
-		 << "AS" << tPeerAS
-		 << endl
-		 << "        announce "
-		 << *(pf()->filter)
-		 << endl;
-	    }
-	  }
+      	if (iExport)	{
+		// iterate peerings defined for AS
+		AutNumPeeringIterator peerings(pcPeerAutNum);
+                const Peering *peering = peerings.first();
+                for (peering; peering; peering = peerings.next())
+                        // if requested peer
+                        if (peering->peerAS == tMyAS)
+                        {
+				// gather all the matching policies                                 	      // for requested peer and all router's IPs
+	                	AutNumSelector<AttrImport> itr(pcPeerAutNum, "import", NULL, tMyAS, &peering->peerIP, &peering->localIP);
+                        	const FilterAction *fa = itr.first();
+                        	int last = 0;
+                        	for (; fa && !last; fa = itr.next())	{
+                                	ss << "export: to "
+                                	<< "AS" << tPeerAS << " ";
+					// if locat IP defined for peering
+					if (peering->localIP != NullIPAddr)
+                                                ss << peering->localIP.get_text();
+					// if peer IP defined for peering
+                                        if (peering->localIP != NullIPAddr)
+                                                ss << " at " << peering->peerIP.get_text();	
+                        	        ss<< endl
+                                	<< "        action pref = 100;"
+                	                << endl
+                        	        << "        announce "
+					// extract filter
+                                	<< *(fa)->filter
+                                	<< endl;
+				}
+			}
 	}
-      }
+   }
 
    // Fill the text widget
    ss << '\0';
@@ -469,6 +535,7 @@ int ListPeer::generateTemplatePolicy(int iCategory, int iImport, int iExport,
 				     char *pzcMyAS, char *pzcPeerAS, 
 				     TclText *pcText)
 {
+
    TclApplication *pcApp = (TclApplication *)getExtraArgument();
    strstream ss;
    char pzcBuffer[128];
@@ -820,8 +887,29 @@ int FileSave::command(int argc, char *argv[])
    if ((fp = fopen(argv[1], "w")) == NULL) return TCL_ERROR;
    fputs(pcApp->pcPolicyText->getAll(), fp);
    fclose(fp);
-   return TCL_OK;
-}
+   return TCL_OK; 
+}  
+
+// by katie@ripe.net for saving the peer list with status
+int ListSave::command(int argc, char *argv[])
+{  
+   if (argc != 2) return TCL_ERROR;
+   AoeApplication *pcApp = (AoeApplication *)getExtraArgument();
+   FILE *fp;
+   if ((fp = fopen(argv[1], "w")) == NULL) return TCL_ERROR;
+
+   // include AS number in report
+   fputs ("ASNo = ", fp);
+   fputs (pcApp->getASNoInString(), fp);
+   fputs ("\n", fp);
+   // my peer's
+   SortedList<ASPeer> peers = pcApp->cASPeers;
+   // put peer list to the file
+   fp << peers;
+   fclose(fp);
+   return TCL_OK; 
+}  
+
 
 int FileRevert::command(int argc, char *argv[])
 {
@@ -1028,11 +1116,18 @@ int AoeApplication::getASInfoFromServer(void)
    pcAutNum = new AutNum(*pcAutNumTemp);
 
    // Get Peer AS from import/export/default attributes
-   for (ASt tPeerAS = pcAutNum->firstPeerAS(); 
+   /*for (ASt tPeerAS = pcAutNum->firstPeerAS(); 
 	tPeerAS != INVALID_AS;
 	tPeerAS = pcAutNum->nextPeerAS())
      cASPeers.append(new ASPeer(tPeerAS, dASPeerFromIRR));
-
+   */
+   
+   // Get Peer AS from import/export/default attributes - reimp
+    irr = pcIrr; // for AutNumPeerinIterator
+    AutNumPeeringIterator itr(pcAutNum);
+    for (const Peering *peering = itr.first(); peering; peering = itr.next())	
+         // no dups to avoid dups in peer list
+        cASPeers.insertSortedNoDups(new ASPeer(peering->peerAS, dASPeerFromIRR));
    // Fill out the AS Peer list
    *pcASPeerList << cASPeers;
 
@@ -1094,6 +1189,11 @@ int AoeApplication::reparseWorkingAutNumArea(void)
    pcAutNum = new AutNum(b);
    // Refill policy text widget
    *pcPolicyText << *pcAutNum;
+   // added by katie@ripe.net to show error window
+   strstream ss;
+   pcAutNum->reportErrors(ss);
+   ss << '\0';
+   if (pcAutNum->has_error && !evalf("showError {%s}", ss.str())) return False;
    return 1;
 }
 
@@ -1135,6 +1235,7 @@ int AoeApplication::init(void)
    if (!createCommand(new ShowPolicyText("showPolicyText"))) return 0;
    if (!createCommand(new FileOpen("fileOpen"))) return 0;
    if (!createCommand(new FileSave("fileSave"))) return 0;
+   if (!createCommand(new ListSave("listSave"))) return 0; // peers save
    if (!createCommand(new FileRevert("fileRevert"))) return 0;
    if (!createCommand(new FilePrint("filePrint"))) return 0;
    if (!createCommand(new AddPeer("addPeer"))) return 0;
@@ -1179,7 +1280,7 @@ int AoeApplication::init(void)
    if (!insert(pcCommitButton)) return 0;
 
    pcPolicyEditButton = new TclToggleButton(tkPolicyEditButton,
-					    "Edit", "EDIT",
+					    "Edit", "Edit Done!",
 					    cbUnCheck);
    if (!insert(pcPolicyEditButton)) return 0;
 

@@ -217,7 +217,7 @@ void JunosConfig::printREASno(ostream& out, const RangeList &no) {
 	    first = 0;
 	 out << pi->low;
 	 if (pi->low != pi->high)
-	    cout << "-" << pi->high;
+	    out << "-" << pi->high;
       } 
       if (put_par)
          out << ")";

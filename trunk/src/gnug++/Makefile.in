@@ -17,7 +17,7 @@ SRCS   = SymbolConjunctPtr.Bag.cc SymbolConjunctPtr.SplayBag.cc \
 	int.int.Map.cc  int.int.VHMap.cc \
 	unsigned.OXPSet.cc unsigned.Plex.cc unsigned.Set.cc unsigned.XPlex.cc \
 	CacheKey.CacheValue.AVLMap.cc CacheKey.CacheValue.Map.cc \
-	Regex.cc rx.cc \
+	Regex.cc rx.c \
 	BitSet.cc AllocRing.cc builtin.cc gcd.cc fmtq.cc
 
 HFILES = SymbolConjunctPtr.Bag.h  SymbolConjunctPtr.SplayBag.h \

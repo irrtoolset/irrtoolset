@@ -152,7 +152,7 @@ int unsignedOXPSet::operator == (const unsignedOXPSet& b)
 
 void unsignedOXPSet::operator |= (const unsignedOXPSet& b)
 {
-  if (&b == this || b.count == 0)
+  if (&b == NULL || &b == this || b.count == 0)
     return;
   else if (b.count <= 2) // small b -- just add
     for (Pix i = b.first(); i; b.next(i)) add(b(i));

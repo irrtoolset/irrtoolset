@@ -183,17 +183,20 @@ char *TclApplication::getVar(char *pzcName, int iFlags = TCL_GLOBAL_ONLY)
 
 int TclApplication::createCommand(TclCommand *pcCommand)
 {
+
    if (!ptInterp) return 0;
 
    // Pass the pointer of Tcl application as an arguement 
    pcCommand->setExtraArgument(this);
 
    // Call Tcl function to create a Tcl command
+   // '&' in &TclCommand::command and &TclCommand::cleanUp was missing
    if (Tcl_CreateCommand(ptInterp, 
 			 pcCommand->getName(), 
-			 TclCommand::command,
-			 (ClientData)pcCommand,
-			 TclCommand::cleanUp) == NULL) return 0;
+			 &TclCommand::command,
+			 (ClientData) pcCommand, 
+			 &TclCommand::cleanUp) == NULL) return 0;
+
    return 1;
 }
 

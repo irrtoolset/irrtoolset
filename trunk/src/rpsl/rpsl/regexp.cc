@@ -114,27 +114,27 @@ ostream& operator<<(ostream& os, const regexp& r) {
       os << "(" << *((regexp_or &) r).left 
 	 << " | " << *((regexp_or &) r).right << ")";
    else if (typeid(r) == typeid(regexp_star))
-      if (typeid(((regexp_star &) r).left) == typeid(regexp_cat))
+      if (typeid(*((regexp_star &) r).left) == typeid(regexp_cat))
 	 os << "(" << *((regexp_star &) r).left << ")*";
       else 
 	 os << *((regexp_star &) r).left << "*";
    else if (typeid(r) == typeid(regexp_tildastar))
-      if (typeid(((regexp_tildastar &) r).left) == typeid(regexp_cat))
+      if (typeid(*((regexp_tildastar &) r).left) == typeid(regexp_cat))
 	 os << "(" << *((regexp_tildastar &) r).left << ")~*";
       else 
 	 os << *((regexp_tildastar &) r).left << "~*";
    else if (typeid(r) == typeid(regexp_tildaplus))
-      if (typeid(((regexp_tildaplus &) r).left) == typeid(regexp_cat))
+      if (typeid(*((regexp_tildaplus &) r).left) == typeid(regexp_cat))
 	 os << "(" << *((regexp_tildaplus &) r).left << ")~+";
       else 
 	 os << *((regexp_tildaplus &) r).left << "~+";
    else if (typeid(r) == typeid(regexp_question))
-      if (typeid(((regexp_question &) r).left) == typeid(regexp_cat))
+      if (typeid(*((regexp_question &) r).left) == typeid(regexp_cat))
 	 os << "(" << *((regexp_question &) r).left << ")?";
       else 
 	 os << *((regexp_question &) r).left << "?";
    else if (typeid(r) == typeid(regexp_plus))
-      if (typeid(((regexp_plus &) r).left) == typeid(regexp_cat))
+      if (typeid(*((regexp_plus &) r).left) == typeid(regexp_cat))
 	 os << "(" << *((regexp_plus &) r).left << ")+";
       else 
 	 os << *((regexp_plus &) r).left << "+";

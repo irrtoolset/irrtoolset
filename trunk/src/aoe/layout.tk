@@ -179,6 +179,12 @@ proc aoe:save {} {
     update
     if [string compare $fname ""] { fileSave $fname }
 }
+# new for peers' list save
+proc aoe:listsave {} {  
+    set fname [ut:fsbox -prompt "Save file:" -grab 1]
+    update
+    if [string compare $fname ""] { listSave $fname }
+}
 
 proc aoe:revert {} {
     fileRevert
@@ -274,7 +280,7 @@ proc aoe:irrUpdateCommandsDialog {} {
 proc aoe:updateIRR { text } {
     global IRR_Update
     set registry [lindex $IRR_Update(Registries) $IRR_Update(Command,Selection)]
-#    puts $IRR_Update(Command,$registry)
+    puts $IRR_Update(Command,$registry)
     if [catch {open "|$IRR_Update(Command,$registry)" w} fileID] {
        showError "Open pipe error with command: $IRR_Update(Command,$registry)"
     } else {
@@ -310,8 +316,8 @@ proc aoe:updateIRR_Dialog {} {
 	    -yscrollcommand [list .updateIRR_Dialog.policy.yscroll set] \
 	    -xscrollcommand [list .updateIRR_Dialog.policy.xscroll set] \
 	    -wrap none \
-	    -width 120 \
-	    -height 40
+	    -width 60 \
+	    -height 20 
     scrollbar .updateIRR_Dialog.policy.yscroll \
 	    -orient vertical \
 	    -command [list .updateIRR_Dialog.policy.text yview]
@@ -623,6 +629,10 @@ $aoe(MenuBar,File,Menu) add command \
 	-label {Save           F2} \
 	-underline 0 \
 	-command aoe:save
+$aoe(MenuBar,File,Menu) add command \
+	-label {Save Peer List} \
+	-underline 0 \
+	-command aoe:listsave
 $aoe(MenuBar,File,Menu) add separator
 $aoe(MenuBar,File,Menu) add command \
 	-label {Revert} \

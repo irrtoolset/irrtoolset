@@ -151,6 +151,11 @@ void AutNum::gatherPeerings(PolicyExpr *policy, SortedList<Peering> *peerings){
 void AutNum::gatherPeerings(PolicyPeering *peering, 
 			    SortedList<Peering> *peerings) {
    if (peering->prngSet) {
+   // added by katie@ripe.net
+   const PeeringSet *pset = irr->getPeeringSet(peering->prngSet);
+   for (AttrIterator<AttrPeering> itr(pset, "peering"); itr; itr++)
+   	gatherPeerings(itr->peering, peerings);
+   
    } else {
       SetOfUInt *ases = new SetOfUInt;
       SetOfUInt *pRtrs = new SetOfUInt;

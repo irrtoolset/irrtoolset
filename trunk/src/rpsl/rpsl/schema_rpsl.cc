@@ -68,7 +68,7 @@ attr:  dictionary       syntax(rpsl_word),                                     m
 attr:  rp-attribute     syntax(special,rp-attribute),                          optional,  multiple
 attr:  typedef          syntax(special,typedef),                               optional,  multiple
 attr:  protocol         syntax(special,protocol),                              optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
@@ -166,7 +166,7 @@ attr:  mntner           syntax(rpsl_word),                                     m
 attr:  auth             syntax(special, blobs),                                mandatory, multiple
 attr:  upd-to           syntax(email),                                         mandatory, multiple
 attr:  mnt-nfy          syntax(email),                                         optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
@@ -203,7 +203,7 @@ attr:  aggr-bndry       syntax(special, aggr-bndry),                           o
 attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single
 attr:  export-comps     syntax(special, filter),                         optional,  single
 attr:  holes            syntax(ListOfIPv4Prefix),                              optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
@@ -214,7 +214,7 @@ class: route-set
 attr:  route-set        syntax(route_set_name),                                mandatory, single,   key
 attr:  members          syntax(special, rs-members),                           optional,  multiple, lookup 
 attr:  mbrs-by-ref      syntax(list of rpsl_Word),                             optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -223,7 +223,7 @@ class: as-set
 attr:  as-set           syntax(as_set_name),                                   mandatory, single,   key
 attr:  members          syntax(list of union as_number, as_set_name),          optional,  multiple, lookup     
 attr:  mbrs-by-ref      syntax(list of rpsl_word),                             optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -232,7 +232,7 @@ class: rtr-set
 attr:  rtr-set        syntax(rtr_set_name),                                       mandatory, single,   key
 attr:  members        syntax(list of union rtr_set_name, dns_name, ipv4_address), optional,  multiple, lookup 
 attr:  mbrs-by-ref    syntax(list of rpsl_Word),                               	  optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   	  mandatory, single
+attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
 attr:  admin-c                                                                 	  mandatory, multiple, lookup
 attr:  tech-c                                                                  	  mandatory, multiple, lookup
@@ -240,7 +240,7 @@ attr:  tech-c                                                                  	
 class: peering-set
 attr:  peering-set    syntax(peering_set_name),                                   mandatory, single,   key
 attr:  peering        syntax(special, peering),                                   mandatory, multiple                   " CMN_ATTRS "
-attr:  descr                                                                   	  mandatory, single
+attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
 attr:  admin-c                                                                 	  mandatory, multiple, lookup
 attr:  tech-c                                                                  	  mandatory, multiple, lookup
@@ -248,7 +248,7 @@ attr:  tech-c                                                                  	
 class: filter-set
 attr:  filter-set       syntax(filter_set_name),                               mandatory, single,   key
 attr:  filter           syntax(special, filter),                               mandatory, single                       " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -260,7 +260,7 @@ attr:  member-of        syntax(List Of AS_set_name),                           o
 attr:  import           syntax(special,import),                                optional,  multiple
 attr:  export           syntax(special,export),                                optional,  multiple
 attr:  default          syntax(special,default),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
@@ -275,7 +275,7 @@ attr:  local-as         syntax(as_number),                                     m
 attr:  ifaddr           syntax(special,ifaddr),                                mandatory, multiple
 attr:  peer             syntax(special,peer),                                  optional,  multiple                   " CMN_ATTRS "
 attr:  member-of        syntax(List Of rtr_set_name),                           optional,  multiple, lookup
-attr:  descr                                                                   optional,  single
+attr:  descr                                                                   optional,  multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -287,7 +287,7 @@ attr:  country                                                                 m
 attr:  rev-srv                                                                 optional,  multiple, lookup
 attr:  status                                                                  mandatory, single
 attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -299,7 +299,7 @@ attr:  dom-net                                                                 o
 attr:  zone-c                                                                  mandatory, multiple, lookup
 attr:  nserver                                                                 optional,  multiple, lookup
 attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
@@ -308,14 +308,14 @@ class: limerick
 attr:  limerick                                                                mandatory, single,   key
 attr:  text                                                                    mandatory, multiple
 attr:  author                                                                  mandatory, multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   optional,  single
+attr:  descr                                                                   optional,  multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 
 class: as-block
 attr:  as-block         syntax(union as_number, range of as_number),           mandatory, single,   key
 attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, single
+attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
