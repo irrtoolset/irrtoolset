@@ -68,11 +68,11 @@ The goal of this document is to clarify the possible errors you may encounter wh
 .P
 Error: unknown irr protocol <protocol>, using irrd
 .P
-known protocols: rawhoisd/irrd/ripe/bird/ripe_perl
+known protocols: irrd(rawhoisd), ripe(bird), ripe_perl
 .PD 1
 .RS
 .PP
-The protocol specified with "-protocol" option is unknown or not supported. Use one of the known protocols to connect to IRR server. This option is case-insensitive. This is important which protocol to use, because some client/server protocols are incompatible, and you can get wrong result. Check IRR server documentation and use the protocols which are compatible with it.
+The protocol specified with "-protocol" option is unknown or not supported. Use one of the known protocols to connect to IRR server. This option is case-insensitive. This is important which protocol to use, because some client/server protocols are incompatible, and you can get wrong result. Check IRR server documentation and use the protocols which are compatible with it. Please note that there are 3 protocols supported, and the rest are aliases (rawhoisd is the same as irrd and bird is the same as ripe). ripe_perl should be used with old ripe server.
 .PP
 .RE
 .B System errors
@@ -90,7 +90,11 @@ Error: fread() failed.
 Error: fwrite() failed.
 .PP
 Connection to <host>\:<port>\ failed!
+.RS
 .PP
+There could be several reasons for this error: host is unreachable, or some packet filtering is on and you can't send the packets, or the server may be not responding. Check your network setup and host reachability.
+.PP
+.RE
 Warning: setsockopt SO_KEEPALIVE failed!
 .RS
 .PP
@@ -103,8 +107,7 @@ Error: setting source to <sources>\ failed.
 .RS
 .PP
 One (or several) sources from <sources> list are not found on IRR server. If the source setting for IRR server failed, the source list will be default one.
-Check IRR server documentation for the proper command to get the list of all available sources and default sources. This check is only implemented for rawhoisd.
-If you mistyped the source name, re-run the program using "-s <sources>" option.
+Check IRR server documentation for the proper command to get the list of all available sources and default sources. This check is only implemented for irrd(rawhoisd). If you mistyped the source name, re-run the program using "-s <sources>" option.
 .PP
 .RE
 Error: current source setting is <sources>\.
@@ -113,7 +116,7 @@ Error: current source setting is <sources>\.
 This is rather informational message, preceeded by error message about failed sources setting. It shows the source list which is used currently by the program for querying. If you want to modify this list, use "-s <sources>" option.
 .PP
 .RE
-Warning: irrd/rawhoisd does not yet support rtr-set expansion.
+Warning: irrd(rawhoisd) does not yet support rtr-set expansion.
 .RS
 .PP
 Although as-set and route-set expansion is an internal feature of irrd, rtr-set expansion is not implemented yet. In IRRToolSet it is done by external functions, but it still works. So you can safely ignore this warning, this is just a reminder to keep an eye on irrd development and update the code to use internal feature when it is implemented.
@@ -134,7 +137,7 @@ this is true error and you're referencing non-existent object, which is supposed
 Warning: no byte count error for query <last_query>\.
 .RS
 .PP
-irrd server returns the length of the reply for successful queries with "A<reply length in bytes including newlines>". The program is expecting it if query is successful. If it is not received, the warning is issued. This error can also indicate protocol/server incompatibility (for example, RIPE whois server with rawhoisd). Please check IRR server documentation for details.
+irrd server returns the length of the reply for successful queries with "A<reply length in bytes including newlines>". The program is expecting it if query is successful. If it is not received, the warning is issued. This error can also indicate protocol/server incompatibility (for example, RIPE whois server with irrd protocol). Please check IRR server documentation for details.
 .PP
 .RE
 Warning: no end of data line error for query <last_query>\.
@@ -158,23 +161,6 @@ Error: unknown attribute <attr> of class <class>
 Wrong attribute of the object. The attribute is a string followed by ":" which  describes the type of data after ":". Object consists of "attribute:value" pairs. For more information on RPSL classes, see RFC 2622.
 .PP
 .RE
-.PP
-Error: Invalid day <integer>.
-.PP
-Error: Invalid month <integer>.
-.PP
-Error: Invalid year <integer>.
-.PP
-Error: Invalid sec <integer>.
-.PP
-Error: Invalid min <integer>.
-.PP
-Error: Invalid hour <integer>.
-.PP
-Error: Invalid zone min <integer>.
-.PP
-Error: Invalid zone hour <integer>.
-.PP
 Error: Non-ASCII character encountered
 .PP
 Error: unterminated string encountered
