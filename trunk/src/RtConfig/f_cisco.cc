@@ -76,6 +76,7 @@ bool CiscoConfig::compressAcls = true;
 bool CiscoConfig::usePrefixLists = false;
 bool CiscoConfig::eliminateDupMapParts = false;
 bool CiscoConfig::forceTilda = false;
+bool CiscoConfig::emptyLists = false;
 int  CiscoConfig::mapIncrements = 1;
 int  CiscoConfig::mapCount = 1;
 int  CiscoConfig::mapNumbersStartAt = 1;
@@ -864,13 +865,46 @@ int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn,
    static ListOf2Ints empty_list(1);
 
    Debug(Channel(DBG_CISCO) << "# ne: " << *ne << "\n");
+   
+   // modified by katie@ripe.net to handle any/not any expr
+   // for prefix filters, cisco only
 
-   if (ne->isEmpty()) 
-      return last;
+   if (ne->is_any() != NEITHER)	
+	cerr << "Warning: filter matches ANY/NOT ANY" << endl;
 
-   if (ne->is_universal()) 
-      last = 1;
-
+   if (ne->isEmpty())
+   {
+	if (ne->singleton_flag == -1)
+	{
+		if (emptyLists)
+		{
+			// generate an empty filter 
+                	FilterOfPrefix *fltr = (FilterOfPrefix *) new SetOfPrefix;
+                	NormalTerm *nt = new NormalTerm;
+                	nt->prfx_set = *fltr;
+                	nt->make_universal(NormalTerm::PRFX);
+                	*ne += nt;
+		}
+	}
+	else
+		return last;
+   }
+   if (ne->is_universal())
+   {
+	if (ne->singleton_flag == -1)
+	{
+		if (emptyLists)
+		{
+			// generate empty filter and negate to enable 'permit'
+                	FilterOfPrefix *fltr = (FilterOfPrefix *) new SetOfPrefix;
+                	fltr->not_ = true;
+                	ne->first()->prfx_set = *fltr;
+		}
+	}
+	else
+		last = 1;
+   }
+	
    bool needToPrintNoRouteMap = false;
    if (strcmp(mapName, lastMapName)) {
       strcpy(lastMapName, mapName);
@@ -1283,8 +1317,7 @@ void CiscoConfig::outboundPacketFilter(char *ifname, ASt as, IPAddr* addr,
 				  NULL, peerAS,peerAddr, addr);
    const FilterAction *fa = itr.first();
    if (! fa)
-      cerr << "Warning: AS" << as 
-	   << " has no export policy for AS" << peerAS << endl;
+      printPolicyWarning(as, addr, peerAS, peerAddr, "export");
 
    NormalExpression *ne;
    int last = 0;
