@@ -274,26 +274,38 @@ int RAWhoisClient::Response(char *&response) {
    if (buffer[0] == 'F') { // some other query error
       return 0;
    }
-   if (*buffer != 'A') { // we are expecting a byte-count line
-      if (is_rpslng()) { // but not if it is rpslng-compatible
-        // DEBUG
-        char result[10000];
-        do {
-          char attr[1024];
-          char val[1024];
-          sscanf(buffer, "%s %s", &attr, &val);
-          if (!strcmp(attr, "route:") || !strcmp(attr,"route6:")) {
-            strncat(result, val, strlen(val));
-            strncat(result, " ", 1); 
-          }
-        } while (fgets(buffer, sizeof(buffer), in) &&
-                 !(strcmp(buffer, "\n"))
-                );
-        return 0;
-      } else {
-        error.Die("Warning: no byte count error for query %s.\n", last_query);
-        return 0;
-      }
+   if (*buffer != 'A' && !is_rpslng()) { // we are expecting a byte-count line
+      error.Die("Warning: no byte count error for query %s.\n", last_query);
+      return 0;
+   }
+   if (is_rpslng()) {
+      char result[1024];
+      memset(result, 0, strlen(result));
+      char prev[1024];
+      memset(prev, 0, strlen(prev));
+      do {
+        if (strstr (buffer, "route") || strstr(buffer, "route6")) {
+          char *prefix;
+          char end_prefix[1024];
+          prefix = strstr(buffer, ":");
+          do {
+            prefix++;
+          } while (isspace (*prefix));
+          sscanf (prefix, "%s\n", &end_prefix);
+          strncat (result, end_prefix, strlen(end_prefix));
+          strncat (result, " ", 1);
+          strncpy(prev, buffer, strlen(buffer));
+        }
+      } while (fgets(buffer, sizeof(buffer), in) && 
+              !((*prev == '\n') && (*buffer == '\n')));
+      //} while (fgets(buffer, sizeof(buffer), in) && 
+      //        !(*buffer == '\n'));
+
+      int count = atoi(result);
+      response = new char [count];
+      memset(response, 0, strlen(response));
+      strncpy(response, result, strlen(result));
+      return count; // provide the char count
    }
 
    int count = atoi(buffer + 1);
@@ -321,6 +333,8 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
 
+   cout << "RESPONSE END: <<" << response << ">>" << endl;
+   cout << "COUNT " << count << endl;
    return count;
 }
 
@@ -485,8 +499,9 @@ bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
     if (!QueryResponse(response, "-K -r -i origin %s", as)) return false;
     for (char *word = strtok(response, " \t\n");
        word; 
-       word = strtok(NULL, " \t\n")) 
+       word = strtok(NULL, " \t\n"))  {
        result->push_back(MPPrefix(word));
+       }
   }
   if (response)
    delete [] response;
