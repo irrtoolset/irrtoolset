@@ -109,7 +109,15 @@ typedef: as_number-as_set_name-route_set_name-IPv4Prefix
          union as_number, as_set_name, route_set_name, Address_Prefix
 typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix
          list of as_number-as_set_name-route_set_name-IPv4Prefix
+typedef: ListOfIPv6Prefix list of ipv6_Address_Prefix
+typedef: as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
+         union as_number, as_set_name, route_set_name, Address_Prefix, ipv6_Address_Prefix
+typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
+         list of as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
 typedef: ListOfrpsl_word List of rpsl_word
+typedef: encapsulation enum[GRE, IPv6inIPv4, IPinIP, DVMRP]
+typedef: address_family enum[ipv4, ipv6]
+typedef: address_sub_family enum[unicast, multicast]
 rp-attribute: # preference, smaller values represent higher preferences
               pref
               operator=(integer[0, 65535])  
@@ -151,8 +159,7 @@ rp-attribute: # BGP community attribute
               operator()(community_elm, ...)
 rp-attribute: # next hop router in a static route
               next-hop 
-              operator=(ipv4_address)       # a router address
-              operator=(enum[self])         # router's own address
+              operator=(union ipv4_address, ipv6_address, enum[self])
 rp-attribute: # cost of a static route
               cost 
               operator=(integer[0, 65535])
@@ -178,6 +185,7 @@ protocol: PIM-DM
 protocol: PIM-SM
 protocol: CBT
 protocol: MOSPF
+protocol: MPBGP
 ";
 
 static char classes_text[] = "class: mntner
@@ -224,6 +232,28 @@ attr:  export-comps     syntax(special, filter),                         optiona
 attr:  holes            syntax(ListOfIPv4Prefix),                              optional,  multiple                   " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
+attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
+attr:  mnt-routes       syntax(list of rpsl_word),                             optional, multiple, lookup
+attr:  admin-c                                                                 optional,  multiple, lookup
+attr:  tech-c                                                                  optional,  multiple, lookup
+attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
+attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple
+
+class: route6
+attr:  route6            syntax(ipv6_address_prefix),                                mandatory, single,   key, lookup
+attr:  origin           syntax(as_number),                                     mandatory, single,   key, lookup
+attr:  withdrawn        syntax(date),                                          optional,  single,   deleted
+attr:  member-of        syntax(ListOfroute_set_name),                          optional,  multiple, lookup
+attr:  inject           syntax(special, v6_inject),                               optional,  multiple
+attr:  components       syntax(special, v6_components),                           optional,  single
+attr:  aggr-bndry       syntax(special, aggr-bndry),                           optional,  single
+attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single
+attr:  export-comps     syntax(special, v6_filter),                         optional,  single
+attr:  holes            syntax(ListOfIPv6Prefix),                              optional,  multiple                   " CMN_ATTRS "
+attr:  descr                                                                   mandatory, multiple
+attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
+attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
+attr:  mnt-routes6      syntax(special, mnt-routes6),                             optional, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -232,6 +262,7 @@ attr:  cross-mnt        syntax(list of rpsl_word),                             o
 class: route-set
 attr:  route-set        syntax(route_set_name),                                mandatory, single,   key
 attr:  members          syntax(special, rs-members),                           optional,  multiple, lookup 
+attr:  mp-members       syntax(special, rs-mp-members),                        optional,  multiple, lookup 
 attr:  mbrs-by-ref      syntax(list of rpsl_Word),                             optional,  multiple, lookup           " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
@@ -250,6 +281,7 @@ attr:  tech-c                                                                  m
 class: rtr-set
 attr:  rtr-set        syntax(rtr_set_name),                                       mandatory, single,   key
 attr:  members        syntax(list of union rtr_set_name, dns_name, ipv4_address), optional,  multiple, lookup 
+attr:  mp-members     syntax(special, rtr-mp-members), optional,  multiple, lookup 
 attr:  mbrs-by-ref    syntax(list of rpsl_Word),                               	  optional,  multiple, lookup           " CMN_ATTRS "
 attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
@@ -258,7 +290,8 @@ attr:  tech-c                                                                  	
 
 class: peering-set
 attr:  peering-set    syntax(peering_set_name),                                   mandatory, single,   key
-attr:  peering        syntax(special, peering),                                   mandatory, multiple                   " CMN_ATTRS "
+attr:  peering        syntax(special, peering),                                   mandatory, multiple
+attr:  mp-peering     syntax(special, mp-peering),                                mandatory, multiple                   " CMN_ATTRS "
 attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
 attr:  admin-c                                                                 	  mandatory, multiple, lookup
@@ -266,7 +299,8 @@ attr:  tech-c                                                                  	
 
 class: filter-set
 attr:  filter-set       syntax(filter_set_name),                               mandatory, single,   key
-attr:  filter           syntax(special, filter),                               mandatory, single                       " CMN_ATTRS "
+attr:  filter           syntax(special, filter),                               optional, single
+attr:  mp-filter        syntax(special, mp-filter),                            optional, single                       " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
@@ -277,11 +311,15 @@ attr:  aut-num          syntax(as_number),                                     m
 attr:  as-name          syntax(rpsl_word),                                     mandatory, single,   lookup
 attr:  member-of        syntax(List Of AS_set_name),                           optional,  multiple, lookup
 attr:  import           syntax(special,import),                                optional,  multiple
+attr:  mp-import        syntax(special,mp-import),                             optional,  multiple
 attr:  export           syntax(special,export),                                optional,  multiple
-attr:  default          syntax(special,default),                               optional,  multiple                   " CMN_ATTRS "
+attr:  mp-export        syntax(special,mp-export),                             optional,  multiple
+attr:  default          syntax(special,default),                               optional,  multiple
+attr:  mp-default       syntax(special,mp-default),                            optional,  multiple                   " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
+attr:  mnt-routes6      syntax(special, mnt-routes6),                             optional, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -292,7 +330,9 @@ attr:  inet-rtr         syntax(dns_name),                                      m
 attr:  alias            syntax(dns_name),                                      optional,  multiple, lookup
 attr:  local-as         syntax(as_number),                                     mandatory, single,   lookup
 attr:  ifaddr           syntax(special,ifaddr),                                mandatory, multiple
-attr:  peer             syntax(special,peer),                                  optional,  multiple                   " CMN_ATTRS "
+attr:  interface        syntax(special,interface),                             optional, multiple
+attr:  peer             syntax(special,peer),                                  optional,  multiple
+attr:  mp-peer          syntax(special,mp-peer),                               optional,  multiple                   " CMN_ATTRS "
 attr:  member-of        syntax(List Of rtr_set_name),                           optional,  multiple, lookup
 attr:  descr                                                                   optional,  multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
@@ -548,28 +588,45 @@ static RPSLKeyword rpsl_keywords[] = {
    RPSLKeyword("lookup",       KEYW_LOOKUP,       1),
    RPSLKeyword("key",          KEYW_KEY,          1),
    RPSLKeyword("deleted",      KEYW_DELETED,       1),
+   
+   RPSLKeyword("afi",          KEYW_AFI,           1),
+   RPSLKeyword("tunnel",       KEYW_TUNNEL,        1),
+
    RPSLKeyword(NULL,       0,             0)
 };
 
 static RPSLKeyword rpsl_rules[] = {
    RPSLKeyword("changed",           ATTR_CHANGED,           1),
    RPSLKeyword("import",            ATTR_IMPORT,            1),
+   RPSLKeyword("mp-import",         ATTR_MP_IMPORT,         1),
    RPSLKeyword("export",            ATTR_EXPORT,            1),
+   RPSLKeyword("mp-export",         ATTR_MP_EXPORT,         1),
    RPSLKeyword("default",           ATTR_DEFAULT,           1),
+   RPSLKeyword("mp-default",        ATTR_MP_DEFAULT,        1),
    RPSLKeyword("ifaddr",            ATTR_IFADDR,            1),
+   RPSLKeyword("interface",         ATTR_INTERFACE,         1),
    RPSLKeyword("peer",              ATTR_PEER,              1),
+   RPSLKeyword("mp-peer",           ATTR_MP_PEER,           1),
    RPSLKeyword("rp-attribute",      ATTR_RP_ATTR,           1),
    RPSLKeyword("typedef",           ATTR_TYPEDEF,           1),
    RPSLKeyword("protocol",          ATTR_PROTOCOL,          1),
    RPSLKeyword("filter",            ATTR_FILTER,            1),
+   RPSLKeyword("v6_filter",         ATTR_V6_FILTER,         1),
+   RPSLKeyword("mp-filter",         ATTR_MP_FILTER,         1),
    RPSLKeyword("peering",           ATTR_PEERING,           1),
+   RPSLKeyword("mp-peering",        ATTR_MP_PEERING,        1),
    RPSLKeyword("blobs",             ATTR_BLOBS,             1),
    RPSLKeyword("mnt-routes",        ATTR_MNT_ROUTES,        1),
+   RPSLKeyword("mnt-routes6",       ATTR_MNT_ROUTES6,        1),
    RPSLKeyword("components",        ATTR_COMPONENTS,        1),
+   RPSLKeyword("v6_components",     ATTR_V6_COMPONENTS,     1),
    RPSLKeyword("inject",            ATTR_INJECT,            1),
+   RPSLKeyword("v6_inject",         ATTR_V6_INJECT,         1),
    RPSLKeyword("aggr-mtd",          ATTR_AGGR_MTD,          1),
    RPSLKeyword("aggr-bndry",        ATTR_AGGR_BNDRY,        1),
    RPSLKeyword("rs-members",        ATTR_RS_MEMBERS,        1),
+   RPSLKeyword("rs-mp-members",     ATTR_RS_MP_MEMBERS,     1),
+   RPSLKeyword("rtr-mp-members",    ATTR_RTR_MP_MEMBERS,    1),
    RPSLKeyword(NULL, 0,                                     1)
 };
 

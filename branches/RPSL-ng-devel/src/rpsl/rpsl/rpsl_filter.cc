@@ -182,6 +182,15 @@ ostream &FilterRouter::print(ostream &out) const {
    return out;
 }
 
+ostream &FilterIPv6Router::print(ostream &out) const {
+   char buffer[256];
+
+   out << *ip;
+
+   return out;
+}
+
+
 ostream &FilterRouterName::print(ostream &out) const {
    out << name;
    return out;

@@ -50,12 +50,16 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>
 
 #include "config.h"
 #include <cstdio>
 #include <cstring>
 #include <iostream.h>
 #include "prefix.hh"
+#include <stdlib.h>
+#include <sys/types.h>
+#include "afi.hh"
 
 static unsigned int masks[] ={ 0x00000000,
 		 0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
@@ -79,7 +83,28 @@ static unsigned long long int bits[] = { 0x100000000ULL,
 		     0x000000008, 0x000000004, 0x000000002, 0x000000001
 };
 
+static ip_v6word_t ipv6masks[] = {
+0x0000000000000000LL,
+0x8000000000000000LL,0xC000000000000000LL,0xE000000000000000LL,0xF000000000000000LL, 
+0xF800000000000000LL,0xFC00000000000000LL,0xFE00000000000000LL,0xFF00000000000000LL, 
+0xFF80000000000000LL,0xFFC0000000000000LL,0xFFE0000000000000LL,0xFFF0000000000000LL, 
+0xFFF8000000000000LL,0xFFFC000000000000LL,0xFFFE000000000000LL,0xFFFF000000000000LL, 
+0xFFFF800000000000LL,0xFFFFC00000000000LL,0xFFFFE00000000000LL,0xFFFFF00000000000LL, 
+0xFFFFF80000000000LL,0xFFFFFC0000000000LL,0xFFFFFE0000000000LL,0xFFFFFF0000000000LL, 
+0xFFFFFF8000000000LL,0xFFFFFFC000000000LL,0xFFFFFFE000000000LL,0xFFFFFFF000000000LL, 
+0xFFFFFFF800000000LL,0xFFFFFFFC00000000LL,0xFFFFFFFE00000000LL,0xFFFFFFFF00000000LL, 
+0xFFFFFFFF80000000LL,0xFFFFFFFFC0000000LL,0xFFFFFFFFE0000000LL,0xFFFFFFFFF0000000LL, 
+0xFFFFFFFFF8000000LL,0xFFFFFFFFFC000000LL,0xFFFFFFFFFE000000LL,0xFFFFFFFFFF000000LL, 
+0xFFFFFFFFFF800000LL,0xFFFFFFFFFFC00000LL,0xFFFFFFFFFFE00000LL,0xFFFFFFFFFFF00000LL, 
+0xFFFFFFFFFFF80000LL,0xFFFFFFFFFFFC0000LL,0xFFFFFFFFFFFE0000LL,0xFFFFFFFFFFFF0000LL, 
+0xFFFFFFFFFFFF8000LL,0xFFFFFFFFFFFFC000LL,0xFFFFFFFFFFFFE000LL,0xFFFFFFFFFFFFF000LL, 
+0xFFFFFFFFFFFFF800LL,0xFFFFFFFFFFFFFC00LL,0xFFFFFFFFFFFFFE00LL,0xFFFFFFFFFFFFFF00LL, 
+0xFFFFFFFFFFFFFF80LL,0xFFFFFFFFFFFFFFC0LL,0xFFFFFFFFFFFFFFE0LL,0xFFFFFFFFFFFFFFF0LL, 
+0xFFFFFFFFFFFFFFF8LL,0xFFFFFFFFFFFFFFFCLL,0xFFFFFFFFFFFFFFFELL,0xFFFFFFFFFFFFFFFFLL
+};
+
 char PrefixRange::formattingbuffer[128];
+char IPv6PrefixRange::formattingbuffer[256];
 
 char* int2quad(char *buffer, unsigned int i) {
    sprintf(buffer, "%d.%d.%d.%d", 
@@ -365,3 +390,370 @@ IPAddr::IPAddr(char *name) {
 PrefixRange NullPrefixRange("0.0.0.0/32^32-32");
 Prefix      NullPrefix("0.0.0.0/32");
 IPAddr      NullIPAddr("0.0.0.0");
+
+/* IPv6 stuff */
+
+// ipv6_addr_t to string - pointers should be provided
+char* ipv62hex(ipv6_addr_t *ip, char *buffer){
+    ip_v6word_t high = ip->high;
+    ip_v6word_t low = ip->low;
+
+   sprintf (buffer, "%llX:%llX:%llX:%llX:%llX:%llX:%llX:%llX", (high >> 48) & 0xFFFF, (high >> 32) & 0xFFFF, (high >> 16) & 0xFFFF, high & 0xFFFF, (low >> 48) & 0xFFFF, (low >> 32) & 0xFFFF, (low >> 16) & 0xFFFF, low & 0xFFFF);
+
+  return buffer;
+}
+
+// string to ipv6_addr_t - pointers should be provided
+ipv6_addr_t* hex2ipv6(char *hex, ipv6_addr_t *ip) {
+
+   char *cur = hex;
+   char *dots = NULL;
+   char *str = (char *) calloc (IPV6_LENGTH,1);
+   int i;
+   int count=0;
+   ip_v6word_t high;
+   ip_v6word_t low;
+   unsigned int i1, i2, i3, i4, i5, i6, i7, i8;
+
+   do {
+     if ((*cur == ':') && (*(cur+1) == ':')) {
+       dots = cur;
+       cur = cur + 2;
+     }
+     else if (*cur != ':') {
+       ++count;
+       do {
+          ++cur;
+       } while (cur <= (hex + strlen(hex)) && (*cur != ':'));
+     }
+     else { // single ':'
+       cur ++;
+     }
+   } while (cur < (hex + strlen(hex)));
+
+   if (dots != NULL) {
+     if (dots == hex) { // starting '::'
+       for (i=1; i<=(8-count); ++i)
+         strcat(str, "0:");
+       strcat (str, dots + 2);
+     }
+     else if (dots == hex + strlen (hex) - 2) { // ending '::'
+       strncat (str, hex, strlen (hex) - 2);
+       for (i=1; i<=(8-count); ++i)
+         strcat(str, ":0");
+     }
+     else { // middle '::'
+       strncat (str, hex, strlen (hex) - strlen(dots) + 1);
+       for (i=1; i<=(8-count); ++i)
+         strcat(str, "0:");
+       strcat (str, dots + 2);
+     }
+   }
+   else { // no '::'
+     strcpy (str, hex);
+   }
+
+   sscanf(str, "%x:%x:%x:%x:%x:%x:%x:%x", &i1, &i2, &i3, &i4, &i5, &i6, &i7, &i8);
+//   printf ("INTEGERS: %d %d %d %d %d %d %d %d \n", str, i1,i2,i3,i4,i5,i6,i7,i8);
+
+   high = ((ip_v6word_t) i1 << 48) + ((ip_v6word_t) i2 << 32) + ((ip_v6word_t) i3 << 16) + (ip_v6word_t) i4;
+   low = ((ip_v6word_t) i5 << 48) + ((ip_v6word_t) i6 << 32) + ((ip_v6word_t) i7 << 16) + (ip_v6word_t) i8;
+
+   ip->high = high;
+   ip->low = low;
+
+   free(str);
+   return(ip);
+
+}
+
+// IPv6PrefixRange class
+// constructor from void; points ipv6 struct to NULL
+IPv6PrefixRange::IPv6PrefixRange(void) :
+  ipaddr(NULL),
+  length(0),
+  n(0),
+  m(0)
+{
+}
+
+// constructor from pointer - copy
+IPv6PrefixRange::IPv6PrefixRange(const IPv6PrefixRange &p) :
+  ipaddr(NULL),
+  length(p.length),
+  n(p.n),
+  m(p.m)
+{
+  ipaddr = (ipv6_addr_t *) calloc (sizeof (ipv6_addr_t), 1);
+  *ipaddr = *(p.ipaddr);
+}
+
+// initialisation
+IPv6PrefixRange::IPv6PrefixRange(ipv6_addr_t *ipaddr, unsigned char length,
+     unsigned char n, unsigned char m) :
+  ipaddr(ipaddr),
+  length(length),
+  n(n),
+  m(m)
+{
+}
+
+// constructor from string
+IPv6PrefixRange::IPv6PrefixRange(char *name) :
+  ipaddr(NULL),
+  length(0),
+  n(0),
+  m(0)
+{
+  parse(name);
+}
+// parse generic ipv6 prefix range 
+void IPv6PrefixRange::parse(char *name)
+{
+  char *slash;
+  char *address =  (char *) calloc (IPV6_LENGTH,1);
+  char *p;
+  char ch = ' ';
+
+  ipaddr = (ipv6_addr_t *) calloc (sizeof(ipv6_addr_t),1);
+
+  if (slash = strstr (name, "/")) {
+    strncat (address, name, strlen (name) - strlen(slash));
+    //printf ("original: %s\n", name);
+    //printf ("address part: %s\n", address);
+    hex2ipv6(address, ipaddr);
+    //printf ("integers: %lld %lld\n", ipaddr->high, ipaddr->low);
+    ipv62hex(ipaddr, address);
+    //printf ("normalized: %s\n", address);
+    // go further
+    slash ++;
+    if (strstr(slash, "^+")) {
+      sscanf(slash, "%u^%c", &length, &ch);
+    }
+    else if (p = strstr(slash, "^-")) {
+      sscanf(slash, "%u^%c", &length, &ch);
+    } 
+    else if (p = strchr(slash, '-')) {
+      sscanf(slash, "%u^%u-%u", &length, &n, &m);
+    }
+    else if (p = strchr(slash, '^')) {
+      sscanf(slash, "%u^%u", &length, &n);
+      m = n;
+    }
+    else {
+      sscanf(slash, "%u", &length);
+    }
+    switch (ch)
+    {
+    case '+':
+      // inclusive more specifics operator
+      n = length;
+      m = 128;
+      break;
+    case '-':
+      // exclusive more specifics operator
+      n = length + 1;
+      m = 128;
+      break;
+    default:
+      if (n == 0 || n < length)
+        n = length;
+      if (m == 0 || m < n)
+        m = n;
+      break;
+    }
+  } 
+  else {
+    // just an IP address
+    strncat (address, name, strlen (name));
+    hex2ipv6(address, ipaddr);
+    ipv62hex(ipaddr, address);
+    //printf ("normalized: %s\n", address);
+  }
+  free (address);
+}
+
+void IPv6PrefixRange::define(ipv6_addr_t *ipaddr, unsigned char length, 
+                     unsigned char n, unsigned char m)
+{
+  *(this->ipaddr) = *ipaddr;
+  this->length = length;
+  this->n      = n;
+  this->m      = m;
+}
+
+bool IPv6PrefixRange::makeMoreSpecific(int code, int _n, int _m) {
+   // we got ipaddr/length ^n-m  ^_n-_m
+   // not defined if m < n 
+   // ipaddr/length^max(n,_n)-_m othewise
+
+   switch (code) {
+   case 0: // ^-
+      n++;
+      m = 128;
+      break;
+   case 1: // ^+
+      m = 128;
+      break;
+   default: // ^n-m
+      if (_m < n || _m < n)
+         return false;
+      n = (_n >? n);
+      m = _m;
+   }
+
+   return true;
+}
+
+void IPv6PrefixRange::print(void)
+{
+  cout << get_text();
+}
+
+char *IPv6PrefixRange::get_text(char *buffer) const
+{
+  ipv62hex(ipaddr, buffer);
+  sprintf(buffer + strlen(buffer), "/%u", length);
+
+  if ((length == n) && (n == m))
+    // just one route
+    ;
+  else
+    if ((length == n) && (m == 128))
+      // inclusive more specifics operator
+      strcat(buffer, "^+");
+    else
+      if ((length == n - 1) && (m == 128))
+        // exclusive more specifics operator
+        strcat(buffer, "^-");
+      else
+        if (n == m)
+          sprintf(buffer + strlen(buffer), "^%u", n);
+        else
+          sprintf(buffer + strlen(buffer), "^%u-%u", n, m);
+  return buffer;
+}
+
+int IPv6PrefixRange::valid(void)
+{
+  if ((length <= n) && (n <= m) && (length <= 128) && (m <= 128) ) return 1;
+  return 0;
+}
+
+IPv6PrefixRange& IPv6PrefixRange::operator=(const IPv6PrefixRange& other)
+{
+  *ipaddr = *(other.ipaddr);
+  length = other.length;
+  n      = other.n;
+  m      = other.m;
+  
+  return *this;
+}
+
+int IPv6PrefixRange::operator<(const IPv6PrefixRange& other) const
+{
+    return ( (ipaddr->high < other.ipaddr->high) ||
+             (ipaddr->low < other.ipaddr->low)   ||
+             ( (ipaddr->high == other.ipaddr->high) &&
+               (ipaddr->low == other.ipaddr->low) &&
+               (length < other.length) )
+           );
+}
+int IPv6PrefixRange::operator<=(const IPv6PrefixRange& other) const
+{
+    return ( (ipaddr->high < other.ipaddr->high) ||
+             (ipaddr->low < other.ipaddr->low)   ||
+             ( (ipaddr->high == other.ipaddr->high) &&
+               (ipaddr->low == other.ipaddr->low) &&
+               (length <= other.length) )
+           );
+}
+
+int IPv6PrefixRange::operator==(const IPv6PrefixRange& other) const
+{
+  return ipaddr->high == other.ipaddr->high &&
+         ipaddr->low == other.ipaddr->low &&
+         length == other.length &&
+         n == other.n && m == other.m;
+}
+
+ostream& operator<<(ostream& stream, const IPv6PrefixRange& p) {
+   stream << p.get_text();
+   return stream;
+}
+
+int IPv6PrefixRange::compare(const IPv6PrefixRange& other) const
+{
+  if (*this < other)  return -1;
+  if (*this == other) return 0;
+  return 1;
+}
+
+int IPv6PrefixRange::contains(const IPv6PrefixRange& other) const
+{
+   return (length <= other.length && n <= other.n && m >= other.m
+           && (ipaddr->high == (other.ipaddr->high & get_high_mask()))
+           && (ipaddr->high == (other.ipaddr->low & get_low_mask()))
+          );
+}
+
+unsigned long long int IPv6PrefixRange::get_high_mask() const {  
+   if (length <= 64)
+      return ipv6masks[length];
+   return ipv6masks[64];
+}
+
+unsigned long long int IPv6PrefixRange::get_low_mask() const {
+   if (length <= 64)
+      return ipv6masks[0];
+   return ipv6masks[128-length];
+}
+
+// TBD - ?
+unsigned long long int IPv6PrefixRange::get_range() const {
+/*   unsigned long long int range = 0;
+   for (int i = n; i <= m; ++i)
+      range |= bits[i];
+   return range;
+*/
+   cout << "IPv6PrefixRange::get_range not implemented" << endl;
+   return 0;
+}
+
+/* class IPv6Prefix */
+
+// IPv6Prefix constructor 
+IPv6Prefix::IPv6Prefix(char *name)
+{
+  parse(name);
+}
+
+char *IPv6Prefix::get_text(char *buffer) const {
+  ipv62hex(ipaddr, buffer);
+  sprintf(buffer + strlen(buffer), "/%u", length);
+  return buffer;  
+}
+
+ostream& operator<<(ostream& stream, const IPv6Prefix& p) {
+   stream << p.get_text();
+   return stream;
+}
+
+/* class IPv6Addr */
+
+char *IPv6Addr::get_text(char *buffer) const {
+  ipv62hex(ipaddr, buffer);
+  return buffer;  
+}
+
+// IPv6Addr constructor
+IPv6Addr::IPv6Addr(char *name)
+{
+  parse(name);
+}
+
+ostream& operator<<(ostream& stream, const IPv6Addr& p) {
+   stream << p.get_text();
+   return stream;
+}
+
