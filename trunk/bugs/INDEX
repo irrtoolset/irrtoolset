@@ -23,10 +23,11 @@ of the possible values for some attributes:
 | 014	 |RtConfig| cengiz    | SOLVED  | High     |
 | 015	 |RtConfig| cengiz    | SOLVED  | High     |
 | 016	 | tools  | katie     | WAIT    | High     |
-| 017	 | prpath | katie     | WAIT    | High     |
+| 017	 | prpath | katie     | SOLVING | High     |
 | 018	 |prtracer| katie     | WAIT    | High     |
 | 019	 |rpslchec| katie     | WAIT    | High     |
-| 019	 |aoe,roe | katie     | WAIT    | Low      |
+| 020	 |aoe,roe | katie     | WAIT    | Low      |
+| 021	 |RtConfig| katie     | WAIT    | High     |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
@@ -45,7 +46,8 @@ of the possible values for some attributes:
 014: missing parenthesis before ? in junos aspath regexps
 015: the -ddd at the beginning of a junos as path expression (debug leftover)
 016: command-line options are case-sensitive
-017: destination-specification is alsways handled as /32
+017: destination-specification is alsways handled as /32 route, when IP addr
 018: prtraceroute manpage is not RPSL compliant
 019: documented command-line options are not processed in rpslcheck
 020: NEW: make list of IRR's in aoe/roe configurable (now hardcoded) 
+021: in RtConfig, configureRouter gives segm core OR does not handle "if-addr".
