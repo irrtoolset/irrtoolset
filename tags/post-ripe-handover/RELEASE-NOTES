@@ -1,0 +1,37 @@
+Release Notes for IRRToolSet version 4.7.3
+***************************************************
+
+This release is intended to be a bug fix release, as well as introducing
+some updates.
+
+* bugfixes & new in RtConfig
+        - -cisco_empty_lists option implemented: 
+	  prints ANY/NOT ANY access/prefix lists where applicable. 
+          Although it works for cisco format only. 
+          By default, the warning about empty/universal filter is issued.
+        - if policy for specified peering is not found in aut-num, 
+	  more detailed warning is issued.
+        - fixed the bug with non-existent inet-rtr object;
+        - multiple "ifaddr" attributes in inet-rtr object are 
+	  now handled properly.
+        - see RtConfig manpage for updates
+
+* prpath:
+        - fixed the bug with <destination_specification> handling, 
+	  now queries for /32 route for a single IP
+          address, and the warning is issued if route not found.
+
+* rpslcheck:
+        - fixed the command-line flags handling
+
+* irr module:
+        - small bug in rawhoisd implementation fixed 
+
+* man pages updated
+        - man pages have been reviewed and updated regarding 
+	  recent bugs and features, typo's fixed.
+
+* new Errors man page added
+        - explains IRRToolSet's errors common for all 
+	  the tools with references to relevant documentation.
+
