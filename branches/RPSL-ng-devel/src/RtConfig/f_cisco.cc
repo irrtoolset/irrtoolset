@@ -1206,7 +1206,7 @@ int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn,
 
 // Reimplemented to handle different afi's
 bool CiscoConfig::printNeighbor(int import, 
-				ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi) {
+				ASt asno, ASt peerAS, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi) {
    bool afi_activate = false;
 
    if (! printRouteMap)
@@ -1231,7 +1231,7 @@ bool CiscoConfig::printNeighbor(int import,
    if (peerGroup)
      cout << " neighbor "   << neighbor << " peer-group\n";
    else 
-     cout << " neighbor "   << neighbor << " remote-as " << asno << "\n";
+     cout << " neighbor "   << neighbor << " remote-as " << peerAS << "\n";
 
    if (afi_activate && !peerGroup) {
      cout << " address-family " << (AddressFamily &) *filter_afi << endl;
@@ -1327,7 +1327,7 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
 
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
      ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
-     printNeighbor(EXPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+     printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
 
      routeMapGenerated = false;
      prefixListGenerated = false;
@@ -1401,7 +1401,7 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
 
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
      ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
-     printNeighbor(IMPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+     printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
 
      routeMapGenerated = false;
      prefixListGenerated = false;
@@ -1802,7 +1802,7 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
      }
    }
    // afi is ignored here
-   printNeighbor(IMPORT, asno, pset, true, NULL, NULL);
+   printNeighbor(IMPORT, asno, 0, pset, true, NULL, NULL);
 
    const PeeringSet *prngSet = irr->getPeeringSet(psetID);
    PeeringSetIterator *itr_set = new PeeringSetIterator((PeeringSet *) prngSet);
@@ -1871,7 +1871,7 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
      }
    }
    // afi is ignored here
-   printNeighbor(EXPORT, asno, pset, true, NULL, NULL);
+   printNeighbor(EXPORT, asno, 0, pset, true, NULL, NULL);
 
    const PeeringSet *prngSet = irr->getPeeringSet(psetID);
    PeeringSetIterator *itr_set = new PeeringSetIterator((PeeringSet *) prngSet);

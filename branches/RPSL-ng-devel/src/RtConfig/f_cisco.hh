@@ -164,7 +164,7 @@ private:
    void         printCommunityList(ostream &os, ItemList *args);
    void         printActions(ostream &os, PolicyActionList *action, ItemAFI *afi);
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
-   bool         printNeighbor(int import, ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
+   bool         printNeighbor(int import, ASt asno, ASt peerAS, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
    void printAccessList(SetOfPrefix& nets) {
       bool save = useAclCaches;
       useAclCaches = false;
