@@ -6,6 +6,7 @@
 #include "autnum.hh"
 #include "route.hh"
 #include "util/trace.hh"
+#include "util/version.hh"
 #include "rpsl/object_log.hh"
 #include <memory.h>
 #include <malloc.h>
@@ -68,9 +69,9 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
   char pzcBuffer[BUFFER_SIZE + 1];
   char pzcFormat[512];
   if (sources && *sources) 
-     sprintf(pzcFormat, "-k -V IRRToolSet -r -s %s %s\r\n", sources, pzcQuery);
+     sprintf(pzcFormat, "-k -V %s -r -s %s %s\r\n", ProjectVersion2, sources, pzcQuery);
   else
-     sprintf(pzcFormat, "-k -V IRRToolSet -r %s\r\n", pzcQuery);
+     sprintf(pzcFormat, "-k -V %s -r %s\r\n", ProjectVersion2, pzcQuery);
 
   va_list ap;
   va_start(ap, pzcQuery);
