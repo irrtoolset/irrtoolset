@@ -11,11 +11,11 @@ LIBS   =
 # directories
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
-VPATH		= @srcdir@
+VPATH           = @srcdir@
 INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @EXTRA_INCLUDE_DIRS@
 
 # programs
-@SET_MAKE@
+
 SHELL           = /bin/sh
 RANLIB          = @RANLIB@
 CC              = @CC@
@@ -27,6 +27,13 @@ PERL            = @PERL_PATH@
 INSTALL         = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA    = @INSTALL_DATA@
+
+# release
+PRODUCT = IRRToolSet
+VERSION = @VERSION_RELEASE@
+DISTFILES = bin contrib man src tests acconfig.h Changes \
+	    config.guess config.sub configure configure.in \
+	    install-sh Makefile.in README RELEASE-NOTES VERSION 
 
 # The default location for installation.
 prefix      = @prefix@
@@ -77,17 +84,25 @@ tags:
 check:
 	@cd src; $(MAKE) check
 
-release:
-	@version=RAToolSet-`cat $(top_srcdir)/VERSION` ; \
-	echo Making release in /tmp/$$version.tar.gz ; \
-	rm -f /tmp/$$version.tar.gz ; \
-	( cd .. ; \
-	  echo \
-	  "tar cvf /tmp/$$version.tar $$version" ; \
-	   tar cvf /tmp/$$version.tar $$version ; \
-	  cd /tmp ; \
-	  echo \
-	  "gzip -9 $$version.tar" ; \
-	   gzip -9 $$version.tar ; \
-	) ; \
-	echo Done!
+config-clean:
+	rm config.status config.cache config.log 
+	cd src; rm Makefile config.h \
+	Core/config.h Core/config.log Core/config.status Core/Makefile \
+	Core/gnu/Makefile Core/sched/Makefile \
+	Core/sys/Makefile Core/util/Makefile \
+	aoe/Makefile bgp/Makefile CIDRAdvisor/Makefile \
+	gnug++/Makefile irr/Makefile normalform/Makefile peval/Makefile \
+	prpath/Makefile prtraceroute/Makefile re2dfa/Makefile \
+	rpsl/Makefile rpsl/config.h rpsl/config.log rpsl/config.status \
+	rpsl/gnu/Makefile \
+	rpslcheck/Makefile RtConfig/Makefile util/Makefile 
+
+release_tag: 
+	cvs tag ${RELEASE_TAG}
+	@echo tagged with ${RELEASE_TAG}
+
+release: config-clean
+	mkdir ${PRODUCT}-${VERSION}
+	@(cd ${PRODUCT}-${VERSION}; for i in ${DISTFILES}; do ln -s ../$$i $$i; done)
+	gtar -cvzhf ${PRODUCT}-${VERSION}.tar.gz `find ${PRODUCT}-${VERSION} -follow ! -type d | egrep -v --file=EXCLFILE`
+	rm -rf ${PRODUCT}-${VERSION}
