@@ -68,9 +68,9 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
   char pzcBuffer[BUFFER_SIZE + 1];
   char pzcFormat[512];
   if (sources && *sources) 
-     sprintf(pzcFormat, "-k -V RAToolSet -r -s %s %s\r\n", sources, pzcQuery);
+     sprintf(pzcFormat, "-k -V IRRToolSet -r -s %s %s\r\n", sources, pzcQuery);
   else
-     sprintf(pzcFormat, "-k -V RAToolSet -r %s\r\n", pzcQuery);
+     sprintf(pzcFormat, "-k -V IRRToolSet -r %s\r\n", pzcQuery);
 
   va_list ap;
   va_start(ap, pzcQuery);
