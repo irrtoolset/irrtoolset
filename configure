@@ -581,8 +581,9 @@ echo "$ac_t""$host" 1>&6
 
 
 top_srcdir="`dirname $0`"
-VERSION="(RAToolSet v`cat ${top_srcdir}/VERSION`) ${USER}@`hostname`"
-VERSION2=RAToolSet`cat ${top_srcdir}/VERSION`
+VERSION="(IRRToolSet v`cat ${top_srcdir}/VERSION`) ${USER}@`hostname`"
+VERSION2=IRRToolSet`cat ${top_srcdir}/VERSION`
+VERSION_RELEASE=`cat ${top_srcdir}/VERSION`
 
 
 
@@ -3501,6 +3502,7 @@ s%@host_vendor@%$host_vendor%g
 s%@host_os@%$host_os%g
 s%@VERSION@%$VERSION%g
 s%@VERSION2@%$VERSION2%g
+s%@VERSION_RELEASE@%$VERSION_RELEASE%g
 s%@all_INCDIRS@%$all_INCDIRS%g
 s%@EXTRA_INCLUDE_DIRS@%$EXTRA_INCLUDE_DIRS%g
 s%@EXTRA_LIBS@%$EXTRA_LIBS%g
