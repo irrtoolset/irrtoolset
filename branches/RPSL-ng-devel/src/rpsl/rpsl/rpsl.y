@@ -1641,11 +1641,6 @@ mp_filter_prefix_list: mp_filter_prefix_list_prefix {
 
 mp_filter_prefix_list_prefix: TKN_PRFXV6 {
   $$ = new MPPrefix($1);
-  ipv6_addr_t *ip = new ipv6_addr_t($$->get_ipaddr());
-  char buf[256];
-
-  compact(ip, buf);
-
 }
 | TKN_PRFXV6RNG {
   $$ = new MPPrefix($1);
