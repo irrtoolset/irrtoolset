@@ -65,6 +65,7 @@ AC_SUBST(compile_network)
 dnl Check for host type
 case "${host_os}" in
       solaris* )
+              EXTRA_INCLUDE_DIRS="-I/opt/sfw/${ac_cv_host}/include"
               EXTRA_LIBS="-lsocket -lnsl -ldl"
 	      AC_DEFINE(HOST_OS_IS_SOLARIS)
       ;;
@@ -200,6 +201,7 @@ AC_DEFINE(RUSAGE_USES_TIMEVAL)], AC_MSG_RESULT(no))
 AC_MSG_CHECKING(for memalign definition)
 AC_EGREP_HEADER(memalign, malloc.h, [AC_DEFINE(HAVE_MEMALIGN_DEFINITION)
 AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
+AC_EGREP_HEADER(getpagesize,  unistd.h,     AC_DEFINE(HAVE_DECL_GETPAGESIZE))
 
 ########################## Signal type ############################
 kernel_has_signal_type=none

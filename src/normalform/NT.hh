@@ -55,7 +55,7 @@
 #define NT_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include <cassert>
 extern "C" {
 #include <sys/types.h>
@@ -104,7 +104,7 @@ public:
       }
    }
 
-   friend ostream& operator<<(ostream& stream, NormalTerm& nt);
+   friend std::ostream& operator<<(std::ostream& stream, NormalTerm& nt);
 
    void make_universal(int exception = -1) {
       for (int i = 0; i < FILTER_COUNT; i++)

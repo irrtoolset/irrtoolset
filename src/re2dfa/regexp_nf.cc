@@ -61,6 +61,8 @@
 #include "gnug++/SetOfUInt.hh"
 #include "irr/irr.hh"
 
+using namespace std;
+
 bool regexp_nf::expand_as_macros = true;
 
 ///// regexp_empty_set ///////////////////////////////////////////////////////

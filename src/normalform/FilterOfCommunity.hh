@@ -56,7 +56,7 @@
 
 #include "config.h"
 #include "Filter.hh"
-#include <iostream.h>
+#include <iostream>
 #include "util/List.hh"
 #include "community.hh"
 
@@ -97,7 +97,7 @@ public:
       ne.clear();
    };
 
-   friend ostream& operator<<(ostream& os, CommunityConjunct& f);
+   friend std::ostream& operator<<(std::ostream& os, CommunityConjunct& f);
 
    int isEmpty() {
       return pe->isEmpty() && p->isEmpty() && n->isEmpty() && ne.isEmpty();
@@ -182,10 +182,11 @@ public:
       *this = (FilterOfCommunity&) b;
    }
 
-   friend ostream& operator<<(ostream& stream, FilterOfCommunity& Filter);
+   friend std::ostream& operator<<(std::ostream& stream,
+                                   FilterOfCommunity& Filter);
    void NegateCommunityConjunct(CommunityConjunct *cp);
 
-   virtual void do_print (ostream& stream);
+   virtual void do_print (std::ostream& stream);
 
 private:
    void reduce();

@@ -145,7 +145,7 @@ public:
       *this = (FilterOfASPath&) b;
    }
 
-   virtual void do_print (ostream& stream);
+   virtual void do_print (std::ostream& stream);
 
    CLASS_DEBUG_MEMORY_HH(FilterOfASPath);
 

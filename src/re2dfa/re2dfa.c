@@ -78,8 +78,9 @@ struct _rd_bit {
 
 void debugging_hack() {
    /* this function lets me put a break point here... */
-   fprintf(stderr, "InternalError: Too many states in AS path expression
-InternalError: Increase RD_MAXASPSTATES in src/re2dfa/re2dfa.h and rebuild.\n");
+   fprintf(stderr,
+           "InternalError: Too many states in AS path expression\n"
+           "InternalError: Increase RD_MAXASPSTATES in src/re2dfa/re2dfa.h and rebuild.\n");
 }
 
 #define RD_ASSIGN_BIT(s) {					\

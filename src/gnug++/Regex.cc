@@ -23,8 +23,8 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include <std.h>
-#include <ctype.h>
-#include <new.h>
+#include <cctype>
+#include <new>
 #include <builtin.h>
 
 extern "C" {

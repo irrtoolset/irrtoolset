@@ -55,12 +55,14 @@
 #include "config.h"
 #include <cstdio>
 #include <cstring>
-#include <iostream.h>
+#include <iostream>
 #include "prefix.hh"
 #include <stdlib.h>
 #include <sys/types.h>
 #include <algorithm>
 #include <iterator>
+
+using namespace std;
 
 static unsigned int masks[] ={ 0x00000000,
 		 0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
@@ -143,7 +145,7 @@ unsigned int quad2int(char *quad) {
    return i;
 }
 
-ostream& operator<<(ostream& stream, const PrefixRange& p) {
+std::ostream& operator<<(std::ostream& stream, const PrefixRange& p) {
    stream << p.get_text();
    return stream;
 }
@@ -433,7 +435,7 @@ IPv6PrefixRange NullIPv6PrefixRange("::/128^128-128");
 IPv6Prefix      NullIPv6Prefix("::/128");
 IPv6Addr        NullIPv6Addr("::");
 ipv6_addr_t     NullIPv6(0,0);
-IPv6PrefixRange MulticastIPv6PrefixRange("ff00::/8^+");
+IPv6PrefixRange MulticastIPv6PrefixRange("ff00::/8^8-128");
 
 /* IPv6 stuff */
 
@@ -1040,7 +1042,7 @@ ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two)
 
 }
 
-ipv6_addr_t& ipv6_addr_t::operator|(u_int64_t i)
+ipv6_addr_t& ipv6_addr_t::operator|(ip_v6word_t i)
 {
   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
@@ -1051,7 +1053,7 @@ ipv6_addr_t& ipv6_addr_t::operator|(u_int64_t i)
   return *t;
 }
 
-ipv6_addr_t& ipv6_addr_t::operator+(u_int64_t i)
+ipv6_addr_t& ipv6_addr_t::operator+(ip_v6word_t i)
 {  
   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
@@ -1062,7 +1064,7 @@ ipv6_addr_t& ipv6_addr_t::operator+(u_int64_t i)
   return *t;
 }
 
-ipv6_addr_t& ipv6_addr_t::operator=(u_int64_t i)
+ipv6_addr_t& ipv6_addr_t::operator=(ip_v6word_t i)
 {
   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
@@ -1073,7 +1075,7 @@ ipv6_addr_t& ipv6_addr_t::operator=(u_int64_t i)
   return *t;
 }
 
-int ipv6_addr_t::operator==(u_int64_t i)
+int ipv6_addr_t::operator==(ip_v6word_t i)
 {
   return (low == i);
 }

@@ -53,14 +53,15 @@
 
 #include "config.h"
 #include <cstdlib>
+#include <cstring>
 
 extern "C" {
 #if HAVE_UNISTD_H
 #   include <unistd.h>
 #endif
 }
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 
 #include <cstdio>
 
@@ -82,6 +83,8 @@ extern void add_history (char *);
 #include "rpsl/schema.hh"
 #include "normalform/NE.hh"
 #include "re2dfa/regexp_nf.hh"
+
+using namespace std;
 
 #define EXPAND_ASSets         0x000001
 #define EXPAND_RSSets         0x000002
@@ -108,21 +111,25 @@ void evaluate() {
       regexp_nf::expandASSets();
 
    strcat(filter, "\n\n");
-   safe_base = base;
+   // Was: safe_base = base;
+   memcpy(safe_base, base, SIZE);
 
    cut = strstr(filter, "afi");
    if (cut && isspace(*(cut+3))) {
      strcat (temp, "mp-");
      strcat (temp, base);
-     base = temp;
-     bzero(temp, SIZE);
+     // Was: base = temp;
+     memcpy(base, temp, SIZE);
+     // Was: bzero(temp, SIZE);
+     memset(temp, '\0', SIZE);
    }
 
    Object *o = new Object;
    o->scan(base, strlen(base));
    if (o->has_error) {
       delete o;
-      base = safe_base;
+      // Was: base = safe_base;
+      memcpy(base, safe_base, SIZE);
       return;
    }
 
@@ -157,9 +164,8 @@ void evaluate() {
    delete o;
 
    }
-   base = safe_base;
-  
-
+   // Was: base = safe_base;
+   memcpy(base, safe_base, SIZE);
 }
 
 int start_tracing(char *dst, char *key, char *nextArg) {

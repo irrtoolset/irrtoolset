@@ -56,7 +56,10 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
-#include <iostream.h>
+#include <iostream>
+#include <cassert>
+
+using namespace std;
 
 
 extern "C" {
@@ -172,6 +175,17 @@ void RAWhoisClient::Close() {
    _is_open = 0;
 }
 
+void RAWhoisClient::CheckConnection() {
+   if (_is_open && feof(in)) {
+      Trace(TR_WHOIS_QUERY) << "Whois: Closed" << endl;
+      _is_open = 0;
+      fclose(in);
+      fclose(out);
+      // Don't know who we are talking to now.
+      version = 0;
+   }
+}
+
 void RAWhoisClient::GetVersion() {
    char *buffer = (char *) calloc (80,1);
    char *start;
@@ -260,7 +274,7 @@ int RAWhoisClient::Response(char *&response) {
 
    // Read the "A<byte-count>" line
    if (! fgets(buffer, sizeof(buffer), in)) {
-      error.Die("Error: fgets() failed.\n");
+      error.Die("Error: fgets() failed: no answer\n");
       return 0;
    }
 
@@ -313,7 +327,15 @@ int RAWhoisClient::Response(char *&response) {
       // this condition should work with irrd version >= 2.2b19
       // until then, ripe-style queries won't work with persistent connections
                !((*prev == '\n') && (*buffer == '\n')));
-      return atoi(response);
+
+      // The WHOIS protocol and RPSL give no indication of
+      // end of a protocol data unit, so we need to keep
+      // connections open.  Of course, then long-running
+      // programs can have connections time out, so we
+      // need to restore those.
+      CheckConnection();
+
+      return (strlen(response) + 1);
    }
 
    int count = atoi(buffer + 1);

@@ -1302,6 +1302,16 @@ else
 
 fi;
 
+case "${host_os}" in
+      solaris* )
+              EXTRA_INCLUDE_DIRS="-I/opt/sfw/${ac_cv_host}/include"
+              EXTRA_LIBS="-lsocket -lnsl"
+      ;;
+      bsdi* )
+              EXTRA_LIBS="-lipc"
+      ;;
+esac
+
 : ${CFLAGS="$OPTFLAG"}
 : ${CXXFLAGS="$OPTFLAG -frtti"}
 

@@ -53,6 +53,9 @@
 
 #include "config.h"
 #include "SymbolConjunct.hh"
+#include <ostream>
+
+using namespace std;
 
 CLASS_DEBUG_MEMORY_CC(SymbolConjunct);
 

@@ -53,12 +53,15 @@
 
 #include "config.h"
 
+#include <ostream>
 #include <cstring>
 #include <cstdio>
 #include "gnu/std.h"
 
 #include "object.hh"
 #include "schema.hh"
+
+using namespace std;
 
 Schema::~Schema()  {
    for (int i = 0; i < lastClass; ++i)

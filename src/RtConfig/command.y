@@ -56,6 +56,7 @@
 
 #include "config.h"
 
+#include <ostream>
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
@@ -141,11 +142,11 @@ int xx_eof = 0;
 %%
 input_stream: {
    if (opt_prompt)
-      cout << opt_prompt;
+      std::cout << opt_prompt;
 }
 | input_stream input {
    if (opt_prompt)
-      cout << opt_prompt;
+      std::cout << opt_prompt;
 }
 ;
 
@@ -329,7 +330,7 @@ outbound_pkt_filter_line: KW_OUTBOUND_PKT_FILTER TKN_STR TKN_ASNUM TKN_IP TKN_AS
 cisco_map_name_line: KW_SET KW_CISCO_MAP_NAME '=' TKN_STR {
    strcpy(CiscoConfig::mapNameFormat, $4);
    Trace(TR_INPUT) << "RtConfig: cisco_map_name '"
-		   << CiscoConfig::mapNameFormat << "'" << endl;
+		   << CiscoConfig::mapNameFormat << "'" << std::endl;
 }
 ;
 /*
@@ -343,14 +344,14 @@ junos_policy_name_line: KW_SET KW_JUNOS_POLICY_NAME '=' TKN_STR {
 cisco_map_inc_line: KW_SET KW_CISCO_MAP_INC '=' TKN_INT {
    CiscoConfig::mapIncrements = $4;
    Trace(TR_INPUT) << "RtConfig: cisco_map_increment_by '" 
-		   << CiscoConfig::mapIncrements << "'" << endl;
+		   << CiscoConfig::mapIncrements << "'" << std::endl;
 }
 ;
 
 cisco_map_start_line: KW_SET KW_CISCO_MAP_START '=' TKN_INT {
    CiscoConfig::mapNumbersStartAt = $4;
    Trace(TR_INPUT) << "RtConfig: cisco_map_first_no '" 
-		   << CiscoConfig::mapNumbersStartAt << "'" << endl;
+		   << CiscoConfig::mapNumbersStartAt << "'" << std::endl;
 }
 ;
 
@@ -358,25 +359,25 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       prefixMgr.setNextID($4);
    Trace(TR_INPUT) << "RtConfig: cisco_prefix_access_list_no '"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_ASPATH_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       aspathMgr.setNextID($4);
    Trace(TR_INPUT) << "RtConfig: cisco_aspath_access_list_no '"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_PKTFILTER_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       pktFilterMgr.setNextID($4);
    Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_COMMUNITY_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       communityMgr.setNextID($4);
    Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_ACCESS_LIST_NO '=' TKN_INT {
    if ($4 > 0) {
@@ -386,7 +387,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
       prefixMgr.setNextID($4);
    }
    Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 ;
 
@@ -434,14 +435,14 @@ preferenceCeiling_line: KW_SET KW_PREFERENCECEILING '=' TKN_INT {
       RtConfig::preferenceCeiling = $4;
 
    Trace(TR_INPUT) << "RtConfig: preferenceCeiling '"
-		   << RtConfig::preferenceCeiling << "'" << endl;
+		   << RtConfig::preferenceCeiling << "'" << std::endl;
 }
 ;
 
 source_line: KW_SET KW_SOURCE '=' TKN_STR {
    irr->SetSources($4);
    Trace(TR_INPUT) << "RtConfig: database order is changed to'"
-		   << $4 << "'" << endl;
+		   << $4 << "'" << std::endl;
 }
 ;
 
@@ -449,7 +450,9 @@ source_line: KW_SET KW_SOURCE '=' TKN_STR {
 %%
 
 int yyerror(char *s) {
-   printf ("Error in template file at line %d: %s\n", yylineno, s);
-   return(0);
+     std::cerr << "Error in template file at line " << yylineno
+               << ": " << s
+               << std::endl;
+     return(0);
 }
 

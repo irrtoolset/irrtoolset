@@ -59,6 +59,9 @@
 #include <cstdio>
 #include <cassert>
 #include "rpsl/prefix.hh"
+#include <ostream>
+
+using namespace std;
 
 void SetOfPrefix::insert(const PrefixRanges& b) { 
    if (_universal)

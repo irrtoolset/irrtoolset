@@ -56,7 +56,7 @@
 #define FilterOfPrefix_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "Filter.hh"
 #include "SetOfPrefix.hh"
 #include "SetOfIPv6Prefix.hh"
@@ -120,7 +120,7 @@ public:
       *this = (FilterOfPrefix&) b;
    }
 
-   virtual void do_print (ostream& stream) {
+   virtual void do_print (std::ostream& stream) {
       stream << (SetOfPrefix &) *this;
    }
 
@@ -184,7 +184,7 @@ public:
       *this = (FilterOfIPv6Prefix&) b;
    }
 
-   virtual void do_print (ostream& stream) {
+   virtual void do_print (std::ostream& stream) {
       stream << (SetOfIPv6Prefix &) *this;
    }
 

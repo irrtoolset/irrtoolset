@@ -58,6 +58,9 @@
 #include "SetOfIPv6Prefix.hh"
 #include <cstdio>
 #include <cassert>
+#include <ostream>
+
+using namespace std;
 
 void SetOfIPv6Prefix::insert(const MPPrefixRanges& b) { 
     ipv6_addr_t rngs;

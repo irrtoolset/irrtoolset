@@ -565,14 +565,14 @@ char *yytext;
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 */
-/* definitions */
+/* Definitions */
 #define USEFUL_LINE 1
 
 #define USELESS_LINE 2
 
 #line 66 "command.l"
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "RtConfig.hh"
 #include "command.y.hh"
 #include "irr/irr.hh"
@@ -641,7 +641,40 @@ int yywrap () {
 }
 }
 
-#line 645 "lex.command.c"
+
+#if 0
+/* The use of YY_INPUT() seems to tickle a bug in the
+ * lexer.  Sometmes it drops the initial character.
+ * [GDT. Red Hat Linux Fedora Core 1, flex-2.5.4a-30]
+ */
+/* Redefine end of line as CR, CR LF or LF so that Unix, Mac, Windows,
+ * MS-DOS files can be used as input.  CP/M and old MS-DOS files might
+ * have 1 to 128 trailing Ctrl+Z -- we don't cope with those :-)
+ */
+#define YY_INPUT(BUFFER,RESULT,MAX_SIZE) \
+{ \
+    int ch; \
+    int next_ch; \
+ \
+    ch = getc(yyin); \
+    if (ch == EOF) { \
+        RESULT = YY_NULL; \
+    } \
+    else { \
+        if (ch == '\r') { \
+            ch = '\n'; \
+            next_ch = fgetc(yyin); \
+            if (next_ch != EOF && next_ch != '\n') { \
+                (void)ungetc(next_ch, yyin); \
+            } \
+        } \
+        BUFFER[0] = ch; \
+        RESULT = 1; \
+    } \
+}
+#endif
+
+#line 678 "lex.command.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -795,14 +828,14 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 138 "command.l"
+#line 171 "command.l"
 
 
 
 /* Rules */
 
 
-#line 806 "lex.command.c"
+#line 839 "lex.command.c"
 
 	if ( yy_init )
 		{
@@ -888,14 +921,14 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 144 "command.l"
+#line 177 "command.l"
 {
    BEGIN(USEFUL_LINE);
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 148 "command.l"
+#line 181 "command.l"
 {
    yylineno++;
    ECHO;
@@ -905,7 +938,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 155 "command.l"
+#line 188 "command.l"
 {
    ECHO;
    /* simply skip this line, it is not interesting to us */
@@ -914,7 +947,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 161 "command.l"
+#line 194 "command.l"
 {
    ECHO;
    /* simply skip this line, it is not interesting to us */
@@ -922,7 +955,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 166 "command.l"
+#line 199 "command.l"
 {
    yylineno++;
    ECHO;
@@ -933,7 +966,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 174 "command.l"
+#line 208 "command.l"
 {
    yylval.as = atoi(yytext+2);
    LEXER_RETURN(TKN_ASNUM);
@@ -941,7 +974,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 179 "command.l"
+#line 213 "command.l"
 {
    yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
@@ -949,7 +982,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 184 "command.l"
+#line 218 "command.l"
 {
    yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
@@ -957,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 189 "command.l"
+#line 223 "command.l"
 {
    yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
@@ -965,7 +998,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 194 "command.l"
+#line 228 "command.l"
 {
    yylval.val = strdup(yytext);
    LEXER_RETURN(TKN_DNSNAME);
@@ -973,7 +1006,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 199 "command.l"
+#line 233 "command.l"
 {
    yylval.i = atoi(yytext);
    LEXER_RETURN(TKN_INT);
@@ -981,7 +1014,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 204 "command.l"
+#line 238 "command.l"
 { 
    yylval.val = yytext + 1; 
    *(yytext + yyleng - 1) = 0;
@@ -990,7 +1023,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 210 "command.l"
+#line 244 "command.l"
 {
    yylval.val = yytext + 7; 
    LEXER_RETURN(TKN_FILTER);
@@ -998,14 +1031,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 215 "command.l"
+#line 249 "command.l"
 { 
    /* Skip white space */
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 219 "command.l"
+#line 253 "command.l"
 {
    yylineno++;
    BEGIN(INITIAL);
@@ -1014,21 +1047,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 225 "command.l"
+#line 259 "command.l"
 {
    LEXER_RETURN((int) *yytext);
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 229 "command.l"
+#line 263 "command.l"
 {
    LEXER_RETURN(TKN_ERROR);
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 233 "command.l"
+#line 267 "command.l"
 {
    int code = get_keyword_num(yytext);
    if (code != -1)
@@ -1040,10 +1073,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 242 "command.l"
+#line 276 "command.l"
 ECHO;
 	YY_BREAK
-#line 1047 "lex.command.c"
+#line 1080 "lex.command.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(USEFUL_LINE):
 case YY_STATE_EOF(USELESS_LINE):
@@ -1933,15 +1966,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 242 "command.l"
+#line 276 "command.l"
 
 
 /* User Code if any */
-
-
-
-
-
-
-
-

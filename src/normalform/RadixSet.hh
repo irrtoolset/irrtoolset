@@ -370,7 +370,7 @@ public:
       root = new RadixTree(*b.root);
    }
 
-   friend ostream& operator<<(ostream&, const RadixSet &set);
+   friend std::ostream& operator<<(std::ostream&, const RadixSet &set);
 };
 
 #endif   // RADIXTREE_H

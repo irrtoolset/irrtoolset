@@ -53,7 +53,7 @@
 //             Katie Petrusha <katie@ripe.net>
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "NE.hh"
 #include "util/debug.hh"
 #include "irr/irr.hh"
@@ -61,6 +61,8 @@
 #include "rpsl/schema.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "gnu/prefixranges.hh"
+
+using namespace std;
 
 #define DBG_REDUCE 3
 #define DBG_REDUCE_DETAIL 4

@@ -35,21 +35,20 @@
  */
 
 #include <string.h>
+#include <errno.h>
 
 /*
  * Return the error message corresponding to some error number.
  */
 char *
-strerror(e)
-	int e;
+strerror(int e)
 {
-	extern int sys_nerr;
-	extern char *sys_errlist[];
 	static char unknown[30];
 
-	if ((unsigned)e < sys_nerr)
-		return (sys_errlist[e]);
-	(void) sprintf(unknown, "Unknown error: %d", e);
-	return (unknown);
+	if (strerror(e) && (errno == EINVAL)) {
+          (void) sprintf(unknown, "Unknown error: %d", e);
+	          return (unknown);
+	}	      	
+        return (strerror(e));
 }
 

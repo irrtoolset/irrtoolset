@@ -36,6 +36,10 @@
 #include "sched/Dispatcher.hh"
 #include "sys/Pipe.hh"
 
+#include <iostream>
+
+using namespace std;
+
 // Constants
 static const int	ReadBufferSize = 512;
 

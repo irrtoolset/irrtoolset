@@ -57,7 +57,7 @@
 #define SetOfPrefix_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include <cassert>
 #include "RadixSet.hh"
 #include "gnu/prefixranges.hh"
@@ -119,8 +119,8 @@ public:
    void insert(const PrefixRanges& b);
    void remove(const PrefixRanges& b);
 
-   friend ostream& operator<<(ostream& stream, SetOfPrefix& nt);
-   virtual void do_print (ostream& stream);
+   friend std::ostream& operator<<(std::ostream& stream, SetOfPrefix& nt);
+   virtual void do_print (std::ostream& stream);
 
    int length();
 

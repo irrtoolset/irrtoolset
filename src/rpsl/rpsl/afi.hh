@@ -23,8 +23,8 @@
 #include "config.h"
 #include <sys/types.h>
 #include <rpsl/prefix.hh>
+#include <sstream>
 
-class ostream;
 class PrefixRange;
 class IPv6PrefixRange;
 class MPPrefix;
@@ -60,7 +60,7 @@ class AddressFamily {
      return false;
    }
    
-   friend ostream& operator<<(ostream& stream, const AddressFamily &p);
+  friend std::ostream& operator<<(std::ostream& stream, const AddressFamily &p);
 
   friend class ItemAFI;
   friend class FilterAFI;

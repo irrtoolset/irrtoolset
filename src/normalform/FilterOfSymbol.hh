@@ -55,7 +55,7 @@
 #define FilterOfSymbol_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "Filter.hh"
 #include "SetOfSymbol.hh"
 
@@ -129,7 +129,7 @@ public:
       *this = (FilterOfSymbol&) b;
    }
 
-   virtual void do_print (ostream& stream) {
+   virtual void do_print (std::ostream& stream) {
       stream << (SetOfSymbol &) *this;
    }
 

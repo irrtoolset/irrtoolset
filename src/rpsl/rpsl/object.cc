@@ -52,14 +52,16 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include <istream.h>
+#include <istream>
 #include <cstdio>
-#include <strstream.h>
-#include <fstream.h>
-#include <iomanip.h>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
 
 #include "object.hh"
 #include "schema.hh"
+
+using namespace std;
 
 extern int rpslparse(void *);
 extern void rpsl_scan_object(Object *);
@@ -305,16 +307,15 @@ bool Object::addAttr(char *attr, Item *item) {
    items->append(item);
    Attr *attrib = new AttrGeneric(attrType, items);
 
-   ostrstream s;
-   s << *attrib << ends;
+   ostringstream os;
+   os << *attrib << ends;
    attrib->offset = size;
-   attrib->len    = strlen(s.str());
+   attrib->len    = (os.str()).length();
 
    // delete the extra \n at the end, and reinsert after this attribute
    size--;
-   append(s.str(), attrib->len);
+   append((os.str()).c_str(), static_cast<unsigned long>(attrib->len));
    append("\n", 1);
-   s.freeze(0);
 
    (*this) += attrib;
    return true;
@@ -355,16 +356,15 @@ bool Object::setAttr(char *attrName, Attr *attr) {
 
    (*this) += attr;
 
-   ostrstream s;
-   s << *attr << "\n" << ends;
+   ostringstream os;
+   os << *attr << "\n" << ends;
    attr->offset = size;
-   attr->len    = strlen(s.str());
+   attr->len    = (os.str()).length();
    
    // delete the extra \n at the end, and reinsert after this attribute
    size--;
-   append(s.str(), attr->len);
+   append((os.str()).c_str(), static_cast<unsigned long>(attr->len));
    append("\n", 1);
-   s.freeze(0);
 
    return true;
 }
