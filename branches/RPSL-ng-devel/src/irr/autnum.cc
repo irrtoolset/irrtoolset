@@ -315,7 +315,7 @@ void AutNum::gatherRouters(Filter *f, MPPrefixRanges *result) {
       MPPrefixRanges *s2 = new MPPrefixRanges;
       gatherRouters(((FilterAND *) f)->f1, s1);
       gatherRouters(((FilterAND *) f)->f2, s2);
-      s1->and(s2);
+      s1->_and(s2);
       result->append_list(s1);
       delete s1; 
       delete s2;
