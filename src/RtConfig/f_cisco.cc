@@ -1144,6 +1144,9 @@ int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn,
 	      prefixListGenerated = true;
         prfx_acls = &empty_list;
         distributeListNo = ipv6_prfx_acls->head()->start;
+      } else {
+        prfx_acls = &empty_list;
+        ipv6_prfx_acls = &empty_list;
       }
       
       if (!aspath_acls)
@@ -1269,7 +1272,7 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
     }
 
    int preAclID = prefixMgr.lastID();
-   
+
    // get matching export & mp-export attributes
    AutNumSelector<AttrExport> itr(autnum, "export", 
                                   NULL, peerAS, peer_addr, addr);
@@ -1286,6 +1289,10 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
    }
    ItemList *afi_list = itr.get_afi_list();
    afi_list->merge(*(itr1.get_afi_list()));
+
+   if (afi_list->isEmpty()) {
+     cout << "Warning: No AFI resulted from policy" << endl;
+   }
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1356,6 +1363,10 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
    }
    ItemList *afi_list = itr.get_afi_list();
    afi_list->merge(*(itr1.get_afi_list()));
+
+   if (afi_list->isEmpty()) {
+     cout << "Warning: No AFI resulted from policy" << endl;
+   }
 
    NormalExpression *ne;
    NormalExpression done;
