@@ -1,7 +1,7 @@
 id: 022
 summary: in RtConfig ANY/NOT ANY does not produce prefix list 
 owner: katie
-status: solving
+status: closed
 priority: high
 program: RtConfig
 module(s): RtConfig, normalform
@@ -15,3 +15,10 @@ Might be changed in f_cisco.cc, and in every implementation to print acls for AN
 decided to change error message only. empty route maps are still generated.
 further discuss for the next release?
 
+see also 024.
+Finally:
+
+implemented -cisco_empty_lists option:
+when on, prints warnings for ANY/NOT ANY and matching acls.
+when off, print only warnings.
+Works for cisco only.
