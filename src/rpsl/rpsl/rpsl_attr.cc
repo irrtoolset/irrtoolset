@@ -76,17 +76,19 @@ ostream &AttrImport::print(ostream &out) const {
       out << "protocol " << fromProt->name << " ";
    if (intoProt && intoProt->name && strcasecmp(intoProt->name, "BGP4"))
       out << "into " << intoProt->name << " ";
+   out << endl << "afi ";
+   out << *afi_list;
    out << *policy;
    return out;
 }
 
 ostream &AttrExport::print(ostream &out) const {
-   out << "export: " << *policy;
+   out << "export: " << *afi_list << endl << *policy;
    return out;
 }
 
 ostream &AttrDefault::print(ostream &out) const {
-   out << "default:\tto   " << *peering << "\n";
+   out << "default: \t" << *afi_list << " to   " << *peering << "\n";
 
    if (!action->isEmpty())
       out << "       \t " << *action << "\n";
@@ -102,18 +104,26 @@ ostream &AttrFilter::print(ostream &out) const {
 
    return out;
 }
-
-ostream &AttrMPFilter::print(ostream &out) const {
+ostream &AttrMPPeval::print(ostream &out) const {
    out << "filter: " << *filter;
 
    return out;
 }
+
 
 ostream &AttrPeering::print(ostream &out) const {
    out << "peering: " << *peering;
 
    return out;
 }
+
+ostream &AttrMPPeering::print(ostream &out) const {
+   out << "peering: " << *peering;
+  // out << "********** NOT IMPLEMENTED ******* " << endl; //*peering;
+
+   return out;
+}
+
 
 ostream &AttrIfAddr::print(ostream &out) const {
    static char buffer[128];

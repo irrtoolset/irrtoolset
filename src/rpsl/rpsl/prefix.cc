@@ -59,7 +59,6 @@
 #include "prefix.hh"
 #include <stdlib.h>
 #include <sys/types.h>
-//#include "afi.hh"
 
 static unsigned int masks[] ={ 0x00000000,
 		 0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
@@ -208,13 +207,21 @@ void PrefixRange::parse(char *name)
      sscanf(name, "%u.%u.%u.%u/%u^%u", 
 	    &i1, &i2, &i3, &i4, &uiLength, &uiN);
      uiM = uiN;
-  } else
+  } else if (strstr(name, "/"))
      sscanf(name, "%u.%u.%u.%u/%u", &i1, &i2, &i3, &i4, &uiLength);
+  else {
+     // normal IP
+     sscanf(name, "%u.%u.%u.%u", &i1, &i2, &i3, &i4);
+     uiN = 32;
+     uiM = 32;
+     uiLength = 32;
+  }
+   
 
   length = uiLength;
   n      = uiN;
   m      = uiM;
-
+ 
   switch (ch)
     {
     case '+':
@@ -238,6 +245,7 @@ void PrefixRange::parse(char *name)
   ipaddr = i4 + (i3 << 8) + (i2 << 16) + (i1 << 24);
   
   ipaddr &= masks[length];
+
 }
 
 void PrefixRange::define(unsigned int ipaddr, unsigned char length, 
@@ -328,6 +336,12 @@ int PrefixRange::contains(const PrefixRange& other) const
 
 unsigned int PrefixRange::get_mask() const {  
   return masks[length];
+}
+
+char *PrefixRange::get_ip_text(char *buffer) const
+{
+  int2quad(buffer, ipaddr);
+  return buffer;
 }
 
 char *PrefixRange::get_text(char *buffer) const
@@ -426,6 +440,27 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
    sprintf (buffer, "%llX:%llX:%llX:%llX:%llX:%llX:%llX:%llX", (high >> 48) & 0xFFFF, (high >> 32) & 0xFFFF, (high >> 16) & 0xFFFF, high & 0xFFFF, (low >> 48) & 0xFFFF, (low >> 32) & 0xFFFF, (low >> 16) & 0xFFFF, low & 0xFFFF);
 
   return buffer;
+}
+
+// ipv6_addr_t to string - pointers should be provided
+char* compact(ipv6_addr_t *ip, char *buffer) {
+   char *str = (char *) calloc (IPV6_LENGTH,1);
+   char *begin;
+   unsigned long long int d;
+
+   ipv62hex(ip, buffer);
+   /*
+   begin = buffer;
+   while (buffer <= begin + strlen(begin)) {
+     sscanf (buffer, "%llX:", d);
+     if (d != 0) 
+       sprintf (str, "%llX:", d);
+     buffer = strstr(buffer, ":") + 1;
+   }
+   cout << "COMPACT " << str << endl;
+   */
+   return(buffer);
+
 }
 
 // string to ipv6_addr_t - pointers should be provided
@@ -643,27 +678,40 @@ void IPv6PrefixRange::print(void)
   cout << get_text();
 }
 
+char *IPv6PrefixRange::get_ip_text(char *buffer) const
+{
+  ipv62hex(ipaddr, buffer);
+  return buffer;
+}
+
 char *IPv6PrefixRange::get_text(char *buffer) const
 {
+
   ipv62hex(ipaddr, buffer);
   sprintf(buffer + strlen(buffer), "/%u", length);
 
-  if ((length == n) && (n == m))
+  if ((length == n) && (n == m)) {
     // just one route
     ;
-  else
-    if ((length == n) && (m == 128))
+  }
+  else {
+    if ((length == n) && (m == 128)) {
       // inclusive more specifics operator
       strcat(buffer, "^+");
-    else
-      if ((length == n - 1) && (m == 128))
+    }
+    else {
+      if ((length == n - 1) && (m == 128)) {
         // exclusive more specifics operator
         strcat(buffer, "^-");
-      else
+      }
+      else {
         if (n == m)
           sprintf(buffer + strlen(buffer), "^%u", n);
         else
           sprintf(buffer + strlen(buffer), "^%u-%u", n, m);
+      }
+    }
+  }
   return buffer;
 }
 
@@ -811,10 +859,6 @@ ostream& operator<<(ostream& stream, const IPv6Addr& p) {
 }
 
 ostream& operator<<(ostream& stream, const MPPrefix& p) {
-//    if (p.afi != NULL) {
-//      stream << *(p.afi);
-//       stream << ' ';
-//    }
 
     if (p.ipv4 != NULL)
       stream << *p.ipv4;
@@ -823,15 +867,15 @@ ostream& operator<<(ostream& stream, const MPPrefix& p) {
     return stream;
   }
 
-/*
-bool MPPrefix::is_valid() {
-
-  if ((ipv4 && afi->is_valid(ipv4)) ||
-      (ipv6 && afi->is_valid(ipv6)))
-      return true;
-  return false;
+MPPrefix::MPPrefix(char *name) {
+  if (strstr(name, ":") != NULL) {
+     ipv6 = new IPv6PrefixRange(name);
+     ipv4 = NULL;
+  } else {
+    ipv4 = new PrefixRange(name);
+    ipv6 = NULL;
+  }
 }
-*/
 
 void MPPrefix::define(unsigned int masklen) {
   
@@ -883,9 +927,30 @@ ipv6_addr_t MPPrefix::get_range() const {
      return ipv6->get_range();
 }
 
+char *MPPrefix::get_text() const {
+  if (ipv4)
+     return ipv4->get_text();
+  return ipv6->get_text();
+}
+
+char *MPPrefix::get_ip_text() const {
+  if (ipv4)
+     return ipv4->get_ip_text();
+  return ipv6->get_ip_text();
+}
+
+bool MPPrefix::makeMoreSpecific(int code, int n, int m) {
+  if (ipv6)
+     return ipv6->makeMoreSpecific(code, n, m);
+  return ipv4->makeMoreSpecific(code, n, m);
+}
+
 int operator<(ipv6_addr_t one, ipv6_addr_t two)
 {
-  if ( (one.xbit < two.xbit) || (one.high < two.high) || ( (one.high == two.high) && (one.low < two.low) )) 
+  //if ( (one.xbit < two.xbit) || (one.high < two.high) || ( (one.high == two.high) && (one.low < two.low) )) 
+  if ( (one.xbit < two.xbit) 
+     || (one.high < two.high) 
+     || ( (one.xbit == two.xbit) && (one.high == two.high) && (one.low < two.low) )) 
     return 1;
   else 
     return 0;
@@ -1036,4 +1101,51 @@ ostream& operator<<(ostream& stream, const ipv6_addr_t& p) {
    stream << buf;
    return stream;
 }
+
+void MPPrefixRanges::append_list(const MPPrefixRanges *src) {
+   MPPrefixRanges::const_iterator p;
+   for (p = src->begin(); p != src->end(); ++p) {
+     if (! this->contains (*p))
+       this->push_back(*p);
+   }
+}
+
+bool MPPrefixRanges::contains(IPAddr ip) const {
+   MPPrefixRanges::const_iterator p;
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv4 && (p->ipv4->get_ipaddr() == ip.get_ipaddr())) 
+       return true;
+   }
+   return false;
+}
+
+bool MPPrefixRanges::contains(IPv6Addr ip) const {
+   MPPrefixRanges::const_iterator p;
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv6 && (*(p->ipv6->get_ipaddr()) == *(ip.get_ipaddr())) )
+       return true;
+   }
+   return false;
+}
+
+bool MPPrefixRanges::contains(MPPrefix ip) const {
+   MPPrefixRanges::const_iterator p;
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv6 && ip.ipv6 && (*(p->ipv6->get_ipaddr()) == ip.get_ipaddr()) )
+       return true;
+     if (p->ipv4 && ip.ipv4 && (p->ipv4->get_ipaddr() == ip.ipv4->get_ipaddr()))
+       return true;
+   }
+   return false;
+}
+
+ostream& operator<<(ostream& stream, const MPPrefixRanges& list) {
+   MPPrefixRanges::const_iterator p;
+   for (p = list.begin(); p != list.end(); ++p) {
+      stream << *p << " ";
+   }
+   stream << endl;
+   return stream;
+}
+
 

@@ -41,6 +41,9 @@ class AddressFamily {
    char *name() {
       return afi;
    }
+   AddressFamily *dup() const {
+     return new AddressFamily(*this);
+   }
 
    bool is_Matching (char *name); // exact match
    bool is_ipv4 ();  

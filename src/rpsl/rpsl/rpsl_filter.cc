@@ -218,7 +218,10 @@ ostream &FilterV6EXCLUDE::print(ostream &out) const {
 }
 
 ostream &FilterAFI::print(ostream &out) const {
-   out << (AddressFamily &) *afi_item;
+   //out << (AddressFamily &) *afi_item;
+   for (Item *item = afi_list->head(); item; item = afi_list->next(item))
+     out << (AddressFamily &) ((ItemAFI &) *item);
+     
    out << " ";
    out << *f;
 
@@ -268,7 +271,6 @@ ostream &FilterRouter::print(ostream &out) const {
 }
 
 ostream &FilterIPv6Router::print(ostream &out) const {
-   char buffer[256];
 
    out << *ip;
 

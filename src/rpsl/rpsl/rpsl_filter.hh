@@ -462,6 +462,9 @@ class FilterMPPRFXList: public Filter, public MPPrefixRanges {
 public:
    FilterMPPRFXList() {
    }
+   FilterMPPRFXList(const MPPrefixRanges &list) {
+     (MPPrefixRanges &) *this = list;
+   }
    virtual ~FilterMPPRFXList() {}
 
    virtual ostream& print(ostream &out) const;
@@ -484,19 +487,24 @@ class FilterAFI: public Filter {
 
 public:
    Filter *f;
-   ItemAFI *afi_item;
+   ItemList *afi_list;
 
 public:
    FilterAFI() {
    }
-   FilterAFI(ItemAFI *_afi_item, Filter *_f) :
-     afi_item(_afi_item),
+   FilterAFI(ItemList *_afi_list, Filter *_f) :
+     afi_list(_afi_list),
      f(_f)
    {
    }
+   FilterAFI(ItemAFI *_afi, Filter *_f) :
+     f(_f) {
+     afi_list = new ItemList;
+     afi_list->append(_afi);
+   }
    FilterAFI(const FilterAFI &pt) {
       f = (Filter *)pt.f->dup();
-      afi_item = (ItemAFI *)pt.afi_item->dup();
+      afi_list = (ItemList *)pt.afi_list->dup();
    }
    virtual ~FilterAFI() {}
 

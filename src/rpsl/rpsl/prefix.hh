@@ -57,18 +57,11 @@
 
 #include "config.h"
 #include <sys/types.h>
-#include <vector.h>
+#include "vector.h"
 
 class ostream;
 
 typedef u_int64_t       ip_v6word_t;
-
-/*
-typedef struct ipv6_addr_t {
-  ip_v6word_t high; 
-  ip_v6word_t low;
-};
-*/
 
 // ipv6 address unit + operations
 class ipv6_addr_t {
@@ -117,6 +110,7 @@ char* int2quad(char *buffer, unsigned int i);
 unsigned int quad2int(char *quad);
 char* ipv62hex(ipv6_addr_t *ip, char *buffer);
 ipv6_addr_t* hex2ipv6(char *hex);
+char *compact(ipv6_addr_t *ip, char *buffer);
 
 extern class PrefixRange NullPrefixRange;
 extern class Prefix      NullPrefix;
@@ -172,6 +166,7 @@ friend class MPPrefix;
    int contains(const PrefixRange& other) const;
 
    char *get_text(char *buffer = formattingbuffer) const;
+   char *get_ip_text(char *buffer = formattingbuffer) const;
    unsigned int get_ipaddr() const { return ipaddr; }
    unsigned int get_length() const { return length; }
    unsigned int get_n() const { return n; }
@@ -263,6 +258,7 @@ friend class MPPrefix;
    int contains(const IPv6PrefixRange& other) const;
 
    char *get_text(char *buffer = formattingbuffer) const;
+   char *get_ip_text(char *buffer = formattingbuffer) const;
    ipv6_addr_t *get_ipaddr() const { return ipaddr; }
    unsigned int get_length() const { return length; }
    unsigned int get_n() const { return n; }
@@ -333,6 +329,8 @@ public:
       ipv6(_ipv6)
    {
    }
+  // create from string
+  MPPrefix (char *name);
 
   unsigned int get_length() const;
   unsigned int get_n();
@@ -342,11 +340,33 @@ public:
   ipv6_addr_t get_mask() const;
   ipv6_addr_t get_range() const;
   ipv6_addr_t get_ipaddr() const;
+  char *get_text() const;
+  char *get_ip_text() const;
+  // interface to makeMoreSpecific
+  bool makeMoreSpecific(int code, int n, int m);
 
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 
 };
 
-typedef vector<MPPrefix> MPPrefixRanges;
+class MPPrefixRanges : public vector<MPPrefix>
+{
+public:
+  MPPrefixRanges::MPPrefixRanges() {};
+  MPPrefixRanges::MPPrefixRanges(void *t) {
+    this->append_list((MPPrefixRanges *) t);
+    cout << "CONSTRUCTOR" << endl;
+  }
+
+
+  void append_list(const MPPrefixRanges *src);
+  bool contains(IPAddr ip) const;
+  bool contains(IPv6Addr ip) const;
+  bool contains(MPPrefix ip) const;
+
+  friend ostream& operator<<(ostream& stream, const MPPrefixRanges& p);
+
+};
+
 
 #endif // PREFIX_HH
