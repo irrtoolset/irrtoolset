@@ -57,6 +57,9 @@
 #include "config.h"
 #include "util/List.hh"
 #include "normalform/FilterOfASPath.hh"
+#include "irr/irr.hh"
+#include "irr/autnum.hh"
+
 
 class FilterOfCommunity;
 class ostream;
@@ -68,6 +71,7 @@ class PTree;
 class ItemList;
 class NormalExpression;
 class SetOfPrefix;
+class SetOfIPv6Prefix;
 class regexp_nf;
 
 class ListNodeOf2Ints : public ListNode {
@@ -104,15 +108,17 @@ public:
       distributeListNo = -1;
       routeMapID = 1;
    }
-   void importP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
-   void exportP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
+   // REIMPLEMENTED
+   void importP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
+   void exportP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
    void exportGroup(ASt as, char *pset);
    void importGroup(ASt as, char *pset);
    void deflt(ASt as, ASt peerAS);
-   void static2bgp(ASt as, IPAddr* addr);
+   void static2bgp(ASt as, MPPrefix* addr);
    void networks(ASt as);
-   void packetFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
-   void outboundPacketFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
+   void IPv6networks(ASt as);
+   void packetFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
+   void outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
 
 public:
    // options
@@ -143,7 +149,9 @@ private:
 private:
    static bool  firstCommunityList;
    ListOf2Ints *printRoutes(SetOfPrefix& nets);
+   ListOf2Ints *printRoutes(SetOfIPv6Prefix& nets);
    ListOf2Ints *printPrefixList(SetOfPrefix& nets);
+   ListOf2Ints *printPrefixList(SetOfIPv6Prefix& nets);
    ListOf2Ints *printCommunities(FilterOfCommunity& cm);
    ListOf2Ints *printASPaths(regexp_nf& path);
    void         printREASno(ostream& out, const RangeList &no);
@@ -151,13 +159,19 @@ private:
    void         printRE(ostream& os, const regexp& r, int aclID, bool permit);
 
    int          printPacketFilter(SetOfPrefix &set);
+   int          printPacketFilter(SetOfIPv6Prefix &set);
    inline void  printCommunity(ostream &os, unsigned int i);
    void         printCommunityList(ostream &os, ItemList *args);
-   void         printActions(ostream &os, PolicyActionList *action);
-   int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag);
-   bool         printNeighbor(int import, ASt asno, char *neighbor, 
-			      bool peerGroup);
+   void         printActions(ostream &os, PolicyActionList *action, ItemAFI *afi);
+   int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
+   bool         printNeighbor(int import, ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
    void printAccessList(SetOfPrefix& nets) {
+      bool save = useAclCaches;
+      useAclCaches = false;
+      printRoutes(nets);
+      useAclCaches = save;
+   }
+   void printAccessList(SetOfIPv6Prefix& nets) {
       bool save = useAclCaches;
       useAclCaches = false;
       printRoutes(nets);

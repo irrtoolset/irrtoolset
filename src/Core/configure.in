@@ -228,7 +228,7 @@ dnl Checks for header files.
 AC_CHECK_HEADERS(strings.h fcntl.h sys/time.h syslog.h unistd.h memory.h limits.h malloc.h)
 if $pcaplib; then
    CPPFLAGS="-I/usr/include/pcap $CPPFLAGS"
-   AC_CHECK_HEADERS(pcap.h, , [AC_MSG_WARN(Compiling without PCAP)] pcaplib=false)
+   AC_CHECK_HEADERS(pcap.h, , [AC_MSG_WARN(Compiling without PCAP)]; pcaplib=false)
 fi
 if $pcaplib; then
    extra_net_obj='$(PCAP_OBJ)'

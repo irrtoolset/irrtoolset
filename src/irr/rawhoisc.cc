@@ -168,6 +168,22 @@ void RAWhoisClient::Close() {
    _is_open = 0;
 }
 
+void RAWhoisClient::GetVersion() {
+   char *buffer = (char *) calloc (80,1);
+   char *start;
+
+   if (! _is_open)
+      Open();
+
+   Trace(TR_WHOIS_QUERY) << "Whois: Version " << "!v" << endl;
+   QueryResponse(buffer, "!v");
+   start = strstr(buffer, "version");
+   start = start + 8; //jump
+   version = atoi(start)*10 + atoi(start+2); // x.x... format  
+   Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
+   free(buffer);
+}
+
 void RAWhoisClient::SetSources(const char *_sources) {
    int err = 0;
 
@@ -258,9 +274,38 @@ int RAWhoisClient::Response(char *&response) {
    if (buffer[0] == 'F') { // some other query error
       return 0;
    }
-   if (*buffer != 'A') { // we are expecting a byte-count line
+   if (*buffer != 'A' && !is_rpslng()) { // we are expecting a byte-count line
       error.Die("Warning: no byte count error for query %s.\n", last_query);
       return 0;
+   }
+   if (is_rpslng()) {
+      char result[1024];
+      memset(result, 0, strlen(result));
+      char prev[1024];
+      memset(prev, 0, strlen(prev));
+      do {
+        if (strstr (buffer, "route") || strstr(buffer, "route6")) {
+          char *prefix;
+          char end_prefix[1024];
+          prefix = strstr(buffer, ":");
+          do {
+            prefix++;
+          } while (isspace (*prefix));
+          sscanf (prefix, "%s\n", &end_prefix);
+          strncat (result, end_prefix, strlen(end_prefix));
+          strncat (result, " ", 1);
+          strncpy(prev, buffer, strlen(buffer));
+        }
+      } while (fgets(buffer, sizeof(buffer), in) && 
+              !((*prev == '\n') && (*buffer == '\n')));
+      //} while (fgets(buffer, sizeof(buffer), in) && 
+      //        !(*buffer == '\n'));
+
+      int count = atoi(result);
+      response = new char [count];
+      memset(response, 0, strlen(response));
+      strncpy(response, result, strlen(result));
+      return count; // provide the char count
    }
 
    int count = atoi(buffer + 1);
@@ -385,7 +430,7 @@ void RAWhoisClient::Query(const char *format, ...) {
 int RAWhoisClient::QueryResponse(char *&response, const char *format, ...) { 
    if (!_is_open)
       Open();
-
+   
    va_list ap;
    va_start(ap, format);
 
@@ -436,15 +481,28 @@ bool RAWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len) {
    return len;
 }
 
-bool RAWhoisClient::expandAS(char *as,       PrefixRanges *result) {
+bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
   char *response;
-  if (!QueryResponse(response, "!g%s", as)) return false;
-  for (char *word = strtok(response, " \t\n");
+
+  if (!version)
+    GetVersion();
+  
+  if (! is_rpslng()) {   
+    if (!QueryResponse(response, "!g%s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
        word; 
        word = strtok(NULL, " \t\n")) 
-    result->add_high(PrefixRange(word));
+       result->push_back(MPPrefix(word));
+  } else {
+    if (!QueryResponse(response, "-K -r -i origin %s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
+       word; 
+       word = strtok(NULL, " \t\n"))  {
+       result->push_back(MPPrefix(word));
+       }
+  }
   if (response)
-     delete [] response;
+   delete [] response;
   return true;
 }
 
@@ -460,19 +518,19 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
   return true;
 }
 
-bool RAWhoisClient::expandRSSet(SymID rsset, PrefixRanges *result) {
+bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
   char *response;
   if (!QueryResponse(response, "!i%s,1", rsset)) return false;
   for (char *word = strtok(response, " \t\n"); 
        word; 
        word = strtok(NULL, " \t\n"))
-    result->add_high(PrefixRange(word));
+    result->push_back(MPPrefix(word));
   if (response)
      delete [] response;
   return true;
 }
 
-bool RAWhoisClient::expandRtrSet(SymID sname, PrefixRanges *result) {
+bool RAWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
    const Set *set = IRR::getRtrSet(sname);
    AttrGenericIterator<Item> itr(set, "members");
    for (Item *pt = itr.first(); pt; pt = itr.next())

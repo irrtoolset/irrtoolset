@@ -419,8 +419,10 @@ bool RipeWhoisClient::getIndirectMembers(const Object *o,
 }
 
 bool RipeWhoisClient::expandRSSet(SymID sname, PrefixRanges *result) {
+
    const Set *set = IRR::getRSSet(sname);
    AttrGenericIterator<Item> itr(set, "members");
+
    for (Item *pt = itr.first(); pt; pt = itr.next())
       expandItem(pt, result);
 
@@ -434,6 +436,28 @@ bool RipeWhoisClient::expandRSSet(SymID sname, PrefixRanges *result) {
 	  
    return true;
 }
+
+bool RipeWhoisClient::expandRSSet(SymID sname, MPPrefixRanges *result) {
+   /*
+   const Set *set = IRR::getRSSet(sname);
+   AttrGenericIterator<Item> itr(set, "mp-members");
+
+   for (Item *pt = itr.first(); pt; pt = itr.next())
+      expandItem(pt, result);
+
+   char buffer[1024];
+   sprintf(buffer, 
+     "-V %s --silent -k -r %s -T route6 -o route6,mnt-by "
+     "-i member-of %s\n",
+     ProjectVersion2, sources, sname);
+
+   getIndirectMembers(set, buffer, "\nroute6:", collectPrefix, result);
+   */
+   cout << "NOT IMPLEMENTED" << endl;
+    
+   return true;
+}
+
 
 bool RipeWhoisClient::expandRtrSet(SymID sname, PrefixRanges *result) {
    const Set *set = IRR::getRtrSet(sname);

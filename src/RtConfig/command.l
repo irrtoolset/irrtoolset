@@ -58,6 +58,9 @@
 %x USELESS_LINE
 
 DNAME          [[:alnum:]_-]+
+QUAD           [0-9A-F]{1,4}
+IPV6           {QUAD}(:{QUAD}){7}
+IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 
 %{
 #include "config.h"
@@ -90,6 +93,7 @@ static KeyWord keywords[] = {
 "configureRouter",         KW_CONFIGURE_ROUTER,
 "static2bgp",              KW_STATIC2BGP,
 "networks",                KW_NETWORKS,
+"v6networks",              KW_V6NETWORKS,
 "pkt_filter",              KW_PKT_FILTER,
 "outbound_pkt_filter",     KW_OUTBOUND_PKT_FILTER,
 "set",                     KW_SET,
@@ -173,7 +177,17 @@ int yywrap () {
 }
 
 <USEFUL_LINE>[0-9]+(\.[0-9]+){3,3} {
-   yylval.ip = new IPAddr(yytext);
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6} {
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6DC} {
+   yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
 }
 

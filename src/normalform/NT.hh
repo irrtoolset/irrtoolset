@@ -73,10 +73,13 @@ public:
    static const int AS_PATH      = 1;
    static const int COMMUNITY    = 2;
    static const int SYMBOLS      = 3;
-   static const int FILTER_COUNT = 4;
+//   static const int FILTER_COUNT = 4;
+   static const int IPV6_PRFX    = 4;
+   static const int FILTER_COUNT = 5;
 
    // A NormalTerm is an intersection of following filters
    FilterOfPrefix     prfx_set;	    
+   FilterOfIPv6Prefix ipv6_prfx_set;	    
    FilterOfASPath     as_path;      
    FilterOfCommunity  community;      
    FilterOfSymbol     symbols;       
@@ -89,6 +92,8 @@ public:
       switch (i) {
       case PRFX:
 	 return prfx_set;
+      case IPV6_PRFX:
+   return ipv6_prfx_set;
       case AS_PATH:
 	 return as_path;
       case COMMUNITY:
@@ -121,9 +126,10 @@ public:
    }
 
    int is_universal() {
-      for (int j = 0; j < FILTER_COUNT; ++j)
-	 if (! (*this)[j].is_universal())
-	    return false;
+      for (int j = 0; j < FILTER_COUNT; ++j) {
+     	 if (! (*this)[j].is_universal())
+	       return false;
+     }
       return true;
    }
 

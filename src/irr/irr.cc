@@ -203,9 +203,9 @@ Cache<ASt,   AutNum *>       AutNumCache;
 Cache<SymID, Set *>          SetCache;
 Cache<SymID, InetRtr *>      InetRtrCache;
 Cache<SymID, SetOfUInt *>    expandASSetCache;
-Cache<ASt,   PrefixRanges *> expandASCache;
-Cache<SymID, PrefixRanges *> expandRSSetCache;
-Cache<SymID, PrefixRanges *> expandRtrSetCache;
+Cache<ASt,   MPPrefixRanges *> expandASCache;
+Cache<SymID, MPPrefixRanges *> expandRSSetCache;
+Cache<SymID, MPPrefixRanges *> expandRtrSetCache;
 
 void IRR::initCache(char *objectText, int objectLength, char *clss) {
    Buffer b(objectText, objectLength);
@@ -247,9 +247,9 @@ void IRR::initCache(const char *fname) {
       objectText = b.contents;
       objectLength = b.size;
       if (! code) {
-	 if (! objectText)
-	    free(objectText);
-	 break;
+	      if (! objectText)
+	         free(objectText);
+        break;
       }
 
       if (strstr(objectText, "aut-num")) {
@@ -264,7 +264,6 @@ void IRR::initCache(const char *fname) {
 	       delete o;
 	    else {
 	       if (! AutNumCache.query(asn->asno, result)) {
-		  //		  cerr << "Found aut-num: AS" << asn->asno << " in file " << fname << endl;
 		  AutNumCache.add(asn->asno, o);
 	       }
 	    }      
@@ -293,12 +292,12 @@ void IRR::initCache(const char *fname) {
 	    else {
 	       SymID sid = symbols.symID(rtrname->name);
 	       if (! InetRtrCache.query(sid, result)) {
-		  InetRtrCache.add(sid, o);
+	          InetRtrCache.add(sid, o);
 	       }
 	    }      
 	 } else
 	    delete o;
-      }
+  }
    }
 }
 
@@ -391,11 +390,12 @@ const InetRtr *IRR::getInetRtr(SymID inetRtr)
 
    if (! InetRtrCache.query(inetRtr, result)) {
       if (getInetRtr(inetRtr, text, len)) {
-	 Buffer b(text, len);
-	 result = new InetRtr(b);
-	 InetRtrCache.add(inetRtr, result);
-      } else
-	 InetRtrCache.add(inetRtr, NULL); // a negative object
+	      Buffer b(text, len);
+	      result = new InetRtr(b);
+	      InetRtrCache.add(inetRtr, result);
+      } else {
+	     InetRtrCache.add(inetRtr, NULL); // a negative object
+      }
    }
 
    return result;  
@@ -403,22 +403,22 @@ const InetRtr *IRR::getInetRtr(SymID inetRtr)
 
 ////// Expand Sets //////////////////////////////////////////////////////
 
-const PrefixRanges *IRR::expandAS(ASt as) {
-   PrefixRanges *result;
-   PrefixRange prfx;
+const MPPrefixRanges *IRR::expandAS(ASt as) {
+   MPPrefixRanges *result;
+   MPPrefix prfx;
    char *text;
    int  len;
 
    if (! expandASCache.query(as, result)) {
-      result = new PrefixRanges;
+      result = new MPPrefixRanges;
       // we insert the set to the cache before expanding
       // this is needed to avoid recursion if sets are recursively defined
       expandASCache.add(as, result);
       sprintf(buffer, "AS%d", as);
       if (!expandAS(buffer, result)) {
-	 expandASCache.nullify(as);
-	delete result;
-	result = NULL; // A negative cache
+   expandASCache.nullify(as);
+  delete result;
+  result = NULL; // A negative cache
       }
    }
 
@@ -427,8 +427,6 @@ const PrefixRanges *IRR::expandAS(ASt as) {
 
 const SetOfUInt *IRR::expandASSet(SymID asset) {
    SetOfUInt *result;
-   char *text;
-   int  len;
 
    if (! expandASSetCache.query(asset, result)) {
       result = new SetOfUInt;
@@ -445,120 +443,128 @@ const SetOfUInt *IRR::expandASSet(SymID asset) {
    return result;
 }
 
-const PrefixRanges *IRR::expandRSSet(SymID rsset) {
-   PrefixRanges *result;
-   PrefixRange prfx;
-   char *text;
-   int  len;
+const MPPrefixRanges *IRR::expandRSSet(SymID rsset) {
+   MPPrefixRanges *result;
 
    if (! expandRSSetCache.query(rsset, result)) {
-      result = new PrefixRanges;
+      result = new MPPrefixRanges;
       // we insert the set to the cache before expanding
       // this is needed to avoid recursion if sets are recursively defined
       expandRSSetCache.add(rsset, result);
       if (!expandRSSet(rsset, result)) {
-	 expandRSSetCache.nullify(rsset);
-	 delete result;
-	 result = NULL; // A negative cache
+        expandRSSetCache.nullify(rsset);
+        delete result;
+        result = NULL; // A negative cache
       }
-   }      
-
+   }
    return result;
 }
 
-const PrefixRanges *IRR::expandRtrSet(SymID rtrset) {
-   PrefixRanges *result;
-   PrefixRange prfx;
-   char *text;
-   int  len;
+const MPPrefixRanges *IRR::expandRtrSet(SymID rtrset) {
+   MPPrefixRanges *result;
 
    if (! expandRtrSetCache.query(rtrset, result)) {
-      result = new PrefixRanges;
+      result = new MPPrefixRanges;
       // we insert the set to the cache before expanding
       // this is needed to avoid recursion if sets are recursively defined
       expandRtrSetCache.add(rtrset, result);
       if (!expandRtrSet(rtrset, result)) {
-	 expandRtrSetCache.nullify(rtrset);
-	 delete result;
-	 result = NULL; // A negative cache
+   expandRtrSetCache.nullify(rtrset);
+   delete result;
+   result = NULL; // A negative cache
       }
    }      
 
    return result;
-}
+} 
 
-void IRR::expandItem(Item *pt, PrefixRanges *result) {
-   const PrefixRanges *sr;
+void IRR::expandItem(Item *pt, MPPrefixRanges *result) {
+   const MPPrefixRanges *sr;
 
    if (typeid(*pt) == typeid(ItemRSNAME)) { // aka route-set
       sr = expandRSSet(((ItemRSNAME *)pt)->name);
-      if (sr)
-	 result->append(*sr);
+      if (sr) {
+         result->append_list(sr);
+      }
       return;
    }
-
    if (typeid(*pt) == typeid(ItemASNAME)) { // aka as-set
       const SetOfUInt *s = expandASSet(((ItemASNAME *)pt)->name);
       if (s && ! s->isEmpty()) {
-	 for (Pix p = s->first(); p; s->next(p)) {
-	    sr = expandAS((*s)(p));
-	    if (sr)
-	       result->append(*sr);
-	 }
+      	 for (Pix p = s->first(); p; s->next(p)) {
+      	    sr = expandAS((*s)(p));
+      	    if (sr)
+      	       result->append_list(sr);
+      	 }
       }
       return;
    } 
-
    if (typeid(*pt) == typeid(ItemASNO)) {
       sr = expandAS(((ItemASNO *)pt)->asno);
       if (sr)
-	 result->append(*sr);
+      	 result->append_list(sr);
       return;
    }
-
    if (typeid(*pt) == typeid(ItemPRFXV4)) {
-      result->add_high(*((ItemPRFXV4 *)pt)->prfxv4);
+      result->push_back(* ( new MPPrefix((PrefixRange *) ((ItemPRFXV4 *) pt)->prfxv4) ));
       return;
    } 
-
    if (typeid(*pt) == typeid(ItemPRFXV4Range)) {
-      result->add_high(*((ItemPRFXV4Range *)pt)->prfxv4);
+      result->push_back(* ( new MPPrefix((PrefixRange *) ((ItemPRFXV4Range *) pt)->prfxv4) ));
       return;
    } 
+   if (typeid(*pt) == typeid(ItemPRFXV6)) {
+      result->push_back(* ( new MPPrefix((IPv6PrefixRange *) ((ItemPRFXV6 *) pt)->prfxv6) ));
+      return;
+   }
 
+   if (typeid(*pt) == typeid(ItemPRFXV6Range)) {
+      result->push_back(* ( new MPPrefix((IPv6PrefixRange *) ((ItemPRFXV6Range *) pt)->prfxv6) ));
+      return;
+   }
    if (typeid(*pt) == typeid(ItemMSItem)) {
-      PrefixRanges tmp; 
-      expandItem(((ItemMSItem *)pt)->item, &tmp);
-      for (int j = tmp.low(); j < tmp.fence(); ++j)
-	 if (tmp[j].makeMoreSpecific(((ItemMSItem *)pt)->code, 
-				     ((ItemMSItem *)pt)->n, 
-				     ((ItemMSItem *)pt)->m))
-	    result->add_high(tmp[j]);
+      MPPrefixRanges *tmp = new MPPrefixRanges; 
+      expandItem(((ItemMSItem *)pt)->item, (MPPrefixRanges *) tmp); // recursion!!!
+      MPPrefixRanges::iterator p;
+      for (p = tmp->begin(); p != tmp->end(); ++p) {
+        if (p->makeMoreSpecific(((ItemMSItem *)pt)->code, 
+             ((ItemMSItem *)pt)->n, 
+             ((ItemMSItem *)pt)->m))
+          result->push_back(*p);
+      }
       return;
    }
-
    if (typeid(*pt) == typeid(ItemIPV4)) { // aka router address
-      result->add_high(*((ItemIPV4 *) pt)->ipv4);
+      result->push_back(* ( new MPPrefix((PrefixRange *) ((ItemIPV4 *) pt)->ipv4) ));
       return;
    }
-
+   if (typeid(*pt) == typeid(ItemIPV6)) { // aka router address
+      result->push_back(* ( new MPPrefix((IPv6PrefixRange *) ((ItemIPV6 *) pt)->ipv6) ));
+      return;
+   }
    if (typeid(*pt) == typeid(ItemRTRSNAME)) { // aka rtr-set
       sr = expandRtrSet(((ItemRTRSNAME *)pt)->name);
       if (sr)
-	 result->append(*sr);
+      	 result->append_list(sr);
       return;
    }
-
    if (typeid(*pt) == typeid(ItemDNS)) { // aka inet-rtr name
       const InetRtr *ir = getInetRtr(((ItemDNS *)pt)->name);
+      collectIfAddr(result, ir);
       if (ir) {
-	 AttrIterator<AttrIfAddr> itr(ir, "ifaddr");
-	 while (itr) {
-	    result->add_high(itr()->ifaddr);
-	    itr++;
-	 }
+	      AttrIterator<AttrIfAddr> itr(ir, "ifaddr");
+      	 while (itr) {
+      	    result->push_back(MPPrefix(*(itr()->ifaddr)));
+      	    itr++;
+      	 }
+        AttrIterator<AttrIfAddr> itr1(ir, "interface");
+         while (itr1) {
+            result->push_back(MPPrefix(*(itr1()->ifaddr)));
+            itr1++; 
+         }
       }
       return;
+      assert(0);
    }
 }
 
@@ -578,14 +584,18 @@ void collectASNO(void *result, const Object *o) {
 void collectIfAddr(void *result, const Object *o) {
    AttrIterator<AttrIfAddr> itr(o, "ifaddr");
    while (itr) {
-      ((PrefixRanges *) result)->add_high(itr()->ifaddr);
+      ((MPPrefixRanges *) result)->push_back(MPPrefix(*(itr()->ifaddr)));
       itr++;
+   }
+   AttrIterator<AttrIfAddr> itr1(o, "interface");
+   while (itr1) {
+      ((MPPrefixRanges *) result)->push_back(MPPrefix(*(itr1()->ifaddr)));
+      itr1++;
    }
 }
 
 void collectPrefix(void *result, const Object *o) {
-   ((PrefixRanges *) result)->add_high
-      (PrefixRange(*((Route *) o)->getPrefix()));
+   ((MPPrefixRanges *) result)->push_back(*((Route *) o)->getPrefix());
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -599,7 +609,7 @@ IRR *IRR::newClient() {
    case rawhoisd:
       return new RAWhoisClient;
    case ripe:
-      return new RipeWhoisClient;
+      return NULL; //new RipeWhoisClient;
    case bird:
       return new BirdWhoisClient;
    default:

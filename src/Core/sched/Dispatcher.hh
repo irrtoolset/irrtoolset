@@ -62,7 +62,7 @@ class Dispatcher {
 
     // Time sorted list of system timers
     class TimerList : public SortedList<Timer> {
-      friend Dispatcher;
+      friend class Dispatcher;
 
       public:
         // Handle all expired timers
@@ -74,7 +74,7 @@ class Dispatcher {
 
     // FIFO queue of one-shot jobs
     class JobList : public List<Job> {
-      friend Dispatcher;
+      friend class Dispatcher;
 
       public:
         // Call back the function associated with the first job 
@@ -83,7 +83,7 @@ class Dispatcher {
 
     // List of signals that we're interested in
     class SignalList : public List<Signal> {
-      friend Dispatcher;
+      friend class Dispatcher;
 
       public:
         // A signal was received, mark it
@@ -95,7 +95,7 @@ class Dispatcher {
 
     // Collection of open file descriptors in the system
     class FileList : public FileSet {
-      friend Dispatcher;
+      friend class Dispatcher;
 
       public:
         // Process any file descriptors that are readable or writable

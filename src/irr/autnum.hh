@@ -70,12 +70,12 @@
 
 class Peering : public ListNode {
 public:
-   ASt    peerAS;
-   IPAddr peerIP;
-   IPAddr localIP;
+   ASt      peerAS;
+   MPPrefix peerIP;
+   MPPrefix localIP;
 
 public:
-   Peering(ASt _peerAS, const IPAddr &_peerIP, const IPAddr &_localIP) 
+   Peering(ASt _peerAS, const MPPrefix &_peerIP, const MPPrefix &_localIP) 
       : ListNode(), peerAS(_peerAS), peerIP(_peerIP), localIP(_localIP) {
    }
    Peering(const Peering &b) 
@@ -101,7 +101,7 @@ private:
    void gatherPeerings(PolicyExpr *policy, SortedList<Peering> *peerings);
    void gatherPeerings(PolicyPeering *peering, SortedList<Peering> *peerings);
    void gatherASes(Filter *f, SetOfUInt *result);
-   void gatherRouters(Filter *f, SetOfUInt *result);
+   void gatherRouters(Filter *f, MPPrefixRanges *result);
 
 public:
    AutNum() : Object(), peerings(NULL) {}
@@ -163,11 +163,14 @@ static bool isPeeringMatching(Filter *f, const ASt as) {
    return false;
 }
 
-static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
+// REIMPLEMENTED
+static bool isPeeringMatching(Filter *f, const MPPrefix *ip) {
+
    if (typeid(*f) == typeid(FilterANY))
       return true;
-   if (typeid(*f) == typeid(FilterRouter))
-      return ((FilterRouter *) f)->ip->get_ipaddr() == ip->get_ipaddr();
+   if (typeid(*f) == typeid(FilterRouter)) {
+      return ((*((FilterRouter *) f)->ip) == *ip);
+   }
    if (typeid(*f) == typeid(FilterRouterName)) {
       char *dns = ((FilterRouterName *) f)->name;
       if (!irr)
@@ -177,9 +180,23 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
 	 return false;
       AttrIterator<AttrIfAddr> itr(rtr, "ifaddr");
       while (itr) {
-	 if (itr()->ifaddr.get_ipaddr() == ip->get_ipaddr())
-	    return true;
-	 itr++;
+        if (ip->ipv4 && itr()->ifaddr->ipv4) {
+	        if (itr()->ifaddr->ipv4->get_ipaddr() == ip->ipv4->get_ipaddr())
+	          return true;
+        }
+	    itr++;
+      }
+      AttrIterator<AttrIfAddr> itr1(rtr, "interface");
+      while (itr1) {
+         if (itr1()->ifaddr->ipv4 && ip->ipv4) {
+            if (itr1()->ifaddr->ipv4->get_ipaddr() == ip->ipv4->get_ipaddr())
+               return true;
+         }
+         if (itr1()->ifaddr->ipv6 && ip->ipv6) {
+            if (itr1()->ifaddr->get_ipaddr() == ip->get_ipaddr())
+               return true;
+         }
+         itr1++;
       }
 
       return false;
@@ -189,7 +206,7 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
       if (!irr)
 	 return false;
 
-      const PrefixRanges *rtrSet = irr->expandRtrSet(set);
+      const MPPrefixRanges *rtrSet = irr->expandRtrSet(set);
       return (rtrSet && rtrSet->contains(*ip));
    }
    if (typeid(*f) == typeid(FilterAND))
@@ -201,14 +218,15 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
    if (typeid(*f) == typeid(FilterOR))
       return isPeeringMatching(((FilterOR *) f)->f1, ip)
 	 || isPeeringMatching(((FilterOR *) f)->f2, ip);
-   if (typeid(*f) == typeid(FilterANY))
-      return true;
+   //if (typeid(*f) == typeid(FilterANY))
+   //   return true;
    assert(false);
    return false;
 }
 
 static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
-		const ASt peerAS, const IPAddr *peerIP, const IPAddr *ip) {
+		const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip) {
+
    if (!prng)
       return false;
 
@@ -222,6 +240,9 @@ static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
 	 for (AttrIterator<AttrPeering> itr(peers, "peering"); itr; itr++)
 	    if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
 	       return true;
+   for (AttrIterator<AttrPeering> itr(peers, "mp-peering"); itr; itr++)
+      if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
+         return true;
 	 
 	 return false;
       }
@@ -243,11 +264,12 @@ static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
    return true;
 }
 
+// partly reimplemented
 class AutNumDefaultIterator : public AttrIterator<AttrDefault> {
 private:
    const ASt peerAS;
-   const IPAddr *peerIP;
-   const IPAddr *ip;
+   const MPPrefix *peerIP;
+   const MPPrefix *ip;
 
 // Made it protected by wlee
 protected:      
@@ -259,12 +281,12 @@ protected:
 public:
    AutNumDefaultIterator(const AutNum *an,
 			 const ASt _peerAS = INVALID_AS, 
-			 const IPAddr *_peerIP = NULL, 
-			 const IPAddr *_ip = NULL):
-     AttrIterator<AttrDefault>(an, "default"), 
+       const char *attrib = "default",
+			 const MPPrefix *_peerIP = NULL, 
+			 const MPPrefix *_ip = NULL):
+     AttrIterator<AttrDefault>(an, attrib), 
      peerAS(_peerAS), peerIP(_peerIP), ip(_ip) {}
 };
-
 
 template <class AttrType>
 class AutNumImportExportIterator : public AttrIterator<AttrType> {
@@ -348,13 +370,14 @@ public:
 template<class AttrType> 
 class AutNumSelector {
 private:
+   ItemList *afi_list;
    List<FilterAction> filterActionList;
    FilterAction      *current;
 public:
    AutNumSelector(const AutNum *an, const char *attrib, SymID pset,
-                  const ASt peerAS, const IPAddr *peerIP, const IPAddr *ip,
+                  const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip,
                   char *fProtName = "BGP4", char *iProtName = "BGP4"):
-      current(NULL) {
+      current(NULL), afi_list(new ItemList) {
       AttrIterator<AttrType> itr(an, attrib);
       const AttrType *import;
       List<FilterAction> *list;
@@ -366,6 +389,7 @@ public:
             list = select(import->policy, pset, peerAS, peerIP, ip);
             if (list) {
                filterActionList.splice(*list);
+               afi_list->merge(*(import->afi_list));
                delete list;
             }
          }
@@ -383,10 +407,18 @@ public:
       return current;
    }
 
+   List<FilterAction> *get_fa_list() {
+      return &filterActionList;
+   }
+
+   ItemList *get_afi_list() {
+     return afi_list;
+   }
+
 private:
    List<FilterAction> *select(PolicyExpr *policy, SymID pset,
-                                  const ASt peerAS, const IPAddr *peerIP, 
-                                  const IPAddr *ip,
+                                  const ASt peerAS, const MPPrefix *peerIP, 
+                                  const MPPrefix *ip,
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
@@ -401,8 +433,7 @@ private:
             for (pa = pf->peeringActionList->head(); 
                  pa; 
                  pa = pf->peeringActionList->next(pa)) {
-               if (noMatch 
-		   && isPeeringMatching(pa->peering, pset,peerAS,peerIP,ip)) {
+               if (noMatch && isPeeringMatching(pa->peering, pset,peerAS,peerIP,ip)) {
                   list->append((new FilterAction((Filter *) 
                                                  pf->filter->dup(), 
                                                  (PolicyActionList *) 
@@ -416,8 +447,7 @@ private:
                if (combinedFilter)
                   if (*combinedFilter)
                      *combinedFilter = 
-                        new FilterOR(*combinedFilter, 
-                                          (Filter *) pf->filter->dup());
+                        new FilterOR(*combinedFilter, (Filter *) pf->filter->dup());
                   else
                      *combinedFilter = (Filter *) pf->filter->dup();
             }
@@ -561,6 +591,162 @@ public:
    Peering* operator()(void) const { return currentPeering; }
 };
 
+class Interface : public ListNode {
+
+public:
+  AttrIfAddr interface;
+
+public:
+   Interface(AttrIfAddr _interface)
+      : ListNode(), interface(_interface) {
+   }
+   Interface(const Interface &b) 
+      : ListNode(), interface(b.interface) {
+   }
+   ~Interface() {
+   }
+
+   bool operator < (const Interface &b) const {
+      return (*(interface.ifaddr) < *(b.interface.ifaddr)); 
+   }
+
+   bool operator == (const Interface &b) const {
+      return (*(interface.ifaddr) == *(b.interface.ifaddr)); 
+   }
+};
+
+class InterfaceIterator {
+private: 
+      SortedList<Interface> *ifaces;
+      Interface *current;
+
+public:
+      InterfaceIterator (const InetRtr *inetrtr) {
+        ifaces = new SortedList<Interface>;
+        for (AttrIterator<AttrIfAddr> itr(inetrtr, "ifaddr"); itr; itr++) {
+          ifaces->insertSortedNoDups(new Interface(*itr));
+        }
+        for (AttrIterator<AttrIfAddr> itr1(inetrtr, "interface"); itr1; itr1++) {
+          ifaces->insertSortedNoDups(new Interface(*itr1));
+        }
+      }
+      Interface *first() {
+        current = ifaces->head();
+        return current;
+      }
+
+      Interface *next() {
+      if (current)
+        current = ifaces->next(current);
+        return current;
+      }
+};
+
+class Peer : public ListNode {
+public:
+   AttrPeer peer;
+
+public:
+   Peer(AttrPeer _peer)
+      : ListNode(), peer(_peer) {
+   }
+   Peer(const Peer &b)
+      : ListNode(), peer(b.peer) {
+   }
+   ~Peer() {
+   }
+
+   bool operator < (const Peer &b) const {
+      return (*(peer.peer) < *(b.peer.peer));
+   }
+
+   bool operator == (const Peer &b) const {
+      return (*(peer.peer) == *(b.peer.peer));
+   }
+};
+
+class PeerIterator {
+private:
+      SortedList<Peer> *peers;
+      Peer *current;
+
+public:
+      PeerIterator (const InetRtr *inetrtr) {
+        peers = new SortedList<Peer>;
+        for (AttrIterator<AttrPeer> itr(inetrtr, "peer"); itr; itr++) {
+          peers->insertSortedNoDups(new Peer(*itr));
+        }
+        for (AttrIterator<AttrPeer> itr1(inetrtr, "mp-peer"); itr1; itr1++) {
+          peers->insertSortedNoDups(new Peer(*itr1));
+        }
+      }
+      Peer *first() {
+        current =peers->head();
+        return current;
+      }
+
+      Peer *next() {
+      if (current)
+        current = peers->next(current);
+        return current;
+      }
+};
+
+
+class PeeringSetIterator {
+private:
+      SortedList<Peering> *peerings;
+      Peering *current;
+
+public:
+      PeeringSetIterator(const PeeringSet *prngSet) {
+        peerings = new SortedList<Peering>;
+        for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));   
+          else 
+             assert(0);
+        }
+        for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));
+          else
+             assert(0);
+        }
+      }
+  Peering *first() {
+      current = peerings->head();
+      return current;
+   }
+
+  Peering *next() {
+      if (current)
+         current = peerings->next(current);
+      return current;
+   }
+};
 
 
 #endif   // AUTNUM_H

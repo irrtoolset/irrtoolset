@@ -126,6 +126,7 @@ void AutNum::gatherPeerings() {
       return;
 
    peerings = new SortedList<Peering>;
+   // supported protocols
    const AttrProtocol *bgp4 = schema.searchProtocol("BGP4");
    
    for (AttrIterator<AttrImport> itr(this, "import"); itr; itr++)
@@ -137,6 +138,17 @@ void AutNum::gatherPeerings() {
 	 gatherPeerings(itr()->policy, peerings);
 
    for (AttrIterator<AttrDefault> itr(this, "default"); itr; itr++)
+      gatherPeerings(itr()->peering, peerings);
+
+   for (AttrIterator<AttrImport> itr(this, "mp-import"); itr; itr++)
+      if (itr()->fromProt == bgp4 && itr()->intoProt == bgp4)
+   gatherPeerings(itr()->policy, peerings);
+
+   for (AttrIterator<AttrExport> itr(this, "mp-export"); itr; itr++)
+      if (itr()->fromProt == bgp4 && itr()->intoProt == bgp4)
+   gatherPeerings(itr()->policy, peerings);
+
+   for (AttrIterator<AttrDefault> itr(this, "mp-default"); itr; itr++)
       gatherPeerings(itr()->peering, peerings);
 }
 
@@ -174,39 +186,59 @@ void AutNum::gatherPeerings(PolicyPeering *peering,
    const PeeringSet *pset = irr->getPeeringSet(peering->prngSet);
    for (AttrIterator<AttrPeering> itr(pset, "peering"); itr; itr++)
    	gatherPeerings(itr->peering, peerings);
+   for (AttrIterator<AttrPeering> itr(pset, "mp-peering"); itr; itr++)
+    gatherPeerings(itr->peering, peerings);
    
    } else {
       SetOfUInt *ases = new SetOfUInt;
-      SetOfUInt *pRtrs = new SetOfUInt;
-      SetOfUInt *lRtrs = new SetOfUInt;
+      MPPrefixRanges *pRtrs = new MPPrefixRanges;
+      MPPrefixRanges *lRtrs = new MPPrefixRanges;
       gatherASes(peering->peerASes, ases);
       gatherRouters(peering->peerRtrs, pRtrs);
       gatherRouters(peering->localRtrs, lRtrs);
 
+      MPPrefixRanges::const_iterator p;
+      MPPrefixRanges::const_iterator l;
+
       if (!pRtrs->empty() && ! lRtrs->empty())
-	 for (Pix as = ases->first(); as; ases->next(as))
-	    for (Pix pR = pRtrs->first(); pR; pRtrs->next(pR))
-	       for (Pix lR = lRtrs->first(); lR; lRtrs->next(lR))
-		  peerings->insertSortedNoDups(new Peering((*ases)(as), 
-							   (*pRtrs)(pR), 
-							   (*lRtrs)(lR)));
+	      for (Pix as = ases->first(); as; ases->next(as))  {
+          for (p = pRtrs->begin(); p != pRtrs->end(); ++p)
+            for (l = lRtrs->begin(); l != lRtrs->end(); ++l)
+              if (strcmp(p->get_afi(), l->get_afi()) == 0)
+		            peerings->insertSortedNoDups(new Peering((*ases)(as), 
+							   *p, *l));
+              else  // do nothing, issue a warning
+                cout << "Warning: routers address families mismatch: " << p->get_afi() << l->get_afi() << endl;   
+        }
       else if (!pRtrs->empty())
-	 for (Pix as = ases->first(); as; ases->next(as))
-	    for (Pix pR = pRtrs->first(); pR; pRtrs->next(pR))
-	       peerings->insertSortedNoDups(new Peering((*ases)(as), 
-							(*pRtrs)(pR), 
-							NullIPAddr));
+	      for (Pix as = ases->first(); as; ases->next(as))  {
+          for (p = pRtrs->begin(); p != pRtrs->end(); ++p) 
+            if (p->ipv4)
+	            peerings->insertSortedNoDups(new Peering((*ases)(as), 
+							*p, 
+							MPPrefix(NullIPAddr.get_text())));
+            else 
+              peerings->insertSortedNoDups(new Peering((*ases)(as),
+              (*p),        
+              MPPrefix(NullIPv6Addr.get_ip_text())));
+          }
       else if (! lRtrs->empty())
-	 for (Pix as = ases->first(); as; ases->next(as))
-	    for (Pix lR = lRtrs->first(); lR; lRtrs->next(lR))
-	       peerings->insertSortedNoDups(new Peering((*ases)(as), 
-							NullIPAddr, 
-							(*lRtrs)(lR)));
+	      for (Pix as = ases->first(); as; ases->next(as))  {
+          for (l = lRtrs->begin(); l != lRtrs->end(); ++l) 
+            if (l->ipv4)
+	            peerings->insertSortedNoDups(new Peering((*ases)(as), 
+							MPPrefix(NullIPAddr.get_text()), 
+							*l));
+            else 
+              peerings->insertSortedNoDups(new Peering((*ases)(as),
+              MPPrefix(NullIPv6Addr.get_text()),
+              *l));
+          }
       else 
-	 for (Pix as = ases->first(); as; ases->next(as))
-	    peerings->insertSortedNoDups(new Peering((*ases)(as), 
-						     NullIPAddr, 
-						     NullIPAddr));
+	      for (Pix as = ases->first(); as; ases->next(as))
+	        peerings->insertSortedNoDups(new Peering((*ases)(as), 
+						     MPPrefix(NullIPAddr.get_text()), 
+						     MPPrefix(NullIPAddr.get_text())));
 
       delete ases;
       delete pRtrs;
@@ -252,52 +284,57 @@ void AutNum::gatherASes(Filter *f, SetOfUInt *result) {
       assert(false);
 }
 
-void AutNum::gatherRouters(Filter *f, SetOfUInt *result) {
+void AutNum::gatherRouters(Filter *f, MPPrefixRanges *result) {
    if (typeid(*f) == typeid(FilterANY))
       ;
    else if (typeid(*f) == typeid(FilterRouter))
-      result->add(((FilterRouter *) f)->ip->get_ipaddr());
+      result->push_back(*(((FilterRouter *) f)->ip));
    else if (typeid(*f) == typeid(FilterRouterName)) {
       char *dns = ((FilterRouterName *) f)->name;
       if (irr) {
-	 const InetRtr *rtr = irr->getInetRtr(dns);
-	 if (rtr)
-	    for (AttrIterator<AttrIfAddr> itr(rtr, "ifaddr"); itr; itr++)
-	       result->add(itr()->ifaddr.get_ipaddr());
-      } 
+	      const InetRtr *rtr = irr->getInetRtr(dns);
+	      if (rtr) {
+	        for (AttrIterator<AttrIfAddr> itr(rtr, "ifaddr"); itr; itr++)
+            result->push_back(*(itr->ifaddr));
+          for (AttrIterator<AttrIfAddr> itr1(rtr, "interface"); itr1; itr1++)
+            result->push_back(*(itr1->ifaddr));
+        } 
+      }
    } else if (typeid(*f) == typeid(FilterRTRSNAME)) {
       SymID set = ((FilterRTRSNAME *) f)->rtrsname;
       if (irr) {
-	 const PrefixRanges *rtrSet = irr->expandRtrSet(set);
-	 if (rtrSet) 
-	    for (Pix p = rtrSet->first(); p; rtrSet->next(p))
-	       result->add(((*rtrSet)(p)).get_ipaddr());
+        const MPPrefixRanges *rtrSet = irr->expandRtrSet(set);
+        if (rtrSet) {
+          MPPrefixRanges::const_iterator p;
+          for (p = rtrSet->begin(); p != rtrSet->end(); ++p)
+            result->push_back(*p);
+        }
       }
    } else if (typeid(*f) == typeid(FilterAND)) {
-      SetOfUInt *s1 = new SetOfUInt;
-      SetOfUInt *s2 = new SetOfUInt;
-      gatherASes(((FilterAND *) f)->f1, s1);
-      gatherASes(((FilterAND *) f)->f2, s2);
-      (*s1) &= (*s2);
-      (*result) |= (*s1);
+      MPPrefixRanges *s1 = new MPPrefixRanges;
+      MPPrefixRanges *s2 = new MPPrefixRanges;
+      gatherRouters(((FilterAND *) f)->f1, s1);
+      gatherRouters(((FilterAND *) f)->f2, s2);
+      s1->and(s2);
+      result->append_list(s1);
       delete s1; 
       delete s2;
    } else if (typeid(*f) == typeid(FilterEXCEPT)) {
-      SetOfUInt *s1 = new SetOfUInt;
-      SetOfUInt *s2 = new SetOfUInt;
-      gatherASes(((FilterEXCEPT *) f)->f1, s1);
-      gatherASes(((FilterEXCEPT *) f)->f2, s2);
-      (*s1) -= (*s2);
-      (*result) |= (*s1);
+      MPPrefixRanges *s1 = new MPPrefixRanges;
+      MPPrefixRanges *s2 = new MPPrefixRanges;
+      gatherRouters(((FilterEXCEPT *) f)->f1, s1);
+      gatherRouters(((FilterEXCEPT *) f)->f2, s2);
+      s1->except(s2);
+      result->append_list(s1);
       delete s1; 
       delete s2;
    } else if (typeid(*f) == typeid(FilterOR)) {
-      SetOfUInt *s1 = new SetOfUInt;
-      SetOfUInt *s2 = new SetOfUInt;
-      gatherASes(((FilterOR *) f)->f1, s1);
-      gatherASes(((FilterOR *) f)->f2, s2);
-      (*s1) |= (*s2);
-      (*result) |= (*s1);
+      MPPrefixRanges *s1 = new MPPrefixRanges;
+      MPPrefixRanges *s2 = new MPPrefixRanges;
+      gatherRouters(((FilterOR *) f)->f1, s1);
+      gatherRouters(((FilterOR *) f)->f2, s2);
+      result->append_list(s1);
+      result->append_list(s2);
       delete s1; 
       delete s2;
    } else

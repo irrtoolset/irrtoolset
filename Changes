@@ -1,3 +1,21 @@
+4.8.1
+  
+* RPSLng dictionary implemented for RtConfig (cisco format only).
+  other configuration file formats are underway.
+
+* The tools work with irrd too in most of the cases (see RELEASE-NOTES)
+
+* import/export/default in aut-num are now treated as a partial case of corresponding mp-attributes.
+  While having multiple attributes, the same logic applies for peering/action/filter selection.
+
+* almost all RtConfig commands have been modified to support RPSLng, 1 new command added:
+  "@RtConfig v6networks"
+
+4.8.0
+
+* RPSLng dictionary implemented
+* only for peval, rpslcheck
+
 4.7.3
 
 * bugfixes & new in RtConfig, fixes in prpath, rpslcheck, libirr.

@@ -212,7 +212,8 @@ public:
    PolicyActionList  *action;
 public:
    PolicyPeeringAction(PolicyPeering *p, PolicyActionList *a) : 
-      peering(p), action(a) {}
+      peering(p), action(a) {
+   }
    PolicyPeeringAction(const PolicyPeeringAction &b) {
       peering = new PolicyPeering(*b.peering);
       action  = new PolicyActionList(*b.action);

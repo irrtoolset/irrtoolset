@@ -52,6 +52,8 @@
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
+/***** ALL CONFIGS EXCEPT CISCO TEMP DISABLED !!! *****/
+
 #include "config.h"
 
 #include <cstring>
@@ -86,7 +88,8 @@ int xx_eof = 0;
 %union {
    int i;
    char *val;
-   IPAddr *ip;
+   /*IPAddr *ip;*/
+   MPPrefix *ip;
    ASt as;
 }
 
@@ -122,6 +125,7 @@ int xx_eof = 0;
 %token <val> KW_PREFERENCECEILING
 %token <val> KW_CISCO_MAX_PREFERENCE
 %token <val> KW_NETWORKS
+%token <val> KW_V6NETWORKS
 %token <val> KW_DEFAULT
 %token <val> KW_CISCO_MAP_INC
 %token <val> KW_CISCO_MAP_START
@@ -163,19 +167,21 @@ input_line: import_line
 | configure_router_line
 | static2bgp_line
 | networks_line
+| v6networks_line
 | pkt_filter_line
 | outbound_pkt_filter_line
 | cisco_map_name_line
-| junos_policy_name_line
+//| junos_policy_name_line
 | cisco_map_inc_line
 | cisco_map_start_line
 | cisco_access_list_no_line
-| bcc_version_line
+/*| bcc_version_line
 | bcc_max_preference_line
 | bcc_advertise_nets_line
 | bcc_advertise_all_line
 | bcc_force_back_line
 | bcc_max_prefixes_line
+*/
 | preferenceCeiling_line
 | source_line
 ;
@@ -299,6 +305,11 @@ networks_line: KW_NETWORKS TKN_ASNUM {
 }
 ;
 
+v6networks_line: KW_V6NETWORKS TKN_ASNUM {
+   rtConfig->IPv6networks($2);
+}
+;
+
 pkt_filter_line: KW_PKT_FILTER TKN_STR TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP {
    rtConfig->packetFilter($2, $3, $4, $5, $6);
    delete $4;
@@ -319,14 +330,14 @@ cisco_map_name_line: KW_SET KW_CISCO_MAP_NAME '=' TKN_STR {
 		   << CiscoConfig::mapNameFormat << "'" << endl;
 }
 ;
-
+/*
 junos_policy_name_line: KW_SET KW_JUNOS_POLICY_NAME '=' TKN_STR {
    strcpy(JunosConfig::mapNameFormat, $4);
    Trace(TR_INPUT) << "RtConfig: junos_policy_name '"
 		   << JunosConfig::mapNameFormat << "'" << endl;
 }
 ;
-
+*/
 cisco_map_inc_line: KW_SET KW_CISCO_MAP_INC '=' TKN_INT {
    CiscoConfig::mapIncrements = $4;
    Trace(TR_INPUT) << "RtConfig: cisco_map_increment_by '" 
@@ -378,6 +389,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
 ;
 
 // following are new addition
+/*
 bcc_version_line: KW_SET KW_BCC_VERSION '=' TKN_INT {
    if ($4 >= 0) 
       BccConfig::bcc_version = $4;
@@ -413,6 +425,7 @@ bcc_max_prefixes_line: KW_SET KW_BCC_MAX_PREFIXES '=' TKN_INT {
       BccConfig::bcc_max_prefixes = $4;
 }
 ;
+*/
 // end of new
 preferenceCeiling_line: KW_SET KW_PREFERENCECEILING '=' TKN_INT {
    if ($4 >= 0)

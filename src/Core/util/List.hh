@@ -508,6 +508,29 @@ public:
 	 insertSorted((T*)t);
       }
    }
+   // sorted merge no dups
+   void spliceNoDups(SortedList& l) {
+      ListNode *t;
+      ListNode *e = forw;
+      while (!l.isEmpty()) {
+   t = l.forw;
+   t->__unlink__();
+   for (;
+        e != (ListNode*)this && (*(T*)e < *(T*)t);
+        e = e->forw)
+      ;
+   if (e != (ListNode*)this) {
+      if (!(*(T*)e == *(T*)t))
+        t->__link__(e->back, e);
+   }
+   else
+      t->__link__(back, this);
+      }
+
+      length += l.length;
+   }
+  
+  
 
    T* find(const T &t) const {
       for (ListNode *e = forw; e != (const ListNode*)this; e = e->forw)
