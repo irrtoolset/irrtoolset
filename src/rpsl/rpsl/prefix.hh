@@ -61,7 +61,7 @@
 
 class ostream;
 
-typedef u_int64_t       ip_v6word_t;
+typedef unsigned long long int       ip_v6word_t;
 
 // ipv6 address unit + operations
 class ipv6_addr_t {
