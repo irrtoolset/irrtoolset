@@ -1,17 +1,17 @@
-Release Notes for IRRToolSet version 4.8.0
+Release Notes for IRRToolSet version 4.8.1
 ***************************************************
 
-This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval and rpslcheck.
+This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval, rpslcheck and now RtConfig is added.
 
 * RPSLng dictionary implemented according to the latest RPSLng draft:
   http://www.ietf.org/internet-drafts/draft-blunk-rpslng-01.txt
 
-* peval, rpslcheck already work
-
-* Tools have been tested to work with RIPE whois software. IRRD is expected to be available for testing very soon, necessary patch will be published. Due to this irrd protocol may not work properly yet.
+* Tools have been tested to work with RIPE whois software. They will work also with irrd in most of the cases, as soon as irrd is updated to handle RPSLng-related objects. Separated patch for this may be necessary and will be available later.
 
 * peval now accepts both RPSL and RPSLng filters (extended to support ipv6)
    for peval, the syntax for evaluation of mp-filter is:
   afi <afi_list> <mp-filter>
   results will be restricted to address familiy(ies) from <afi_list>.
+
+* RtConfig has got a new command: '@RtConfig v6networks', which works symmetrically with '@RtConfig networks'. Other RtConfig commands have been modified to handle RPSLng.
 
