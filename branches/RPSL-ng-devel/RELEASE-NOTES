@@ -1,4 +1,4 @@
-Release Notes for IRRToolSet version 4.7.4
+Release Notes for IRRToolSet version 4.8.0
 ***************************************************
 
 This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval and rpslcheck.
@@ -8,7 +8,7 @@ This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval an
 
 * peval, rpslcheck already work
 
-* as only RIPE rpslng-aware whois server was available for testing, tools work with ripe protocol. irrd is expected for testing very soon, patch will be available.
+* Tools have been tested to work with RIPE whois software. IRRD is expected to be available for testing very soon, patch will be available.
   Therefore irrd protocol may not work properly.
 
 * peval now accepts both RPSL and RPSLng filters (extended to support ipv6)
