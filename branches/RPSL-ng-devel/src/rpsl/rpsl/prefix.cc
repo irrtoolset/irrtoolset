@@ -569,6 +569,9 @@ void IPv6PrefixRange::parse(char *name)
     hex2ipv6(address, ipaddr);
     ipv62hex(ipaddr, address);
     //printf ("normalized: %s\n", address);
+    length = 128;
+    n = 128;
+    m = 128;
   }
   free (address);
 }
@@ -764,6 +767,7 @@ ostream& operator<<(ostream& stream, const MPPrefix& p) {
       stream << *p.ipv6;
     return stream;
   }
+
 bool MPPrefix::is_valid() {
 
   if ((ipv4 && afi->is_valid(ipv4)) ||
@@ -772,11 +776,23 @@ bool MPPrefix::is_valid() {
   return false;
 }
 
-void MPPrefix::define(MPPrefix *_ip, int masklen) {
+void MPPrefix::define(unsigned int masklen) {
+  
+  if (this->ipv4 != NULL) {
+     this->ipv4->length = masklen;
+     this->ipv4->n = masklen;
+     this->ipv4->m = masklen;
+  }
+  if (this->ipv6 != NULL) {
+     this->ipv6->length = masklen;
+     this->ipv6->n = masklen;
+     this->ipv6->m = masklen;
+  }
+}
 
+unsigned int MPPrefix::get_length() {
   if (afi->is_ipv4())
-    ipv4->PrefixRange::define(_ip->ipv4->get_ipaddr(), _ip->ipv4->get_length(), _ip->ipv4->get_n(), _ip->ipv4->get_m());    
+     return ipv4->get_length();
   if (afi->is_ipv6())
-    ipv6->IPv6PrefixRange::define(_ip->ipv6->get_ipaddr(), _ip->ipv6->get_length(), _ip->ipv6->get_n(), _ip->ipv6->get_m());
-
+     return ipv6->get_length();
 }
