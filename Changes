@@ -1,6 +1,7 @@
 4.8.2
 
-* GCC-3.x compatible (tested with 3.3.2, 3.2.1 and 3.2)
+* GCC-3.x compatible (tested with 3.3.2, 3.2.1 and 3.2) 
+  Thanks to Glen Turner, Tony Li, and all others who have contributed the patches.
 
 * draft-blunk-rpslng-07.txt implemented
 

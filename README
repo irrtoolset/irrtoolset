@@ -1,4 +1,4 @@
-This is the README file for RAToolSet
+This is the README file for IRRToolSet
 
 MAILING LIST
 	irrtoolset@ripe.net
@@ -23,7 +23,9 @@ FTP and WWW SITES
 
 INSTALLATION
         0. To install you need an ISO C++ compiler (such as g++ from
-           GCC version 3.3.2), Bison, Flex and GNU Make.
+           GCC version 3.3.2) and GNU Make.
+
+     You will need Bison and Flex if you're going to change the RPSL grammar.
 
 	   For roe and aoe, you also need Tk4.0/Tcl7.4 or higher. If Tcl/Tk 
 	   is not installed in a standard include directory, please set the
