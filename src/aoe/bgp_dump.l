@@ -1,5 +1,5 @@
+/*
 //  $Id$
-/*  
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
