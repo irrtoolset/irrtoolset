@@ -61,19 +61,12 @@
 class AttrRPAttr;
 class AttrMethod;
 class SetOfPrefix;
+class SetOfIPv6Prefix;
 class FilterOfASPath;
 class MPPrefix;
 
 class RtConfig {
 public:
-   /* REIMPLEMENTED
-   virtual void importP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: import not implemented" << endl;
-   }
-   virtual void exportP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: export not implemented" << endl;
-   }
-   */
    virtual void importP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {
       cerr << "Error: import not implemented" << endl;
    }
@@ -91,13 +84,9 @@ public:
    void printPrefixes(char *filter, char *fmt);
    void printPrefixRanges(char *filter, char *fmt);
    void printSuperPrefixRanges(char *filter, char *fmt);
+
    void accessList(char *filter);
    void aspathAccessList(char *filter);
-   /*** REIMPLEMENTED
-   virtual void static2bgp(ASt as, IPAddr* addr) {
-      cerr << "Error: static2bgp not implemented" << endl;
-   }
-   ***/
    virtual void static2bgp(ASt as, MPPrefix* addr) {
       cerr << "Error: static2bgp not implemented" << endl;
    }
@@ -107,15 +96,9 @@ public:
    virtual void networks(ASt as) {
       cerr << "Error: networks not implemented" << endl;
    }
-   /**** REIMPLEMENTED
-   virtual void packetFilter
-   (char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: pkt_filter not implemented" << endl;
+   virtual void IPv6networks(ASt as) {
+      cerr << "Error: v6networks not implemented" << endl;
    }
-   virtual void outboundPacketFilter
-   (char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: outbound_pkt_filter not implemented" << endl;
-   } ***/
    virtual void packetFilter
    (char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {
       cerr << "Error: pkt_filter not implemented" << endl;
@@ -126,13 +109,17 @@ public:
    } 
 
    virtual void configureRouter(char *name);
-   // REIMPLEMENTED
    void printPolicyWarning(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, const char* policy);
 
 protected:
    void printPrefixes_(SetOfPrefix& nets, char *fmt);
    void printPrefixRanges_(SetOfPrefix& nets, char *fmt);
    void printSuperPrefixRanges_(SetOfPrefix& nets, char *fmt);
+
+   void printPrefixes_(SetOfIPv6Prefix& nets, char *fmt);
+   void printPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt);
+   void printSuperPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt);
+
    virtual void printAccessList(SetOfPrefix& nets) {
       cerr << "Error: accessList not implemented" << endl;
    }

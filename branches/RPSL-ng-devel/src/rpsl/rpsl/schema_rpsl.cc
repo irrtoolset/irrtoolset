@@ -174,17 +174,6 @@ protocol: BGP4
                              integer[0,65535],# halflife in secs when up
                              integer[0,65535],# halflife in secs when down
                              integer[0,65535])# maximum penalty
-protocol: MPBGP
-          # as number of the peer router
-          MANDATORY asno(as_number)
-          # enable flap damping
-          OPTIONAL flap_damp()
-          OPTIONAL flap_damp(integer[0,65535],# penalty per flap
-                             integer[0,65535],# penalty value for supression
-                             integer[0,65535],# penalty value for reuse
-                             integer[0,65535],# halflife in secs when up
-                             integer[0,65535],# halflife in secs when down
-                             integer[0,65535])# maximum penalty
 protocol: OSPF
 protocol: RIP
 protocol: IGRP
@@ -196,6 +185,7 @@ protocol: PIM-DM
 protocol: PIM-SM
 protocol: CBT
 protocol: MOSPF
+protocol: MPBGP
 ";
 
 static char classes_text[] = "class: mntner

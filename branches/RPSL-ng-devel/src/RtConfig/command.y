@@ -125,6 +125,7 @@ int xx_eof = 0;
 %token <val> KW_PREFERENCECEILING
 %token <val> KW_CISCO_MAX_PREFERENCE
 %token <val> KW_NETWORKS
+%token <val> KW_V6NETWORKS
 %token <val> KW_DEFAULT
 %token <val> KW_CISCO_MAP_INC
 %token <val> KW_CISCO_MAP_START
@@ -166,6 +167,7 @@ input_line: import_line
 | configure_router_line
 | static2bgp_line
 | networks_line
+| v6networks_line
 | pkt_filter_line
 | outbound_pkt_filter_line
 | cisco_map_name_line
@@ -300,6 +302,11 @@ static2bgp_line: KW_STATIC2BGP TKN_ASNUM TKN_IP {
 
 networks_line: KW_NETWORKS TKN_ASNUM {
    rtConfig->networks($2);
+}
+;
+
+v6networks_line: KW_V6NETWORKS TKN_ASNUM {
+   rtConfig->IPv6networks($2);
 }
 ;
 

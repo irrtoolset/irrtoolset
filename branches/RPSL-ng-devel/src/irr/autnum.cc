@@ -140,11 +140,6 @@ void AutNum::gatherPeerings() {
    for (AttrIterator<AttrDefault> itr(this, "default"); itr; itr++)
       gatherPeerings(itr()->peering, peerings);
 
-   /*
-   const AttrProtocol *mpbgp = schema.searchProtocol("MPBGP");
-   allow only BGP4 for now, TBD!!!
-   */
-
    for (AttrIterator<AttrImport> itr(this, "mp-import"); itr; itr++)
       if (itr()->fromProt == bgp4 && itr()->intoProt == bgp4)
    gatherPeerings(itr()->policy, peerings);
@@ -300,8 +295,8 @@ void AutNum::gatherRouters(Filter *f, MPPrefixRanges *result) {
 	      const InetRtr *rtr = irr->getInetRtr(dns);
 	      if (rtr) {
 	        for (AttrIterator<AttrIfAddr> itr(rtr, "ifaddr"); itr; itr++)
-            result->push_back(*(new MPPrefix(itr->ifaddr.get_text())));
-          for (AttrIterator<AttrInterface> itr1(rtr, "interface"); itr1; itr1++)
+            result->push_back(*(itr->ifaddr));
+          for (AttrIterator<AttrIfAddr> itr1(rtr, "interface"); itr1; itr1++)
             result->push_back(*(itr1->ifaddr));
         } 
       }

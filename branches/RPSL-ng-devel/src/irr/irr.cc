@@ -203,14 +203,8 @@ Cache<ASt,   AutNum *>       AutNumCache;
 Cache<SymID, Set *>          SetCache;
 Cache<SymID, InetRtr *>      InetRtrCache;
 Cache<SymID, SetOfUInt *>    expandASSetCache;
-
-// REIMPCache<ASt,   PrefixRanges *> expandASCache;
 Cache<ASt,   MPPrefixRanges *> expandASCache;
-
-// REIMP Cache<SymID, PrefixRanges *> expandRSSetCache;
 Cache<SymID, MPPrefixRanges *> expandRSSetCache;
-
-// REIMP Cache<SymID, PrefixRanges *> expandRtrSetCache;
 Cache<SymID, MPPrefixRanges *> expandRtrSetCache;
 
 void IRR::initCache(char *objectText, int objectLength, char *clss) {
@@ -270,7 +264,6 @@ void IRR::initCache(const char *fname) {
 	       delete o;
 	    else {
 	       if (! AutNumCache.query(asn->asno, result)) {
-		  		//  cout << "Found aut-num: AS" << asn->asno << " in file " << fname << endl;
 		  AutNumCache.add(asn->asno, o);
 	       }
 	    }      
@@ -299,12 +292,12 @@ void IRR::initCache(const char *fname) {
 	    else {
 	       SymID sid = symbols.symID(rtrname->name);
 	       if (! InetRtrCache.query(sid, result)) {
-		  InetRtrCache.add(sid, o);
+	          InetRtrCache.add(sid, o);
 	       }
 	    }      
 	 } else
 	    delete o;
-      }
+  }
    }
 }
 
@@ -397,41 +390,18 @@ const InetRtr *IRR::getInetRtr(SymID inetRtr)
 
    if (! InetRtrCache.query(inetRtr, result)) {
       if (getInetRtr(inetRtr, text, len)) {
-	 Buffer b(text, len);
-	 result = new InetRtr(b);
-	 InetRtrCache.add(inetRtr, result);
-      } else
-	 InetRtrCache.add(inetRtr, NULL); // a negative object
+	      Buffer b(text, len);
+	      result = new InetRtr(b);
+	      InetRtrCache.add(inetRtr, result);
+      } else {
+	     InetRtrCache.add(inetRtr, NULL); // a negative object
+      }
    }
 
    return result;  
 }
 
 ////// Expand Sets //////////////////////////////////////////////////////
-
-/* REIMP
-const PrefixRanges *IRR::expandAS(ASt as) {
-   PrefixRanges *result;
-   PrefixRange prfx;
-   char *text;
-   int  len;
-
-   if (! expandASCache.query(as, result)) {
-      result = new PrefixRanges;
-      // we insert the set to the cache before expanding
-      // this is needed to avoid recursion if sets are recursively defined
-      expandASCache.add(as, result);
-      sprintf(buffer, "AS%d", as);
-      if (!expandAS(buffer, result)) {
-	 expandASCache.nullify(as);
-	delete result;
-	result = NULL; // A negative cache
-      }
-   }
-
-   return result;
-}
-*/
 
 const MPPrefixRanges *IRR::expandAS(ASt as) {
    MPPrefixRanges *result;
@@ -581,20 +551,18 @@ void IRR::expandItem(Item *pt, MPPrefixRanges *result) {
    if (typeid(*pt) == typeid(ItemDNS)) { // aka inet-rtr name
       const InetRtr *ir = getInetRtr(((ItemDNS *)pt)->name);
       collectIfAddr(result, ir);
-      /*
       if (ir) {
 	      AttrIterator<AttrIfAddr> itr(ir, "ifaddr");
       	 while (itr) {
-      	    result->push_back(MPPrefix(new PrefixRange (itr()->ifaddr)));
+      	    result->push_back(MPPrefix(*(itr()->ifaddr)));
       	    itr++;
       	 }
-        AttrIterator<AttrInterface> itr1(ir, "interface");
+        AttrIterator<AttrIfAddr> itr1(ir, "interface");
          while (itr1) {
-            result->push_back(MPPrefix(*(itr()->ifaddr)));
+            result->push_back(MPPrefix(*(itr1()->ifaddr)));
             itr1++; 
          }
       }
-      */
       return;
       assert(0);
    }
@@ -616,10 +584,10 @@ void collectASNO(void *result, const Object *o) {
 void collectIfAddr(void *result, const Object *o) {
    AttrIterator<AttrIfAddr> itr(o, "ifaddr");
    while (itr) {
-      ((MPPrefixRanges *) result)->push_back(MPPrefix(new PrefixRange(itr()->ifaddr)));
+      ((MPPrefixRanges *) result)->push_back(MPPrefix(*(itr()->ifaddr)));
       itr++;
    }
-   AttrIterator<AttrInterface> itr1(o, "interface");
+   AttrIterator<AttrIfAddr> itr1(o, "interface");
    while (itr1) {
       ((MPPrefixRanges *) result)->push_back(MPPrefix(*(itr1()->ifaddr)));
       itr1++;
