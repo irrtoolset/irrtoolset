@@ -280,22 +280,31 @@ void RtConfig::loadDictionary() {
 // @RtConfig configureRouter rtr.isp.net
 void RtConfig::configureRouter(char *name) {
    const InetRtr *rtr = irr->getInetRtr(name);
-   const AttrProtocol *bgp = schema.searchProtocol("BGP4");
+   if (!rtr)	{
+	cerr << "Error: no object for router: " << name << endl;
+	return;
+   }
 
-   AttrIterator<AttrIfAddr> itr1(rtr, "ifaddr");
-   IPAddr myIP(itr1()->ifaddr.get_ipaddr());
+   const AttrProtocol *bgp = schema.searchProtocol("BGP4");
 
    AttrGenericIterator<ItemASNO> itr2(rtr, "local-as");
    ASt myAS = itr2()->asno;
+	
+   // fixed for multiple "ifaddr" attribute 
+   AttrIterator<AttrIfAddr> itr1(rtr, "ifaddr");
 
    AttrIterator<AttrPeer> itr(rtr, "peer");
 
    for (const AttrPeer *peer = itr.first(); peer; peer = itr.next()) {
-      if (peer->protocol == bgp) {
-	 ASt peerAS = ((ItemASNO *) peer->searchOption("asno")->args->head())->asno;
-	 importP(myAS, &myIP, peerAS, peer->peer);
-	 exportP(myAS, &myIP, peerAS, peer->peer);
-      }
+	for (const AttrIfAddr *ifaddr = itr1.first(); ifaddr; ifaddr = itr1.next()) 
+	{
+       		IPAddr myIP(ifaddr->ifaddr.get_ipaddr());
+      		if (peer->protocol == bgp) {
+	 		ASt peerAS = ((ItemASNO *) peer->searchOption("asno")->args->head())->asno;
+	 		importP(myAS, &myIP, peerAS, peer->peer);
+	 		exportP(myAS, &myIP, peerAS, peer->peer);
+      		}
+ 	}
    }
 }
 
@@ -618,5 +627,12 @@ void RtConfig::aspathAccessList(char *filter) {
    delete o;
 }
 
+void RtConfig::printPolicyWarning(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr, const char* policy)	
+{
+	cerr << "Warning: AS" << as;
+        cerr << " has no " << policy << " policy for AS" << peerAS;
+        cerr << " " << peerAddr->get_text();
+        cerr << " at " << addr->get_text() << endl;
+}
 
 
