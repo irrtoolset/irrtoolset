@@ -6,7 +6,8 @@ MAILING LIST
 	majordomo@ripe.net with body (not the subject) of the message
 	containing "subscribe irrtoolset".
 
-        Old mailing list ratoolset@isi.edu is now migrated to irrtoolset@ripe.net
+        Old mailing list ratoolset@isi.edu is now migrated to 
+	irrtoolset@ripe.net
 
 FTP and WWW SITES
 	RIPE NCC site:
@@ -51,8 +52,8 @@ INSTALLATION
 
          Please make sure that tk is linked before tcl.
 
-	   The development platform is a linux PC using egcs-1.0.2 and 
-	   libstdc++-2.8.0. A statically-linked executables for various
+	   The development platform is a linux PC using gcc-2.95.3 and 
+	   libstdc++-2.9.0. A statically-linked executables for various
 	   platforms (well, we will try our best) can be provided upon
 	   request. 
 

@@ -933,9 +933,9 @@ button .body.templatebutton.logo \
 	-cursor hand2 \
 	-height 60 \
 	-command {showInfo "aoe (Autonomous system Object Editor) is part 
-of RAToolSet.  The newest version is always 
-available from ftp://ftp.isi.edu/ra/RAToolSet/
-Please send your comments to ratoolset@ISI.EDU"}
+of IRRToolSet.  The newest version is always 
+available from ftp://ftp.ripe.net/tools/IRRToolSet)
+Please send your comments to irrtoolset@ripe.net"}
 pack .body.templatebutton.policy   \
      .body.templatebutton.import   \
      .body.templatebutton.export   \
