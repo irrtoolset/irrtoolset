@@ -1,0 +1,43 @@
+# Perl script to extract the library names
+# from the various makefiles.in
+# Expects that:
+#	- the Makefile.in in the src subdirectory contains a LIBDIRS =
+#		line with the sub directories containing the object files
+#	- the Makefile.in in the sub directories each contain an GOAL =
+#		line with a single .a file listed
+# Works with continuation lines as well for LIBDIRS.
+# Assumes that GOAL is specified on one line.
+
+$libs = "";
+
+open(MF, "<./src/Makefile.in");
+while (<MF>) {
+    if (/^LIBDIRS/) {
+	$_ =~ s/^LIBDIRS\s+\=\s+//;
+	chop($_);
+	while (/\\/) {
+	    $_ =~ s/\\/ /;
+	    push(@subdirs, split);
+	    $_ = <MF>;
+	    chop($_);
+	    $_ =~ s/^\s+//;
+	}
+	push(@subdirs, split);
+	break;
+    }
+}
+close(MF);
+
+foreach $dir (@subdirs) {
+    open(MF, "<./src/$dir/Makefile.in");
+    while (<MF>) {
+	if (/^GOAL\s+\=\s+lib([a-zA-Z0-9+]+)\.a/) {
+	    $libs .= " -I\$(top_srcdir)/src/$dir";
+        }
+    }
+    close(MF);
+}
+
+print "$libs";
+
+    
