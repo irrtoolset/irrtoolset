@@ -1,37 +1,18 @@
-Release Notes for IRRToolSet version 4.7.3
+Release Notes for IRRToolSet version 4.7.4
 ***************************************************
 
-This release is intended to be a bug fix release, as well as introducing
-some updates.
+This release contains prototypes of RPSLng-aware tools from IRRToolSet: peval and rpslcheck.
 
-* bugfixes & new in RtConfig
-        - -cisco_empty_lists option implemented: 
-	  prints ANY/NOT ANY access/prefix lists where applicable. 
-          Although it works for cisco format only. 
-          By default, the warning about empty/universal filter is issued.
-        - if policy for specified peering is not found in aut-num, 
-	  more detailed warning is issued.
-        - fixed the bug with non-existent inet-rtr object;
-        - multiple "ifaddr" attributes in inet-rtr object are 
-	  now handled properly.
-        - see RtConfig manpage for updates
+* RPSLng dictionary implemented according to:
+  http://www.radb.net/rpslng.html
 
-* prpath:
-        - fixed the bug with <destination_specification> handling, 
-	  now queries for /32 route for a single IP
-          address, and the warning is issued if route not found.
+* peval, rpslcheck already work
 
-* rpslcheck:
-        - fixed the command-line flags handling
+* as only RIPE rpslng-aware whois server was available for testing, tools work with ripe protocol. irrd is expected for testing very soon, patch will be available.
+  Therefore irrd protocol may not work properly.
 
-* irr module:
-        - small bug in rawhoisd implementation fixed 
-
-* man pages updated
-        - man pages have been reviewed and updated regarding 
-	  recent bugs and features, typo's fixed.
-
-* new Errors man page added
-        - explains IRRToolSet's errors common for all 
-	  the tools with references to relevant documentation.
+* peval now accepts both RPSL and RPSLng filters (extended to support ipv6)
+   for peval, the syntax for evaluation of mp-filter is:
+  afi <afi_list> <mp-filter>
+  results will be restricted to address familiy(ies) from <afi_list>.
 

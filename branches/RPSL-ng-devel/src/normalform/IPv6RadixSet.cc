@@ -771,7 +771,7 @@ bool IPv6RadixTree::equals(const IPv6RadixTree *b) const {
 }
 
 ostream& operator<<(ostream& o, const IPv6RadixSet &set) {
-   char buffer[64];
+   char buffer[256];
    bool need_comma = false;
    u_int leng, n, m;
    ipv6_addr_t addr;
