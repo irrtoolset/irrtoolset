@@ -30,7 +30,8 @@ of the possible values for some attributes:
 | 021	 |RtConfig| katie     | SOLVED  | High     |
 | 022	 |RtConfig| katie     | SOLVED  | High     |
 | 023	 |RtConfig| katie     | SOLVED  | High     |
-| 024	 |RtConfig| katie     | SOLVING | High     |
+| 024	 |RtConfig| katie     | SOLVED  | High     |
+| 025	 |roe     | katie     | SOLVED  | High     |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
@@ -57,3 +58,4 @@ of the possible values for some attributes:
 022: in RtConfig, when ANY/NOT ANY is an expression, access lists are not generated. Empty route map is still generated. 
 023: in RtConfig, bcc config format, SEGV received for configureRouter.
 024: in RtConfig, gives 'error: filter can contain only prefix/aspath filters' if we are getting empty normal expression as a result of filter evaluation.
+025: in roe, if AS is nonexistent, SEGV.
