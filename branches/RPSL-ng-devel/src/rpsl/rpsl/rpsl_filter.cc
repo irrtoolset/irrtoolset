@@ -158,14 +158,46 @@ ostream &FilterMPPRFXList::print(ostream &out) const {
    MPPrefixRanges::const_iterator p;
    out << "{";
 
-   for (p = begin(); p != end(); ++p) {
+   p = begin();
+   out << *p;
+   ++p;
+   for (p; p != end(); ++p) {
+     out << ", ";
      out << *p ;
-     out << ',';
    }
 
    out << "}";
 
    return out;
+}
+
+FilterPRFXList* FilterMPPRFXList::get_v4() {
+
+   MPPrefixRanges::const_iterator p;
+   FilterPRFXList *list_v4 = new FilterPRFXList;
+
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv4)
+       list_v4->add_high(*(p->ipv4));   
+   }
+   if (list_v4)
+     return list_v4;
+   else 
+     return NULL;
+}
+
+FilterMPPRFXList* FilterMPPRFXList::get_v6() {
+   MPPrefixRanges::const_iterator p;
+   FilterMPPRFXList *list_v6 = new FilterMPPRFXList;
+
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv6)
+       list_v6->push_back(*p);
+   }
+   if (list_v6)
+     return list_v6;
+   else 
+     return NULL;
 }
 
 ostream &FilterV6EXCLUDE::print(ostream &out) const {
@@ -182,6 +214,14 @@ ostream &FilterV6EXCLUDE::print(ostream &out) const {
    return out;
 }
 
+ostream &FilterAFI::print(ostream &out) const {
+   out << (AddressFamily &) *afi_item;
+   out << " ";
+   out << *f;
+
+   return out;
+}
+
 ostream &FilterV6HAVE_COMPONENTS::print(ostream &out) const {
    MPPrefixRanges::const_iterator p;
    out << "{";
@@ -192,13 +232,6 @@ ostream &FilterV6HAVE_COMPONENTS::print(ostream &out) const {
    }
 
    out << "}";
-
-   return out;
-}
-
-ostream &FilterAFI::print(ostream &out) const {
-
-   out << (AddressFamily &) *this;
 
    return out;
 }

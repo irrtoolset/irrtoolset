@@ -283,15 +283,10 @@ Buffer *ItemPRFXV6Range::bufferize(Buffer *buf = NULL, bool lcase = false) const
    return buf;
 }
 
-ostream &ItemAFI::print(ostream &out) const {
-   out << *afi;
-   return out;
-}
-
 Buffer *ItemAFI::bufferize(Buffer *buf = NULL, bool lcase = false) const {
    if (!buf)
       buf = new Buffer;
-   buf->append(afi->name());
+   buf->append( ((AddressFamily *) this)->name());
    return buf;
 }
 

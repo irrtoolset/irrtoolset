@@ -468,6 +468,8 @@ public:
    virtual Filter* dup() const {
       return new FilterMPPRFXList(*this);
    } 
+   virtual FilterPRFXList* get_v4();
+   virtual FilterMPPRFXList* get_v6();
 #ifdef DEBUG
    virtual const char *className(void) const {
       return "FilterMPPRFXList";
@@ -478,17 +480,28 @@ public:
 #endif // DEBUG
 };
 
-class FilterAFI: public Filter, public AddressFamily {
+class FilterAFI: public Filter {
+
 public:
    Filter *f;
+   ItemAFI *afi_item;
 
 public:
    FilterAFI() {
    }
+   FilterAFI(ItemAFI *_afi_item, Filter *_f) :
+     afi_item(_afi_item),
+     f(_f)
+   {
+   }
+   FilterAFI(const FilterAFI &pt) {
+      f = (Filter *)pt.f->dup();
+      afi_item = (ItemAFI *)pt.afi_item->dup();
+   }
    virtual ~FilterAFI() {}
-   
+
    virtual ostream& print(ostream &out) const;
-   virtual Filter* dup() const {
+   virtual Filter* FilterAFI::dup() const {
       return new FilterAFI(*this);
    }
 #ifdef DEBUG
@@ -499,8 +512,10 @@ public:
       INDENT(indent); os << *this << endl;
    }
 #endif // DEBUG
-}; 
 
+
+
+}; 
 
 class FilterRPAttribute: public Filter {
 public: 

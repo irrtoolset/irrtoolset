@@ -564,20 +564,25 @@ public:
 #endif // DEBUG
 };
 
-class ItemAFI : public Item {
+class ItemAFI : public Item , public AddressFamily {
+
+// chr* afi inherited from 2nd parent
+
 public:
-   AddressFamily *afi;
-public:
+   ItemAFI() {
+   }
    ItemAFI(AddressFamily *af) {
-      afi = af;
+      afi = af->afi;
    }
    ItemAFI(const ItemAFI &pt) {
-      afi = new AddressFamily(*pt.afi);
+      afi = strdup(pt.afi);
    }
+//   bool is_ipv4() { return is_ipv4(); }
+//   bool is_ipv6() { return is_ipv6(); }
    virtual ~ItemAFI() {
-      delete afi;
+ //     delete afi;
    }
-   virtual ostream& print(ostream &out) const;
+   //virtual ostream& print(ostream &out) const;
    virtual Item* dup() const {
       return new ItemAFI(*this);
    } 
