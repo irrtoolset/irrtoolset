@@ -117,6 +117,7 @@ extern Object *current_object;
    IPv6PrefixRange   *prfxv6rng;
    AddressFamily     *afi;
    RPType            *typenode;
+   MPPrefix          *mpprefix;
 
    Filter                    *filter;
    FilterMS                  *moreSpecOp;
@@ -264,13 +265,23 @@ extern Object *current_object;
 %type<list>      generic_list
 %type<list>      rs_members_list
 %type<list>      opt_rs_members_list
+
+%type<list>      rs_mp_members_list
+%type<list>      opt_rs_mp_members_list
+
+%type<list>      rtr_mp_member_list
+%type<list>      opt_rtr_mp_member_list
+
+%type<list>      afi_list
+
 %type<list>      blobs_list
 %type<list>      generic_non_empty_list
 %type<item>      list_item
 %type<item>      list_item_0
 %type<item>      rs_member
+%type<item>      rs_mp_member
+%type<item>      rtr_mp_member
 %type<item>      afi
-%type<list>      afi_list
 
 %type<string>    tkn_word
 %type<string>    tkn_word_from_keyw
@@ -402,7 +413,8 @@ extern Object *current_object;
 %type<peer_option_list> peer_options
 %type<peer_option_list> opt_peer_options
 %type<ip> peer_id
-%type<ip> mp_peer_id
+%type<mpprefix> mp_peer_id
+%type<mpprefix> interface_address
 
 %type<rpslattr>    opt_attr_options
 %type<rpslattr>    attr_options
@@ -1604,7 +1616,7 @@ KEYW_AFI afi TKN_PRFXV6 {
 KEYW_AFI afi TKN_PRFXV4 {
   $$ = $3;
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 
@@ -1613,7 +1625,7 @@ KEYW_AFI afi TKN_PRFXV4 {
   $$ = $3;
 
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 
@@ -1671,14 +1683,14 @@ mp_router_expr_factor: '(' mp_router_expr ')' {
 
 mp_router_expr_operand: KEYW_AFI afi TKN_IPV4 {
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   } else
    $$ = new FilterRouter($3);
 }
 | KEYW_AFI afi TKN_IPV6 {
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   } else 
    $$ = new FilterIPv6Router($3);
@@ -1788,7 +1800,13 @@ opt_default_mp_filter: {
 /// filter specification //////////////////////////
 
 filter_attribute: ATTR_FILTER filter TKN_EOA {
-   $$ = changeCurrentAttr(new AttrFilter($2));
+  // check that "mp-filter:" is not present
+   if (current_object->hasAttr("mp-filter")) {
+     handle_error("Error: mp-filter and filter attributes can't be used together\n");
+     yyerrok;
+    } else {
+      $$ = changeCurrentAttr(new AttrFilter($2));
+    }
 }
 | ATTR_FILTER error TKN_EOA {
    $$ = $1;
@@ -1800,15 +1818,13 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
 /// mp-filter attribute TBD ///
 
 mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
-  // check that filter is not present
-  $$ = changeCurrentAttr(new AttrMPFilter($2));
-  AttrIterator<AttrFilter>  itr(current_object, "filter");
-  for (const AttrFilter *attr(itr.first()); attr; attr = itr.next()) {
+  // check that "filter:" is not present
+   if (current_object->hasAttr("filter")) {
     handle_error("Error: mp-filter and filter attributes can't be used together\n");
     yyerrok;
-    delete (itr);
+  } else {
+    $$ = changeCurrentAttr(new AttrMPFilter($2));
   }
-
 }
 | ATTR_MP_FILTER error TKN_EOA {
    $$ = $1;
@@ -1818,7 +1834,12 @@ mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
 ;  
 
 peering_attribute: ATTR_PEERING peering TKN_EOA {
-   $$ = changeCurrentAttr(new AttrPeering($2));
+   if (current_object->hasAttr("mp-peering")) {
+     handle_error("Error: mp-peering and peering attributes can't be used together\n");
+     yyerrok;
+    } else {
+      $$ = changeCurrentAttr(new AttrPeering($2));
+   }
 }
 | ATTR_PEERING error TKN_EOA {
    $$ = $1;
@@ -1830,7 +1851,13 @@ peering_attribute: ATTR_PEERING peering TKN_EOA {
 //** mp-peering attribute TBD *****//
 
 mp_peering_attribute: ATTR_MP_PEERING KEYW_AFI afi mp_peering TKN_EOA {
+  if (current_object->hasAttr("peering")) {
+     handle_error("Error: mp-peering and peering attributes can't be used together\n");
+     yyerrok;
+    } else {
    //$$ = changeCurrentAttr(new AttrPeering($2));
+    }
+
 }
 | ATTR_MP_PEERING error TKN_EOA {
  //  $$ = $1;
@@ -1843,41 +1870,52 @@ mp_peering_attribute: ATTR_MP_PEERING KEYW_AFI afi mp_peering TKN_EOA {
 ///////// mp-members attribute /////////////////////////////////////
 
 rtr_mp_members_attribute: ATTR_RTR_MP_MEMBERS opt_rtr_mp_member_list TKN_EOA {
+  $$ = changeCurrentAttr(new AttrGeneric($1->type, $2));
   printf ("rtr-set mp-members ok\n");
 }
 | ATTR_RTR_MP_MEMBERS error TKN_EOA {
+  $$ = $1;
   handle_error ("Error: in mp-members specification\n");
   yyerrok;
 }
 ;
 
-opt_rtr_mp_member_list: {
+opt_rtr_mp_member_list: { /* empty list */
+   $$ = new ItemList;
 }
-| rtr_mp_member_list {
-}
+| rtr_mp_member_list
 ;
 
 rtr_mp_member_list: rtr_mp_member {
+  $$ = new ItemList;
+  $$->append($1);
 }
 | rtr_mp_member_list ',' rtr_mp_member {
+  $$ = $1;
+  $$->append($3);
 }
 ;
 
+// afi ???
 rtr_mp_member: KEYW_AFI afi TKN_IPV4 {
+  $$ = new ItemIPV4($3);
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_IPV6 {
+  $$ = new ItemIPV6($3);
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
-  }
+  } 
 }
 | TKN_DNS {
+  $$ = new ItemDNS($1);
 }
 | TKN_RTRSNAME {
+  $$ = new ItemRTRSNAME($1);
 }
 ;
 
@@ -1916,11 +1954,22 @@ ifaddr_attribute: ATTR_IFADDR TKN_IPV4 KEYW_MASKLEN TKN_INT opt_action TKN_EOA {
 
 ////// interface attribute TBD ///////////////////////////////////////////
 
-interface_address: TKN_IPV4 {
+interface_address: KEYW_AFI afi TKN_IPV4 {
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
+    yyerrok;
+  }
 }
-| TKN_IPV6 {
+| KEYW_AFI afi TKN_IPV6 {
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
+    yyerrok;
+  }
 }
 ;
+
 opt_tunnel_spec: {
 }
 | KEYW_TUNNEL interface_address ',' TKN_WORD {
@@ -1933,8 +1982,7 @@ opt_tunnel_spec: {
 ;
 
 // must include <action>
-interface_attribute: ATTR_INTERFACE KEYW_AFI afi_list
-                     interface_address KEYW_MASKLEN TKN_INT 
+interface_attribute: ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT 
                      opt_action
                      opt_tunnel_spec TKN_EOA {
 //   $$ = changeCurrentAttr(new AttrIfAddr($2->get_ipaddr(), $4, $5));
@@ -2074,47 +2122,107 @@ peer_attribute: ATTR_PEER tkn_word peer_id opt_peer_options TKN_EOA {
 // mp-peer attribute TBD *****************//
 
 mp_peer_attribute: ATTR_MP_PEER TKN_WORD mp_peer_id opt_peer_options TKN_EOA { 
+   const AttrProtocol *protocol = schema.searchProtocol($2);
+   int position;
+   const RPType *correctType;
+   bool error = false;
+
+   if (!protocol) {
+      handle_error("Error: unknown protocol %s.\n", $2);
+      error = true;
+   } else {
+      ((AttrProtocol *) protocol)->startMandatoryCheck();
+      for (AttrPeerOption *opt = $4->head(); opt; opt = $4->next(opt)) {
+         const AttrProtocolOption *decl = protocol->searchOption(opt->option);
+         if (!decl)  {
+            handle_error("Error: protocol %s does not have option %s.\n", 
+                         $2, opt->option);
+            error = true;
+         } else {
+            for (; decl; decl = protocol->searchNextOption(decl))
+               if (decl->option->validateArgs(opt->args, position, correctType))
+                  break;
+            if (! decl) {
+               if (! (!strcasecmp(protocol->name, "BGP4")
+                      && !strcasecmp(opt->option, "asno")
+                      && opt->args->isSingleton()
+                      && typeid(*opt->args->head()) == typeid(ItemWORD)
+                      && !strcasecmp(((ItemWORD *) opt->args->head())->word,
+                                     "peeras"))) {
+                  handleArgumentTypeError($2, opt->option, position, 
+                                          correctType);
+                  error = true;
+               }
+            }
+         }
+      }
+   }
+
+   if (! error) {
+      const AttrProtocolOption *missing = 
+         ((AttrProtocol *) protocol)->missingMandatoryOption();
+      if (missing) {
+         handle_error("Error: mandatory option %s of protocol %s is missing.\n", 
+                      missing->option->name, $2);
+         error = true;
+      }
+   }
+      
+   if (!error) {
+     $$ = changeCurrentAttr(new AttrMPPeer(protocol, $3, $4));
+   }
+   else {
+      free($2);
+      delete $3;
+      delete $4;
+   }
+  
 }
 | ATTR_MP_PEER TKN_WORD mp_peer_id error TKN_EOA {
-//   $$ = $1;
-//   free($2);
-//   delete $3;
+   $$ = $1;
+   free($2);
+   delete $3;
    handle_error("Error: in peer option.\n");
    yyerrok;
 }
 | ATTR_MP_PEER TKN_WORD error TKN_EOA {
-//   $$ = $1;
-//   free($2);
+   $$ = $1;
+   free($2);
    handle_error("Error: missing peer ip_address.\n");
    yyerrok;
 }
 | ATTR_MP_PEER error TKN_EOA {
-//   $$ = $1;
+   $$ = $1;
    handle_error("Error: missing protocol name.\n");
    yyerrok;
 }
 ;
 
 mp_peer_id: KEYW_AFI afi TKN_IPV4 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_IPV6 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  if (! $$->is_valid()) {
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | TKN_DNS  {
 //   $$ = new IPAddr;
+  $$ = new MPPrefix;
 }
 | TKN_RTRSNAME  {
 //   $$ = new IPAddr;
+  $$ = new MPPrefix;
 }
 | TKN_PRNGNAME {
 //   $$ = new IPAddr;
+  $$ = new MPPrefix;
 }
 ;
 
@@ -2221,13 +2329,13 @@ v6_filter_prefix_list: v6_filter_prefix_list_prefix {
 
 v6_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_PRFXV6RNG {
   if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
-    handle_error ("Error: afi is not matched with prefix\n");
+    handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }  
@@ -2488,47 +2596,68 @@ rs_members_attribute: ATTR_RS_MEMBERS opt_rs_members_list TKN_EOA {
 
 //*  mp-members attribute of route-set object TBD */
 
+opt_rs_mp_members_list: /* empty list */ {
+   $$ = new ItemList;
+}
+| KEYW_AFI afi rs_mp_members_list {
+   $$ = $3;
+}
+;
+
+rs_mp_members_list: rs_mp_member {
+   $$ = new ItemList;
+   $$->append($1);
+}
+| rs_mp_members_list ',' rs_mp_member {
+   $$ = $1;
+   $$->append($3);
+}
+;
+
+rs_mp_member: TKN_ASNO {
+   $$ = new ItemASNO($1);
+}
+| TKN_ASNO OP_MS {
+   $$ = new ItemMSItem(new ItemASNO($1), $2->code, $2->n, $2->m);
+   delete $2;
+}
+| TKN_ASNAME {
+   $$ = new ItemASNAME($1);
+}
+| TKN_ASNAME OP_MS {
+   $$ = new ItemMSItem(new ItemASNAME($1), $2->code, $2->n, $2->m);
+   delete $2;
+}
+| TKN_RSNAME {
+   $$ = new ItemRSNAME($1);
+}
+| TKN_RSNAME OP_MS {
+   $$ = new ItemMSItem(new ItemRSNAME($1), $2->code, $2->n, $2->m);
+   delete $2;
+}
+| TKN_PRFXV4 {
+   $$ = new ItemPRFXV4($1);
+}
+| TKN_PRFXV4RNG {
+   $$ = new ItemPRFXV4Range($1);
+}
+| TKN_PRFXV6 {
+   $$ = new ItemPRFXV6($1);
+}
+| TKN_PRFXV6RNG {
+   $$ = new ItemPRFXV6Range($1);
+}
+;
+
 rs_mp_members_attribute: ATTR_RS_MP_MEMBERS opt_rs_mp_members_list TKN_EOA {
-   //$$ = changeCurrentAttr(new AttrGeneric($1->type, $2));
+   $$ = changeCurrentAttr(new AttrGeneric($1->type, $2));
 }
 | ATTR_RS_MP_MEMBERS error TKN_EOA {
-   //$$ = $1;
+   $$ = $1;
    handle_error("Error: invalid member\n");
    yyerrok;
 }
 ;
-
-// afi_list ???
-opt_rs_mp_members_list: /* empty list */ {
-//   $$ = new ItemList;
-}
-| KEYW_AFI afi_list rs_mp_members_list
-;
-
-rs_mp_members_list: rs_mp_member {    
-//   $$ = new ItemList;
-//   $$->append($1);
-}
-| rs_mp_members_list ',' rs_mp_member {
-//   $$ = $1;
-//   $$->append($3);
-}
-;
-// rs_member defined as for IPv4
-
-rs_mp_member: rs_member {
-}
-| TKN_PRFXV6 {
- // $$ = new ItemPRFXV6($1);
-}
-| TKN_PRFXV6RNG {
- // $$ = new ItemPRFXV6Range($1);
-}
-;
-
-
-
-
 
 //**** dictionary *********************************************************
 
