@@ -50,9 +50,10 @@
 .\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"//
 .\"//  Questions concerning this software should be directed to 
-.\"//  info-ra@isi.edu.
+.\"//  irrtoolset@ripe.net.
 .\"//
 .\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"//             Katie Petrusha <katie@ripe.net>
 .\"
 .\"
 .TH rpslcheck 1 local
@@ -63,14 +64,10 @@ rpslcheck
 .RI [ flags ]\ [<as-no>]
 .SH DESCRIPTION
 .PP
-rpslcheck syntax-checks the aut-num object for <as-no> registered 
-in the Internet Routing Registry (IRR). If <as-no> is not specified,
-object is expected as a standard input. 
-Rpslcheck only checks the syntax of policy related attributes 
-such as import, export and default.
-If an aut-num passes rpslcheck's syntax checking,
-it will not create cause errors to any of the tools in RAToolSet, 
-such as RtConfig.
+rpslcheck syntax-checks any RPSL object. If the object passes rpslcheck's syntax check it will not cause errors to any of the tools in IRRToolSet, such as RtConfig. However, the syntax constraints of a particular IRR can differ from the ones in RPSL.
+.PP
+The input can be supplied via "-as <ASnum>" option (only AS-numbers). If no option is specified the object is expected as a standard input. The input can contain multiple objects.
+.PP
 Future versions of this tool will generate better error messages and do
 more than just syntax checking.
 .SH IRRToolSet COMMON OPTIONS
