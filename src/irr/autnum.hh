@@ -485,7 +485,7 @@ private:
             rght = select(pr->right, pset, peerAS, peerIP, ip, &afi_list_right, NULL);
          }
 
-         afi_list_left->and(*afi_list_right);
+         afi_list_left->_and(*afi_list_right);
          (*tmp_afi_list)->merge(*afi_list_left);
 
          if (!left || !rght) {
@@ -548,8 +548,8 @@ private:
                filterAction->filter = new FilterAND(filterAction->filter,
                   new FilterNOT((Filter  *) rghtFilter->dup()));
             ItemList *t = new ItemList (*afi_list_right);
-            t->not();
-            afi_list_left->and(*t);
+            t->_not();
+            afi_list_left->_and(*t);
             delete t;
          }
          delete rghtFilter;
@@ -561,7 +561,7 @@ private:
                  filterAction = rght->next(filterAction))
                filterAction->filter = new FilterAND(filterAction->filter,
                                    (Filter  *) leftFilter->dup());
-            afi_list_right->and(*afi_list_left);
+            afi_list_right->_and(*afi_list_left);
          }
          delete leftFilter;
 

@@ -865,7 +865,7 @@ public:
          append((ItemAFI *) item->dup());
    }
 
-   void and(ItemList &list) {
+   void _and(ItemList &list) {
      ItemList *result = new ItemList;
      for (Item *item = head(); item; item = next(item))
        if (list.contains((ItemAFI *) item))
@@ -875,11 +875,11 @@ public:
      delete result;
    }
 
-   void or(ItemList &list) {
+   void _or(ItemList &list) {
      merge(list);
    }
   
-   void not() {
+   void _not() {
      // create complete afi list
      ItemList *full = new ItemList;
      full->append(new ItemAFI("any"));

@@ -1198,7 +1198,7 @@ void MPPrefixRanges::append_list(const MPPrefixRanges *src) {
 }
 
 // AND
-void MPPrefixRanges::and(MPPrefixRanges *src) {
+void MPPrefixRanges::_and(MPPrefixRanges *src) {
    MPPrefixRanges result = new MPPrefixRanges;
    insert_iterator<MPPrefixRanges> res_ins(result, result.begin());
    set_intersection(this->begin(), this->end(), src->begin(), src->end(), res_ins);

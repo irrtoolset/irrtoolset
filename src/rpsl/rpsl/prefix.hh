@@ -380,7 +380,7 @@ public:
   }
 
   void append_list(const MPPrefixRanges *src); // join
-  void and(MPPrefixRanges *src); // intersection
+  void _and(MPPrefixRanges *src); // intersection
   void except(MPPrefixRanges *src); // exception
   bool contains(IPAddr ip) const;
   bool contains(IPv6Addr ip) const;
