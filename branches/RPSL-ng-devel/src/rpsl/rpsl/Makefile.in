@@ -90,7 +90,7 @@ distdir:
 all: $(OBJECTS)
 
 clean:
-	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh *.tk.cc $(GOAL)
+	rm -f core *.o *~ *.tk.cc $(GOAL)
 
 mostlyclean:
 	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh *.tk.cc
