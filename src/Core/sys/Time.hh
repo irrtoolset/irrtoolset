@@ -99,7 +99,7 @@ class Time {
 };
 
 class TimeShort : public Time<U32> {
-    friend TimeLong;
+    friend class TimeLong;
     
   public:
     // Create empty time instance
@@ -146,7 +146,7 @@ class TimeShort : public Time<U32> {
 };
 
 class TimeLong : public Time<U64> {
-    friend TimeShort;
+    friend class TimeShort;
     
   public:
     // Create an empty time instance
