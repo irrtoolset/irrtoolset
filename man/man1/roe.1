@@ -87,7 +87,7 @@ Print debugging messages of debug channel <integer>
 .IP "\-version"
 Print the version number and quit.
 .IP "\-h <host-name>"
-Establish an RAWhoisd connection to host <host-name>.
+Establish a whois connection to host <host-name>.
 The default is whois.radb.net.
 This means that roe obtains its data only from
 <host-name>. If it displays routes from other
@@ -95,12 +95,10 @@ registries, those are the mirror copies of those routes
 in <host-name>. However, roe can update any registry,
 not just <host-name>.
 .IP "\-p <port-no>"
-Establish an RAWhoisd connection to port <port-no>.
+Establish a whois connection to port <port-no>.
 The default is 43.
 .IP "\-protocol <protocol>"
-Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
-ripe, and bird. The default is irrd. The ripe option should be used with
-the old ripe server.
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd), ripe(bird), and ripe_perl. The default is irrd. The ripe_perl option should be used with the old ripe server.
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 For example, -s RADB,MCI,CANET,ANS,RIPE
@@ -124,9 +122,9 @@ Lists routes of <as-no>.
 .SH ENVIRONMENT VARIABLES
 .RS
 .IP IRR_HOST
-Specifies the RAWhoisd host to connect.
+Specifies the IRR host to connect.
 .IP IRR_PORT
-Specifies the RAWhoisd port number to connect.
+Specifies the IRR port number to connect.
 .IP IRR_SOURCES
 Specifies the source list (comma separated) to consider.
 .RE
