@@ -29,6 +29,7 @@ of the possible values for some attributes:
 | 020	 |aoe,roe | katie     | WAIT    | Low      |
 | 021	 |RtConfig| katie     | SOLVING | High     |
 | 022	 |RtConfig| katie     | SOLVING | High     |
+| 023	 |RtConfig| katie     | SOLVING | High     |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
@@ -53,3 +54,4 @@ of the possible values for some attributes:
 020: NEW: make list of IRR's in aoe/roe configurable (now hardcoded) 
 021: in RtConfig, configureRouter gives segm core OR does not handle "if-addr".
 022: in RtConfig, when ANY/NOT ANY is an expression, access lists are not generated. Empty route map is still generated. 
+023: in RtConfig, bcc config format, SEGV received for configureRouter.
