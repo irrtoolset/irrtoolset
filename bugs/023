@@ -1,0 +1,15 @@
+id: 023
+summary: in RtConfig/bcc config, SEGV with configureRouter 
+owner: katie
+status: solving
+priority: high
+program: RtConfig
+module(s): RtConfig
+reported: unknown
+closed: unknown
+
+detail:
+
+whois -h whois.ripe.net -p 43 -protocol ripe 
+@RtConfig configureRouter herman.fsknet.dk
+
