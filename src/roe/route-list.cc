@@ -496,6 +496,11 @@ void RouteList::load(ASt _as) {
 
    const PrefixRanges *registered_routes = whois->expandAS(as);
 
+   if (!registered_routes) 	{
+	tcl_Eval("showWarning { No object for AS%d}", as);
+        return;
+   }
+	
    // Added by wlee
    if (registered_routes->isEmpty()) {
      tcl_Eval("showWarning { No route for AS%d}", as);
