@@ -29,7 +29,7 @@ of the possible values for some attributes:
 | 020	 |aoe,roe | katie     | WAIT    | Low      |
 | 021	 |RtConfig| katie     | SOLVING | High     |
 | 022	 |RtConfig| katie     | SOLVING | High     |
-| 023	 |RtConfig| katie     | SOLVING | High     |
+| 023	 |RtConfig| katie     | SOLVED  | High     |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
