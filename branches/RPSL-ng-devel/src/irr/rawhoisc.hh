@@ -136,10 +136,11 @@ public:
    virtual bool getSet(SymID sname, char *clss, char *&text, int &len);
    virtual bool getRoute(char *rt, char *as, char *&text, int &len);
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len);
-   virtual bool expandAS(char *as,           PrefixRanges *result);
    virtual bool expandASSet(SymID asset,     SetOfUInt    *result);
-   virtual bool expandRSSet(SymID rsset,     PrefixRanges *result);
-   virtual bool expandRtrSet(SymID rsset,    PrefixRanges *result);
+   // REIMP
+   virtual bool expandAS(char *as,           MPPrefixRanges *result);
+   virtual bool expandRSSet(SymID rsset,     MPPrefixRanges *result);
+   virtual bool expandRtrSet(SymID rsset,    MPPrefixRanges *result);
 
    // Added by wlee@isi.edu for roe basically
    void setFullObjectFlag(bool onoff) {

@@ -135,7 +135,7 @@ ostream &PolicyPeering::print(ostream &out) const {
       if (peerRtrs)
 	 out << " " << *peerRtrs;
       if (localRtrs)
-	 out << " at " << localRtrs;
+	 out << " at " << *localRtrs;
    }
 
    return out;

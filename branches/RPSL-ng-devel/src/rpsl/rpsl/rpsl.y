@@ -123,6 +123,7 @@ extern Object *current_object;
    Filter                    *filter;
    FilterMS                  *moreSpecOp;
    PolicyPeering             *peering;
+   PolicyPeering             *mp_peering;
    PolicyActionList          *actionList;
    PolicyAction              *actionNode;
    PolicyFactor              *policyFactor;
@@ -252,10 +253,13 @@ extern Object *current_object;
 %token <attr> ATTR_FILTER
 %token <attr> ATTR_V6_FILTER
 %token <attr> ATTR_MP_FILTER
+%token <attr> ATTR_MP_PEVAL
 %token <attr> ATTR_PEERING
 %token <attr> ATTR_MP_PEERING
 %token <attr> ATTR_ATTR
 %token <attr> ATTR_MNT_ROUTES
+%token <attr> ATTR_MNT_ROUTES6
+%token <attr> ATTR_MNT_ROUTES_MP
 
 %left  		  OP_OR 
 %left  		  OP_AND
@@ -270,9 +274,6 @@ extern Object *current_object;
 %type<list>      rs_mp_members_list
 %type<list>      opt_rs_mp_members_list
 
-%type<list>      rtr_mp_member_list
-%type<list>      opt_rtr_mp_member_list
-
 %type<list>      afi_list
 
 %type<list>      blobs_list
@@ -281,7 +282,6 @@ extern Object *current_object;
 %type<item>      list_item_0
 %type<item>      rs_member
 %type<item>      rs_mp_member
-%type<item>      rtr_mp_member
 %type<item>      afi
 
 %type<string>    tkn_word
@@ -313,16 +313,18 @@ extern Object *current_object;
 %type<attr>      rpattr_attribute
 %type<attr>      rs_members_attribute
 %type<attr>      rs_mp_members_attribute
-%type<attr>      rtr_mp_members_attribute
 %type<attr>      protocol_attribute
 %type<attr>      filter_attribute
 %type<attr>      v6_filter_attribute
 %type<attr>      mp_filter_attribute
+%type<attr>      mp_peval_attribute
 %type<attr>      peering_attribute
 %type<attr>      mp_peering_attribute
 %type<attr>      attr_attribute
 %type<attr>      freetext_attribute
 %type<attr>      mnt_routes_attribute
+%type<attr>      mnt_routes6_attribute
+%type<attr>      mnt_routes_mp_attribute
 
 %type<filter>    filter
 %type<filter>    opt_default_filter
@@ -337,7 +339,6 @@ extern Object *current_object;
 %type<filter>    filter_rp_attribute
 
 %type<filter>    mp_filter
-%type<filter>    mp_filter_exp
 %type<filter>    opt_default_mp_filter
 %type<filter>    mp_filter_term
 %type<filter>    mp_filter_factor
@@ -347,7 +348,23 @@ extern Object *current_object;
 %type<filter>    opt_mp_filter_prefix_list
 %type<filter>    mp_filter_prefix_list
 %type<mpprefix>   mp_filter_prefix_list_prefix
+%type<filter>    mp_peval
 
+%type<filter>    v6_filter
+%type<filter>    v6_filter_term
+%type<filter>    v6_filter_factor
+%type<filter>    v6_filter_operand
+%type<filter>    v6_filter_prefix
+%type<filter>    v6_filter_prefix_operand
+%type<filter>    opt_v6_filter_prefix_list
+%type<filter>    v6_filter_prefix_list
+%type<mpprefix>   v6_filter_prefix_list_prefix
+
+%type<filter>    opt_v6_inject_expr
+%type<filter>    v6_inject_expr
+%type<filter>    v6_inject_expr_term
+%type<filter>    v6_inject_expr_factor
+%type<filter>    v6_inject_expr_operand
 
 %type<filter>    opt_as_expr
 %type<filter>    as_expr
@@ -387,6 +404,7 @@ extern Object *current_object;
 %type<actionNode>      single_action
 
 %type<peering>     peering
+%type<peering>     mp_peering
 
 %type<peeringActionList> import_peering_action_list
 %type<peeringActionList> export_peering_action_list
@@ -398,6 +416,18 @@ extern Object *current_object;
 %type<policyTerm>        export_factor_list
 %type<policyTerm>        export_term
 %type<policyExpr>        export_expr
+
+%type<peeringActionList> mp_import_peering_action_list
+%type<peeringActionList> mp_export_peering_action_list
+%type<policyFactor>      mp_import_factor
+%type<policyTerm>        mp_import_factor_list
+%type<policyTerm>        mp_import_term
+%type<policyExpr>        mp_import_expr
+%type<policyFactor>      mp_export_factor
+%type<policyTerm>        mp_export_factor_list
+%type<policyTerm>        mp_export_term
+%type<policyExpr>        mp_export_expr
+
 %type<protocol>          opt_protocol_from
 %type<protocol>          opt_protocol_into
 
@@ -425,7 +455,10 @@ extern Object *current_object;
 
 %type<listMntPrfxPair>  mnt_routes_list
 %type<mntPrfxPair>      mnt_routes_list_item
-
+%type<listMntPrfxPair>  mnt_routes6_list
+%type<mntPrfxPair>      mnt_routes6_list_item
+%type<listMntPrfxPair>  mnt_routes_mp_list
+%type<mntPrfxPair>      mnt_routes_mp_list_item
 
 %%
 object: attribute_list TKN_EOO {
@@ -486,15 +519,17 @@ attribute: generic_attribute
 | rpattr_attribute
 | rs_members_attribute
 | rs_mp_members_attribute
-| rtr_mp_members_attribute
 | filter_attribute
 | v6_filter_attribute
 | mp_filter_attribute
+| mp_peval_attribute
 | peering_attribute
 | mp_peering_attribute
 | attr_attribute
 | freetext_attribute
 | mnt_routes_attribute
+| mnt_routes6_attribute
+| mnt_routes_mp_attribute
 | TKN_ERROR TKN_EOA { // the current line started w/ non-attribute
    $$ = changeCurrentAttr(new Attr);
    handle_error("Error: syntax error\n");
@@ -1028,6 +1063,7 @@ single_action: TKN_RP_ATTR '.' TKN_WORD '(' generic_list ')' ';' {
 ;
 
 //// filter /////////////////////////////////////////////////////////////
+//// default afi = ipv4
 
 filter: filter OP_OR filter_term {
    $$ = new FilterOR($1, $3);
@@ -1100,7 +1136,6 @@ opt_filter_prefix_list: {
 }
 | filter_prefix_list {
   $$ = $1;
-  printf("FilterPRFXList created\n");
 }
 ;
 
@@ -1383,6 +1418,7 @@ mp_import_attribute: ATTR_MP_IMPORT
                      opt_protocol_from opt_protocol_into
                      KEYW_AFI afi_list
                      mp_import_expr TKN_EOA {
+  $$ = changeCurrentAttr(new AttrImport($2, $3, $5, $6));
 }
 | ATTR_MP_IMPORT opt_protocol_from opt_protocol_into KEYW_AFI afi_list error TKN_EOA {
    handle_error ("Error: in peering/filter specification\n");
@@ -1393,7 +1429,7 @@ mp_import_attribute: ATTR_MP_IMPORT
   yyerrok;
 }
 | ATTR_MP_IMPORT error TKN_EOA {
-//   $$ = $1;
+   $$ = $1;
    handle_error("Error: wrong mp-import.\n");
    yyerrok;
 }
@@ -1403,6 +1439,7 @@ mp_export_attribute: ATTR_MP_EXPORT
                      opt_protocol_from opt_protocol_into
                      KEYW_AFI afi_list
                      mp_export_expr TKN_EOA {
+  $$ = changeCurrentAttr(new AttrExport($2, $3, $5, $6));
 }
 | ATTR_MP_EXPORT opt_protocol_from opt_protocol_into KEYW_AFI afi_list error TKN_EOA {
    handle_error ("Error: in peering specification\n");
@@ -1413,7 +1450,7 @@ mp_export_attribute: ATTR_MP_EXPORT
   yyerrok;
 }
 | ATTR_MP_EXPORT error TKN_EOA {
-//   $$ = $1;
+   $$ = $1;
    handle_error("Error: wrong mp-export.\n");
    yyerrok;
 }
@@ -1421,114 +1458,109 @@ mp_export_attribute: ATTR_MP_EXPORT
 ///////// mp-import/mp-export expr TBD //////////////
 
 mp_import_expr: mp_import_term {
-//   $$ = $1;
+   $$ = $1;
 }
 | mp_import_term KEYW_REFINE mp_import_expr {
-   //$$ = new PolicyRefine($1, $3);
+   $$ = new PolicyRefine($1, $3);
 }  
 | mp_import_term KEYW_EXCEPT mp_import_expr {
-   //$$ = new PolicyExcept($1, $3);
+   $$ = new PolicyExcept($1, $3);
 }
 ;
 
 mp_export_expr: mp_export_term {
-//   $$ = $1;
+   $$ = $1;
 }
 | mp_export_term KEYW_REFINE mp_export_expr {
-   //$$ = new PolicyRefine($1, $3);
+   $$ = new PolicyRefine($1, $3);
 }
 | mp_export_term KEYW_EXCEPT mp_export_expr {
-   //$$ = new PolicyExcept($1, $3);
+   $$ = new PolicyExcept($1, $3);
 }
 ;
 
 ///////  mp-import/mp-export term TBD //////////////////
 
 mp_import_term: mp_import_factor ';' {
-   //PolicyTerm *term = new PolicyTerm;
-   //term->append($1);
-   //$$ = term;
+   PolicyTerm *term = new PolicyTerm;
+   term->append($1);
+   $$ = term;
 }
 | '{' mp_import_factor_list '}' {
-   //$$ = $2;
+   $$ = $2;
 }
 ;
 
 mp_export_term: mp_export_factor ';' {
-   //PolicyTerm *term = new PolicyTerm;
-   //term->append($1);
-   //$$ = term;
+   PolicyTerm *term = new PolicyTerm;
+   term->append($1);
+   $$ = term;
 }
 | '{' mp_export_factor_list '}' {
-   //$$ = $2;
+   $$ = $2;
 }
 ;
 
 //// mp-import/mp-export factor TBD ///////////////////////////////////////////////
 
-mp_import_factor: mp_import_peering_action_list KEYW_ACCEPT mp_filter_exp  {
-//   $$ = new PolicyFactor($1, $3);
+mp_import_factor: mp_import_peering_action_list KEYW_ACCEPT mp_filter  {
+   $$ = new PolicyFactor($1, $3);
 }
 ;
 
 mp_import_factor_list: mp_import_factor ';' {
-//   $$ = new PolicyTerm;
-//   $$->append($1);
+   $$ = new PolicyTerm;
+   $$->append($1);
 }
 | mp_import_factor_list mp_import_factor ';' {
-//   $$ = $1;
-//   $$->append($2);
+   $$ = $1;
+   $$->append($2);
 }
 ;
 
-mp_export_factor: mp_export_peering_action_list KEYW_ANNOUNCE mp_filter_exp  {
-//   $$ = new PolicyFactor($1, $3);
+mp_export_factor: mp_export_peering_action_list KEYW_ANNOUNCE mp_filter  {
+   $$ = new PolicyFactor($1, $3);
 }
 ;
 
 mp_export_factor_list: mp_export_factor ';' {
-//   $$ = new PolicyTerm;
-//   $$->append($1);
+   $$ = new PolicyTerm;
+   $$->append($1);
 }
 | mp_export_factor_list mp_export_factor ';' {
-//   $$ = $1;
-//   $$->append($2);
+   $$ = $1;
+   $$->append($2);
 }
 ;
 
 //// mp-import-mp-export peering action pair TBD ///////////////////////////
 
 mp_import_peering_action_list: KEYW_FROM mp_peering opt_action {
-//   $$ = new List<PolicyPeeringAction>;
-//   $$->append(new PolicyPeeringAction($2, $3));
+   $$ = new List<PolicyPeeringAction>;
+   $$->append(new PolicyPeeringAction($2, $3));
 }
 | mp_import_peering_action_list KEYW_FROM mp_peering opt_action {
-//   $$ = $1;
-//   $$->append(new PolicyPeeringAction($3, $4));
+   $$ = $1;
+   $$->append(new PolicyPeeringAction($3, $4));
 }
 ;
 
 mp_export_peering_action_list: KEYW_TO mp_peering opt_action {
-//   $$ = new List<PolicyPeeringAction>;
-//   $$->append(new PolicyPeeringAction($2, $3));
+   $$ = new List<PolicyPeeringAction>;
+   $$->append(new PolicyPeeringAction($2, $3));
 }
 | mp_export_peering_action_list KEYW_TO mp_peering opt_action {
-//   $$ = $1;
-//   $$->append(new PolicyPeeringAction($3, $4));
+   $$ = $1;
+   $$->append(new PolicyPeeringAction($3, $4));
 }
 ;
 
-//// mp-filter TBD //////////////////////
+//// mp-filter //////////////////////
 
-mp_filter: KEYW_AFI afi mp_filter_exp {
-    $$ = new FilterAFI((ItemAFI *) $2, $3);
-}
-;
-
-mp_filter_exp: mp_filter_exp OP_OR mp_filter_term {
+mp_filter: mp_filter OP_OR mp_filter_term {
    $$ = new FilterOR($1, $3);
 }
-| mp_filter_exp mp_filter_term %prec OP_OR {
+| mp_filter mp_filter_term %prec OP_OR {
    $$ = new FilterOR($1, $2);
 }
 | mp_filter_term
@@ -1609,6 +1641,11 @@ mp_filter_prefix_list: mp_filter_prefix_list_prefix {
 
 mp_filter_prefix_list_prefix: TKN_PRFXV6 {
   $$ = new MPPrefix($1);
+  ipv6_addr_t *ip = new ipv6_addr_t($$->get_ipaddr());
+  char buf[256];
+
+  compact(ip, buf);
+
 }
 | TKN_PRFXV6RNG {
   $$ = new MPPrefix($1);
@@ -1624,10 +1661,15 @@ mp_filter_prefix_list_prefix: TKN_PRFXV6 {
 //// mp-peering TBD /////////////////////
 
 mp_peering: as_expr opt_mp_router_expr opt_mp_router_expr_with_at {
-//   $$ = new PolicyPeering($1, $2, $3);
+   $$ = new PolicyPeering($1, $2, $3);
+// need to check here that afi in opt_mp_router_expr == afi in opt_mp_router_expr_with_at
+   if (typeid(*$2) != typeid(*$3)) {
+     handle_error ("Error: routers address families mismatch\n");
+     yyerrok;
+   }
 }
 | TKN_PRNGNAME {
-//   $$ = new PolicyPeering($1);
+   $$ = new PolicyPeering($1);
 } 
 ;
 
@@ -1670,19 +1712,11 @@ mp_router_expr_factor: '(' mp_router_expr ')' {
 | mp_router_expr_operand
 ;
 
-mp_router_expr_operand: KEYW_AFI afi TKN_IPV4 {
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  } else
-   $$ = new FilterRouter($3);
+mp_router_expr_operand: TKN_IPV4 {
+   $$ = new FilterRouter($1);
 }
-| KEYW_AFI afi TKN_IPV6 {
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  } else 
-   $$ = new FilterIPv6Router($3);
+| TKN_IPV6 {
+   $$ = new FilterIPv6Router($1);
 }
 | TKN_DNS {
    $$ = new FilterRouterName($1);
@@ -1759,15 +1793,15 @@ default_attribute: ATTR_DEFAULT KEYW_TO peering
 
 // **** mp-default attribute TBD *******************///
 
-mp_default_attribute: ATTR_MP_DEFAULT KEYW_AFI afi 
+mp_default_attribute: ATTR_MP_DEFAULT KEYW_AFI afi_list 
                                 KEYW_TO mp_peering
                                 opt_action
                                 opt_default_mp_filter TKN_EOA {
-   //$$ = changeCurrentAttr(new AttrDefault($3, $4, $5));
+   $$ = changeCurrentAttr(new AttrDefault($3, $5, $6, $7));
 }
-| ATTR_MP_DEFAULT KEYW_AFI afi KEYW_TO mp_peering error TKN_EOA {
-//   if ($3)
-//      delete $3;
+| ATTR_MP_DEFAULT KEYW_AFI afi_list KEYW_TO mp_peering error TKN_EOA {
+   if ($5)
+      delete $5;
    handle_error("Error: badly formed filter/action or keyword NETWORKS/ACTION missing.\n");
    yyerrok;
 }
@@ -1778,13 +1812,12 @@ mp_default_attribute: ATTR_MP_DEFAULT KEYW_AFI afi
 ;
 
 opt_default_mp_filter: {
-//   $$ = new FilterANY;
+   $$ = new FilterANY;
 }
 | KEYW_NETWORKS mp_filter {
-//   $$ = $2;
+   $$ = $2;
 }
 ;
-
 
 /// filter specification //////////////////////////
 
@@ -1794,7 +1827,8 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
      handle_error("Error: mp-filter and filter attributes can't be used together\n");
      yyerrok;
     } else {
-      $$ = changeCurrentAttr(new AttrFilter($2));
+      //$$ = changeCurrentAttr(new AttrFilter($2));
+      $$ = changeCurrentAttr(new AttrFilter(new FilterAFI(new ItemAFI(new AddressFamily("ipv4")), $2)));
     }
 }
 | ATTR_FILTER error TKN_EOA {
@@ -1804,7 +1838,24 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
 }
 ;
 
-/// mp-filter attribute TBD ///
+// for peval
+
+mp_peval_attribute: ATTR_MP_PEVAL mp_peval TKN_EOA {
+   $$ = changeCurrentAttr(new AttrMPPeval($2));
+}
+| ATTR_MP_PEVAL error TKN_EOA {
+   $$ = $1;
+   handle_error("Error: badly formed filter in mp-peval.\n");
+   yyerrok;
+}
+;
+
+mp_peval: KEYW_AFI afi_list mp_filter  {
+   $$ = new FilterAFI((ItemList *) $2, $3);
+}
+;
+
+/// mp-filter attribute ///
 
 mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
   // check that "filter:" is not present
@@ -1812,7 +1863,7 @@ mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
     handle_error("Error: mp-filter and filter attributes can't be used together\n");
     yyerrok;
   } else {
-    $$ = changeCurrentAttr(new AttrMPFilter($2));
+    $$ = changeCurrentAttr(new AttrFilter($2));
   }
 }
 | ATTR_MP_FILTER error TKN_EOA {
@@ -1822,13 +1873,10 @@ mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
 }  
 ;  
 
+//** peering attribute *****//
+
 peering_attribute: ATTR_PEERING peering TKN_EOA {
-   if (current_object->hasAttr("mp-peering")) {
-     handle_error("Error: mp-peering and peering attributes can't be used together\n");
-     yyerrok;
-    } else {
-      $$ = changeCurrentAttr(new AttrPeering($2));
-   }
+   $$ = changeCurrentAttr(new AttrPeering($2));
 }
 | ATTR_PEERING error TKN_EOA {
    $$ = $1;
@@ -1839,72 +1887,13 @@ peering_attribute: ATTR_PEERING peering TKN_EOA {
 
 //** mp-peering attribute TBD *****//
 
-mp_peering_attribute: ATTR_MP_PEERING KEYW_AFI afi mp_peering TKN_EOA {
-  if (current_object->hasAttr("peering")) {
-     handle_error("Error: mp-peering and peering attributes can't be used together\n");
-     yyerrok;
-    } else {
-   //$$ = changeCurrentAttr(new AttrPeering($2));
-    }
-
+mp_peering_attribute: ATTR_MP_PEERING mp_peering TKN_EOA {
+   $$ = changeCurrentAttr(new AttrMPPeering($2));
 }
 | ATTR_MP_PEERING error TKN_EOA {
- //  $$ = $1;
+   $$ = $1;
    handle_error("Error: badly formed peering.\n");
    yyerrok;
-}
-;
-
-//******** rtr-set class *******************************************
-///////// mp-members attribute /////////////////////////////////////
-
-rtr_mp_members_attribute: ATTR_RTR_MP_MEMBERS opt_rtr_mp_member_list TKN_EOA {
-  $$ = changeCurrentAttr(new AttrGeneric($1->type, $2));
-  printf ("rtr-set mp-members ok\n");
-}
-| ATTR_RTR_MP_MEMBERS error TKN_EOA {
-  $$ = $1;
-  handle_error ("Error: in mp-members specification\n");
-  yyerrok;
-}
-;
-
-opt_rtr_mp_member_list: { /* empty list */
-   $$ = new ItemList;
-}
-| rtr_mp_member_list
-;
-
-rtr_mp_member_list: rtr_mp_member {
-  $$ = new ItemList;
-  $$->append($1);
-}
-| rtr_mp_member_list ',' rtr_mp_member {
-  $$ = $1;
-  $$->append($3);
-}
-;
-
-// afi ???
-rtr_mp_member: KEYW_AFI afi TKN_IPV4 {
-  $$ = new ItemIPV4($3);
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
-}
-| KEYW_AFI afi TKN_IPV6 {
-  $$ = new ItemIPV6($3);
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  } 
-}
-| TKN_DNS {
-  $$ = new ItemDNS($1);
-}
-| TKN_RTRSNAME {
-  $$ = new ItemRTRSNAME($1);
 }
 ;
 
@@ -1943,19 +1932,11 @@ ifaddr_attribute: ATTR_IFADDR TKN_IPV4 KEYW_MASKLEN TKN_INT opt_action TKN_EOA {
 
 ////// interface attribute TBD ///////////////////////////////////////////
 
-interface_address: KEYW_AFI afi TKN_IPV4 {
-  $$ = new MPPrefix($3);
-  if (! ((ItemAFI *) $2)->is_valid($$)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+interface_address: TKN_IPV4 {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_IPV6 {
-  $$ = new MPPrefix($3);
-  if (! ((ItemAFI *) $2)->is_valid($$)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+| TKN_IPV6 {
+  $$ = new MPPrefix($1);
 }
 ;
 
@@ -1976,6 +1957,12 @@ interface_attribute: ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT
                      opt_tunnel_spec TKN_EOA {
    $$ = changeCurrentAttr(new AttrInterface($2, $4, $5, $6));
    //delete $2;
+   if ($6) {
+      if (($2->ipv4 && $6->remote_ip->ipv6) || ($2->ipv6 && $6->remote_ip->ipv4)) {
+        handle_error("Error: address family mismatch in local/remote tunnel endpoint\n");
+        yyerrok;
+      }
+   }
 }
 | ATTR_INTERFACE interface_address KEYW_MASKLEN error TKN_EOA {
    $$ = $1;
@@ -1989,7 +1976,7 @@ interface_attribute: ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT
 }
 | ATTR_INTERFACE error TKN_EOA {
    $$ = $1;
-   handle_error("Error: afi <afi> <ip_address> MASKLEN <length> [<action>] [<tunnel>] expected.\n");
+   handle_error("Error: <ip_address> MASKLEN <length> [<action>] [<tunnel>] expected.\n");
    yyerrok;
 }
 ;
@@ -2185,22 +2172,13 @@ mp_peer_attribute: ATTR_MP_PEER TKN_WORD mp_peer_id opt_peer_options TKN_EOA {
 }
 ;
 
-mp_peer_id: KEYW_AFI afi TKN_IPV4 {
-  $$ = new MPPrefix($3);
-  if (! ((ItemAFI *) $2)->is_valid($$)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+mp_peer_id: TKN_IPV4 {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_IPV6 {
-  $$ = new MPPrefix($3);
-  if (! ((ItemAFI *) $2)->is_valid($$)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+| TKN_IPV6 {
+  $$ = new MPPrefix($1);
 }
 | TKN_DNS  {
-//   $$ = new IPAddr;
   $$ = new MPPrefix;
 }
 | TKN_RTRSNAME  {
@@ -2220,8 +2198,7 @@ mp_peer_id: KEYW_AFI afi TKN_IPV4 {
 //// v6_filter v6 only filter in route6 object //////////////////////////////////////////////////////////
 
 v6_filter_attribute: ATTR_V6_FILTER v6_filter TKN_EOA {
-  printf ("filter in route6 OK\n");
-
+  $$ = changeCurrentAttr(new AttrFilter($2));
 }
 | ATTR_V6_FILTER error TKN_EOA {
    $$ = $1;
@@ -2231,114 +2208,104 @@ v6_filter_attribute: ATTR_V6_FILTER v6_filter TKN_EOA {
 ;
 
 v6_filter: v6_filter OP_OR v6_filter_term {
-//   $$ = new FilterOR($1, $3);
+   $$ = new FilterOR($1, $3);
 }
 | v6_filter v6_filter_term %prec OP_OR {
-//   $$ = new FilterOR($1, $2);
+   $$ = new FilterOR($1, $2);
 }
 | v6_filter_term
 ;
 
 v6_filter_term : v6_filter_term OP_AND v6_filter_factor {
-//   $$ = new FilterAND($1, $3);
+   $$ = new FilterAND($1, $3);
 }
 | v6_filter_factor
 ;
 
 v6_filter_factor :  OP_NOT v6_filter_factor {
-//   $$ = new FilterNOT($2);
+   $$ = new FilterNOT($2);
 }
 | '(' v6_filter ')' {
-//   $$ = $2;
+   $$ = $2;
 }
 | v6_filter_operand 
 ;
 
 v6_filter_operand: KEYW_ANY {
-//   $$ = new FilterANY;
+   $$ = new FilterANY;
 }
 | '<' filter_aspath '>' {
-//   $$ = new FilterASPath($2);
+   $$ = new FilterASPath($2);
 }
 | filter_rp_attribute {
-/*   if ($1)
+   if ($1)
       $$ = $1;
    else
       $$ = new FilterNOT(new FilterANY);
-*/
 }
 | TKN_FLTRNAME {
-//   $$ = new FilterFLTRNAME($1);
+   $$ = new FilterFLTRNAME($1);
 }
 | v6_filter_prefix
 ;
 
 v6_filter_prefix: v6_filter_prefix_operand OP_MS {
-//   $2->f1 = $1;
-//   $$ = $2;
+   $2->f1 = $1;
+   $$ = $2;
 }
 |  v6_filter_prefix_operand
 ;
 
 v6_filter_prefix_operand: TKN_ASNO {
-//   $$ = new FilterASNO($1);
+   $$ = new FilterASNO($1);
 }
 | KEYW_PEERAS {
-//   $$ = new FilterPeerAS;
+   $$ = new FilterPeerAS;
 }
 | TKN_ASNAME {
-//   $$ = new FilterASNAME($1);
+   $$ = new FilterASNAME($1);
 }
 | TKN_RSNAME {
-//   $$ = new FilterRSNAME($1);
+   $$ = new FilterRSNAME($1);
 }
-| '{' v6_opt_filter_prefix_list '}' { 
-//   $$ = $2; 
+| '{' opt_v6_filter_prefix_list '}' { 
+   $$ = $2; 
 }
 ;
 
-v6_opt_filter_prefix_list: {
-//   $$ = new FilterPRFXList;
+opt_v6_filter_prefix_list: {
+   $$ = new FilterMPPRFXList;
 }
 | v6_filter_prefix_list
 ;
 
 v6_filter_prefix_list: v6_filter_prefix_list_prefix {
-//   ((FilterPRFXList *) ($$ = new FilterPRFXList))->add_high(*$1);
-//   delete $1;
+
+   ((FilterMPPRFXList *) ($$ = new FilterMPPRFXList))->push_back(*$1);
 }
 | v6_filter_prefix_list ',' v6_filter_prefix_list_prefix {
-//   $$ = $1;
-//   ((FilterPRFXList *) ($$))->add_high(*$3);
-//   delete $3;
+   $$ = $1;
+   ((FilterMPPRFXList *) ($$))->push_back(*$3);
 }
 ;
 
-// TBD!!!
-v6_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+
+v6_filter_prefix_list_prefix: TKN_PRFXV6 {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_PRFXV6RNG {
-  if (! ((ItemAFI *) $2)->is_valid($3)) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+| TKN_PRFXV6RNG {
+  $$ = new MPPrefix($1);
 }  
 ;  
 
 //// v6-components attribute ///////////////////////////////////////////////
 
 v6_components_attribute: ATTR_V6_COMPONENTS opt_atomic v6_components_list TKN_EOA {
-
-  printf ("components in route6 OK\n");
+  $$ = $1;
 }
 | ATTR_V6_COMPONENTS error TKN_EOA {
-//   $$ = $1;
+   $$ = $1;
    handle_error("Error: [ATOMIC] [[<filter>] [PROTOCOL <protocol> <filter>] ...] expected.\n");
-   printf ("wrong components in route6\n");
    yyerrok;
 }
 ;
@@ -2346,11 +2313,11 @@ v6_components_attribute: ATTR_V6_COMPONENTS opt_atomic v6_components_list TKN_EO
 v6_components_list: {
 }
 | v6_filter {
-//   delete $1;
+   delete $1;
 }
 | v6_components_list KEYW_PROTOCOL TKN_WORD v6_filter {
-//   free($3);
-//   delete $4;
+   free($3);
+   delete $4;
 }
 ;
 
@@ -2359,54 +2326,55 @@ v6_components_list: {
 
 //// v6-inject attribute ///////////////////////////////////////////////////
 
-v6_inject_attribute: ATTR_V6_INJECT opt_mp_router_expr_with_at opt_action v6_opt_inject_expr TKN_EOA {
-
-   printf ("inject in route6 OK\n");
+v6_inject_attribute: ATTR_V6_INJECT opt_mp_router_expr_with_at opt_action opt_v6_inject_expr TKN_EOA {
+  $$ = $1;
+  delete $2;
+  delete $3;
+  delete $4;
   
 }
 | ATTR_V6_INJECT error TKN_EOA {
-//   $$ = $1;
-   printf ("wrong inject in route6\n");
+   $$ = $1;
    handle_error("Error: [at <router-exp>] [action <action>] [upon <condition>] expected.\n");
    yyerrok;
 }  
 ;
 
-v6_opt_inject_expr: {
-//   $$ = new FilterANY;
+opt_v6_inject_expr: {
+   $$ = new FilterANY;
 }
 | KEYW_UPON v6_inject_expr {
-//   $$ = $2;
+   $$ = $2;
 }
 ;
 
 v6_inject_expr: v6_inject_expr OP_OR v6_inject_expr_term {
-//   $$ = new FilterOR($1, $3);
+   $$ = new FilterOR($1, $3);
 }
 | v6_inject_expr_term {
 }
 ;
 
 v6_inject_expr_term: v6_inject_expr_term OP_AND v6_inject_expr_factor {
-//   $$ = new FilterAND($1, $3);
+   $$ = new FilterAND($1, $3);
 }
 | v6_inject_expr_factor
 ;
 
 v6_inject_expr_factor: '(' v6_inject_expr ')' {
-//   $$ = $2;
+   $$ = $2;
 }
 | v6_inject_expr_operand 
 ;
 
 v6_inject_expr_operand: KEYW_STATIC {
-//   $$ = new FilterANY;
+   $$ = new FilterANY;
 }
-| KEYW_HAVE_COMPONENTS '{' v6_opt_filter_prefix_list '}' { 
-//   $$ = new FilterHAVE_COMPONENTS((FilterPRFXList *) $3); 
+| KEYW_HAVE_COMPONENTS '{' opt_v6_filter_prefix_list '}' { 
+   $$ = new FilterV6HAVE_COMPONENTS((FilterMPPRFXList *) $3); 
 } 
-| KEYW_EXCLUDE '{' v6_opt_filter_prefix_list '}' { 
-//   $$ = new FilterEXCLUDE((FilterPRFXList *) $3); 
+| KEYW_EXCLUDE '{' opt_v6_filter_prefix_list '}' { 
+   $$ = new FilterV6EXCLUDE((FilterMPPRFXList *) $3); 
 } 
 ;
 
@@ -2530,7 +2498,9 @@ components_attribute: ATTR_COMPONENTS opt_atomic components_list TKN_EOA {
 opt_rs_members_list: /* empty list */ {
    $$ = new ItemList;
 }
-| rs_members_list
+| rs_members_list {
+   $$ = $1;
+}  
 ;
 
 rs_members_list: rs_member { 	
@@ -2587,8 +2557,8 @@ rs_members_attribute: ATTR_RS_MEMBERS opt_rs_members_list TKN_EOA {
 opt_rs_mp_members_list: /* empty list */ {
    $$ = new ItemList;
 }
-| KEYW_AFI afi rs_mp_members_list {
-   $$ = $3;
+| rs_mp_members_list {
+   $$ = $1;
 }
 ;
 
@@ -2962,6 +2932,7 @@ attr_attribute: ATTR_ATTR tkn_word opt_attr_options TKN_EOA {
 ;
 
 //**** rps-auth stuff *****************************************************
+// mnt-routes in route, inetnum
 
 mnt_routes_attribute: ATTR_MNT_ROUTES mnt_routes_list TKN_EOA {
    $$ = changeCurrentAttr(new AttrMntRoutes($2));
@@ -2985,8 +2956,62 @@ mnt_routes_list_item: tkn_word {
    $$ = new AttrMntRoutes::MntPrfxPair($1, NULL);
 }
 | tkn_word '{' opt_filter_prefix_list '}'  {
-   $$ = new AttrMntRoutes::MntPrfxPair($1, (FilterPRFXList *) $3);
+   $$ = new AttrMntRoutes::MntPrfxPair($1, (FilterMPPRFXList *) $3);
 }
+;
+
+//** mnt-routes in route6, inet6num
+
+mnt_routes6_attribute: ATTR_MNT_ROUTES6 mnt_routes6_list TKN_EOA {
+   $$ = changeCurrentAttr(new AttrMntRoutes($2));
+}
+;
+mnt_routes6_list: mnt_routes6_list_item {
+   $$ = new List<AttrMntRoutes::MntPrfxPair>;
+   $$->append($1);
+}
+| mnt_routes6_list ',' mnt_routes6_list_item {
+   $$ = $1;
+   $$->append($3);
+}
+;
+
+mnt_routes6_list_item: tkn_word {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, NULL);
+}
+| tkn_word KEYW_ANY  {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, NULL);
+}
+| tkn_word '{' opt_v6_filter_prefix_list '}'  {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, (FilterMPPRFXList *) $3);
+}
+;
+
+// mnt-routes attribute in aut-num (multiprotocol)
+
+mnt_routes_mp_attribute: ATTR_MNT_ROUTES_MP mnt_routes_mp_list TKN_EOA {
+   $$ = changeCurrentAttr(new AttrMntRoutes($2));
+} 
+; 
+mnt_routes_mp_list: mnt_routes_mp_list_item {
+   $$ = new List<AttrMntRoutes::MntPrfxPair>;
+   $$->append($1);
+} 
+| mnt_routes_mp_list ',' mnt_routes_mp_list_item {
+   $$ = $1;
+   $$->append($3);
+}
+; 
+   
+mnt_routes_mp_list_item: tkn_word {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, NULL);
+}
+| tkn_word KEYW_ANY  {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, NULL);
+} 
+| tkn_word '{' opt_mp_filter_prefix_list '}'  {
+   $$ = new AttrMntRoutes::MntPrfxPair($1, (FilterMPPRFXList *) $3);
+}  
 ;
 
 // **** afi stuff ************************************************************

@@ -58,12 +58,13 @@
 
 #include "rpsl/object.hh"
 
+// handles route AND route6 objects
 class Route : public Object {
   public:
    Route() : Object() {};
    Route(Buffer &buf) : Object(buf) {}
    ~Route() {};
-   Prefix *getPrefix(void) const;
+   MPPrefix *getPrefix(void) const;
 };
 
 #endif   // ROUTE_H

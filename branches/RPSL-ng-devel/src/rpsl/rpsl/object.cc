@@ -274,6 +274,19 @@ void Object::validate() {
         return;
     }
     sprintf(buffer, "***Error: either filter or mp-filter must be present.\n");
+    
+    errors += buffer;
+    has_error = true;
+  }
+  else if (type && (strcasecmp(type->name, "peering-set") == 0)) {
+    Attr *attr;
+    static char buffer[1024];
+    for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+      if (strcasecmp(attr->type->name(), "peering") == 0 || strcasecmp(attr->type->name(), "mp-peering") == 0)
+        return;
+    }
+    sprintf(buffer, "***Error: at least one from peering or mp-peering must be present.\n");
+
     errors += buffer;
     has_error = true;
   }

@@ -436,13 +436,13 @@ bool RAWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len) {
    return len;
 }
 
-bool RAWhoisClient::expandAS(char *as,       PrefixRanges *result) {
+bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
   char *response;
   if (!QueryResponse(response, "!g%s", as)) return false;
   for (char *word = strtok(response, " \t\n");
        word; 
        word = strtok(NULL, " \t\n")) 
-    result->add_high(PrefixRange(word));
+    result->push_back(MPPrefix(word));
   if (response)
      delete [] response;
   return true;
@@ -460,19 +460,19 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
   return true;
 }
 
-bool RAWhoisClient::expandRSSet(SymID rsset, PrefixRanges *result) {
+bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
   char *response;
   if (!QueryResponse(response, "!i%s,1", rsset)) return false;
   for (char *word = strtok(response, " \t\n"); 
        word; 
        word = strtok(NULL, " \t\n"))
-    result->add_high(PrefixRange(word));
+    result->push_back(MPPrefix(word));
   if (response)
      delete [] response;
   return true;
 }
 
-bool RAWhoisClient::expandRtrSet(SymID sname, PrefixRanges *result) {
+bool RAWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
    const Set *set = IRR::getRtrSet(sname);
    AttrGenericIterator<Item> itr(set, "members");
    for (Item *pt = itr.first(); pt; pt = itr.next())

@@ -551,7 +551,11 @@ public:
    } 
    virtual bool operator <=(Item &b) {
       return typeid(b) == typeid(ItemPRFXV6Range&) 
-         && prfxv6 <= ((ItemPRFXV6Range&) b).prfxv6;
+      && prfxv6->get_ipaddr() <= ((ItemPRFXV6Range&) b).prfxv6->get_ipaddr()
+      && prfxv6->get_n()      == ((ItemPRFXV6Range&) b).prfxv6->get_n()
+      && prfxv6->get_m()      == ((ItemPRFXV6Range&) b).prfxv6->get_m()
+      && prfxv6->get_length() == ((ItemPRFXV6Range&) b).prfxv6->get_length();
+
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
@@ -566,7 +570,7 @@ public:
 
 class ItemAFI : public Item , public AddressFamily {
 
-// chr* afi inherited from 2nd parent
+// char *afi inherited from 2nd parent
 
 public:
    ItemAFI() {
@@ -577,20 +581,12 @@ public:
    ItemAFI(const ItemAFI &pt) {
       afi = strdup(pt.afi);
    }
-//   bool is_ipv4() { return is_ipv4(); }
-//   bool is_ipv6() { return is_ipv6(); }
    virtual ~ItemAFI() {
- //     delete afi;
    }
-   //virtual ostream& print(ostream &out) const;
+   virtual ostream& print(ostream &out) const;
    virtual Item* dup() const {
       return new ItemAFI(*this);
    } 
-   virtual bool operator <=(Item &b) {
-        return typeid(b) == typeid(ItemAFI&) &&
-        afi <= ((ItemAFI&) b).afi;
-   }
-
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
    virtual const char *className(void) const {

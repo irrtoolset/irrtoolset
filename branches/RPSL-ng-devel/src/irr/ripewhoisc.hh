@@ -89,6 +89,7 @@ class RipeWhoisClient : public IRR, public Socket {
     virtual bool expandAS(char *as,           PrefixRanges *result);
     virtual bool expandASSet(SymID sname,     SetOfUInt    *result);
     virtual bool expandRSSet(SymID sname,     PrefixRanges *result);
+    virtual bool expandRSSet(SymID sname,     MPPrefixRanges *result);
     virtual bool expandRtrSet(SymID sname,    PrefixRanges *result);
 
   public:

@@ -58,6 +58,7 @@
 #include "rpsl/object.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "gnu/prefixranges.hh"
+#include "rpsl/prefix.hh"
 #include "classes.hh"
 
 class AutNum;
@@ -121,10 +122,13 @@ public:
    void getRoute(Route *&route, char *rt, ASt as);
 
    // expand sets
-   const PrefixRanges *expandAS(ASt as);
+   // REIMP const PrefixRanges *expandAS(ASt as);
+   const MPPrefixRanges *expandAS(ASt as);
    const SetOfUInt    *expandASSet(SymID asset);
-   const PrefixRanges *expandRSSet(SymID rsset);
-   const PrefixRanges *expandRtrSet(SymID rtrset);
+   // REIMP const PrefixRanges *expandRSSet(SymID rsset)
+   const MPPrefixRanges *expandRSSet(SymID rsset);
+   // REIMP const PrefixRanges *expandRtrSet(SymID rtrset);
+   const MPPrefixRanges *expandRtrSet(SymID rtrset);
 
    // options
    static void SetDefaultHost(const char *_host);
@@ -175,11 +179,16 @@ protected:
    virtual bool getRoute(char *rt, char *as, char *&text, int &len) = 0;
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len) = 0;
 
-   virtual bool expandAS(char *as,           PrefixRanges *result)  = 0;
+   // REIMP virtual bool expandAS(char *as,           PrefixRanges *result)  = 0;
+   virtual bool expandAS(char *as,           MPPrefixRanges *result)  = 0;
    virtual bool expandASSet(SymID asset,     SetOfUInt    *result)  = 0;
-   virtual bool expandRSSet(SymID rsset,     PrefixRanges *result)  = 0;
-   virtual bool expandRtrSet(SymID rtrset,   PrefixRanges *result)  = 0;
-   void         expandItem(Item *pt,         PrefixRanges *result);
+   // REIMP virtual bool expandRSSet(SymID rsset,     PrefixRanges *result) = 0;
+   virtual bool expandRSSet(SymID rsset,     MPPrefixRanges *result) = 0;
+   // REIMP virtual bool expandRtrSet(SymID rtrset,   PrefixRanges *result)  = 0;
+   virtual bool expandRtrSet(SymID rtrset,   MPPrefixRanges *result)  = 0;
+   // REIMP void         expandItem(Item *pt,         PrefixRanges *result);
+   void         expandItem(Item *pt,         MPPrefixRanges *result);
+
    bool         isIndirectMember(Object *o, 
 			   AttrGenericIterator<ItemWORD> &mbrs_by_ref);
 

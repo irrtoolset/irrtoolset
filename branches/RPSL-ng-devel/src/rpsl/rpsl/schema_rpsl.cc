@@ -253,7 +253,7 @@ attr:  holes            syntax(ListOfIPv6Prefix),                              o
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
-attr:  mnt-routes      syntax(special, mnt-routes),                             optional, multiple, lookup
+attr:  mnt-routes      syntax(special, mnt-routes6),                             optional, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -281,7 +281,7 @@ attr:  tech-c                                                                  m
 class: rtr-set
 attr:  rtr-set        syntax(rtr_set_name),                                       mandatory, single,   key
 attr:  members        syntax(list of union rtr_set_name, dns_name, ipv4_address), optional,  multiple, lookup 
-attr:  mp-members     syntax(special, rtr-mp-members), optional,  multiple, lookup 
+attr:  mp-members     syntax(list of union rtr_set_name, dns_name, ipv4_address, ipv6_address), optional,  multiple, lookup 
 attr:  mbrs-by-ref    syntax(list of rpsl_Word),                               	  optional,  multiple, lookup           " CMN_ATTRS "
 attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
@@ -318,7 +318,7 @@ attr:  default          syntax(special,default),                               o
 attr:  mp-default       syntax(special,mp-default),                            optional,  multiple                   " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
+attr:  mnt-routes       syntax(special, mnt-routes-mp),                           optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -347,6 +347,20 @@ attr:  status                                                                  m
 attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
+attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
+attr:  admin-c                                                                 mandatory, multiple, lookup
+attr:  tech-c                                                                  mandatory, multiple, lookup
+
+class: inet6num
+attr:  inet6num          syntax(ipv6_address_prefix),                         mandatory, single,   key
+attr:  netname                                                                 mandatory, single,   lookup
+attr:  country                                                                 mandatory, multiple
+attr:  rev-srv                                                                 optional,  multiple, lookup
+attr:  status                                                                  mandatory, single
+attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
+attr:  descr                                                                   mandatory, multiple
+attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
+attr:  mnt-routes       syntax(special, mnt-routes6),                          optional,  multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
 
@@ -395,7 +409,7 @@ class: peval
 attr:  peval            syntax(special,filter),                                 optional,  single
 
 class: mp-peval
-attr:  mp-peval         syntax(special,mp-filter),                              optional,  single
+attr:  mp-peval         syntax(special,mp-peval),                              optional,  single
 
 class: repository
 attr:  repository           mandatory,  single,  key,   syntax(rpsl_word)
@@ -615,10 +629,13 @@ static RPSLKeyword rpsl_rules[] = {
    RPSLKeyword("filter",            ATTR_FILTER,            1),
    RPSLKeyword("v6_filter",         ATTR_V6_FILTER,         1),
    RPSLKeyword("mp-filter",         ATTR_MP_FILTER,         1),
+   RPSLKeyword("mp-peval",          ATTR_MP_PEVAL,          1),
    RPSLKeyword("peering",           ATTR_PEERING,           1),
    RPSLKeyword("mp-peering",        ATTR_MP_PEERING,        1),
    RPSLKeyword("blobs",             ATTR_BLOBS,             1),
    RPSLKeyword("mnt-routes",        ATTR_MNT_ROUTES,        1),
+   RPSLKeyword("mnt-routes6",       ATTR_MNT_ROUTES6,       1),
+   RPSLKeyword("mnt-routes-mp",     ATTR_MNT_ROUTES_MP,     1),
    RPSLKeyword("components",        ATTR_COMPONENTS,        1),
    RPSLKeyword("v6_components",     ATTR_V6_COMPONENTS,     1),
    RPSLKeyword("inject",            ATTR_INJECT,            1),
@@ -627,7 +644,6 @@ static RPSLKeyword rpsl_rules[] = {
    RPSLKeyword("aggr-bndry",        ATTR_AGGR_BNDRY,        1),
    RPSLKeyword("rs-members",        ATTR_RS_MEMBERS,        1),
    RPSLKeyword("rs-mp-members",     ATTR_RS_MP_MEMBERS,     1),
-   RPSLKeyword("rtr-mp-members",    ATTR_RTR_MP_MEMBERS,    1),
    RPSLKeyword(NULL, 0,                                     1)
 };
 

@@ -290,6 +290,11 @@ Buffer *ItemAFI::bufferize(Buffer *buf = NULL, bool lcase = false) const {
    return buf;
 }
 
+ostream &ItemAFI::print(ostream &out) const {
+   out << (AddressFamily &) *this;
+   return out;
+}
+
 ostream &ItemConnection::print(ostream &out) const {
    if (ip)
       out << *ip;

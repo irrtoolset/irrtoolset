@@ -2,13 +2,13 @@
 
 GOAL   = libirr.a
 
-OBJS   = irr.o  rawhoisc.o  ripewhoisc.o  birdwhoisc.o \
+OBJS   = irr.o  rawhoisc.o  birdwhoisc.o  \
 	 autnum.o  route.o  cache_value.o
 
-SRCS   = irr.cc rawhoisc.cc ripewhoisc.cc birdwhoisc.cc \
+SRCS   = irr.cc rawhoisc.cc birdwhoisc.cc \
 	 autnum.cc route.cc cache_value.cc
 
-HFILES = irr.hh rawhoisc.hh ripewhoisc.cc birdwhoisc.hh \
+HFILES = irr.hh rawhoisc.hh birdwhoisc.cc \
 	 autnum.hh route.hh cache_value.hh cache.hh classes.hh
 
 LIBS   =
