@@ -866,7 +866,8 @@ public:
    AttrInterface(MPPrefix *ip, int masklen, PolicyActionList *_action, Tunnel *_tunnel) {
       action = _action;
       tunnel = _tunnel;
-      ifaddr->define(ip, masklen);
+      ifaddr = ip;
+      ifaddr->define(masklen);
    }
    AttrInterface(const AttrInterface& b) {
       ifaddr = new MPPrefix(*b.ifaddr);

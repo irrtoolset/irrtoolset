@@ -82,6 +82,9 @@ extern class IPv6Prefix    NullIPv6Prefix;
 extern class IPv6Addr    NullIPv6Addr;
 
 class PrefixRange {
+
+friend class MPPrefix;
+
  protected:
    static char formattingbuffer[128];
 
@@ -170,6 +173,9 @@ public:
 };
 
 class IPv6PrefixRange {
+
+friend class MPPrefix;
+
  protected:
    static char formattingbuffer[256];
 
@@ -289,7 +295,8 @@ public:
    }
 
   bool is_valid();
-  void define(MPPrefix *_ip, int masklen);
+  unsigned int get_length();
+  void define (unsigned int masklen);
 
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 

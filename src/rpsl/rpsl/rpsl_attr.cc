@@ -121,6 +121,14 @@ ostream &AttrIfAddr::print(ostream &out) const {
        << " masklen " << ifaddr.get_length();
    return out;
 }
+ostream &AttrInterface::print(ostream &out) const {
+   static char buffer[128];
+   out << "ifaddr:\t" ;
+   out << ifaddr;
+   out << " masklen " << ifaddr->get_length();
+   return out;
+}
+
 
 ostream &AttrPeerOption::print(ostream &out) const {
    out << option << "(" << *args << ")";

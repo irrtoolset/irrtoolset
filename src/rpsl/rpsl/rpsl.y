@@ -118,6 +118,7 @@ extern Object *current_object;
    AddressFamily     *afi;
    RPType            *typenode;
    MPPrefix          *mpprefix;
+   Tunnel            *tunnel;
 
    Filter                    *filter;
    FilterMS                  *moreSpecOp;
@@ -415,6 +416,7 @@ extern Object *current_object;
 %type<ip> peer_id
 %type<mpprefix> mp_peer_id
 %type<mpprefix> interface_address
+%type<tunnel>   opt_tunnel_spec
 
 %type<rpslattr>    opt_attr_options
 %type<rpslattr>    attr_options
@@ -1973,36 +1975,34 @@ interface_address: KEYW_AFI afi TKN_IPV4 {
 opt_tunnel_spec: {
 }
 | KEYW_TUNNEL interface_address ',' TKN_WORD {
-
+  $$ = new Tunnel($2, new ItemWORD($4));
   if (! (schema.searchTypedef("encapsulation"))->validate(new ItemWORD($4))) {
+     delete $$;
      handle_error("Error: wrong encapsulation specified.\n");
      yyerrok;
   }
 }
 ;
 
-// must include <action>
 interface_attribute: ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT 
                      opt_action
                      opt_tunnel_spec TKN_EOA {
-//   $$ = changeCurrentAttr(new AttrIfAddr($2->get_ipaddr(), $4, $5));
-//   delete $2;
+   $$ = changeCurrentAttr(new AttrInterface($2, $4, $5, $6));
+   //delete $2;
 }
-| ATTR_INTERFACE KEYW_AFI afi_list interface_address KEYW_MASKLEN error TKN_EOA {
-//   delete $2;
-//   $$ = $1;
+| ATTR_INTERFACE interface_address KEYW_MASKLEN error TKN_EOA {
+   $$ = $1;
    handle_error("Error: integer mask length expected.\n");
    yyerrok;
 }  
-| ATTR_INTERFACE KEYW_AFI afi_list interface_address error TKN_EOA {
-//   delete $2;
-//   $$ = $1;
+| ATTR_INTERFACE interface_address error TKN_EOA {
+   $$ = $1;
    handle_error("Error: MASKLEN <length> expected.\n");
    yyerrok;
 }
 | ATTR_INTERFACE error TKN_EOA {
-//   $$ = $1;
-   handle_error("Error: afi <afi_list> <ip_address> MASKLEN <length> [<action>] [<tunnel>] expected.\n");
+   $$ = $1;
+   handle_error("Error: afi <afi> <ip_address> MASKLEN <length> [<action>] [<tunnel>] expected.\n");
    yyerrok;
 }
 ;
