@@ -147,19 +147,19 @@ bool IPv6RadixSet::PrefixIterator::first(ipv6_addr_t &_addr, u_int &_leng) {
    rngs = current->rngs;
 
    for (cleng = leng; cleng <= 128 && (! (addr.getbits(cleng) & rngs)); cleng++);
-   number = 0;
+   number = NullIPv6; 
 
    _addr = addr;
    _leng  = cleng;
 
-   number++;
+   number = number + 1;
 
    return true;
 }
 bool IPv6RadixSet::PrefixIterator::next(ipv6_addr_t &_addr, u_int &_leng) {
 
    if (number == (1 << (cleng - leng))) {
-      number = 0;
+      number = NullIPv6;
       for (cleng++; cleng <= 128 && (! (addr.getbits(cleng) & rngs)); cleng++) ;
       if (cleng > 128) {
       	 for (current = itr.next(current); 
@@ -179,9 +179,10 @@ bool IPv6RadixSet::PrefixIterator::next(ipv6_addr_t &_addr, u_int &_leng) {
    }
 
    _addr = addr | (number << (128 - cleng));
-
    _leng  = cleng;
-   number++;
+
+   number = number + 1;
+
    return true;
 }
 
@@ -773,8 +774,8 @@ bool IPv6RadixTree::equals(const IPv6RadixTree *b) const {
 ostream& operator<<(ostream& o, const IPv6RadixSet &set) {
    char buffer[256];
    bool need_comma = false;
-   u_int leng, n, m;
-   ipv6_addr_t addr;
+   u_int leng=0, n=0, m=0;
+   ipv6_addr_t addr = NullIPv6;
 
    o << "{";
    if (set.root) {

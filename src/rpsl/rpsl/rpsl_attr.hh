@@ -594,32 +594,22 @@ public:
 
 class AttrImport: public Attr {
 public:
-   ItemList *afi_list;
    PolicyExpr *policy;
    const AttrProtocol *fromProt;
    const AttrProtocol *intoProt;
 public:
    AttrImport(const AttrProtocol *fprot, 
 	      const AttrProtocol *iprot, 
-        ItemList *af,
 	      PolicyExpr *p) : 
-      afi_list(af), policy(p), fromProt(fprot), intoProt(iprot)  {}
-   AttrImport(const AttrProtocol *fprot,
-        const AttrProtocol *iprot,
-        PolicyExpr *p) :
-      afi_list(new ItemList), policy(p), fromProt(fprot), intoProt(iprot)  {
-      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
-    }
+      policy(p), fromProt(fprot), intoProt(iprot)  {}
 
    AttrImport(const AttrImport &b) : Attr(b) {
-      afi_list = (ItemList *) b.afi_list->dup();
       policy = (PolicyExpr *) b.policy->dup();
       fromProt = b.fromProt;
       intoProt = b.intoProt;
    }
    virtual ~AttrImport() {
       delete policy;
-      delete afi_list;
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
@@ -642,8 +632,6 @@ public:
       else {
 	 INDENT(indent); os << "  NULL" << endl;
       }
-      INDENT(indent); os << "afi ";
-      afi_list->printClass(os, indent +2); 
       INDENT(indent); os << "policy (" << policy->className() << " *)" << endl;
       policy->printClass(os, indent + 2);
    }
@@ -654,33 +642,22 @@ public:
 
 class AttrExport: public Attr {
 public:
-   ItemList *afi_list;
    PolicyExpr *policy;
    const AttrProtocol *fromProt;
    const AttrProtocol *intoProt;
 public:
    AttrExport(const AttrProtocol *fprot, 
 	      const AttrProtocol *iprot, 
-        ItemList *af,
 	      PolicyExpr *p) : 
-      afi_list(af), policy(p), fromProt(fprot), intoProt(iprot)  {}
-   AttrExport(const AttrProtocol *fprot,
-        const AttrProtocol *iprot,
-        PolicyExpr *p) :
-      afi_list(new ItemList), policy(p), fromProt(fprot), intoProt(iprot)  {
-      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
-    }
-
+      policy(p), fromProt(fprot), intoProt(iprot)  {}
 
    AttrExport(const AttrExport &b) : Attr(b) {
-      afi_list = (ItemList *) b.afi_list->dup();
       policy = (PolicyExpr *) b.policy->dup();
       fromProt = b.fromProt;
       intoProt = b.intoProt;
    }
    virtual ~AttrExport() {
       delete policy;
-      delete afi_list;
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
@@ -703,8 +680,6 @@ public:
       else {
 	 INDENT(indent); os << "  NULL" << endl;
       }
-      INDENT(indent); os << "afi ";
-      afi_list->printClass(os, indent +2); 
       INDENT(indent); os << "policy (" << policy->className() << " *)" << endl;
       policy->printClass(os, indent + 2);
    }
@@ -726,7 +701,7 @@ public:
    AttrDefault(PolicyPeering *prng, PolicyActionList *act, Filter *flt):
       afi_list(new ItemList), peering(prng), action(act), filter(flt)
    {
-      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
+      afi_list->append(new ItemAFI(new AddressFamily("ipv4.unicast")));
    }
 
    AttrDefault(const AttrDefault &pt) : Attr(pt) {

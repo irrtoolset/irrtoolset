@@ -54,8 +54,9 @@ class AddressFamily {
    virtual bool is_valid(IPv6PrefixRange *p);
 
    bool operator==(AddressFamily &p) {
-     if (! strcasecmp(afi, p.afi))
+     if (strcasecmp(afi, p.afi) == 0) {
        return true;
+     }
      return false;
    }
    

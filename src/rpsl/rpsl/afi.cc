@@ -43,8 +43,7 @@ AddressFamily::AddressFamily(const AddressFamily &p) :
 }
 
 bool AddressFamily::is_Matching(char *name)  {
-  if (strncasecmp (name, afi, sizeof(afi)) == 0 
-   && strncasecmp (name, afi, sizeof(name)) == 0)
+  if (strcasecmp (name, afi) == 0) 
      return 1;
   return 0; 
 }
@@ -62,7 +61,7 @@ bool AddressFamily::is_ipv6() {
 }
 
 bool AddressFamily::is_default() {
-  if ((strcmp(afi, "ipv4") == 0) || (strcmp(afi, "ipv4.unicast") == 0))
+  if (strcmp(afi, "ipv4.unicast") == 0)
      return true;
   return false;
 } 

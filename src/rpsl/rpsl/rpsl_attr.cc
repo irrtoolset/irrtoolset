@@ -76,14 +76,17 @@ ostream &AttrImport::print(ostream &out) const {
       out << "protocol " << fromProt->name << " ";
    if (intoProt && intoProt->name && strcasecmp(intoProt->name, "BGP4"))
       out << "into " << intoProt->name << " ";
-   out << endl << "afi ";
-   out << *afi_list;
    out << *policy;
    return out;
 }
 
 ostream &AttrExport::print(ostream &out) const {
-   out << "export: " << *afi_list << endl << *policy;
+   out << "export: ";
+   if (fromProt && fromProt->name && strcasecmp(fromProt->name, "BGP4"))
+      out << "protocol " << fromProt->name << " ";
+   if (intoProt && intoProt->name && strcasecmp(intoProt->name, "BGP4"))
+      out << "into " << intoProt->name << " ";
+   out << *policy;
    return out;
 }
 

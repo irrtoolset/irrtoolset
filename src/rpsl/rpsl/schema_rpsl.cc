@@ -116,7 +116,7 @@ typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
          list of as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
 typedef: ListOfrpsl_word List of rpsl_word
 typedef: encapsulation enum[GRE, IPv6inIPv4, IPinIP, DVMRP]
-typedef: address_family enum[ipv4, ipv6]
+typedef: address_family enum[ipv4, ipv6, any]
 typedef: address_sub_family enum[unicast, multicast]
 rp-attribute: # preference, smaller values represent higher preferences
               pref

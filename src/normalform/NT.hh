@@ -73,7 +73,6 @@ public:
    static const int AS_PATH      = 1;
    static const int COMMUNITY    = 2;
    static const int SYMBOLS      = 3;
-//   static const int FILTER_COUNT = 4;
    static const int IPV6_PRFX    = 4;
    static const int FILTER_COUNT = 5;
 

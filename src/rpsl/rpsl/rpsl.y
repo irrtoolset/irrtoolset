@@ -275,6 +275,7 @@ extern Object *current_object;
 %type<list>      opt_rs_mp_members_list
 
 %type<list>      afi_list
+%type<list>      opt_afi_list
 
 %type<list>      blobs_list
 %type<list>      generic_non_empty_list
@@ -1063,7 +1064,7 @@ single_action: TKN_RP_ATTR '.' TKN_WORD '(' generic_list ')' ';' {
 ;
 
 //// filter /////////////////////////////////////////////////////////////
-//// default afi = ipv4
+//// default afi = ipv4.unicast
 
 filter: filter OP_OR filter_term {
    $$ = new FilterOR($1, $3);
@@ -1310,7 +1311,9 @@ export_peering_action_list: KEYW_TO peering opt_action {
 //// import/export factor ///////////////////////////////////////////////
 
 import_factor: import_peering_action_list KEYW_ACCEPT filter  {
-   $$ = new PolicyFactor($1, $3);
+   ItemList *afi_list = new ItemList;
+   afi_list->append(new ItemAFI("ipv4.unicast"));
+   $$ = new PolicyFactor($1, new FilterAFI (afi_list, $3));
 }
 ;
 
@@ -1325,7 +1328,9 @@ import_factor_list: import_factor ';' {
 ;
 
 export_factor: export_peering_action_list KEYW_ANNOUNCE filter  {
-   $$ = new PolicyFactor($1, $3);
+   ItemList *afi_list = new ItemList;
+   afi_list->append(new ItemAFI("ipv4.unicast"));
+   $$ = new PolicyFactor($1, new FilterAFI (afi_list, $3));
 }
 ;
 
@@ -1416,17 +1421,19 @@ opt_protocol_into: {
 
 mp_import_attribute: ATTR_MP_IMPORT
                      opt_protocol_from opt_protocol_into
-                     KEYW_AFI afi_list
                      mp_import_expr TKN_EOA {
-  $$ = changeCurrentAttr(new AttrImport($2, $3, $5, $6));
+  $$ = changeCurrentAttr(new AttrImport($2, $3, $4));
+}
+| ATTR_MP_IMPORT opt_protocol_from opt_protocol_into opt_afi_list mp_import_factor TKN_EOA {
+   PolicyTerm *term = new PolicyTerm;
+   $5->filter = new FilterAFI($4, $5->filter);
+   term->append($5);
+   $$ = changeCurrentAttr(new AttrImport($2, $3, term));
 }
 | ATTR_MP_IMPORT opt_protocol_from opt_protocol_into KEYW_AFI afi_list error TKN_EOA {
+   $$ = $1;
    handle_error ("Error: in peering/filter specification\n");
    yyerrok;
-}
-| ATTR_MP_IMPORT opt_protocol_from opt_protocol_into KEYW_AFI error TKN_EOA {
-  handle_error ("Error: in afi specification\n");
-  yyerrok;
 }
 | ATTR_MP_IMPORT error TKN_EOA {
    $$ = $1;
@@ -1437,17 +1444,19 @@ mp_import_attribute: ATTR_MP_IMPORT
 
 mp_export_attribute: ATTR_MP_EXPORT
                      opt_protocol_from opt_protocol_into
-                     KEYW_AFI afi_list
                      mp_export_expr TKN_EOA {
-  $$ = changeCurrentAttr(new AttrExport($2, $3, $5, $6));
+  $$ = changeCurrentAttr(new AttrExport($2, $3, $4));
+}
+| ATTR_MP_EXPORT opt_protocol_from opt_protocol_into opt_afi_list mp_export_factor TKN_EOA {
+   PolicyTerm *term = new PolicyTerm;
+   $5->filter = new FilterAFI($4, $5->filter);
+   term->append($5);
+   $$ = changeCurrentAttr(new AttrExport($2, $3, term));
 }
 | ATTR_MP_EXPORT opt_protocol_from opt_protocol_into KEYW_AFI afi_list error TKN_EOA {
-   handle_error ("Error: in peering specification\n");
+   $$ = $1;
+   handle_error ("Error: in peering/filter specification\n");
    yyerrok;
-}
-| ATTR_MP_EXPORT opt_protocol_from opt_protocol_into KEYW_AFI error TKN_EOA {
-  handle_error ("Error: in afi specification\n");
-  yyerrok;
 }
 | ATTR_MP_EXPORT error TKN_EOA {
    $$ = $1;
@@ -1481,23 +1490,31 @@ mp_export_expr: mp_export_term {
 
 ///////  mp-import/mp-export term TBD //////////////////
 
-mp_import_term: mp_import_factor ';' {
+mp_import_term: opt_afi_list mp_import_factor ';' {
    PolicyTerm *term = new PolicyTerm;
-   term->append($1);
+   $2->filter = new FilterAFI($1, $2->filter);
+   term->append($2);
    $$ = term;
 }
-| '{' mp_import_factor_list '}' {
-   $$ = $2;
+| opt_afi_list '{' mp_import_factor_list '}' {
+   for (PolicyFactor *pf = $3->head(); pf; pf = $3->next(pf)) {
+     pf->filter = new FilterAFI($1, pf->filter);
+   }
+   $$ = $3;
 }
 ;
 
-mp_export_term: mp_export_factor ';' {
+mp_export_term: opt_afi_list mp_export_factor ';' {
    PolicyTerm *term = new PolicyTerm;
-   term->append($1);
+   $2->filter = new FilterAFI($1, $2->filter);
+   term->append($2);
    $$ = term;
 }
-| '{' mp_export_factor_list '}' {
-   $$ = $2;
+| opt_afi_list '{' mp_export_factor_list '}' {
+   for (PolicyFactor *pf = $3->head(); pf; pf = $3->next(pf)) {
+     pf->filter = new FilterAFI($1, pf->filter);
+   }
+   $$ = $3;
 }
 ;
 
@@ -1785,15 +1802,15 @@ default_attribute: ATTR_DEFAULT KEYW_TO peering
 
 // **** mp-default attribute TBD *******************///
 
-mp_default_attribute: ATTR_MP_DEFAULT KEYW_AFI afi_list 
+mp_default_attribute: ATTR_MP_DEFAULT opt_afi_list 
                                 KEYW_TO mp_peering
                                 opt_action
                                 opt_default_mp_filter TKN_EOA {
-   $$ = changeCurrentAttr(new AttrDefault($3, $5, $6, $7));
+   $$ = changeCurrentAttr(new AttrDefault($2, $4, $5, $6));
 }
-| ATTR_MP_DEFAULT KEYW_AFI afi_list KEYW_TO mp_peering error TKN_EOA {
-   if ($5)
-      delete $5;
+| ATTR_MP_DEFAULT opt_afi_list KEYW_TO mp_peering error TKN_EOA {
+   if ($4)
+      delete $4;
    handle_error("Error: badly formed filter/action or keyword NETWORKS/ACTION missing.\n");
    yyerrok;
 }
@@ -1820,7 +1837,7 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
      yyerrok;
     } else {
       //$$ = changeCurrentAttr(new AttrFilter($2));
-      $$ = changeCurrentAttr(new AttrFilter(new FilterAFI(new ItemAFI(new AddressFamily("ipv4")), $2)));
+      $$ = changeCurrentAttr(new AttrFilter(new FilterAFI(new ItemAFI(new AddressFamily("ipv4.unicast")), $2)));
     }
 }
 | ATTR_FILTER error TKN_EOA {
@@ -3012,20 +3029,41 @@ mnt_routes_mp_list_item: tkn_word {
 ;
 
 // **** afi stuff ************************************************************
+/* any == ipv4.unicast. ipv4.multicast, ipv6.unicast, ipv6.multicast
+   any.unicast == ipv4.unicast, ipv6.unicast
+   any.multicast == ipv4.multicast, ipv6.multicast
+   ipv4 == ipv4.unicast, ipv4.multicast
+   ipv6 == ipv6.unicast, ipv6.multicast
+*/
+
+opt_afi_list: KEYW_AFI afi_list {
+  $$ = $2;
+}
+| {
+  $$ = new ItemList;
+  $$->append(new ItemAFI("any"));
+  $$ = $$->expand();
+}
+;
 
 afi_list: afi {
   $$ = new ItemList;
   $$->append($1);
+  $$ = $$->expand();
 }
 | afi_list ',' afi {
   $$ = $1;
-  if (! $$->contains((ItemAFI *) $3))
-    $$->append($3);
+	$$->append($3);
+  $$ = $$->expand();
 }
 ;
 
 afi: TKN_AFI {
     $$ = new ItemAFI($1);
+} 
+| KEYW_ANY {
+    // workaround for clashing 'any'
+    $$ = new ItemAFI("any");
 }
 ;
 

@@ -86,6 +86,7 @@ static unsigned long long int bits[] = { 0x100000000ULL,
 
 static ip_v6word_t ipv6bits[] = { 
 0x0000000000000000ULL, // extra bit is used to cover numbers > 64 bit
+
 0x8000000000000000ULL,0x4000000000000000ULL,0x2000000000000000ULL, 0x1000000000000000ULL,
 0x0800000000000000ULL,0x0400000000000000ULL,0x0200000000000000ULL, 0x0100000000000000ULL,
 0x0080000000000000ULL,0x0040000000000000ULL,0x0020000000000000ULL, 0x0010000000000000ULL,
@@ -426,11 +427,13 @@ IPAddr::IPAddr(char *name) {
 PrefixRange NullPrefixRange("0.0.0.0/32^32-32");
 Prefix      NullPrefix("0.0.0.0/32");
 IPAddr      NullIPAddr("0.0.0.0");
+PrefixRange MulticastPrefixRange("224.0.0.0/4^+");
 
 IPv6PrefixRange NullIPv6PrefixRange("::/128^128-128");
 IPv6Prefix      NullIPv6Prefix("::/128");
 IPv6Addr        NullIPv6Addr("::");
 ipv6_addr_t     NullIPv6(0,0);
+IPv6PrefixRange MulticastIPv6PrefixRange("ff00::/8^+");
 
 /* IPv6 stuff */
 
@@ -450,8 +453,19 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
    i[5] = (low >> 32) & 0xFFFF;
    i[6] = (low >> 16) & 0xFFFF;
    i[7] = low & 0xFFFF;
-   
+
    memset(buffer, 0, strlen(buffer));
+ 
+
+   // do non-compressed
+
+  /* while (j <= 7) {
+     sprintf(buffer + strlen(buffer), "%X", i[j]); 
+     if (j != 7)
+       sprintf(buffer + strlen(buffer), ":");
+     j++;
+   }
+  */
 
    while ((j <= 7) && (i[j] != 0)) {
      sprintf(buffer + strlen(buffer), "%X", i[j]); 
@@ -469,7 +483,7 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
      sprintf(buffer + strlen(buffer), ":");
    }
 
-   while ((j <= 7) && (i[j] != 0)) {
+   while (j <= 7) {
      sprintf(buffer + strlen(buffer), "%X", i[j]);
      if (j != 7)
       sprintf(buffer + strlen(buffer), ":");
@@ -963,9 +977,14 @@ char *MPPrefix::get_ip_text() const {
 }
 
 char *MPPrefix::get_afi() const {
-  if (ipv4)
-     return strdup("ipv4");
-  return strdup("ipv6");
+  if (ipv4) {
+     if (MulticastPrefixRange.contains(*ipv4)) 
+       return strdup("ipv4.multicast");
+     return strdup("ipv4.unicast");
+  }
+  if (MulticastIPv6PrefixRange.contains(*ipv6))
+       return strdup("ipv6.multicast");
+  return strdup("ipv6.unicast");
 }
 
 bool MPPrefix::makeMoreSpecific(int code, int n, int m) {
@@ -1021,7 +1040,7 @@ ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two)
 
 }
 
-ipv6_addr_t& ipv6_addr_t::operator|(unsigned int i)
+ipv6_addr_t& ipv6_addr_t::operator|(u_int64_t i)
 {
   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
@@ -1032,13 +1051,45 @@ ipv6_addr_t& ipv6_addr_t::operator|(unsigned int i)
   return *t;
 }
 
-ipv6_addr_t& ipv6_addr_t::operator<<(unsigned int i)
+ipv6_addr_t& ipv6_addr_t::operator+(u_int64_t i)
+{  
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
+
+  t->xbit = xbit;
+  t->high = high;
+  t->low  = low + i;
+
+  return *t;
+}
+
+ipv6_addr_t& ipv6_addr_t::operator=(u_int64_t i)
 {
   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
-  t->xbit = (xbit << i) | (high >> (64-i)); 
-  t->high = (high << i) | (low >> (64-i));
-  t->low  = low << i;
+  t->xbit = 0;
+  t->high = 0;
+  t->low  = i;
+
+  return *t;
+}
+
+int ipv6_addr_t::operator==(u_int64_t i)
+{
+  return (low == i);
+}
+
+ipv6_addr_t& ipv6_addr_t::operator<<(unsigned int i)
+{
+  // i is max 128 in fact, due to type size
+  // cyclic shift
+  ipv6_addr_t *t = new ipv6_addr_t(*this);
+  unsigned int c;
+
+  for (c = 1; c <= i; c++) {
+    t->xbit = 0 | (t->high >> 63);
+    t->high = (t->high << 1) | (t->low >> 63);
+    t->low  = t->low << 1;
+  }
 
   return *t;
 
@@ -1046,11 +1097,18 @@ ipv6_addr_t& ipv6_addr_t::operator<<(unsigned int i)
 
 ipv6_addr_t& ipv6_addr_t::operator>>(unsigned int i)
 {
-  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
-  
-  t->xbit = xbit >> i;
-  t->high  = (high >> i) | xbit << (64-i);
-  t->low = (low >> i) | (high << (64-i));
+  // i is max 128 in fact, due to type size
+  // cyclic shift
+  ipv6_addr_t *t = new ipv6_addr_t(*this);
+  unsigned int c;
+
+  for (c = 1; c <= i; c++) {
+    long long int p = t->xbit;
+    p = p << 63;
+    t->low  = (t->low >> 1) | (t->high << 63);
+    t->high = (t->high >> 1) | p;
+    t->xbit = 0;
+  }
   
   return *t;
 

@@ -597,19 +597,19 @@ void NormalExpression::restrict(FilterAFI *af) {
      return;
    }
 
-   for (Item *afi_item = af->afi_list->head(); afi_item; afi_item = af->afi_list->next(afi_item)) {
-
-     if (((ItemAFI *) afi_item)->is_ipv6()) { //v6
-       this->singleton_flag = NormalTerm::IPV6_PRFX;
-       for (term = ne->first(); term ; term = ne->next())
-         if (term->prfx_set.universal())
-           *this += term;
-     } 
-     else { //v4
-       this->singleton_flag = NormalTerm::PRFX;
-       for (term = ne->first(); term ; term = ne->next())
-         if (term->ipv6_prfx_set.universal())
-           *this += term;
+   for (term = ne->first(); term ; term = ne->next()) {
+     if (term->prfx_set.universal()) { // v6
+       term->ipv6_prfx_set.restrict(af->afi_list);   
+       if (! term->ipv6_prfx_set.isEmpty()) {
+         *this += term;
+         this->singleton_flag = NormalTerm::IPV6_PRFX;
+       }
+     } else if (term->ipv6_prfx_set.universal()) {
+       term->prfx_set.restrict(af->afi_list);   
+       if (! term->prfx_set.isEmpty()) {
+         *this += term;
+         this->singleton_flag = NormalTerm::PRFX;
+       }
      }
    }
 }

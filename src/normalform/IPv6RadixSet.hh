@@ -108,7 +108,7 @@ public:
    IPv6RadixTree(const IPv6RadixTree &b) : addr(b.addr), leng(b.leng), rngs(b.rngs) {
       foreachchild(c)
 	 chld[c] = b.chld[c] ? new IPv6RadixTree(*b.chld[c]) : (IPv6RadixTree *) NULL;
-   //   cout << "2 " << "ip" << addr << "leng" << leng << "rng" << rngs << endl;
+    //  cout << "2 " << "ip" << addr << "leng" << leng << "rng" << rngs << endl;
    }
 
    ~IPv6RadixTree() {
@@ -195,7 +195,7 @@ public:
       u_int leng;
       ipv6_addr_t rngs;
       u_int cleng;
-      u_int number;
+      ipv6_addr_t number;
 
    public:
       PrefixIterator(const IPv6RadixSet *s) : itr(s->root) {}
@@ -297,6 +297,9 @@ public:
 	 root = new IPv6RadixTree(*b.root);
       else
 	 root = (IPv6RadixTree *) NULL;
+
+    // DEBUG
+    //cout << "created IPv6RadixSet " << *this << endl;
    }
 
    ~IPv6RadixSet() {
