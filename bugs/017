@@ -1,7 +1,7 @@
 id: 017
 summary: destination-specification=IP is handled as /32 always! 
 owner: katie
-status: solved
+status: solving
 priority: high
 program: prpath
 module(s): prpath
@@ -28,3 +28,7 @@ And anyways the question remains: how do we handle non-existing routes as destin
 resume:
 added small check for existence of originator. Need to ask someone, if this makes sence. New behaviour: if route is not existent, issue "unable to lookup destination AS", and exit.
 Also this has been fixed for all non-existent routes.
+
+Need to fix manpage when onsidered to be fixed!!!
+
+
