@@ -112,7 +112,7 @@ void IRR::SetDefaultProtocol(const char *_protocol) {
 	    else {
 	       cerr << "Error: unknown irr protocol " << _protocol 
 		    << ", using irrd" << endl;
-	       cerr << "Error: known protocols: rawhoisd/irrd/ripe/bird/ripe_perl" << endl;
+	       cerr << "Error: known protocols: irrd(rawhoisd), ripe(bird), ripe_perl" << endl;
 	       dflt_protocol =  rawhoisd;
 	    }
 }
