@@ -1,0 +1,16 @@
+id: 022
+summary: in RtConfig ANY/NOT ANY does not produce prefix list 
+owner: katie
+status: solving
+priority: high
+program: RtConfig
+module(s): RtConfig, normalform
+reported: unknown
+closed: unknown
+
+detail:
+
+Might be changed in f_cisco.cc, and in every implementation to print acls for ANY/NOT ANY expressions. Now only empty route maps are printed. Need to consider if we need this local hack (printing in print()), or drop empty route-map, or do not change the behaviour or close the bug.
+
+
+
