@@ -26,6 +26,7 @@ of the possible values for some attributes:
 | 017	 | prpath | katie     | WAIT    | High     |
 | 018	 |prtracer| katie     | WAIT    | High     |
 | 019	 |rpslchec| katie     | WAIT    | High     |
+| 019	 |aoe,roe | katie     | WAIT    | Low      |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
@@ -47,3 +48,4 @@ of the possible values for some attributes:
 017: destination-specification is alsways handled as /32
 018: prtraceroute manpage is not RPSL compliant
 019: documented command-line options are not processed in rpslcheck
+020: NEW: make list of IRR's in aoe/roe configurable (now hardcoded) 
