@@ -1,0 +1,334 @@
+.\"// $Id$
+.\"// 
+.\"//  Copyright (c) 1994 by the University of Southern California
+.\"//  and/or the International Business Machines Corporation.
+.\"//  All rights reserved.
+.\"//
+.\"//  Permission to use, copy, modify, and distribute this software and
+.\"//  its documentation in source and binary forms for lawful
+.\"//  non-commercial purposes and without fee is hereby granted, provided
+.\"//  that the above copyright notice appear in all copies and that both
+.\"//  the copyright notice and this permission notice appear in supporting
+.\"//  documentation, and that any documentation, advertising materials,
+.\"//  and other materials related to such distribution and use acknowledge
+.\"//  that the software was developed by the University of Southern
+.\"//  California, Information Sciences Institute and/or the International
+.\"//  Business Machines Corporation.  The name of the USC or IBM may not
+.\"//  be used to endorse or promote products derived from this software
+.\"//  without specific prior written permission.
+.\"//
+.\"//  NEITHER THE UNIVERSITY OF SOUTHERN CALIFORNIA NOR INTERNATIONAL
+.\"//  BUSINESS MACHINES CORPORATION MAKES ANY REPRESENTATIONS ABOUT
+.\"//  THE SUITABILITY OF THIS SOFTWARE FOR ANY PURPOSE.  THIS SOFTWARE IS
+.\"//  PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+.\"//  INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\"//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND 
+.\"//  NON-INFRINGEMENT.
+.\"//
+.\"//  IN NO EVENT SHALL USC, IBM, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+.\"//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT,
+.\"//  TORT, OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH,
+.\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"//  Questions concerning this software should be directed to 
+.\"//  info-ra@isi.edu.
+.\"//
+.\"//  Author(s): WeeSan Lee <wlee@isi.edu>
+.\"
+.\"
+.TH aoe 1 "December 2, 1996" "WeeSan Lee" RAToolSet
+.SH NAME
+aoe (Autonomous System Object Editor)
+.SH SYNOPSIS
+.B aoe
+.RI [ flags ]\ [<as-no>]
+.SH DESCRIPTION
+.PP
+aoe is a C++/Tcl/Tk program that displays the aut-num object for <as-no>.
+aoe organizes the display into four parts:
+a "Peer List" on the left hand side
+for listing peer ASes and one of them will be selected to restrict policy 
+editing only to that peer;
+a "Policy Generation Area" on the middle right hand side
+for editing the as-in, as-out and default attributes
+for the selected peer;
+a "Peer's Policy Area" on the bottom right hand side
+for displaying the selected peer's policy for your AS; 
+and  
+an "aut-num Area" on the top right hand side
+for displaying the aut-num object for  <as-no>
+and for hand editing attributes
+including the administrative attributes.
+aoe simplifies the creation of aut-num objects 
+by employing some heuristics to  
+add and modify as-in and as-out attributes.
+For example, 
+given a BGP dump from a router inside <as-no>, 
+aoe parses the AS_PATH attributes in the BGP dump,
+and determines the peer ASes 
+by taking the first AS number in the AS_PATH attributes, 
+and the import policies for each peer AS
+by taking the last AS number in the AS_PATHs that start with the peer's
+AS number.
+A template based mechanism is provided
+for users
+to create their own heuristics
+to augment the heuristics that we provide.  
+aoe can register the aut-num object in the IRR
+after editing is done.
+
+If <as-no> is not specified it is deduced for your system from the 
+IP address of your host and IRR.
+
+.SH RAToolSet COMMON OPTIONS
+.RS
+.IP -help
+Print summary of command-line options and abort.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> 
+(if compiled with DEBUG defined).
+.IP "\-version"
+Print the version number and quit.
+.IP "\-h <host-name>"
+Establish an RAWhoisd connection to host <host-name>.
+.IP "\-p <port-no>"
+Establish an RAWhoisd connection to port <port-no>.
+.IP "\-protocol <protocol>"
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
+ripe, and bird. The default is irrd. The ripe option should be used with
+the old ripe server.
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>.
+.IP \-rusage
+Print resource usage upon completion.
+.IP "\-ignore_errors"
+Do not print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-report_errors"
+Print error and warning messages due to communication to the
+database server or parsing policy objects. (default)
+.RE
+.SH OTHER OPTIONS
+.RS
+.IP "\-as <as-no>"
+Gets aut-num object for <as-no>. 
+.IP "-rcfile <resource filename>"
+.IP "\-display <X Windows Display Specification>"
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the RAWhoisd host to connect.
+.IP IRR_PORT
+Specifies the RAWhoisd port number to connect.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH USAGE
+.PP
+Invoke aoe using your AS number,
+.nf
+	% aoe AS226
+.fi
+aoe will acquire the aut-num object from the IRR
+and display the list of peers in the "Peer List".  
+Each AS number in this list is followed by the following indications:
+IRR, BGP, and NEW.
+The indication IRR means that the peer is derived from the policy in the
+aut-num object by inspecting 
+the as-in and as-out attributes.
+The indication BGP means that the peer is derived from
+an AS_PATH attribute in a BGP dump.
+The indication NEW means that the peer is created manually by the user.
+.SH BUTTONS
+.RS
+.IP "Delete Peer"
+This button is located at the bottom of "Peer List".  It is used to 
+delete the selected peer from the "Peer List"
+and the associated policies from the "aut-num Area".
+.IP "Add Peer"
+This button is located at the right hand side of the "Delete Peer" button.
+It allows users to add
+new peers manually.  
+There will be a NEW indication next to the created peer.
+.IP "Edit	"
+This is a toggle button and located below the "aut-num Area".
+It is used to enable/disable the editing of "aut-num Area".  When
+this button is clicked, the label for this button will become 
+"Edit Done!" which means that
+if it is clicked again, the manual editing will cease.
+Be sure to click "Edit Done!" button before clicking any others else,
+otherwise, users will lost the changes. After clicking "Edit Done!" button the syntax of the object in the aut-num area will be checked. Warning message will pop up if any syntax errors detected.
+.IP "Update IRR"
+This button is located at the bottom right corner of the 
+"aut-num Area".  It is used to register the modified aut-num 
+object in the "aut-num Area" in the IRR.
+.IP Import
+This is a toggle button and located on the right hand side of 
+"Policy Generation Area".  It allows users to display/hide the as-in
+attributes of the current working aut-num object.  It is useful when
+a user prefers working only on the export policies.
+.IP Export
+This is a toggle button and located on the right hand side of 
+"Policy Generation Area".  It allows users to display/hide the as-out
+attributes of the current working aut-num object.  It is useful when
+a user prefers working only on the import policies.
+.IP Templates
+This is a pull-down menu with the following options:
+.RS
+.IP "from IRR" 
+aoe displays the policy in the "Policy Generation Area" as
+registered in your aut-num object;
+.IP "from BGP Dump" 
+aoe generates the policy from the BGP dump;
+.IP "from Peer's aut-num" 
+aoe generates import policy from the export policy 
+of the peer AS
+and export policy from the import policy of the peer AS; 
+.IP "Provider" 
+aoe assumes that your peer AS is a provider AS.
+It generates policies so that
+your AS accepts any route from the peer AS,
+and announces only its own routes; 
+.IP "Customer" 
+aoe assumes that your peer AS is a customer AS.
+It generates policies so that
+your AS accepts only the customer's own routes
+and announces all the routes;
+.IP "Transit"
+aoe assumes that your AS and the peer AS provide transit service to each
+other.
+It generates policies so that
+all routes are imported from and exported to the peer AS. 
+.IP "Non-transit"
+aoe generates policies so that
+your AS accepts only the peer AS's routes,
+and announces only your own routes; 
+.IP "Non-transit (AS_PATH)" 
+This is identical to the previous template
+but it generates policies using AS_PATH notation.
+Any one of the above templates can also be changed to use AS_PATH based 
+policies by editing its template.
+.RE
+.IP Append
+This button is located on the right hand side of "Policy Generation Area".
+It appends the policy in the "Policy Generation Area" 
+to the aut-num object in the "aut-num Area".
+.IP Replace
+This button is located on the right hand side of "Policy Generation Area".
+It replaces
+the policies for the selected AS in the "aut-num Area"
+with the policies in the "Policy Generation Area".
+.IP "aoe logo"
+This button is located at the right bottom corner of aoe display.
+It displays the down-loading information of aoe and RAToolSet tools.
+.SH MENUS
+.PP
+.RS
+.IP "File/Save or F2"
+A filename will be prompted.  
+The content in the "aut-num Area" will be saved to this file.
+.IP "File/Save Peer List"
+A filename will be prompted.
+The content in the "Peer List Area" will be saved to this file.
+.IP "File/Open or F3"
+A filename will be prompted.  
+The content of this file will be loaded and displayed
+in the "aut-num Area".  
+This is useful as a template for the non-policy attributes,
+or for storing and retrieving intermediate results between aoe sessions.
+.IP "File/Load BGP dump"
+A filename will be prompted.  
+This file should contain the BGP dump from a router in your AS.
+For each AS_PATH in this file,
+aoe uses the first AS number to determine a peer AS
+and the last AS number to determine an AS whose routes are imported
+from this peer.
+.IP "File/Print"
+A command for printing will be prompted.
+The content in the "aut-num Area" 
+will be piped to this command.
+.IP "File/Quit or Alt-X"
+This will end your aoe session.	
+.IP "Configure/IRR update commands"
+A dialog box displaying the IRRs and the corresponding update
+commands will pop-up.
+This dialog box can be used to select an IRR site for registration.
+To register your aut-num object,
+aoe will pipe the aut-num object in the "aut-num Area" 
+to the update command for the selected registry.
+.IP "Configure/Policy templates"
+There are "Add" and "Delete" buttons.  The "Add" button is used to create 
+new templates for import (i.e. as-in) and export (i.e. as-out) policies.  
+When the "Add" button is clicked,
+a blank template will be appended to the existing templates.  
+It allows the users to type in a new policy template.
+Within the templates,
+the macros "$MyAS" and "$PeerAS" can be used.
+The macro "$MyAS" expands to your AS number
+and the macro "$PeerAS" expands to the selected peer's AS number
+in the "Peer List".
+Be aware that these two macros are case sensitive. 
+A template can be deleted by clicking on the radio button on its left
+followed by clicking on the "Delete" button.  
+.RE
+.PP
+.SH EXAMPLE USES
+The following two uses may be of interest:
+Say your aut-num object does not have any policies
+(or you do not have any aut-num object at all).
+Prepare a BGP dump from one of your routers with the most number of
+external routes
+(you can use "show ip bgp" on a cisco router to prepare this dump; 
+other routers have similar commands).
+Run aoe using your AS number.
+Go to the file menu and load the BGP dump file.
+The list of peer ASes will appear on the "Peer List".
+Select each one of them one at a time.
+If your peer is a provider AS,
+click on the "Provider" template button
+and click on the "Append" button.
+If your peer is a customer AS,
+click on the "Customer" template button 
+and so on.
+After specifying policies for all your peers,
+click on the "Update IRR" button to register your aut-num object.
+.PP
+Another example is when you have an aut-num object which is not
+up-to-date.
+Follow the above steps.
+After loading the BGP dump,
+examine the indications next to each peer.
+If a peer has an "IRR" indication
+but no "BGP" indication,
+it means that 
+there is a policy registered for this peer,
+but aoe could not verify if the neighbor AS still peers with you.
+If the peering with this AS ceased,
+please use the "Delete Peer" button to delete this peer from your aut-num
+object.
+If a peer has a "BGP" indication
+but no "IRR" indication,
+no policy for this peer AS is present.
+Please use the appropriate template to register policy for this 
+peer (as shown in first example).
+If a peer has both the "IRR" and  the "BGP" indications,
+a policy for this peer is registered
+and the peering with this AS is still current.
+Please verify that the policies for this peer is up-to-date.
+After verifying and correcting policies for all your peers,
+click on the "Update IRR" button to register your aut-num object.
+.PP
+.SH FILES
+aoe creates a ~/.aoerc file which stores the templates, the update
+commands and the printing command.  This file is not meant for hand editing.
+.PP
+.SH AUTHORS
+WeeSan Lee <wlee@isi.edu>
+.PP
+Cengiz Alaettinoglu <cengiz@isi.edu>
+
