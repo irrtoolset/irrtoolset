@@ -56,6 +56,9 @@
 #include "rpsl_attr.hh"
 #include "object.hh"
 #include "schema.hh"
+#include <string>
+
+using namespace std;
 
 //// printing ////////////////////////////////////////////////////////
 
@@ -395,7 +398,7 @@ AttrAttr* AttrClass::searchAttr(const char *name) {
    return NULL;
 }
 
-bool AttrClass::validate(string &errors) {
+bool AttrClass::validate(std::string &errors) {
    // return true if valid i.e. no error
    static char buffer[1024];
    bool result = true;

@@ -60,9 +60,9 @@
 #include "irr/irr.hh"
 #include "irr/autnum.hh"
 
+#include <sstream>
 
 class FilterOfCommunity;
-class ostream;
 class RangeList;
 class regexp;
 class PolicyAction;
@@ -154,15 +154,15 @@ private:
    ListOf2Ints *printPrefixList(SetOfIPv6Prefix& nets);
    ListOf2Ints *printCommunities(FilterOfCommunity& cm);
    ListOf2Ints *printASPaths(regexp_nf& path);
-   void         printREASno(ostream& out, const RangeList &no);
-   int          printRE_(ostream& os, const regexp& r);
-   void         printRE(ostream& os, const regexp& r, int aclID, bool permit);
+   void         printREASno(std::ostream& out, const RangeList &no);
+   int          printRE_(std::ostream& os, const regexp& r);
+   void         printRE(std::ostream& os, const regexp& r, int aclID, bool permit);
 
    int          printPacketFilter(SetOfPrefix &set);
    int          printPacketFilter(SetOfIPv6Prefix &set);
-   inline void  printCommunity(ostream &os, unsigned int i);
-   void         printCommunityList(ostream &os, ItemList *args);
-   void         printActions(ostream &os, PolicyActionList *action, ItemAFI *afi);
+   inline void  printCommunity(std::ostream &os, unsigned int i);
+   void         printCommunityList(std::ostream &os, ItemList *args);
+   void         printActions(std::ostream &os, PolicyActionList *action, ItemAFI *afi);
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
    bool         printNeighbor(int import, ASt asno, ASt peerAS, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
    void printAccessList(SetOfPrefix& nets) {

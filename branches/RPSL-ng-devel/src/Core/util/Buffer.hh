@@ -30,7 +30,7 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <ostream.h>
+#include <ostream>
 extern "C" {
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -43,7 +43,7 @@ const int BufferExtendIncrement	= 4 * 1024;
 
 // Buffer containing data and length
 class Buffer : public ListNode {
-  friend ostream &operator<<(ostream &os, const Buffer &b);
+  friend std::ostream &operator<<(std::ostream &os, const Buffer &b);
 
   public:
     // Initialize a caller allocated buffer

@@ -55,7 +55,7 @@
 #define Community_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "gnug++/unsigned.OXPSet.h"
 #include "util/List.hh"
 
@@ -66,7 +66,7 @@ const int COMMUNITY_NO_EXPORT           = 0xFFFFFF01u;
 const int COMMUNITY_NO_ADVERTISE        = 0xFFFFFF02u;
 const int COMMUNITY_NO_EXPORT_SUBCONFED = 0xFFFFFF03u;
 
-inline void community_print(ostream &os, unsigned int i) {
+inline void community_print(std::ostream &os, unsigned int i) {
    if (i == COMMUNITY_INTERNET)
       os << "INTERNET";
    else if (i == COMMUNITY_NO_EXPORT)
@@ -86,7 +86,7 @@ inline void community_print(ostream &os, unsigned int i) {
 }
 
 class CommunitySet : public unsignedOXPSet, public ListNode {
-   friend ostream& operator<<(ostream &os, CommunitySet& cs);
+   friend std::ostream& operator<<(std::ostream &os, CommunitySet& cs);
 public:
 
    CommunitySet() : unsignedOXPSet(), ListNode(), mark(0) {};

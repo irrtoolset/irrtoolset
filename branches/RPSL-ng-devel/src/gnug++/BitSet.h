@@ -23,8 +23,8 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 #define _BitSet_h 1
 
-#include <iostream.h>
-#include <limits.h>
+#include <iostream>
+#include <climits>
 #include "bitprims.h"
 
 #undef OK
@@ -164,8 +164,8 @@ public:
   friend BitSet      shorttoBitSet(unsigned short w);
   friend BitSet      longtoBitSet(unsigned long w);
 
-  friend ostream&    operator << (ostream& s, const BitSet& x);
-  void		     printon(ostream& s,
+  friend std::ostream&    operator << (std::ostream& s, const BitSet& x);
+  void		     printon(std::ostream& s,
 			     char f='0', char t='1', char star='*') const;
 
 #ifndef __STRICT_ANSI__

@@ -57,9 +57,9 @@
 
 #include "config.h"
 #include <sys/types.h>
-#include "vector.h"
-
-class ostream;
+#include <vector>
+#include <sstream>
+#include <ostream>
 
 typedef unsigned long long int       ip_v6word_t;
 
@@ -78,10 +78,10 @@ class ipv6_addr_t {
 
     friend ipv6_addr_t& operator&(ipv6_addr_t one, ipv6_addr_t two);
     friend ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two);
-    ipv6_addr_t& operator|(u_int64_t i);
-    ipv6_addr_t& operator+(u_int64_t i);
-    ipv6_addr_t& operator=(u_int64_t i);
-    int operator==(u_int64_t i);
+    ipv6_addr_t& operator|(ip_v6word_t i);
+    ipv6_addr_t& operator+(ip_v6word_t i);
+    ipv6_addr_t& operator=(ip_v6word_t i);
+    int operator==(ip_v6word_t i);
 
     ipv6_addr_t& operator<<(unsigned int i);
     ipv6_addr_t& operator>>(unsigned int i);
@@ -93,7 +93,7 @@ class ipv6_addr_t {
     ipv6_addr_t& getbits(unsigned int len);
     ipv6_addr_t& getmask(unsigned int len);
 
-  friend ostream& operator<<(ostream& stream, const ipv6_addr_t& p);
+    friend std::ostream& operator<<(std::ostream& stream, const ipv6_addr_t& p);
 
  public:
     ipv6_addr_t() {}
@@ -180,7 +180,7 @@ friend class MPPrefix;
    unsigned int get_mask() const;
    unsigned long long int get_range() const;
 
-   friend ostream& operator<<(ostream& stream, const PrefixRange& p);
+   friend std::ostream& operator<<(std::ostream& stream, const PrefixRange& p);
 
 /*
    // Added const to PrefixRange& p by wlee@isi.edu
@@ -272,7 +272,8 @@ friend class MPPrefix;
    ipv6_addr_t get_mask() const;
    ipv6_addr_t get_range() const;
 
-   friend ostream& operator<<(ostream& stream, const IPv6PrefixRange& p);
+   friend std::ostream& operator<<(std::ostream& stream,
+                                   const IPv6PrefixRange& p);
 
    void parse(char *name);
 
@@ -292,7 +293,8 @@ public:
    }
    char *get_text(char *buffer = formattingbuffer) const;
 
-   friend ostream& operator<<(ostream& stream, const IPv6Prefix& p);
+   friend std::ostream& operator<<(std::ostream& stream,
+                                   const IPv6Prefix& p);
 };
 
 class IPv6Addr : public IPv6Prefix {
@@ -307,7 +309,7 @@ public:
       IPv6Prefix::define(ipaddr, 128);
    }
    char *get_text(char *buffer = formattingbuffer) const;
-   friend ostream& operator<<(ostream& stream, const IPv6Addr& p);
+   friend std::ostream& operator<<(std::ostream& stream, const IPv6Addr& p);
 };
 
 // metaclass for type isolation (ipv4, ipv6)
@@ -367,11 +369,11 @@ public:
     return false;
   }
 
-  friend ostream& operator<<(ostream& stream, const MPPrefix& p);
+  friend std::ostream& operator<<(std::ostream& stream, const MPPrefix& p);
 
 };
 
-class MPPrefixRanges : public vector<MPPrefix>
+class MPPrefixRanges : public std::vector<MPPrefix>
 {
 public:
   MPPrefixRanges::MPPrefixRanges() {};
@@ -386,7 +388,7 @@ public:
   bool contains(IPv6Addr ip) const;
   bool contains(MPPrefix ip) const;
 
-  friend ostream& operator<<(ostream& stream, const MPPrefixRanges& p);
+  friend std::ostream& operator<<(std::ostream& stream, const MPPrefixRanges& p);
 
 };
 

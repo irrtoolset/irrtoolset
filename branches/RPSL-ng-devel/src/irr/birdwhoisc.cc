@@ -11,6 +11,10 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <cstring>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE            2047
@@ -28,15 +32,15 @@ BirdWhoisClient::BirdWhoisClient(void) : response(NULL),
 
 BirdWhoisClient::BirdWhoisClient(const char *host, 
 				 const int port,
-				 const char *sources = dflt_sources) :
+				 const char *sources) :
   response(NULL), Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
-  Open(host, port, sources);
+ Open(host, port, sources);
 }
 
-void BirdWhoisClient::Open(const char *_host = dflt_host, 
-		  const int _port = dflt_port, 
-		  const char *_sources = dflt_sources)
+void BirdWhoisClient::Open(const char *_host,
+                           const int _port,
+                           const char *_sources)
 {
   //Trace(TR_WHOIS_QUERY) << getsock() 
   //  			  << " - Whois: Open " << _host << ":" << _port 
@@ -187,10 +191,12 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
       return false;
    }
 
-   Trace(TR_WHOIS_RESPONSE).form("WhoisResponse[%.*s]\n",
-				 result->size, result->contents);
-   text = result->contents;
-   len  = result->size;
+   Trace(TR_WHOIS_RESPONSE)
+      << "WhoisResponse["
+      << string(result->contents, 0, result->size)
+      << "]"
+      << endl;
+
    return true;
 }
 

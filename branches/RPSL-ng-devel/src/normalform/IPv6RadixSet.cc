@@ -54,10 +54,12 @@
 
 #include <cassert>
 #include <cstdio>
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 
 #include "IPv6RadixSet.hh"
+
+using namespace std;
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
@@ -726,9 +728,13 @@ IPv6RadixTree *IPv6RadixTree::setminus(const IPv6RadixTree *b) {
    Iterator itr(b);
    IPv6RadixTree *result = this;
 
-   for (const IPv6RadixTree *now = itr.first(); now; now = itr.next(now))
+   result->print();
+
+   for (const IPv6RadixTree *now = itr.first(); now; now = itr.next(now)) {
       if (now->rngs.is_true())
          result = result->remove(now->addr, now->leng, now->rngs);
+   }
+   result->print();
 
    return result;
 }

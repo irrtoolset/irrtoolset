@@ -1,4 +1,4 @@
-This is the README file for RAToolSet up to v 4.7.2
+This is the README file for RAToolSet
 
 MAILING LIST
 	irrtoolset@ripe.net
@@ -22,9 +22,8 @@ FTP and WWW SITES
 	available upon request.
 
 INSTALLATION
-	0. To install, you need g++ 2.8.0 or higher, libstdc++-2.8.0 or
-	   higher, bison, flex and gmake.
-           Please note that the toolset is not gcc3 compliant (yet).
+        0. To install you need an ISO C++ compiler (such as g++ from
+           GCC version 3.3.2), Bison, Flex and GNU Make.
 
 	   For roe and aoe, you also need Tk4.0/Tcl7.4 or higher. If Tcl/Tk 
 	   is not installed in a standard include directory, please set the
@@ -78,12 +77,7 @@ KNOWN PROBLEMS DURING INSTALLATION
 	If you run into compilation problems on DU or AIX systems, and you 
 	used --enable-debug option of configure, try not using that
 	option. Older versions of gcc/g++ seems to have problems with
-	these opitons on these platforms.
-
-  When compiling on FreeBSD from 5.0, be sure to change the compiler 
-  to gcc-2.95 as default compiler is gcc3. It will require to modify 
-  configure.in to pick up appropriate values for CC, CXX and LD.
+	these options on these platforms.
 
 Please let us know if you face any problems at the mailing list
 irrtoolset@ripe.net. Bug reports and suggestions are always welcome.
-

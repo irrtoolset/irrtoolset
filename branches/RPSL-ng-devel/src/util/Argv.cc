@@ -62,11 +62,13 @@ of the Rights in Technical Data and Computer Software Clause as DFARS
  */
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include <cstring>
 #include <cstdlib>
 #include "Argv.hh"
 #include "version.hh"	/* For version control */
+
+using namespace std;
 
 /*
  * Default table of argument descriptors.  These are normally available

@@ -1,5 +1,5 @@
 //  $Id$
-// Copyright (c) 2001,2002                        RIPE NCC
+// copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
 //
@@ -59,6 +59,9 @@
 #define LIST_H
 
 #include <cstdio>      // For NULL definition
+#ifdef _STDDEF_H_      // for fbsd: to workaround problem with _G_config.h
+#undef _STDDEF_H_
+#endif
 #include <assert.h>
 #include <gnu/MLCG.h>
 #include <gnu/Uniform.h>

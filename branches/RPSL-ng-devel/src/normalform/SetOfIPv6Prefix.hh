@@ -54,7 +54,7 @@
 
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include <cassert>
 #include "IPv6RadixSet.hh"
 #include "rpsl/prefix.hh"
@@ -75,6 +75,11 @@ public:
    SetOfIPv6Prefix() : members() {
       _universal = 0;
       not_ = false;
+   };
+   SetOfIPv6Prefix(const SetOfIPv6Prefix &b) {
+      members = IPv6RadixSet(b.members);
+      _universal = b._universal;
+      not_ = b.not_;
    };
    ~SetOfIPv6Prefix() {
       members.clear();
@@ -117,8 +122,8 @@ public:
    void insert(const MPPrefixRanges& b);
    void remove(const MPPrefixRanges& b);
 
-   friend ostream& operator<<(ostream& stream, SetOfIPv6Prefix& nt);
-   virtual void do_print (ostream& stream);
+   friend std::ostream& operator<<(std::ostream& stream, SetOfIPv6Prefix& nt);
+   virtual void do_print (std::ostream& stream);
 
    int length();
 

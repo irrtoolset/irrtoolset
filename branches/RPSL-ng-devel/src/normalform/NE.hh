@@ -55,7 +55,7 @@
 #define NE_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 extern "C" {
 #include <sys/types.h>
 }
@@ -85,7 +85,7 @@ public:
       terms.clear();
    }
 
-   friend ostream& operator<<(ostream& stream, NormalExpression& ne);
+   friend std::ostream& operator<<(std::ostream& stream, NormalExpression& ne);
 
    void do_and(NormalExpression &other);
    void do_or(NormalExpression &other);

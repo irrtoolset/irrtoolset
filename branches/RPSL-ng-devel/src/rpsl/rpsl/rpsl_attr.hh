@@ -63,6 +63,7 @@
 #include "config.h"
 #include <string>
 #include <vector>
+#include <sstream>  // For class ostream
 #include <cassert>
 #include "rptype.hh"
 #include "regexp.hh"
@@ -89,7 +90,6 @@ extern "C" {
 
 typedef unsigned int ASt;
 
-class ostream;
 class Object;
 class AttrAttr;
 
@@ -100,7 +100,7 @@ public:
    const AttrAttr *type;    // type of this attribute, import, export, etc.
    int       offset;        // offset of attribute's ASCII rep in object
    int       len;           // length of attribute's ASCII rep
-   string    errors;        // errors about this object
+   std::string errors;      // errors about this object
    int       errorLine;
    int       errorColon;
    int       errorLeng;
@@ -118,7 +118,7 @@ public:
       errorLeng(b.errorLeng)  {
    }
    virtual ~Attr() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new Attr(*this);
    }
@@ -130,13 +130,13 @@ public:
    virtual const char *className(void) const {
       return "Attr";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << endl;
    }
 #endif // DEBUG
 };
 
-inline ostream &operator<<(ostream &out, const Attr &attr) {
+inline std::ostream &operator<<(std::ostream &out, const Attr &attr) {
    return attr.print(out);
 }
 
@@ -251,7 +251,7 @@ public:
       strlwr(_name);
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrAttr(*this);
    }
@@ -310,7 +310,7 @@ public:
    virtual const char *className(void) const {
       return "AttrAttr";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
      INDENT(indent); os << "_name = \"" << name() << "\"" << endl;
    }
 #endif // DEBUG
@@ -321,8 +321,8 @@ class AttrClass: public Attr {
    friend class IndexData;
 public:
    char *name;		          // name of the class, e.g. "route"
-   vector<AttrAttr *> attribs;    // table of attributes of this class
-   vector<AttrAttr *> keyAttribs; // table of attributes that form the key
+   std::vector<AttrAttr *> attribs;    // table of attributes of this class
+   std::vector<AttrAttr *> keyAttribs; // table of attributes that form the key
    int ref_cnt;
 
 public:
@@ -343,7 +343,7 @@ public:
       }	 
    }
    virtual ~AttrClass();
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() {
       return new AttrClass(*this);
    }
@@ -364,12 +364,12 @@ public:
    }
    AttrAttr *searchAttr(const char *word);
 
-   bool validate(string &errors); // return true if valid,, i.e. no error
+   bool validate(std::string &errors); // return true if valid,, i.e. no error
 #ifdef DEBUG
    virtual const char *className(void) const {
       return "AttrClass";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << endl;
    }
 #endif // DEBUG
@@ -391,7 +391,7 @@ public:
    virtual ~AttrGeneric() {
       delete items;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrGeneric(*this);
    }
@@ -399,7 +399,7 @@ public:
    virtual const char *className(void) const {
       return "AttrGeneric";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "type" << endl;
       type->printClass(os, indent + 2);
       INDENT(indent); os << "items (" << items->className() << " *)" << endl;
@@ -429,7 +429,7 @@ public:
       if (type)
 	 delete type;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrTypedef(*this);
    }
@@ -463,7 +463,7 @@ public:
       if (args)
 	 delete args;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual AttrMethod *dup() const {
       return new AttrMethod(*this);
    }
@@ -476,7 +476,7 @@ public:
 #endif // DEBUG
 };
 
-inline ostream &operator<<(ostream &out, const AttrMethod &mtd) {
+inline std::ostream &operator<<(std::ostream &out, const AttrMethod &mtd) {
    return mtd.print(out);
 }
 
@@ -502,7 +502,7 @@ public:
       if (methods)
 	 delete methods;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrRPAttr(*this);
    }
@@ -533,7 +533,7 @@ public:
 	 delete option;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual AttrProtocolOption *dup() {
       return new AttrProtocolOption(*this);
    }
@@ -568,7 +568,7 @@ public:
       if (options)
 	 delete options;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrProtocol(*this);
    }
@@ -582,7 +582,7 @@ public:
    virtual const char *className(void) const {
       return "AttrProtocol";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "name = \"" << name << "\"" << endl;
    }
 #endif // DEBUG
@@ -611,7 +611,7 @@ public:
    virtual ~AttrImport() {
       delete policy;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrImport(*this);
    }
@@ -619,7 +619,7 @@ public:
    virtual const char *className(void) const {
       return "AttrImport";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "fromProt" << endl;
       if (fromProt) 
 	 fromProt->printClass(os, indent + 2);
@@ -659,7 +659,7 @@ public:
    virtual ~AttrExport() {
       delete policy;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrExport(*this);
    }
@@ -667,7 +667,7 @@ public:
    virtual const char *className(void) const {
       return "AttrExport";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "fromProt" << endl;
       if (fromProt) 
 	 fromProt->printClass(os, indent + 2);
@@ -716,7 +716,7 @@ public:
       delete action;
       delete filter;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrDefault(*this);
    }
@@ -724,7 +724,7 @@ public:
    virtual const char *className(void) const {
       return "AttrDefault";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "peering (PolicyPeering *)" << endl;
       peering->printClass(os, indent + 2);
       INDENT(indent); os << "action (PolicyActionList *)" << endl;
@@ -748,7 +748,7 @@ public:
    virtual ~AttrFilter() {
       delete filter;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrFilter(*this);
    }
@@ -756,7 +756,7 @@ public:
    virtual const char *className(void) const {
       return "AttrFilter";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "filter (Filter *)" << endl;
       filter->printClass(os, indent + 2);
    }
@@ -776,7 +776,7 @@ public:
    virtual ~AttrMPPeval() {
       delete filter;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrMPPeval(*this);
    }
@@ -784,7 +784,7 @@ public:
    virtual const char *className(void) const {
       return "AttrMPPeval";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "mp-peval (Filter *)" << endl;
       filter->printClass(os, indent + 2);
    }
@@ -806,7 +806,7 @@ public:
    virtual ~AttrPeering() {
       delete peering;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrPeering(*this);
    }
@@ -814,7 +814,7 @@ public:
    virtual const char *className(void) const {
       return "AttrPeering";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "peering (PolicyPeering *)" << endl;
       peering->printClass(os, indent + 2);
    }
@@ -839,7 +839,7 @@ public:
       if (action)
 	 delete action;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrIfAddr(*this);
    }
@@ -847,7 +847,7 @@ public:
    virtual const char *className(void) const {
       return "AttrIfAddr";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); 
       // ??? This causes a lot of warning mesg right now
       // It's hard to fix since it involves modification to
@@ -878,7 +878,7 @@ class Tunnel {
       if (encapsulation)
         delete encapsulation;
     }
-    friend ostream& operator<<(ostream& stream, const Tunnel& p);
+    friend std::ostream& operator<<(std::ostream& stream, const Tunnel& p);
 };
 
 class AttrIfAddr: public Attr {
@@ -909,7 +909,7 @@ public:
       if (tunnel)
         delete tunnel;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrIfAddr(*this);
    }
@@ -917,7 +917,7 @@ public:
    virtual const char *className(void) const {
       return "AttrIfAddr";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent);
       // ??? This causes a lot of warning mesg right now
       // It's hard to fix since it involves modification to
@@ -950,7 +950,7 @@ public:
 	 delete args;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual AttrPeerOption* dup() const {
       return new AttrPeerOption(*this);
    } 
@@ -958,7 +958,7 @@ public:
    virtual const char *className(void) const {
       return "AttrPeerOption";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       // For rp_attr
       INDENT(indent); os << "rp_attr" << endl;
       INDENT(indent); os << "  _name = \"" << "\"" << endl;
@@ -995,7 +995,7 @@ public:
       if (peer) delete peer;
       if (options) delete options;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrPeer(*this);
    }
@@ -1027,7 +1027,7 @@ public:
       if (peer) delete peer;
       if (options) delete options;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Attr *dup() const {
       return new AttrPeer(*this);
    }
@@ -1078,7 +1078,7 @@ public:
       delete mntPrfxList;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
 
    virtual Attr *dup() const {
       return new AttrMntRoutes(*this);
@@ -1114,7 +1114,7 @@ public:
    virtual Attr *dup() const {
       return new AttrTRLabel(*this);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
 };
 
 #endif   // PTREE_ATTR_HH

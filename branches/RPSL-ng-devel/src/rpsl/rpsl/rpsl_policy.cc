@@ -55,6 +55,9 @@
 #include <cstdio>
 #include "rpsl_policy.hh"
 #include "rpsl_attr.hh"
+#include <ostream>
+
+using namespace std;
 
 //// printing ////////////////////////////////////////////////////////
 

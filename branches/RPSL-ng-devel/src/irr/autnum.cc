@@ -58,6 +58,9 @@
 #include "rpsl/prefix.hh"
 #include "gnug++/SetOfUInt.hh"
 #include <algorithm>
+#include <iostream>
+
+using namespace std;
 
 ASt AutNum::asno(void) const
 {

@@ -100,7 +100,7 @@ public:
    void add(ASt as);
    void add(SymID sid);
 
-   friend ostream& operator<<(ostream& stream, SetOfSymbol& set);
+   friend std::ostream& operator<<(std::ostream& stream, SetOfSymbol& set);
 
 private:
    BagOfSymbolConjunct conjuncts;

@@ -1332,6 +1332,7 @@ fi;
 
 case "${host_os}" in
       solaris* )
+              EXTRA_INCLUDE_DIRS="-I/opt/sfw/${ac_cv_host}/include"
               EXTRA_LIBS="-lsocket -lnsl"
       ;;
       bsdi* )
@@ -5249,6 +5250,42 @@ _ACEOF
 
 fi
 rm -f conftest*
+
+
+case "${host_os}" in
+      solaris* )
+        cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <strings.h>
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "bzero" >/dev/null 2>&1; then
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_DECL_BZERO 1
+_ACEOF
+
+fi
+rm -f conftest*
+
+        cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <strings.h>
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  egrep "bcopy" >/dev/null 2>&1; then
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_DECL_BCOPY 1
+_ACEOF
+
+fi
+rm -f conftest*
+
+      ;;
+esac
 
 
 

@@ -53,7 +53,8 @@
 
 #include "config.h"
 #include <cstdio>
-#include <fstream.h>
+#include <fstream>
+#include <iostream>
 #include "gnu/prefixranges.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "irr.hh"
@@ -61,6 +62,8 @@
 #include "route.hh"
 #include "cache.hh"
 #include "classes.hh"
+
+using namespace std;
 
 IRR *irr;
 ProtocolName protocolName[] = {

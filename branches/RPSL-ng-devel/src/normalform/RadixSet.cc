@@ -55,10 +55,12 @@
 
 #include <cassert>
 #include <cstdio>
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 
 #include "RadixSet.hh"
+
+using namespace std;
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))

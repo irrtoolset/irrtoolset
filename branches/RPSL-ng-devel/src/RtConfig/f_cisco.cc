@@ -53,14 +53,16 @@
 
 #include "config.h"
 #include <cstring>
-#include <iostream.h>
-#include <iomanip.h>
-#include <strstream.h>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cctype>
 #include "normalform/NE.hh"
 #include "RtConfig.hh"
 #include "f_cisco.hh"
 #include "rpsl/schema.hh"
+
+using namespace std;
 
 #define DBG_CISCO 7
 #define EXPORT 0
@@ -727,9 +729,12 @@ int CiscoConfig::printRE_(ostream& os, const regexp& r) {
    return flag;
 }
 
-void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
-   ostrstream out;
-   out << "ip as-path access-list "
+void CiscoConfig::printRE(ostream &s, 
+		          const regexp &r, 
+			  int aclID, 
+			  bool permit){
+   ostringstream out;
+    out << "ip as-path access-list "
        << aclID 
        << (permit ? " permit " : " deny ");
    reSplittable = true;
@@ -740,22 +745,23 @@ void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
    out << "\n";
    out << ends;
 
-   int lineLen = strlen(out.str());
+   //int lineLen = strlen(out.str());
+   int lineLen = out.str().length();
    if (lineLen < 240 && ! hasTilda) {
-      char *p = out.str();
+      const char *p = out.str().c_str();
       for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
 	 *q = '(';
       s << out.str();
    } else { // need to split into multiple lines
       if (hasTilda) {
-	 char *p = out.str();
+	 const char *p = out.str().c_str();
 	 for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
 	    *q = '(';
 	 for (char *q = strchr(p, '&'); q; q = strchr(q, '&'))
 	    *q = '@';
       }
 
-      char *p = out.str();
+      char *p = strdup(out.str().c_str());
       char *q, *r2;
       char *r = NULL;
       int size = 0;
@@ -773,7 +779,7 @@ void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
 	 cerr << "Warning: ip as-path access-list is too long for cisco to handle" << endl;
       } else {
 	 int inc = hasTilda ? 1 : (240 - lineLen + size) >? 5;
-	 p = out.str();
+	 p = strdup(out.str().c_str());
 	 q = strchr(r, ')') + 1;
 	 *r = 0;
 	 r++;
@@ -790,7 +796,7 @@ void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
 	 } 
       }
    }
-   out.freeze(0);
+   //out.freeze(0); no need for ostringstream
 }
 
 ListOf2Ints* CiscoConfig::printASPaths(regexp_nf& path) {
@@ -1060,8 +1066,10 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
    }
 }
 
-int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn, 
-		       int import_flag, ItemAFI *afi) {
+int CiscoConfig::print(NormalExpression *ne, 
+		       PolicyActionList *actn, 
+		       int import_flag, 
+		       ItemAFI *afi) {
    int last = 0;
    static ListOf2Ints empty_list(1);
 
@@ -1206,7 +1214,12 @@ int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn,
 
 // Reimplemented to handle different afi's
 bool CiscoConfig::printNeighbor(int import, 
-				ASt asno, ASt peerAS, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi) {
+				ASt asno, 
+				ASt peerAS, 
+				char *neighbor, 
+				bool peerGroup, 
+				ItemAFI *peer_afi, 
+				ItemAFI *filter_afi) {
    bool afi_activate = false;
 
    if (! printRouteMap)

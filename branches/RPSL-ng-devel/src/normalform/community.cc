@@ -54,8 +54,10 @@
 #include "config.h"
 #include "util/debug.hh"
 #include "community.hh"
-#include <iostream.h>
+#include <iostream>
 #include "rpsl/rpsl_item.hh"
+
+using namespace std;
 
 void CommunitySet::addCommunity(Item *item) {
    if (typeid(*item) == typeid(ItemINT))

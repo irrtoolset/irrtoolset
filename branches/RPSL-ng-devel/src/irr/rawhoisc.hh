@@ -131,6 +131,8 @@ public:
 
    void Close();
 
+   void CheckConnection();
+
    void SetSources(const char *_sources = dflt_sources);
 
    // Modified by wlee@isi.edu

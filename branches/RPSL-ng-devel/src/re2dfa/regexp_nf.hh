@@ -55,7 +55,7 @@
 #define REGEXP_NF_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "util/List.hh"
 #include "rpsl/regexp.hh"
 #include "rpsl/rpsl_item.hh"
@@ -68,7 +68,7 @@ extern "C" {
 }
 
 #define REGEXPNF_FRIENDS \
-   friend ostream& operator<<(ostream& os, const regexp& r); \
+   friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp; \
    friend class BccConfig;\
    friend class CiscoConfig;\
@@ -78,7 +78,7 @@ extern "C" {
 
 class regexp_nf : public regexp {
 REGEXPNF_FRIENDS
-friend ostream& operator<<(ostream& os, const regexp_nf& r);
+friend std::ostream& operator<<(std::ostream& os, const regexp_nf& r);
 private:
    rd_fm* m;
    static bool expand_as_macros;

@@ -23,9 +23,11 @@
 #include "config.h"
 #include <cstdio>
 #include <cstring>
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include "afi.hh"
+
+using namespace std;
 
 AddressFamily::AddressFamily(void) :
   afi(NULL)

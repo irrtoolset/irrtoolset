@@ -55,7 +55,7 @@
 #define FILTER_H
 
 #include "config.h"
-#include <ostream.h>
+#include <ostream>
 extern "C" {
 #include <sys/types.h>
 }
@@ -78,8 +78,8 @@ public:
    virtual int  operator == (NEFilter& b) = 0; // equivalance
    virtual void operator =  (NEFilter& b) = 0; // assignment
 
-   friend ostream& operator<<(ostream& stream, NEFilter& nt);
-   virtual void do_print(ostream& stream) = 0;
+   friend std::ostream& operator<<(std::ostream& stream, NEFilter& nt);
+   virtual void do_print(std::ostream& stream) = 0;
 
    CLASS_DEBUG_MEMORY_HH(NEFilter);
 

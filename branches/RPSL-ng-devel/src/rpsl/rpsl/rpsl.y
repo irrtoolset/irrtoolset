@@ -3077,7 +3077,7 @@ void enable_yy_parser_debugging() {
 
 void handleArgumentTypeError(char *attr, char *method, int position,
 			     const RPType *correctType, 
-			     bool isOperator = false) {
+			     bool isOperator) {
    if (isOperator)
       if (position)
 	 handle_error("Error: argument %d to %s.operator%s should be %s.\n",

@@ -57,12 +57,12 @@
 #include "config.h"
 #include "util/List.hh"
 #include <climits>
-#include <iostream.h>
+#include <iostream>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
-#include <strstream.h>
+#include <sstream>
 
 const unsigned int UINT_MIN = 0;
 const double DOUBLE_MIN = INT_MIN;
@@ -119,7 +119,7 @@ public:
    static RPType *newRPType(char *name, List<RPTypeNode> *types);
 };
 
-inline ostream &operator<<(ostream &out, RPType &type) {
+inline std::ostream &operator<<(std::ostream &out, RPType &type) {
    out << type.name();
    return out;
 }
@@ -142,12 +142,24 @@ public:
 	 if (min == INT_MIN && max == INT_MAX)
 	    _name = strdup("integer");
 	 else {
+             std::ostringstream os;
+             std::string s;
+             const int buffer_size = 1024;
+             char buffer[buffer_size];
+
+             os << "integer[" << min << ", " << max << "]" << std::ends;
+             s = os.str();
+             s.copy(buffer, buffer_size);
+             _name = strdup(buffer);
+#if 0
 	    char buffer[1024];
             // Changed by wlee
 	    // sprintf(buffer, "integer[%Ld, %Ld]", min, max);
-            ostrstream os(buffer, 1024);
+            std::ostringstream os;
             os << "integer[" << min << ", " << max << "]" << ends;
 	    _name = strdup(buffer);
+            os.freeze(false);
+#endif
 	 }
       }
       return _name;

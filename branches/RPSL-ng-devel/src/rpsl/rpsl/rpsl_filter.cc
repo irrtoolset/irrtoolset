@@ -52,10 +52,13 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
+#include <ostream>
 #include <cstdio>
 #include "rpsl_filter.hh"
 #include "rpsl_attr.hh"
 #include "regexp.hh"
+
+using namespace std;
 
 //// printing ////////////////////////////////////////////////////////
 
@@ -159,7 +162,7 @@ ostream &FilterMPPRFXList::print(ostream &out) const {
    out << "{";
 
    p = begin();
-   if (p) {
+   if (p != end()) {
      out << *p;
      ++p;
      for (p; p != end(); ++p) {

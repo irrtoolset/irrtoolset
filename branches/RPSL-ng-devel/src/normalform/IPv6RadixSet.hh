@@ -101,6 +101,7 @@ public:
 
    IPv6RadixTree(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t _rngs) : 
       addr(_addr), leng(_leng), rngs(_rngs) {
+
       foreachchild(c)
 	 chld[c] = (IPv6RadixTree *) NULL;
    }
@@ -293,10 +294,12 @@ public:
    }
 
    IPv6RadixSet(const IPv6RadixSet &b) {
-      if (b.root)
+      if (b.root) {
 	 root = new IPv6RadixTree(*b.root);
-      else
+   }
+      else {
 	 root = (IPv6RadixTree *) NULL;
+   }
 
     // DEBUG
     //cout << "created IPv6RadixSet " << *this << endl;
@@ -321,6 +324,9 @@ public:
    }
    bool contains(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) const {
       return root->contains(addr, leng, rngs);
+   }
+   bool contains(ipv6_addr_t addr, u_int leng) const {
+      return root->contains(addr, leng, addr.getbits(leng));
    }
 
    void makeMoreSpecific(int code, int n, int m) {
@@ -362,7 +368,31 @@ public:
       root = root->and_(b.root);
    }
    void operator -= (const IPv6RadixSet& b) {
-      root = root->setminus(b.root);
+      // TBD: fix the bug in remove (see setminus) and use setminus instead (quicker!)
+      //root = root->setminus(b.root); 
+
+      if (*this == b) {
+        this->clear();
+        return;
+      }
+
+      if (!b.root || !this->root)
+        return;
+
+      IPv6RadixSet::PrefixIterator itr(this);
+      IPv6RadixSet *result = new IPv6RadixSet;
+      ipv6_addr_t addr;
+      u_int leng;
+      for (bool flag = itr.first(addr, leng); flag; 
+                flag = itr.next(addr, leng)) {
+        if (! b.contains(addr, leng)) {
+          result->insert(addr, leng);
+        } 
+      }
+      if (result->root)
+        *this = *result;
+      else 
+        this->clear();
    }
    int  operator == (const IPv6RadixSet& b) const {
       return root->equals(b.root);
@@ -374,6 +404,6 @@ public:
       root = new IPv6RadixTree(*b.root);
    }
 
-   friend ostream& operator<<(ostream&, const IPv6RadixSet &set);
+   friend std::ostream& operator<<(std::ostream&, const IPv6RadixSet &set);
 };
 

@@ -21,7 +21,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #endif
 #include <std.h>
 #include <AllocRing.h>
-#include <new.h>
+#include <new>
 
 AllocRing::AllocRing(int max)
   :nodes(new AllocQNode[max]), n(max), current(0)

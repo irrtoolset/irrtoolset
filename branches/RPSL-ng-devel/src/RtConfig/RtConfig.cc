@@ -59,8 +59,8 @@ extern "C" {
 #   include <unistd.h>
 #endif
 }
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
 #include "irr/ripewhoisc.hh"
@@ -78,6 +78,8 @@ extern "C" {
 #include "f_rsd.hh"
 #include "rpsl/schema.hh"
 #include "irr/classes.hh"
+
+using namespace std;
 
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);

@@ -53,7 +53,7 @@
 
 #include "config.h"
 
-#include <fstream.h>
+#include <fstream>
 #include <cstring>
 #include "gnu/std.h"
 
@@ -61,6 +61,8 @@
 #include "object.hh"
 #include "rpsl.y.hh"
 #include "rptype.hh"
+
+using namespace std;
 
 #define NO          0
 #define PRS         1
@@ -74,358 +76,376 @@
 
 char Schema::dictionary_text[] = "";
 
-#define CMN_ATTRS "
-attr:  notify           syntax(email),                                         optional,  multiple
-attr:  remarks                                                                 optional,  multiple
-attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal
-attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal
-attr:  changed          optional,  multiple
-attr:  deleted                                                                 optional,  single, deleted"
+#define CMN_ATTRS \
+"attr:  notify           syntax(email),                                         optional,  multiple\n" \
+"attr:  remarks                                                                 optional,  multiple\n" \
+"attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal\n" \
+"attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal\n" \
+"attr:  changed          optional,  multiple\n" \
+"attr:  deleted                                                                 optional,  single, deleted\n"
 
-static char base_text[] = "class: dictionary        
-attr:  dictionary       syntax(rpsl_word),                                     mandatory, single,   key
-attr:  rp-attribute     syntax(special,rp-attribute),                          optional,  multiple
-attr:  typedef          syntax(special,typedef),                               optional,  multiple
-attr:  protocol         syntax(special,protocol),                              optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-attr:  admin-c                                                                 optional,  multiple, lookup
+static char base_text[] = 
+"class: dictionary\n"
+"attr:  dictionary       syntax(rpsl_word),                                     mandatory, single,   key\n"
+"attr:  rp-attribute     syntax(special,rp-attribute),                          optional,  multiple\n"
+"attr:  typedef          syntax(special,typedef),                               optional,  multiple\n"
+"attr:  protocol         syntax(special,protocol),                              optional,  multiple\n"
+CMN_ATTRS 
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 optional,  multiple, lookup\n"
+"\n"
+"dictionary: rpsl\n"
+"descr:   rpsl dictionary\n"
+"admin-c: Cengiz Alaettinoglu\n"
+"tech-c: Cengiz Alaettinoglu\n"
+"mnt-by: MNT-CENGIZ\n"
+"changed: cengiz@isi.edu 19980324\n"
+"source: RPS-WG\n"
+"typedef: ListOfIPv4Prefix list of Address_Prefix\n"
+"typedef: as_number-as_set_name union as_number, as_set_name\n"
+"typedef: ListOfas_number list of as_number\n"
+"typedef: ListOfas_number-as_set_name list of as_number-as_set_name\n"
+"typedef: ListOfas_set_name  list of as_set_name\n"
+"typedef: ListOfroute_set_name  list of route_set_name\n"
+"typedef: as_number-as_set_name-route_set_name-IPv4Prefix\n"
+"         union as_number, as_set_name, route_set_name, Address_Prefix\n"
+"typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix\n"
+"         list of as_number-as_set_name-route_set_name-IPv4Prefix\n"
+"typedef: ListOfIPv6Prefix list of ipv6_Address_Prefix\n"
+"typedef: as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix\n"
+"         union as_number, as_set_name, route_set_name, Address_Prefix, ipv6_Address_Prefix\n"
+"typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix\n"
+"         list of as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix\n"
+"typedef: ListOfrpsl_word List of rpsl_word\n"
+"typedef: encapsulation enum[GRE, IPv6inIPv4, IPinIP, DVMRP]\n"
+"typedef: address_family enum[ipv4, ipv6, any]\n"
+"typedef: address_sub_family enum[unicast, multicast]\n"
+"rp-attribute: # preference, smaller values represent higher preferences\n"
+"              pref\n"
+"              operator=(integer[0, 65535])  \n"
+"rp-attribute: # BGP multi_exit_discriminator attribute\n"
+"              med\n"
+"              operator=(union integer[0, 65535], enum[igp_cost])\n"
+"              # to set med to the IGP metric: med = igp_cost;\n"
+"              #operator=(enum[igp_cost])\n"
+"rp-attribute: # BGP destination preference attribute (dpa)\n"
+"              dpa\n"
+"              operator=(integer[0, 65535])  \n"
+"rp-attribute: # BGP aspath attribute\n"
+"              aspath\n"
+"              # prepends AS numbers from last to first order\n"
+"              prepend(as_number, ...)\n"
+"typedef:      # a community value in RPSL is either\n"
+"              #  - a 4 byte integer\n"
+"              #  - internet, no_export, no_advertise (see RFC-1997)\n"
+"              community_elm union\n"
+"              integer[1, 4294967295],\n"
+"              enum[internet, no_export, no_advertise]\n"
+"typedef:      # list of community values { 40, no_export, 3561:70}\n"
+"              community_list\n"
+"              list of community_elm\n"
+"rp-attribute: # BGP community attribute\n"
+"              community\n"
+"              # set to a list of communities\n"
+"              operator=(community_list)\n"
+"              # order independent equality comparison\n"
+"              operator==(community_list)\n"
+"              # append community values\n"
+"              operator.=(community_list)\n"
+"              append(community_elm, ...)\n"
+"              # delete community values\n"
+"              delete(community_elm, ...)\n"
+"              # a filter: true if one of community values is contained\n"
+"              contains(community_elm, ...)\n"
+"              # shortcut to contains: community(no_export, {3561,70})\n"
+"              operator()(community_elm, ...)\n"
+"rp-attribute: # next hop router in a static route\n"
+"              next-hop\n"
+"              operator=(union ipv4_address, ipv6_address, enum[self])\n"
+"rp-attribute: # cost of a static route\n"
+"              cost\n"
+"              operator=(integer[0, 65535])\n"
+"protocol: BGP4\n"
+"          # as number of the peer router\n"
+"          MANDATORY asno(as_number)\n"
+"          # enable flap damping\n"
+"          OPTIONAL flap_damp()\n"
+"          OPTIONAL flap_damp(integer[0,65535],# penalty per flap\n"
+"                             integer[0,65535],# penalty value for supression\n"
+"                             integer[0,65535],# penalty value for reuse\n"
+"                             integer[0,65535],# halflife in secs when up\n"
+"                             integer[0,65535],# halflife in secs when down\n"
+"                             integer[0,65535])# maximum penalty\n"
+"protocol: OSPF\n"
+"protocol: RIP\n"
+"protocol: IGRP\n"
+"protocol: IS-IS\n"
+"protocol: STATIC\n"
+"protocol: RIPng\n"
+"protocol: DVMRP\n"
+"protocol: PIM-DM\n"
+"protocol: PIM-SM\n"
+"protocol: CBT\n"
+"protocol: MOSPF\n"
+"protocol: MPBGP\n";
 
-dictionary: rpsl
-descr:   rpsl dictionary
-admin-c: Cengiz Alaettinoglu
-tech-c: Cengiz Alaettinoglu
-mnt-by: MNT-CENGIZ
-changed: cengiz@isi.edu 19980324
-source: RPS-WG
-typedef: ListOfIPv4Prefix list of Address_Prefix
-typedef: as_number-as_set_name union as_number, as_set_name
-typedef: ListOfas_number list of as_number
-typedef: ListOfas_number-as_set_name list of as_number-as_set_name
-typedef: ListOfas_set_name  list of as_set_name
-typedef: ListOfroute_set_name  list of route_set_name
-typedef: as_number-as_set_name-route_set_name-IPv4Prefix
-         union as_number, as_set_name, route_set_name, Address_Prefix
-typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix
-         list of as_number-as_set_name-route_set_name-IPv4Prefix
-typedef: ListOfIPv6Prefix list of ipv6_Address_Prefix
-typedef: as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
-         union as_number, as_set_name, route_set_name, Address_Prefix, ipv6_Address_Prefix
-typedef: ListOfas_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
-         list of as_number-as_set_name-route_set_name-IPv4Prefix-IPv6Prefix
-typedef: ListOfrpsl_word List of rpsl_word
-typedef: encapsulation enum[GRE, IPv6inIPv4, IPinIP, DVMRP]
-typedef: address_family enum[ipv4, ipv6, any]
-typedef: address_sub_family enum[unicast, multicast]
-rp-attribute: # preference, smaller values represent higher preferences
-              pref
-              operator=(integer[0, 65535])  
-rp-attribute: # BGP multi_exit_discriminator attribute
-              med    
-              operator=(union integer[0, 65535], enum[igp_cost])
-              # to set med to the IGP metric: med = igp_cost;
-              #operator=(enum[igp_cost])
-rp-attribute: # BGP destination preference attribute (dpa)
-              dpa    
-              operator=(integer[0, 65535])  
-rp-attribute: # BGP aspath attribute
-              aspath
-              # prepends AS numbers from last to first order
-              prepend(as_number, ...)
-typedef:      # a community value in RPSL is either
-              #  - a 4 byte integer
-              #  - internet, no_export, no_advertise (see RFC-1997)
-              community_elm union
-              integer[1, 4294967295],
-              enum[internet, no_export, no_advertise]
-typedef:      # list of community values { 40, no_export, 3561:70}
-              community_list
-              list of community_elm
-rp-attribute: # BGP community attribute
-              community 
-              # set to a list of communities
-              operator=(community_list)
-              # order independent equality comparison
-              operator==(community_list)    
-              # append community values                              
-              operator.=(community_list)
-              append(community_elm, ...)
-              # delete community values
-              delete(community_elm, ...)
-              # a filter: true if one of community values is contained
-              contains(community_elm, ...)
-              # shortcut to contains: community(no_export, {3561,70})
-              operator()(community_elm, ...)
-rp-attribute: # next hop router in a static route
-              next-hop 
-              operator=(union ipv4_address, ipv6_address, enum[self])
-rp-attribute: # cost of a static route
-              cost 
-              operator=(integer[0, 65535])
-protocol: BGP4
-          # as number of the peer router
-          MANDATORY asno(as_number)
-          # enable flap damping
-          OPTIONAL flap_damp()        
-          OPTIONAL flap_damp(integer[0,65535],# penalty per flap
-                             integer[0,65535],# penalty value for supression
-                             integer[0,65535],# penalty value for reuse
-                             integer[0,65535],# halflife in secs when up
-                             integer[0,65535],# halflife in secs when down
-                             integer[0,65535])# maximum penalty
-protocol: OSPF
-protocol: RIP
-protocol: IGRP
-protocol: IS-IS
-protocol: STATIC
-protocol: RIPng
-protocol: DVMRP
-protocol: PIM-DM
-protocol: PIM-SM
-protocol: CBT
-protocol: MOSPF
-protocol: MPBGP
-";
-
-static char classes_text[] = "class: mntner
-attr:  mntner           syntax(rpsl_word),                                     mandatory, single,   key
-attr:  auth             syntax(special, blobs),                                mandatory, multiple
-attr:  upd-to           syntax(email),                                         mandatory, multiple
-attr:  mnt-nfy          syntax(email),                                         optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  optional,  multiple, lookup
-
-class: person
-attr:  person                                                                  mandatory, single,   lookup
-attr:  nic-hdl          syntax(rpsl_word),                                     mandatory, single,   key
-attr:  address                                                                 mandatory, multiple
-attr:  phone                                                                   mandatory, multiple
-attr:  fax-no                                                                  optional,  multiple
-attr:  e-mail           syntax(email),                                         optional,  multiple, lookup           " CMN_ATTRS "
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-
-class: role
-attr:  role                                                                    mandatory, single,   lookup
-attr:  nic-hdl                                                                 mandatory, single,   key
-attr:  address                                                                 mandatory, multiple
-attr:  phone                                                                   mandatory, multiple
-attr:  fax-no                                                                  optional,  multiple
-attr:  e-mail           syntax(email),                                         mandatory, multiple, lookup
-attr:  trouble                                                                 optional,  multiple                   " CMN_ATTRS "
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: route
-attr:  route            syntax(address_prefix),                                mandatory, single,   key, lookup
-attr:  origin           syntax(as_number),                                     mandatory, single,   key, lookup
-attr:  withdrawn        syntax(date),                                          optional,  single,   deleted
-attr:  member-of        syntax(ListOfroute_set_name),                          optional,  multiple, lookup
-attr:  inject           syntax(special, inject),                               optional,  multiple
-attr:  components       syntax(special, components),                           optional,  single
-attr:  aggr-bndry       syntax(special, aggr-bndry),                           optional,  single
-attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single
-attr:  export-comps     syntax(special, filter),                         optional,  single
-attr:  holes            syntax(ListOfIPv4Prefix),                              optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
-attr:  mnt-routes       syntax(special, mnt-routes),                           optional, multiple, lookup
-attr:  admin-c                                                                 optional,  multiple, lookup
-attr:  tech-c                                                                  optional,  multiple, lookup
-attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
-attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple
-
-class: route6
-attr:  route6            syntax(ipv6_address_prefix),                                mandatory, single,   key, lookup
-attr:  origin           syntax(as_number),                                     mandatory, single,   key, lookup
-attr:  withdrawn        syntax(date),                                          optional,  single,   deleted
-attr:  member-of        syntax(ListOfroute_set_name),                          optional,  multiple, lookup
-attr:  inject           syntax(special, v6_inject),                               optional,  multiple
-attr:  components       syntax(special, v6_components),                           optional,  single
-attr:  aggr-bndry       syntax(special, aggr-bndry),                           optional,  single
-attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single
-attr:  export-comps     syntax(special, v6_filter),                         optional,  single
-attr:  holes            syntax(ListOfIPv6Prefix),                              optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
-attr:  mnt-routes      syntax(special, mnt-routes6),                             optional, multiple, lookup
-attr:  admin-c                                                                 optional,  multiple, lookup
-attr:  tech-c                                                                  optional,  multiple, lookup
-attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
-attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple
-
-class: route-set
-attr:  route-set        syntax(route_set_name),                                mandatory, single,   key
-attr:  members          syntax(special, rs-members),                           optional,  multiple, lookup 
-attr:  mp-members       syntax(special, rs-mp-members),                        optional,  multiple, lookup 
-attr:  mbrs-by-ref      syntax(list of rpsl_Word),                             optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: as-set
-attr:  as-set           syntax(as_set_name),                                   mandatory, single,   key
-attr:  members          syntax(list of union as_number, as_set_name),          optional,  multiple, lookup     
-attr:  mbrs-by-ref      syntax(list of rpsl_word),                             optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: rtr-set
-attr:  rtr-set        syntax(rtr_set_name),                                       mandatory, single,   key
-attr:  members        syntax(list of union rtr_set_name, dns_name, ipv4_address), optional,  multiple, lookup 
-attr:  mp-members     syntax(list of union rtr_set_name, dns_name, ipv4_address, ipv6_address), optional,  multiple, lookup 
-attr:  mbrs-by-ref    syntax(list of rpsl_Word),                               	  optional,  multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   	  mandatory, multiple
-attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
-attr:  admin-c                                                                 	  mandatory, multiple, lookup
-attr:  tech-c                                                                  	  mandatory, multiple, lookup
-
-class: peering-set
-attr:  peering-set    syntax(peering_set_name),                                   mandatory, single,   key
-attr:  peering        syntax(special, peering),                                   optional, multiple
-attr:  mp-peering     syntax(special, mp-peering),                                optional, multiple                   " CMN_ATTRS "
-attr:  descr                                                                   	  mandatory, multiple
-attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
-attr:  admin-c                                                                 	  mandatory, multiple, lookup
-attr:  tech-c                                                                  	  mandatory, multiple, lookup
-
-class: filter-set
-attr:  filter-set       syntax(filter_set_name),                               mandatory, single,   key
-attr:  filter           syntax(special, filter),                               optional, single
-attr:  mp-filter        syntax(special, mp-filter),                            optional, single                       " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: aut-num
-attr:  aut-num          syntax(as_number),                                     mandatory, single,   key
-attr:  as-name          syntax(rpsl_word),                                     mandatory, single,   lookup
-attr:  member-of        syntax(List Of AS_set_name),                           optional,  multiple, lookup
-attr:  import           syntax(special,import),                                optional,  multiple
-attr:  mp-import        syntax(special,mp-import),                             optional,  multiple
-attr:  export           syntax(special,export),                                optional,  multiple
-attr:  mp-export        syntax(special,mp-export),                             optional,  multiple
-attr:  default          syntax(special,default),                               optional,  multiple
-attr:  mp-default       syntax(special,mp-default),                            optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  mnt-routes       syntax(special, mnt-routes-mp),                           optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
-attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple
-
-class: inet-rtr
-attr:  inet-rtr         syntax(dns_name),                                      mandatory, single,   key
-attr:  alias            syntax(dns_name),                                      optional,  multiple, lookup
-attr:  local-as         syntax(as_number),                                     mandatory, single,   lookup
-attr:  ifaddr           syntax(special,ifaddr),                                mandatory, multiple
-attr:  interface        syntax(special,interface),                             optional, multiple
-attr:  peer             syntax(special,peer),                                  optional,  multiple
-attr:  mp-peer          syntax(special,mp-peer),                               optional,  multiple                   " CMN_ATTRS "
-attr:  member-of        syntax(List Of rtr_set_name),                           optional,  multiple, lookup
-attr:  descr                                                                   optional,  multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: inetnum
-attr:  inetnum          syntax(range of ipv4_address),                         mandatory, single,   key
-attr:  netname                                                                 mandatory, single,   lookup
-attr:  country                                                                 mandatory, multiple
-attr:  rev-srv                                                                 optional,  multiple, lookup
-attr:  status                                                                  mandatory, single
-attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: inet6num
-attr:  inet6num          syntax(ipv6_address_prefix),                         mandatory, single,   key
-attr:  netname                                                                 mandatory, single,   lookup
-attr:  country                                                                 mandatory, multiple
-attr:  rev-srv                                                                 optional,  multiple, lookup
-attr:  status                                                                  mandatory, single
-attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-attr:  mnt-routes       syntax(special, mnt-routes6),                          optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: domain
-attr:  domain           syntax(dns_name),                                      mandatory, single,   key
-attr:  sub-dom                                                                 optional,  multiple, lookup
-attr:  dom-net                                                                 optional,  multiple
-attr:  zone-c                                                                  mandatory, multiple, lookup
-attr:  nserver                                                                 optional,  multiple, lookup
-attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: limerick
-attr:  limerick                                                                mandatory, single,   key
-attr:  text                                                                    mandatory, multiple
-attr:  author                                                                  mandatory, multiple, lookup           " CMN_ATTRS "
-attr:  descr                                                                   optional,  multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-
-class: as-block
-attr:  as-block         syntax(union as_number, range of as_number),           mandatory, single,   key
-attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple                   " CMN_ATTRS "
-attr:  descr                                                                   mandatory, multiple
-attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup
-attr:  admin-c                                                                 mandatory, multiple, lookup
-attr:  tech-c                                                                  mandatory, multiple, lookup
-
-class: key-cert
-attr:  key-cert       mandatory, single,    key,        syntax(rpsl_word)
-attr:  method         mandatory, single,                syntax(rpsl_word)
-attr:  owner          mandatory, multiple
-attr:  fingerpr       mandatory, single
-attr:  certif         mandatory, single
-attr:  remarks        optional,  multiple
-attr:  source         mandatory, single,   lookup,      syntax(rpsl_word)
-attr:  changed        optional,  multiple
-attr:  deleted        optional,  single, deleted
-attr:  mnt-by         mandatory, multiple, lookup,      syntax(list of rpsl_word)
-attr:  notify         optional,  multiple,              syntax(email)
-
-class: peval   
-attr:  peval            syntax(special,filter),                                 optional,  single
-
-class: mp-peval
-attr:  mp-peval         syntax(special,mp-peval),                              optional,  single
-
-class: repository
-attr:  repository           mandatory,  single,  key,   syntax(rpsl_word)
-attr:  query-address        mandatory,  multiple
-attr:  response-auth-type   mandatory,  multiple
-attr:  submit-address       mandatory,  multiple
-attr:  submit-auth-type     mandatory,  multiple
-attr:  repository-cert      mandatory,  multiple
-attr:  expire               mandatory,  single
-attr:  heartbeat-interval   mandatory,  single
-attr:  descr                optional,   multiple
-attr:  admin-c              mandatory,  multiple, lookup
-attr:  tech-c               mandatory,  multiple, lookup
-attr:  mnt-by               mandatory,  multiple, lookup " CMN_ATTRS "
-
-";
+static char classes_text[] =
+"class: mntner\n"
+"attr:  mntner           syntax(rpsl_word),                                     mandatory, single,   key\n"
+"attr:  auth             syntax(special, blobs),                                mandatory, multiple\n"
+"attr:  upd-to           syntax(email),                                         mandatory, multiple\n"
+"attr:  mnt-nfy          syntax(email),                                         optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  optional,  multiple, lookup\n"
+"\n"
+"class: person\n"
+"attr:  person                                                                  mandatory, single,   lookup\n"
+"attr:  nic-hdl          syntax(rpsl_word),                                     mandatory, single,   key\n"
+"attr:  address                                                                 mandatory, multiple\n"
+"attr:  phone                                                                   mandatory, multiple\n"
+"attr:  fax-no                                                                  optional,  multiple\n"
+"attr:  e-mail           syntax(email),                                         optional,  multiple, lookup\n"
+CMN_ATTRS
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"\n"
+"class: role\n"
+"attr:  role                                                                    mandatory, single,   lookup\n"
+"attr:  nic-hdl                                                                 mandatory, single,   key\n"
+"attr:  address                                                                 mandatory, multiple\n"
+"attr:  phone                                                                   mandatory, multiple\n"
+"attr:  fax-no                                                                  optional,  multiple\n"
+"attr:  e-mail           syntax(email),                                         mandatory, multiple, lookup\n"
+"attr:  trouble                                                                 optional,  multiple\n"
+CMN_ATTRS
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: route\n"
+"attr:  route            syntax(address_prefix),                                mandatory, single,   key, lookup\n"
+"attr:  origin           syntax(as_number),                                     mandatory, single,   key, lookup\n"
+"attr:  withdrawn        syntax(date),                                          optional,  single,   deleted\n"
+"attr:  member-of        syntax(ListOfroute_set_name),                          optional,  multiple, lookup\n"
+"attr:  inject           syntax(special, inject),                               optional,  multiple\n"
+"attr:  components       syntax(special, components),                           optional,  single\n"
+"attr:  aggr-bndry       syntax(special, aggr-bndry),                           optional,  single\n"
+"attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single\n"
+"attr:  export-comps     syntax(special, filter),                         optional,  single\n"
+"attr:  holes            syntax(ListOfIPv4Prefix),                              optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup\n"
+"attr:  mnt-routes       syntax(special, mnt-routes),                           optional, multiple, lookup\n"
+"attr:  admin-c                                                                 optional,  multiple, lookup\n"
+"attr:  tech-c                                                                  optional,  multiple, lookup\n"
+"attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple\n"
+"attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple\n"
+"\n"
+"class: route6\n"
+"attr:  route6            syntax(ipv6_address_prefix),                                mandatory, single,   key, lookup\n"
+"attr:  origin           syntax(as_number),                                     mandatory, single,   key, lookup\n"
+"attr:  withdrawn        syntax(date),                                          optional,  single,   deleted\n"
+"attr:  member-of        syntax(ListOfroute_set_name),                          optional,  multiple, lookup\n"
+"attr:  inject           syntax(special, v6_inject),                               optional,  multiple\n"
+"attr:  components       syntax(special, v6_components),                           optional,  single\n"
+"attr:  aggr-bndry       syntax(special, aggr-bndry),                           optional,  single\n"
+"attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single\n"
+"attr:  export-comps     syntax(special, v6_filter),                         optional,  single\n"
+"attr:  holes            syntax(ListOfIPv6Prefix),                              optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup\n"
+"attr:  mnt-routes      syntax(special, mnt-routes6),                             optional, multiple, lookup\n"
+"attr:  admin-c                                                                 optional,  multiple, lookup\n"
+"attr:  tech-c                                                                  optional,  multiple, lookup\n"
+"attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple\n"
+"attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple\n"
+"\n"
+"class: route-set\n"
+"attr:  route-set        syntax(route_set_name),                                mandatory, single,   key\n"
+"attr:  members          syntax(special, rs-members),                           optional,  multiple, lookup \n"
+"attr:  mp-members       syntax(special, rs-mp-members),                        optional,  multiple, lookup \n"
+"attr:  mbrs-by-ref      syntax(list of rpsl_Word),                             optional,  multiple, lookup\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: as-set\n"
+"attr:  as-set           syntax(as_set_name),                                   mandatory, single,   key\n"
+"attr:  members          syntax(list of union as_number, as_set_name),          optional,  multiple, lookup     \n"
+"attr:  mbrs-by-ref      syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: rtr-set\n"
+"attr:  rtr-set        syntax(rtr_set_name),                                       mandatory, single,   key\n"
+"attr:  members        syntax(list of union rtr_set_name, dns_name, ipv4_address), optional,  multiple, lookup \n"
+"attr:  mp-members     syntax(list of union rtr_set_name, dns_name, ipv4_address, ipv6_address), optional,  multiple, lookup \n"
+"attr:  mbrs-by-ref    syntax(list of rpsl_Word),                               	  optional,  multiple, lookup\n"
+CMN_ATTRS
+"attr:  descr                                                                   	  mandatory, multiple\n"
+"attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 	  mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  	  mandatory, multiple, lookup\n"
+"\n"
+"class: peering-set\n"
+"attr:  peering-set    syntax(peering_set_name),                                   mandatory, single,   key\n"
+"attr:  peering        syntax(special, peering),                                   optional, multiple\n"
+"attr:  mp-peering     syntax(special, mp-peering),                                optional, multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   	  mandatory, multiple\n"
+"attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 	  mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  	  mandatory, multiple, lookup\n"
+"\n"
+"class: filter-set\n"
+"attr:  filter-set       syntax(filter_set_name),                               mandatory, single,   key\n"
+"attr:  filter           syntax(special, filter),                               optional, single\n"
+"attr:  mp-filter        syntax(special, mp-filter),                            optional, single\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: aut-num\n"
+"attr:  aut-num          syntax(as_number),                                     mandatory, single,   key\n"
+"attr:  as-name          syntax(rpsl_word),                                     mandatory, single,   lookup\n"
+"attr:  member-of        syntax(List Of AS_set_name),                           optional,  multiple, lookup\n"
+"attr:  import           syntax(special,import),                                optional,  multiple\n"
+"attr:  mp-import        syntax(special,mp-import),                             optional,  multiple\n"
+"attr:  export           syntax(special,export),                                optional,  multiple\n"
+"attr:  mp-export        syntax(special,mp-export),                             optional,  multiple\n"
+"attr:  default          syntax(special,default),                               optional,  multiple\n"
+"attr:  mp-default       syntax(special,mp-default),                            optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  mnt-routes       syntax(special, mnt-routes-mp),                           optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple\n"
+"attr:  cross-mnt        syntax(list of rpsl_word),                             optional,  multiple\n"
+"\n"
+"class: inet-rtr\n"
+"attr:  inet-rtr         syntax(dns_name),                                      mandatory, single,   key\n"
+"attr:  alias            syntax(dns_name),                                      optional,  multiple, lookup\n"
+"attr:  local-as         syntax(as_number),                                     mandatory, single,   lookup\n"
+"attr:  ifaddr           syntax(special,ifaddr),                                mandatory, multiple\n"
+"attr:  interface        syntax(special,interface),                             optional, multiple\n"
+"attr:  peer             syntax(special,peer),                                  optional,  multiple\n"
+"attr:  mp-peer          syntax(special,mp-peer),                               optional,  multiple\n"
+CMN_ATTRS
+"attr:  member-of        syntax(List Of rtr_set_name),                           optional,  multiple, lookup\n"
+"attr:  descr                                                                   optional,  multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: inetnum\n"
+"attr:  inetnum          syntax(range of ipv4_address),                         mandatory, single,   key\n"
+"attr:  netname                                                                 mandatory, single,   lookup\n"
+"attr:  country                                                                 mandatory, multiple\n"
+"attr:  rev-srv                                                                 optional,  multiple, lookup\n"
+"attr:  status                                                                  mandatory, single\n"
+"attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: inet6num\n"
+"attr:  inet6num          syntax(ipv6_address_prefix),                         mandatory, single,   key\n"
+"attr:  netname                                                                 mandatory, single,   lookup\n"
+"attr:  country                                                                 mandatory, multiple\n"
+"attr:  rev-srv                                                                 optional,  multiple, lookup\n"
+"attr:  status                                                                  mandatory, single\n"
+"attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  mnt-routes       syntax(special, mnt-routes6),                          optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: domain\n"
+"attr:  domain           syntax(dns_name),                                      mandatory, single,   key\n"
+"attr:  sub-dom                                                                 optional,  multiple, lookup\n"
+"attr:  dom-net                                                                 optional,  multiple\n"
+"attr:  zone-c                                                                  mandatory, multiple, lookup\n"
+"attr:  nserver                                                                 optional,  multiple, lookup\n"
+"attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: limerick\n"
+"attr:  limerick                                                                mandatory, single,   key\n"
+"attr:  text                                                                    mandatory, multiple\n"
+"attr:  author                                                                  mandatory, multiple, lookup\n"
+CMN_ATTRS
+"attr:  descr                                                                   optional,  multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"\n"
+"class: as-block\n"
+"attr:  as-block         syntax(union as_number, range of as_number),           mandatory, single,   key\n"
+"attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
+CMN_ATTRS
+"attr:  descr                                                                   mandatory, multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  tech-c                                                                  mandatory, multiple, lookup\n"
+"\n"
+"class: key-cert\n"
+"attr:  key-cert       mandatory, single,    key,        syntax(rpsl_word)\n"
+"attr:  method         mandatory, single,                syntax(rpsl_word)\n"
+"attr:  owner          mandatory, multiple\n"
+"attr:  fingerpr       mandatory, single\n"
+"attr:  certif         mandatory, single\n"
+"attr:  remarks        optional,  multiple\n"
+"attr:  source         mandatory, single,   lookup,      syntax(rpsl_word)\n"
+"attr:  changed        optional,  multiple\n"
+"attr:  deleted        optional,  single, deleted\n"
+"attr:  mnt-by         mandatory, multiple, lookup,      syntax(list of rpsl_word)\n"
+"attr:  notify         optional,  multiple,              syntax(email)\n"
+"\n"
+"class: peval   \n"
+"attr:  peval            syntax(special,filter),                                 optional,  single\n"
+"\n"
+"class: mp-peval\n"
+"attr:  mp-peval         syntax(special,mp-peval),                              optional,  single\n"
+"\n"
+"class: repository\n"
+"attr:  repository           mandatory,  single,  key,   syntax(rpsl_word)\n"
+"attr:  query-address        mandatory,  multiple\n"
+"attr:  response-auth-type   mandatory,  multiple\n"
+"attr:  submit-address       mandatory,  multiple\n"
+"attr:  submit-auth-type     mandatory,  multiple\n"
+"attr:  repository-cert      mandatory,  multiple\n"
+"attr:  expire               mandatory,  single\n"
+"attr:  heartbeat-interval   mandatory,  single\n"
+"attr:  descr                optional,   multiple\n"
+"attr:  admin-c              mandatory,  multiple, lookup\n"
+"attr:  tech-c               mandatory,  multiple, lookup\n"
+"attr:  mnt-by               mandatory,  multiple, lookup\n"
+CMN_ATTRS;
 
 void Schema::addClass(AttrClass *clss) {
    classes[lastClass++] = clss;
