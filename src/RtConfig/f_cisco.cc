@@ -1374,9 +1374,6 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
      }
 
      //int postAclID = prefixMgr.lastID();
-     char buf[256];
-     if (peer_addr->ipv6)
-       compact(&(peer_addr->get_ipaddr()), buf);
 
      printNeighbor(IMPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) afi, (ItemAFI *) afi);
 
