@@ -1,0 +1,382 @@
+# $Id$
+#!/usr/local/bin/wish4.0 -f
+#
+#  'CBB' -- Check Book Balancer
+#           Front end to the perl engine.
+#
+#  Written by Curtis Olson.  Started August 25, 1994.
+#
+#  Copyright (C) 1994, 1995, 1996  Curtis L. Olson  - curt@sledge.mn.org
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+# $Id$
+# (Log is kept at end of this file)
+
+
+#-----------------------------------------------------------------------
+# File Selecton Box (yanked out of tkispell) with minute modifications
+#-----------------------------------------------------------------------
+
+global ut_glob
+
+# whether default is to show hidden files in fsbox
+if {![info exists ut_glob(hidden)]} {set ut_glob(hidden) 0}
+global ut_hidden; set ut_hidden $ut_glob(hidden)
+
+# whether to make dialogs transient
+if {![info exists ut_glob(transient)]} {set ut_glob(transient) 1}
+
+# possible prefix to Escape for cancels (needed by emacs users)
+if {![info exists ut_glob(cancel)]} {set ut_glob(cancel) ""}
+
+# procedure to call to get key seq for special bindings
+if {![info exists ut_glob(key-hook)]} {set ut_glob(key-hook) ut:key-hook}
+proc ut:key-hook {k} {return <Meta-[string tolower $k]>}
+
+###############################################
+# BEGINNING OF FILESELECTOR PACKAGES
+#   hacked from code by Mario J. Silva
+
+# Arguments:
+#   -prompt	 a text string to prompt with
+#   -cancelvalue value to return if Cancel pressed
+#   -default     value to set as default
+#   -grab	 whether to grab focus or not
+#   -callback    possible command to eval before event loop
+#		 which will be given the fileselector toplevel
+#		 as a first argument
+#   -cbargs	 arguments to callback in addition to toplevel
+#   -master	 name of toplevel to be transient to
+#   -title	 title for fileselector toplevel
+#   -dir	 startup directory
+#   -hidden	 whether to show hidden directories
+#   -quick       pair list of label and directory for quick change
+#
+proc ut:fsbox { args } {
+  global env ut_fs ut_hidden ut_glob
+  
+ j:parse_args { \
+   {prompt "File: "} \
+   {default ""} \
+   {cancelvalue ""} \
+   {grab 0} \
+   {callback ""} \
+   {cbargs ""} \
+   {master ""} \
+   {title "Select File"} \
+   {dir ""} \
+   {hidden -1} \
+   {quick {}} }
+  
+  set w .utfsbox
+  if {[winfo exists $w]} {return $cancelvalue }
+  set ut_fs(result) $cancelvalue
+  if {$hidden < 0} { 
+    set hidden $ut_hidden 
+  } else { set ut_hidden $hidden }
+
+  toplevel $w -class UTFSBox
+  wm protocol $w WM_DELETE_WINDOW "ut:fscancelcmd $w {$cancelvalue} $grab"
+  if {[string length $master]} { 
+    if $ut_glob(transient) {wm transient $w $master}
+    set xpos [expr [winfo rootx $master]+[winfo width $master]/3]
+    set ypos [expr [winfo rooty $master]+[winfo height $master]/3]
+    wm geometry $w +${xpos}+${ypos}
+  }
+  wm title $w $title
+  if {$grab != 0} {after 20 grab $w}
+
+  # widgets
+  frame $w.file -bd 10 
+  frame $w.bframe -bd 10
+ 
+  pack $w.file -side top -expand true -fill both
+  pack $w.bframe -side top
+
+  frame $w.file.eframe
+  frame $w.file.sframe
+  frame $w.file.bframe
+
+  if {[string length $dir] && [file isdirectory $dir]} {cd $dir}
+  set dir [pwd]
+  if {[string length $dir] > 32} {
+    set dir [join "... $dir" ""]
+    while {[string length $dir] > 32} {
+      set dir [string range $dir 4 end]
+      set dir [string range $dir [string first "/" $dir] end]
+      set dir [join "... $dir" ""]
+    }
+  }
+  label $w.file.dirlabel -width 32 -anchor w -text "Dir: $dir"
+
+  pack $w.file.dirlabel -side top -fill x
+  pack $w.file.eframe -side top -expand true -fill x
+  pack $w.file.sframe -side top -expand true -fill both
+  pack $w.file.bframe -side top -expand true -fill x
+
+  label $w.file.eframe.label -text "$prompt"
+  entry $w.file.eframe.entry -relief sunken \
+      -exportselection 0 
+  $w.file.eframe.entry insert 0 $default
+
+  pack $w.file.eframe.label -side left
+  pack $w.file.eframe.entry -side left -pady 10 -expand true \
+      -fill x -ipady 3
+
+
+  scrollbar $w.file.sframe.yscroll -relief flat \
+      -command "$w.file.sframe.list yview"
+
+  listbox $w.file.sframe.list -relief sunken \
+      -width 25 -height 10 \
+      -yscroll "$w.file.sframe.yscroll set" \
+      -exportselection 0
+
+  pack $w.file.sframe.yscroll -side left -fill y
+  pack $w.file.sframe.list -expand true -fill both
+
+  # buttons
+
+  checkbutton $w.file.bframe.hide -text "hidden" -variable ut_hidden \
+      -relief raised -command "ut:fsfill $w.file.sframe.list \[pwd\]"
+
+  button $w.file.bframe.home -text Home -relief raised \
+      -command "global env; ut:fsgo \$env(HOME) $w $grab"
+
+  pack $w.file.bframe.hide -side left -expand true -fill x
+  pack $w.file.bframe.home -side left -expand true -fill x
+
+  set cnt 0
+  foreach quickref $quick {
+    button $w.file.bframe.quick$cnt -text [lindex $quickref 0] \
+	-command "ut:fsgo [lindex $quickref 1] $w $grab" \
+	-relief raised
+    if {[regexp {[A-Z]} [lindex $quickref 0] char]} {
+      bind $w.file.eframe.entry [$ut_glob(key-hook) [string tolower $char]] \
+	  "$w.file.bframe.quick$cnt invoke"
+    }
+    pack $w.file.bframe.quick$cnt -side left -expand true -fill x
+    incr cnt
+  }
+
+  button $w.bframe.ok -text OK -relief raised  -width 10 \
+      -command "ut:fsokcmd $w $grab"
+
+  button $w.bframe.cancel -text Cancel -relief raised -width 10 \
+      -command "ut:fscancelcmd $w {$cancelvalue} $grab"
+
+  pack $w.bframe.ok -side left -padx 15
+  pack $w.bframe.cancel -side left -padx 15
+
+  # Set up bindings for the browser.
+  bind $w.file.eframe.entry <Return> "$w.bframe.ok invoke"
+  bind $w.file.eframe.entry [$ut_glob(key-hook) o] "$w.bframe.ok invoke"
+  bind $w.file.eframe.entry <$ut_glob(cancel)Escape> "$w.bframe.cancel invoke"
+  bind $w.file.eframe.entry [$ut_glob(key-hook) c] "$w.bframe.cancel invoke"
+  bind $w.file.eframe.entry [$ut_glob(key-hook) h] "$w.file.bframe.home invoke"
+  bind $w.file.eframe.entry [$ut_glob(key-hook) period] "$w.file.bframe.hide invoke"
+
+  bind $w.file.eframe.entry <Tab> {
+    set f [%W get]
+    %W delete 0 end
+    %W insert end [j:expand_filename $f]
+  }    
+  bind $w.file.eframe.entry <Up> {
+    set lw [winfo toplevel %W].file.sframe.list
+    if {![string length [set ndx [$lw curselection]]]} {set ndx 0}
+    incr ndx -1
+    ut:fsselect $lw $ndx
+    set ymax [$lw nearest [winfo height $lw]]
+    set ymin [$lw nearest 0]
+    if {$ndx > $ymax} {
+      $lw yview [expr $ndx-$ymax+$ymin]
+    } elseif {$ndx < $ymin}  {
+      $lw yview $ndx
+    }
+  }
+  bind $w.file.eframe.entry <Down> {
+    set lw [winfo toplevel %W].file.sframe.list
+    if {![string length [set ndx [$lw curselection]]]} {set ndx 0}
+    incr ndx 1
+    ut:fsselect $lw $ndx
+    set ymax [$lw nearest [winfo height $lw]]
+    set ymin [$lw nearest 0]
+    if {$ndx > $ymax} {
+      $lw yview [expr $ndx-$ymax+$ymin]
+    } elseif {$ndx < $ymin}  {
+      $lw yview $ndx
+    }
+  }
+
+  bind $w.file.sframe.list <Button-1> "ut:fsselect %W \[%W nearest %y\]"
+
+  bind $w.file.sframe.list <Key> "ut:fsselect %W \[%W nearest %y\]"
+
+  bind $w.file.sframe.list <B1-Motion> " "
+
+  bind $w.file.sframe.list <Double-Button-1> "eval $w.bframe.ok invoke"
+
+  bind $w.file.sframe.list <Return> \
+      "ut:fsselect %W \[%W nearest %y\]; eval $w.bframe.ok invoke"
+
+  ut:fsfill $w.file.sframe.list [pwd]
+  if {[string length $callback]} {eval "$callback $w $cbargs"}
+
+  set savefocus [focus]
+  focus $w.file.eframe.entry
+  tkwait window $w
+  focus $savefocus
+  if {$ut_fs(result) == $cancelvalue} {return $cancelvalue}
+  if {[file isdirectory [set dir [file dirname $ut_fs(result)]]]} {
+    cd $dir
+    return [pwd]/[file tail $ut_fs(result)]
+  } else {
+    return [pwd]/$ut_fs(result)
+  }
+}
+
+proc ut:fsgo {dir w grab} {
+  $w.file.eframe.entry delete 0 end
+  $w.file.eframe.entry insert 0 "$dir/"
+  eval "ut:fsokcmd $w $grab"
+}
+
+proc ut:fsselect {W ndx} {
+  set B_entry [winfo toplevel $W].file.eframe.entry
+  $W select anchor $ndx
+  $B_entry delete 0 end
+  $B_entry insert 0 [$W get $ndx]
+}
+
+proc ut:fsokcmd {w grab} {
+  global ut_fs env
+
+  set selected [$w.file.eframe.entry get]
+  set ndx [expr [string length $selected]-1]
+  if {[string index $selected $ndx] == "/"} {
+    set selected [string range $selected 0 [expr $ndx-1]]
+  }
+  $w.file.eframe.entry delete 0 end
+  if {![string length $selected]} {return}
+  
+  if {![catch {set res [glob $selected]}]} {
+    set selected $res
+  }
+
+  if {[file isdirectory $selected] != 0} {
+    cd $selected
+    set dir [pwd]
+    if {[string length $dir] > 32} {
+      set dir [join "... $dir" ""]
+      while {[string length $dir] > 32} {
+	set dir [string range $dir 4 end]
+	set dir [string range $dir [string first "/" $dir] end]
+	set dir [join "... $dir" ""]
+      }
+    }
+    $w.file.dirlabel configure -text "Dir: $dir"
+    ut:fsfill $w.file.sframe.list [pwd]
+    return
+  }
+  if {$grab != 0} {grab release $w}
+  set ut_fs(result) $selected
+  after idle destroy $w
+}
+
+proc ut:fscancelcmd {w cancelvalue grab} {
+  global ut_fs
+
+  if {$grab != 0} {grab release $w}
+  set ut_fs(result) $cancelvalue
+  destroy $w
+}
+
+proc ut:fsfill {fslist dir} {
+  global ut_hidden
+
+  if {$ut_hidden} { 
+    set opt "-a"
+    set dirlist ""
+  } else { 
+    set opt "" 
+    set dirlist ".."
+  }
+  $fslist delete 0 end
+  foreach i [split [eval "exec ls $opt $dir"] \n] {
+    if {[string compare $i "."] != 0} {
+      if {[file isdirectory $i]} {
+	set dirlist [linsert $dirlist 0 $i]
+      } else {
+	$fslist insert end $i
+      }
+    }
+  }
+  foreach i $dirlist {
+    $fslist insert 0 "$i/"
+  }
+}
+
+
+######################################################################
+# j:parse_args arglist - parse arglist in parent procedure
+#   arglist is a list of option names (without leading "-");
+# this proc puts their values (if any) into variables (named after
+#   the option name) in d parent procedure
+# any element of arglist can also be a list consisting of an option
+#   name and a default value.
+######################################################################
+proc j:parse_args {arglist} {
+  upvar args args
+
+  foreach pair $arglist {
+    set option [lindex $pair 0]
+    set default [lindex $pair 1]		;# will be null if not supplied
+    set index [lsearch -exact $args "-$option"]
+    if {$index != -1} {
+      set index1 [expr {$index + 1}]
+      set value [lindex $args $index1]
+      uplevel 1 [list set $option $value]	;# caller`s variable "$option"
+      set args [lreplace $args $index $index1]
+    } else {
+      uplevel 1 [list set $option $default]	;# caller`s variable "$option"
+    }
+  }
+}
+
+
+# ----------------------------------------------------------------------------
+# $Log$
+# Revision 4.7  2002/03/27 11:32:58  katie
+# Initial revision
+#
+# Revision 1.2  1996/10/15 04:17:57  wlee
+# *** empty log message ***
+#
+# Revision 1.4  1996/08/16  23:40:04  kkumar
+# Added copyright and $Id
+#
+# Revision 1.3  1996/08/06  02:31:53  wlee
+# *** empty log message ***
+#
+# Revision 1.2  1996/05/02  00:44:55  cengiz
+# Major improvements to roe
+#
+# Revision 2.1  1996/02/27  05:35:44  curt
+# Just stumbling around a bit with cvs ... :-(
+#
+# Revision 2.0  1996/02/27  04:42:58  curt
+# Initial 2.0 revision.  (See "Log" files for old history.)
+

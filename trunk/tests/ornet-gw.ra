@@ -1,0 +1,181 @@
+#
+#       ornet-gw.ra
+#
+#       DAS gateway on the OREGON-IX
+#
+#       
+#
+#       Source for RtConfig (the RAToolset). The RATools are
+#       available on http://info.ra.net/div7/ra/tools.html
+#
+#       These tools were developed by Cengiz Alaettinoglu (cengiz@isi.edu)
+#
+#
+#
+#	David M. Meyer 541/346-1747
+#	meyer@network-services.uoregon.edu
+#	Thu Jul 11 16:47:08 1996
+#
+#	$Header$
+#
+
+
+#
+#       Services
+#
+service password-encryption
+
+#
+#       Hostname
+#
+hostname DAS-UO
+
+#
+#       Some IP stuff
+#
+
+#
+#       NTP configuration
+#
+
+clock timezone PST -8
+clock summer-time PDT recurring
+ntp peer 128.118.46.3
+ntp peer 132.249.16.1
+ntp peer 192.43.244.9
+
+#
+#       Global IP Configuration
+#
+
+ip classless
+ip ospf-name-lookup
+ip subnet-zero
+ip classless
+
+#
+#       Interfaces
+
+interface Ethernet0
+ip address 198.32.162.7 255.255.255.0
+
+interface Serial0
+description T1 Cloud FROSSHE - Circuit 05.UHDA.27593
+ip address 204.212.3.226 255.255.255.224
+ip ospf network broadcast
+ip ospf cost 1785
+ip ospf dead-interval 120
+ip ospf hello-interval 30
+ip ospf priority 0
+encapsulation frame-relay
+frame-relay map ip 204.212.3.225 16 broadcast
+
+interface Serial1
+no ip address
+shutdown
+
+no ip as-path access-list 1
+ip as-path access-list 1 permit ^(_3582)+$
+ip as-path access-list 1 permit ^(_3701)+$
+ip as-path access-list 1 permit ^(_4222)+(_(4016|4222|4529|6377))*$
+ip as-path access-list 1 permit ^_6447((_6108|_3838((_[0-9]+))*))*$
+ip as-path access-list 1 permit ^_2914(((_[0-9]+))*_(2905|2914|2914|3320|3925|3962|2914|4128|4683|5705|5750|5754|5798|6188|6623))?$
+
+
+no route-map bgp2ospf 
+route-map bgp2ospf permit 1
+        match as-path 1
+        
+router ospf 1798
+redistribute bgp 1798 route-map bgp2ospf
+network 204.212.3.224 0.0.0.15 area 0.0.0.80
+passive-interface ethernet 0
+
+#
+#       BGP Router
+#
+router bgp 1798
+no synchronization 
+redistribute ospf 1798
+network 159.121.0.0
+network 167.131.0.0
+network 170.104.0.0
+network 198.232.201.0
+
+#
+#       Start with access-list 100
+#
+@RtConfig set cisco_access_list_no = 100
+#
+#
+#       UO
+#
+neighbor 198.32.162.1 remote-as 3582
+neighbor 198.32.162.1 version 4
+@RtConfig set cisco_map_name = "AS3582-EXPORT"
+@RtConfig export AS1798 198.32.162.7 AS3582 198.32.162.1
+@RtConfig set cisco_map_name = "AS3582-IMPORT"
+@RtConfig import AS1798 198.32.162.7 AS3582 198.32.162.1
+#
+#       LANE Education Net
+#
+neighbor 198.32.162.4 remote-as 4222
+neighbor 198.32.162.4 version 4
+@RtConfig set cisco_map_name = "AS4222-EXPORT"
+@RtConfig export AS1798 198.32.162.7 AS4222 198.32.162.4
+@RtConfig set cisco_map_name = "AS4222-IMPORT"
+@RtConfig import AS1798 198.32.162.7 AS4222 198.32.162.4
+
+#
+#       NERO
+#
+neighbor 198.32.162.2 remote-as 3701
+neighbor 198.32.162.2 version 4
+@RtConfig set cisco_map_name = "AS3701-EXPORT"
+@RtConfig export AS1798 198.32.162.7 AS3701 198.32.162.2
+@RtConfig set cisco_map_name = "AS3701-IMPORT"
+@RtConfig import AS1798 198.32.162.7 AS3701 198.32.162.2
+
+
+#
+#       RAINnet
+#
+neighbor 198.32.162.6 remote-as 2914
+neighbor 198.32.162.6  version 4
+@RtConfig set cisco_map_name = "AS2914-EXPORT"
+@RtConfig export AS1798 198.32.162.7 AS2914 198.32.162.6
+@RtConfig set cisco_map_name = "AS2914-IMPORT"
+@RtConfig import AS1798 198.32.162.7 AS2914 198.32.162.6
+#
+#       OREGON-IX
+#
+router bgp 1798
+neighbor 198.32.162.9 remote-as 6447
+neighbor 198.32.162.9 version 4
+@RtConfig set cisco_map_name = "AS6447-EXPORT"
+@RtConfig export AS1798 198.32.162.7 AS6447 198.32.162.9
+@RtConfig set cisco_map_name = "AS6447-IMPORT"
+@RtConfig import AS1798 198.32.162.7 AS6447 198.32.162.9
+
+#
+
+ip host LUCKY 159.121.107.86
+ip name-server 128.223.32.35
+ip name-server 159.121.107.82
+access-list 99 deny   204.58.240.0 0.0.0.255
+access-list 99 deny   204.58.241.0 0.0.0.255
+access-list 99 deny   204.58.242.0 0.0.0.255
+access-list 99 deny   204.58.243.0 0.0.0.255
+access-list 99 permit 0.0.0.0 255.255.255.255
+snmp-server community
+snmp-server community public RO
+snmp-server location U of O Computer Room
+snmp-server contact Dave Meyer (503) 346-1747; Cisco sn/
+banner motd ^
+ORNET OREGON-IX Gateway (ornet-gw.oregon-ix.net)
+
+^
+
+end
+
+
