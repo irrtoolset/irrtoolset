@@ -9,7 +9,7 @@
 #include "util/version.hh"
 #include "rpsl/object_log.hh"
 #include <memory.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <cstring>
 
 #ifndef BUFFER_SIZE
