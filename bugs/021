@@ -1,7 +1,7 @@
 id: 021
 summary: ifaddr in inet-rtr object works wrong for RtConfig 
 owner: katie
-status: solving
+status: wait
 priority: high
 program: RtConfig
 module(s): RtConfig
