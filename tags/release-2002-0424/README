@@ -1,0 +1,84 @@
+This is the README file for RAToolSet up to v 4.7.2
+
+MAILING LIST
+	irrtoolset@ripe.net
+	To subscribe to the mailing list, please send mail to
+	majordomo@ripe.net with body (not the subject) of the message
+	containing "subscribe irrtoolset".
+
+        Old mailing list ratoolset@isi.edu is now migrated to irrtoolset@ripe.net
+
+FTP and WWW SITES
+	RIPE NCC site:
+        ftp://ftp.ripe.net/tools/IRRToolSet
+        http://www.ripe.net/ripencc/pub-services/db/irrtoolset/index.html
+
+        ISI.EDU site:
+	ftp.isi.edu:pub/ra/RAToolSet
+	http://www.isi.edu/ra/RAToolSet
+
+	ftp site may contain binaries. I will try to make binaries
+	available upon request.
+
+INSTALLATION
+	0. To install, you need g++ 2.8.0 or higher, libstdc++-2.8.0 or
+	   higher, bison, flex and gmake.
+           Please note that the toolset is not gcc3 compliant (yet).
+
+	   For roe and aoe, you also need Tk4.0/Tcl7.4 or higher. If Tcl/Tk 
+	   is not installed in a standard include directory, please set the
+	   environment variables as the following:
+	     TCL_TK_INCLUDE_DIR to the : separated list of directories where 
+	   tcl.h and tk.h include files can be found;
+	     TCL_TK_LIBRARY_DIR to the : separated list of directories where 
+	   tcl and tk libraries can be found;
+	     TCL_LIBRARY to the location of the directory containing standard
+	   library scripts (init.tcl and etc) for Tcl;
+	     TK_LIBRARY to the location of the directory containing Tcl 
+	   scripts (tk.tcl and etc) related to Tk;
+
+	   For example:
+  	      TCL_TK_INCLUDE_DIR=/usr/local/tcl/include:/usr/local/tk/include
+  	      TCL_TK_LIBRARY_DIR=/usr/local/tcl/lib:/usr/local/tk/lib
+	      TCL_LIBRARY=/usr/local/lib/tcl7.6
+	      TK_LIBRARY=/usr/local/lib/tk4.2
+
+	   If Tk4.0/Tcl7.4 or higher can not be linked by simply adding -ltk
+	   and -ltcl switches to the linker, please define the environment
+	   variable LD_TCL_TK_LIBS to the appropriate value. For example:
+
+	      LD_TCL_TK_LIBS="-ltk4.0 -ltcl4.0"
+
+         Please make sure that tk is linked before tcl.
+
+	   The development platform is a linux PC using egcs-1.0.2 and 
+	   libstdc++-2.8.0. A statically-linked executables for various
+	   platforms (well, we will try our best) can be provided upon
+	   request. 
+
+	1. unzip and untar the distribution file
+	2. on RAToolSet directory, type `./configure' to configure the
+	   package for your system. If you're using `csh' on an old
+	   version of System V, you might need to type `sh ./configure'
+	   instead to prevent `csh' from trying to execute `configure'
+	   itself. The `--prefix=PREFIXDIR' option specifies where the
+	   installation process should put RAToolSet and its data files.  
+	   This defaults to `/usr/local'. 
+	3. type "make depend" to generate the make file dependencies
+	4. type "make all" to build RAToolSet.
+	5. type "make install" to copy the executables/man-pages to
+	   /usr/local/{bin,man} directory (or to the directory 
+	   specified with --prefix argument to configure).
+
+KNOWN PROBLEMS DURING INSTALLATION
+	On Dec Alpha's running OSF/1, the make program seems to have
+	problems, please try gnu make (often gmake).
+
+	If you run into compilation problems on DU or AIX systems, and you 
+	used --enable-debug option of configure, try not using that
+	option. Older versions of gcc/g++ seems to have problems with
+	these opitons on these platforms.
+
+Please let us know if you face any problems at the mailing list
+irrtoolset@ripe.net. Bug reports and suggestions are always welcome.
+

@@ -1,0 +1,91 @@
+# $Id$
+
+GOAL   = libbgp.a
+
+OBJS   = bgproute.o actiondictionary.o
+SRCS   = bgproute.cc actiondictionary.cc
+HFILES = bgproute.hh actiondictionary.hh
+
+LIBS   = -L../normalform -lnormalform \
+         -L../irr -lirr \
+         -L../re2dfa -lre2dfa
+
+# directories
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+VPATH		= @srcdir@
+INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@
+
+# programs
+@SET_MAKE@
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @LD@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# The default location for installation.
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+mandir      = @mandir@
+man1dir     = $(mandir)/man1
+man3dir     = $(mandir)/man3
+
+DEFINES  = @DEFS@
+CFLAGS   = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS  = @LDFLAGS@
+CXXFLAGS = @CXXFLAGS@
+
+default: all
+
+# Implicit rules
+.y.o:
+
+.c.o:
+	$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.SUFFIXES: .cc
+
+#
+# No need to make changes below
+#
+all: $(GOAL)
+
+$(GOAL): $(OBJS)
+	ar ruv $(GOAL) $?
+	$(RANLIB) $(GOAL)
+
+clean:
+	rm -f core *.o *~ $(GOAL)
+
+mostlyclean:
+	rm -f core *.o *~
+
+# make dependencies
+depend:	${SRCS}
+	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $^ >makedep
+	echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
+	echo '$$r makedep' >>eddep
+	echo 'w' >>eddep
+	cp Makefile Makefile.bak
+	ed - Makefile < eddep
+	rm eddep makedep
+	echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
+	echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
+	echo '# see make depend above' >> Makefile
+
+# DO NOT DELETE THIS LINE
+# DEPENDENCIES MUST END AT END OF FILE
+# IF YOU PUT STUFF HERE IT WILL GO AWAY
+# see make depend above
