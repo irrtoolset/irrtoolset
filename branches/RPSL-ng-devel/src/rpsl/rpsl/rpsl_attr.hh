@@ -750,6 +750,34 @@ public:
 #endif // DEBUG
 };
 
+class AttrMPFilter: public Attr {
+public: 
+   Filter             *filter;
+public:
+   AttrMPFilter(Filter *flt) : filter(flt) {
+   }
+   // Modified by wlee
+   AttrMPFilter(const AttrMPFilter &pt) : Attr(pt) {
+      filter  = (Filter *)pt.filter->dup();
+   }
+   virtual ~AttrMPFilter() {
+      delete filter;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrMPFilter(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrMPFilter";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "filter (Filter *)" << endl;
+      filter->printClass(os, indent + 2);
+   }
+#endif // DEBUG
+};
+
 class AttrPeering: public Attr {
 public: 
    PolicyPeering    *peering;
