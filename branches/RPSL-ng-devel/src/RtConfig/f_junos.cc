@@ -991,12 +991,17 @@ void JunosConfig::static2bgp(ASt asno, IPAddr *addr) {
 void JunosConfig::networks(ASt asno) {
    static char buffer[128];
    static char buffer2[128];
-   const PrefixRanges *nets = irr->expandAS(asno);
+   const MPPrefixRanges *nets = irr->expandAS(asno);
+   MPPrefixRanges::const_iterator p;
 
-   for (int i = nets->low(); i < nets->fence(); ++i)
-      cout << "   network " << int2quad(buffer, (*nets)[i].get_ipaddr())
-           << " mask " << int2quad(buffer2, (*nets)[i].get_mask()) 
-           << ";\n";
+   for (p = nets->begin(); p != nets->end(); ++p) {
+     if (p->ipv4) {
+       cout << "network " << int2quad(buffer, p->ipv4->get_ipaddr())
+            << " mask " << int2quad(buffer2, p->ipv4->get_mask())
+            << ";\n";
+     }
+     // IPv6 prefixes handled by 'ipv4 networks' command
+   }
 }
 
 void JunosConfig::exportGroup(ASt asno, char * pset) {
