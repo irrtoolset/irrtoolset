@@ -27,7 +27,7 @@ of the possible values for some attributes:
 | 018	 |prtracer| katie     | WAIT    | High     |
 | 019	 |rpslchec| katie     | WAIT    | High     |
 | 020	 |aoe,roe | katie     | WAIT    | Low      |
-| 021	 |RtConfig| katie     | WAIT    | High     |
+| 021	 |RtConfig| katie     | SOLVING | High     |
 +--------+--------+-----------+---------+----------+
 
 001:  display policy from IRR for myAS and peerAS
