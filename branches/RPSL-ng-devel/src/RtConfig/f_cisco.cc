@@ -1209,6 +1209,8 @@ bool CiscoConfig::printNeighbor(int import,
 				ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi) {
    bool afi_activate = false;
 
+   cout << "entering printNeighbor" << endl;
+
    if (! printRouteMap)
       return false;
 
@@ -1233,10 +1235,10 @@ bool CiscoConfig::printNeighbor(int import,
    else 
      cout << " neighbor "   << neighbor << " remote-as " << asno << "\n";
 
-   if (afi_activate)
+   if (afi_activate) {
      cout << " address-family " << (AddressFamily &) *filter_afi << endl;
-   
-   cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     cout << indent <<" neighbor " << neighbor << " activate\n"; 
+   }
 
    if (routeMapGenerated) 
       cout << indent << " neighbor " << neighbor 
@@ -1326,8 +1328,8 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
      //int postAclID = prefixMgr.lastID();
 
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
-     //ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
-     //printNeighbor(EXPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+     ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
+     printNeighbor(EXPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
 
      routeMapGenerated = false;
      prefixListGenerated = false;
@@ -1395,7 +1397,7 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
        delete ne;
      }
 
-     //int postAclID = prefixMgr.lastID();
+     int postAclID = prefixMgr.lastID();
 
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
      ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
@@ -1698,7 +1700,6 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    const PeeringSet *prngSet = irr->getPeeringSet(psetID);
 
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
-     cout << "AFI: " << ((AddressFamily *) afi)->name() << endl;
      for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
        ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), ~0);
        last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);;
