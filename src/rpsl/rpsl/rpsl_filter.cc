@@ -157,14 +157,7 @@ ostream &FilterPRFXList::print(ostream &out) const {
 ostream &FilterMPPRFXList::print(ostream &out) const {
    MPPrefixRanges::const_iterator p;
    out << "{";
-/*
-   int i = low();
-   if (i < fence()) {
-      out << (*this)[i].get_text();
-      for (++i; i < fence(); ++i)
-   out << ", " << (*this)[i].get_text();
-   }
-*/
+
    for (p = begin(); p != end(); ++p) {
      out << *p ;
      out << ',';
@@ -175,6 +168,40 @@ ostream &FilterMPPRFXList::print(ostream &out) const {
    return out;
 }
 
+ostream &FilterV6EXCLUDE::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+
+   for (p = prfxs->begin(); p != prfxs->end(); ++p) {
+     out << *p ;
+     out << ',';
+   }
+
+   out << "}";
+
+   return out;
+}
+
+ostream &FilterV6HAVE_COMPONENTS::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+
+   for (p = prfxs->begin(); p != prfxs->end(); ++p) {
+     out << *p ;
+     out << ',';
+   }
+
+   out << "}";
+
+   return out;
+}
+
+ostream &FilterAFI::print(ostream &out) const {
+
+   out << (AddressFamily &) *this;
+
+   return out;
+}
 
 ostream &FilterRPAttribute::print(ostream &out) const {
    out << rp_attr->name;

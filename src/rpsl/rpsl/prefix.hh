@@ -63,10 +63,24 @@ class ostream;
 
 typedef u_int64_t       ip_v6word_t;
 
-typedef struct {
+/*
+typedef struct ipv6_addr_t {
   ip_v6word_t high; 
   ip_v6word_t low;
-} ipv6_addr_t;
+};
+*/
+
+// ipv6 address unit + operations
+class ipv6_addr_t {
+  public:
+    ip_v6word_t high;
+    ip_v6word_t low; 
+  public:
+    int operator<(const ipv6_addr_t& other) const;
+    int operator==(const ipv6_addr_t& other) const;
+    ipv6_addr_t& operator&(const ipv6_addr_t& other);
+    
+};
 
 #define IPV6_LENGTH 40
 
@@ -223,9 +237,8 @@ friend class MPPrefix;
    unsigned int get_length() const { return length; }
    unsigned int get_n() const { return n; }
    unsigned int get_m() const { return m; }
-   unsigned long long int get_low_mask() const;
-   unsigned long long int get_high_mask() const;
-   unsigned long long int get_range() const;
+   ipv6_addr_t& get_mask() const;
+   ipv6_addr_t& get_range() const;
 
    friend ostream& operator<<(ostream& stream, const IPv6PrefixRange& p);
 
@@ -267,8 +280,8 @@ public:
 
 class AddressFamily;
 
-class MPPrefix {
-public:
+class MPPrefix { 
+ public:
    AddressFamily *afi;
    PrefixRange *ipv4;
    IPv6PrefixRange *ipv6;
@@ -298,6 +311,8 @@ public:
   bool is_valid();
   unsigned int get_length();
   void define (unsigned int masklen);
+  void* get_mask();
+  void* get_range();
 
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 

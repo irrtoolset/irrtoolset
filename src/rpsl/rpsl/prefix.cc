@@ -83,6 +83,26 @@ static unsigned long long int bits[] = { 0x100000000ULL,
 		     0x000000008, 0x000000004, 0x000000002, 0x000000001
 };
 
+static ip_v6word_t ipv6bits[] = { 
+0x0000000000000000LL,
+0x8000000000000000LL,0x4000000000000000LL,0x2000000000000000LL, 0x1000000000000000LL,
+0x0800000000000000LL,0x0400000000000000LL,0x0200000000000000LL, 0x0100000000000000LL,
+0x0080000000000000LL,0x0040000000000000LL,0x0020000000000000LL, 0x0010000000000000LL,
+0x0008000000000000LL,0x0004000000000000LL,0x0002000000000000LL, 0x0001000000000000LL,
+0x0000800000000000LL,0x0000400000000000LL,0x0000200000000000LL, 0x0000100000000000LL,
+0x0000080000000000LL,0x0000040000000000LL,0x0000020000000000LL, 0x0000010000000000LL,
+0x0000008000000000LL,0x0000004000000000LL,0x0000002000000000LL, 0x0000001000000000LL,
+0x0000000800000000LL,0x0000000400000000LL,0x0000000200000000LL, 0x0000000100000000LL,
+0x0000000080000000LL,0x0000000040000000LL,0x0000000020000000LL, 0x0000000010000000LL,
+0x0000000008000000LL,0x0000000004000000LL,0x0000000002000000LL, 0x0000000001000000LL,
+0x0000000000800000LL,0x0000000000400000LL,0x0000000000200000LL, 0x0000000000100000LL,
+0x0000000000080000LL,0x0000000000040000LL,0x0000000000020000LL, 0x0000000000010000LL,
+0x0000000000008000LL,0x0000000000004000LL,0x0000000000002000LL, 0x0000000000001000LL,
+0x0000000000000800LL,0x0000000000000400LL,0x0000000000000200LL, 0x0000000000000100LL,
+0x0000000000000080LL,0x0000000000000040LL,0x0000000000000020LL, 0x0000000000000010LL,
+0x0000000000000008LL,0x0000000000000004LL,0x0000000000000002LL, 0x0000000000000001LL
+};
+
 static ip_v6word_t ipv6masks[] = {
 0x0000000000000000LL,
 0x8000000000000000LL,0xC000000000000000LL,0xE000000000000000LL,0xF000000000000000LL, 
@@ -102,6 +122,10 @@ static ip_v6word_t ipv6masks[] = {
 0xFFFFFFFFFFFFFF80LL,0xFFFFFFFFFFFFFFC0LL,0xFFFFFFFFFFFFFFE0LL,0xFFFFFFFFFFFFFFF0LL, 
 0xFFFFFFFFFFFFFFF8LL,0xFFFFFFFFFFFFFFFCLL,0xFFFFFFFFFFFFFFFELL,0xFFFFFFFFFFFFFFFFLL
 };
+
+ipv6_addr_t mask;
+ipv6_addr_t range;
+ipv6_addr_t t;
 
 char PrefixRange::formattingbuffer[128];
 char IPv6PrefixRange::formattingbuffer[256];
@@ -573,6 +597,9 @@ void IPv6PrefixRange::parse(char *name)
     n = 128;
     m = 128;
   }
+  ipaddr->low &= masks[length];
+  ipaddr->high &= masks[length];
+
   free (address);
 }
 
@@ -655,27 +682,22 @@ IPv6PrefixRange& IPv6PrefixRange::operator=(const IPv6PrefixRange& other)
 
 int IPv6PrefixRange::operator<(const IPv6PrefixRange& other) const
 {
-    return ( (ipaddr->high < other.ipaddr->high) ||
-             (ipaddr->low < other.ipaddr->low)   ||
-             ( (ipaddr->high == other.ipaddr->high) &&
-               (ipaddr->low == other.ipaddr->low) &&
+    return (ipaddr < other.ipaddr ||
+             ( (ipaddr == other.ipaddr) &&
                (length < other.length) )
            );
 }
 int IPv6PrefixRange::operator<=(const IPv6PrefixRange& other) const
 {
-    return ( (ipaddr->high < other.ipaddr->high) ||
-             (ipaddr->low < other.ipaddr->low)   ||
-             ( (ipaddr->high == other.ipaddr->high) &&
-               (ipaddr->low == other.ipaddr->low) &&
+    return (ipaddr < other.ipaddr ||
+             ( (ipaddr == other.ipaddr) &&
                (length <= other.length) )
            );
 }
 
 int IPv6PrefixRange::operator==(const IPv6PrefixRange& other) const
 {
-  return ipaddr->high == other.ipaddr->high &&
-         ipaddr->low == other.ipaddr->low &&
+  return ipaddr == other.ipaddr &&
          length == other.length &&
          n == other.n && m == other.m;
 }
@@ -695,33 +717,56 @@ int IPv6PrefixRange::compare(const IPv6PrefixRange& other) const
 int IPv6PrefixRange::contains(const IPv6PrefixRange& other) const
 {
    return (length <= other.length && n <= other.n && m >= other.m
-           && (ipaddr->high == (other.ipaddr->high & get_high_mask()))
-           && (ipaddr->high == (other.ipaddr->low & get_low_mask()))
+           && (*ipaddr == (*(other.ipaddr) & get_mask() ))
           );
+
 }
 
-unsigned long long int IPv6PrefixRange::get_high_mask() const {  
-   if (length <= 64)
-      return ipv6masks[length];
-   return ipv6masks[64];
+ipv6_addr_t& IPv6PrefixRange::get_mask() const {  
+ 
+   if (length <= 64) {
+      mask.high = ipv6masks[length];
+      mask.low = ipv6masks[0];
+   } else {
+     mask.high = ipv6masks[64];
+     mask.low = ipv6masks[length-64];
+   }
+
+   return mask;
+
 }
 
-unsigned long long int IPv6PrefixRange::get_low_mask() const {
-   if (length <= 64)
-      return ipv6masks[0];
-   return ipv6masks[128-length];
-}
+ipv6_addr_t& IPv6PrefixRange::get_range() const {
+   range.high = 0;
+   range.low = 0;
+   int i;
+   
+   if ( (n <= 64) && (m <= 64) ) {
+      range.low |= ipv6bits[0];
+      for (i = n; i <= m; ++i) {
+        range.high |= ipv6bits[i];
+      }
+   }
+   if ( (n <= 64) && (m > 64) )  {
+      for (i = n; i <= 64; ++i) {
+        range.high |= ipv6bits[i];
+      }
+      for (i = 0; i <= (m-64); ++i) {
+        range.low |= ipv6bits[i];
+      }
 
-// TBD - ?
-unsigned long long int IPv6PrefixRange::get_range() const {
-/*   unsigned long long int range = 0;
-   for (int i = n; i <= m; ++i)
-      range |= bits[i];
+   }
+   if ( (n > 64) && (m > 64) )  {
+      range.high |= ipv6bits[0];
+      for (i = (n-64); i <= (m-64); ++i) {
+        range.low |= ipv6bits[i];
+      }
+
+   }
+
    return range;
-*/
-   cout << "IPv6PrefixRange::get_range not implemented" << endl;
-   return 0;
 }
+
 
 /* class IPv6Prefix */
 
@@ -761,10 +806,15 @@ ostream& operator<<(ostream& stream, const IPv6Addr& p) {
 }
 
 ostream& operator<<(ostream& stream, const MPPrefix& p) {
+    if (p.afi != NULL) {
+       stream << *(p.afi);
+       stream << ' ';
+    }
     if (p.ipv4 != NULL)
       stream << *p.ipv4;
     if (p.ipv6 != NULL)
       stream << *p.ipv6;
+    stream << ' ';
     return stream;
   }
 
@@ -796,3 +846,40 @@ unsigned int MPPrefix::get_length() {
   if (afi->is_ipv6())
      return ipv6->get_length();
 }
+
+void* MPPrefix::get_mask() {
+  if (afi->is_ipv4())
+     ipv4->get_mask();
+  if (afi->is_ipv6())
+     ipv6->get_mask();
+}
+void* MPPrefix::get_range() {
+  if (afi->is_ipv4())
+     ipv4->get_range();
+  if (afi->is_ipv6())
+     ipv6->get_range();
+}
+
+int ipv6_addr_t::operator<(const ipv6_addr_t& other) const
+{
+      return ( (this->high < other.high) ||
+             ( (this->high == other.high) && (this->low < other.low) )
+           );
+  
+}
+
+int ipv6_addr_t::operator==(const ipv6_addr_t& other) const
+{  
+  return (this->high == other.high &&
+         this->low == other.low);
+}
+
+ipv6_addr_t& ipv6_addr_t::operator&(const ipv6_addr_t& other)
+{
+  
+  t.high = high & other.high;
+  t.low = low & other.low;
+  return t;
+   
+}
+
