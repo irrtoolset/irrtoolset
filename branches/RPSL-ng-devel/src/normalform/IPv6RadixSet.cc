@@ -108,9 +108,6 @@ ip_v6word_t ipv6masks[] = {
 FixedSizeAllocator IPv6RadixTreeAllocator(sizeof(IPv6RadixTree), 1000);
 bool IPv6RadixSet::compressedPrint = false;
 
-// zeroed ipv6 address
-ipv6_addr_t NullIPv6(0,0);
-
 bool IPv6RadixSet::Iterator::first(ipv6_addr_t &addr, u_int &leng, ipv6_addr_t &rngs) {
    now = itr.first();
    if (!now)
@@ -380,19 +377,27 @@ IPv6RadixTree::Direction IPv6RadixTree::direction(ipv6_addr_t addr, u_int leng,
 					  ipv6_addr_t _addr, u_int _leng) const {
    // assumes addr is already anded with mask
 
-   if (leng == _leng && addr == _addr)
+   if (leng == _leng && addr == _addr) {
+      cout << "HERE" << endl;
       return HERE;
+   }
 
-   if (leng >= _leng) // a parent or a sibling or aunt :-)
+   if (leng >= _leng) { // a parent or a sibling or aunt :-)
+      cout << "UP" << endl;
       return UP;
+   }
 
    // now his mask is less than mine, either a child or UP
    if ((_addr & _addr.getmask(leng)) == addr)  // my child 
    {
-      if ((_addr & _addr.getbits(leng+1)).is_true())
+      if ((_addr & _addr.getbits(leng+1)).is_true()) {
+        cout << "RIGHT" << endl;
         return RIGHT;
-      else 
+      }
+      else  {
+        cout << "LEFT" << endl;
         return LEFT;
+      }
    } 
 
    return UP;
@@ -401,15 +406,23 @@ IPv6RadixTree::Direction IPv6RadixTree::direction(ipv6_addr_t addr, u_int leng,
 void IPv6RadixTree::commonAnscestor(ipv6_addr_t _addr,  u_int _leng, 
 				ipv6_addr_t addr,   u_int leng,
 				ipv6_addr_t &paddr, u_int &pleng) const {
-   pleng = MIN(leng, _leng);
-   while (pleng && (addr & addr.getmask(pleng)) != (_addr & _addr.getmask(pleng)))
-      pleng--;
 
-   paddr = addr & addr.getmask(pleng);
+   pleng = MIN(leng, _leng);
+   while ( pleng && ((addr & addr.getmask(pleng)) != (_addr & _addr.getmask(pleng))) ) {
+      pleng--;
+   }
+   paddr = addr & paddr.getmask(pleng);
 }
 
 // inserts arguments to the tree
 IPv6RadixTree *IPv6RadixTree::insert(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t _rngs) {
+   cout << "inserting into RadixTree: address " ;
+   cout << _addr;
+   cout << " length ";
+   cout << _leng;
+   cout << " ranges ";
+   cout << _rngs;
+
    if (! _rngs) // nothing to insert
       return this;
 
@@ -429,95 +442,103 @@ IPv6RadixTree *IPv6RadixTree::insert(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t
    ipv6_addr_t caddr;
    u_int cleng;
 
+   cout << "IPv6RadixTree::insert initial" << endl;
+
    while (_rngs.is_true()) {
+      cout << "IPv6RadixTree::insert loop" << endl;
+      cout << "current tree start:";
+      root->print();
+      cout << "current tree end" << endl;
+
       dir = direction(now->addr, now->leng, _addr, _leng);
       switch (dir) {
-      case HERE:
-	 now->rngs = now->rngs | _rngs;
-	 goto unwind;
-	 break;
+        case HERE:
+        	 now->rngs = now->rngs | _rngs;
+        	 goto unwind;
+        	 break;
+  
+        case LEFT:
+        case RIGHT:
+        	 _rngs = _rngs & ~ now->rngs;
+        	 if (! _rngs.is_true())
+       	    goto cleanup; // need to restore stack here
+  
+        	 pdir = dir;
+        	 parent = now;
+        	 pStack.push(parent);
+  
+        	 if (! now->chld[dir])
+             now->chld[dir] = new IPv6RadixTree(_addr, _leng, NullIPv6);
+	         now = now->chld[dir];
 
-      case LEFT:
-      case RIGHT:
-	 _rngs = _rngs & ~ now->rngs;
-	 if (! _rngs)
-	    goto cleanup; // need to restore stack here
+        	 continue;
+        	 break;
 
-	 pdir = dir;
-	 parent = now;
-	 pStack.push(parent);
+        case UP:
+        	 commonAnscestor(_addr, _leng, now->addr, now->leng, caddr, cleng);
 
-	 if (! now->chld[dir])
-	    now->chld[dir] = new IPv6RadixTree(_addr, _leng, NullIPv6);
-	 now = now->chld[dir];
+        	 cparent = new IPv6RadixTree(caddr, cleng, NullIPv6);
+        	 if (parent)
+        	    parent->chld[pdir] = cparent;
+        	 else
+        	    root = cparent;
 
-	 continue;
-	 break;
+         	 dir = direction(caddr, cleng, now->addr, now->leng);
 
-      case UP:
-	 commonAnscestor(_addr, _leng, 
-			 now->addr, now->leng,
-			 caddr, cleng);
+      	   assert(dir == LEFT || dir == RIGHT);
+        	 cparent->chld[dir] = now;
+  
+         	 now = cparent;
+        	 continue;
+        	 break;
 
-	 cparent = new IPv6RadixTree(caddr, cleng, NullIPv6);
-	 if (parent)
-	    parent->chld[pdir] = cparent;
-	 else
-	    root = cparent;
-
-	 dir = direction(caddr, cleng, now->addr, now->leng);
-	 assert(dir == LEFT || dir == RIGHT);
-	 cparent->chld[dir] = now;
-
-	 now = cparent;
-	 continue;
-	 break;
-
-      default:
-	 ;
-      }
-   }
+        default:
+           ;
+        } // end of switch
+     } // end of while loop
    
-   unwind: ;
+     unwind: ;
    
-   // delete subtree of now that is included in already in _rngs
-   foreachchild(c)
-      now->chld[c] = now->chld[c]->removeRange(_rngs);
+     // delete subtree of now that is included in already in _rngs
+     foreachchild(c)
+        now->chld[c] = now->chld[c]->removeRange(_rngs);
 
-   // optimize up!
-   // the prefix we inserted may be the sibling of a prefix in the tree,
-   // in which case both can be deleted and included in the parents range
-   // well not quite deleted...
-   IPv6RadixTree *tmp;
-   for (now = pStack.pop(); now; now = pStack.pop()) {
-      //root->print();
-      if (now->chld[0] && now->chld[1] 
-	  && now->chld[0]->leng == now->leng+1
-	  && now->chld[1]->leng == now->leng+1) {
-	 // found sibling not a cousin
-	 common_rngs = now->chld[0]->rngs & now->chld[1]->rngs;
-	 if (common_rngs.is_true()) {
-	    now->rngs = now->rngs | common_rngs;
-	    foreachchild(c) {
-	       now->chld[c]->rngs = now->chld[c]->rngs & ~common_rngs;
-	       if (! now->chld[c]->rngs)
-		  foreachchild(gc)
-		     if (! now->chld[c]->chld[gc]) {
-			tmp = now->chld[c];
-			now->chld[c] = tmp->chld[1-gc];
-			tmp->chld[1-gc] = (IPv6RadixTree *) NULL;
-			delete tmp;
-			break;
-		     }
-	    }
-	 } else
-	    break;
-      } else
-	 break;
-   }
+     // optimize up!
+     // the prefix we inserted may be the sibling of a prefix in the tree,
+     // in which case both can be deleted and included in the parents range
+     // well not quite deleted...
+     IPv6RadixTree *tmp;
+     for (now = pStack.pop(); now; now = pStack.pop()) {
+        //root->print();
+        if (now->chld[0] && now->chld[1] 
+       	  && now->chld[0]->leng == now->leng+1
+      	  && now->chld[1]->leng == now->leng+1) {
+            	// found sibling not a cousin
+          	 common_rngs = now->chld[0]->rngs & now->chld[1]->rngs;
+          	 if (common_rngs.is_true()) {
+          	    now->rngs = now->rngs | common_rngs;
+          	    foreachchild(c) {
+          	       now->chld[c]->rngs = now->chld[c]->rngs & ~common_rngs;
+          	       if (! now->chld[c]->rngs)
+              		    foreachchild(gc)
+          		     if (! now->chld[c]->chld[gc]) {
+                			tmp = now->chld[c];
+                			now->chld[c] = tmp->chld[1-gc];
+                			tmp->chld[1-gc] = (IPv6RadixTree *) NULL;
+                			delete tmp;
+                			break;
+            	     } // end of if 
+	              } // end of for loop
+           	 } else // end of if
+       	     break;
+        } else // end of if 
+        break;
+     } // end of for loop
 
- cleanup:
-   pStack.setPosition(pStackPos);
+     cleanup:
+        pStack.setPosition(pStackPos);
+
+   cout << "exiting IPv6RadixTree::insert" << endl;
    return root;
 }
 
@@ -917,7 +938,6 @@ void IPv6RadixTree::print() const {
    offset -= 3;
 }
 
-// TBD
 IPv6RadixTree *insert(IPv6RadixTree *root, char *prfx) {
    ipv6_addr_t rngs;
 
@@ -932,6 +952,37 @@ IPv6RadixTree *remove(IPv6RadixTree *root, char *prfx) {
    IPv6PrefixRange ip(prfx);
    return root->remove(*(ip.get_ipaddr()), ip.get_length(), ip.get_range());
 
+}
+
+inline const IPv6RadixTree* IPv6RadixTree::Iterator::first() {
+   dfsStack.clear();
+   dfsStack.push((IPv6RadixTree *) NULL);
+
+   last = root;
+
+   if (!last)
+      return (const IPv6RadixTree *) NULL;
+
+   foreachchild(c)
+      if (last->chld[c])
+         dfsStack.push(last->chld[c]);
+
+   return last;
+}
+
+inline const IPv6RadixTree* IPv6RadixTree::Iterator::next(const IPv6RadixTree* _last) {
+   assert(last && last == _last);
+
+   last = dfsStack.pop();
+
+   if (!last)
+      return (const IPv6RadixTree *) NULL;
+
+   foreachchild(c)
+      if (last->chld[c])
+         dfsStack.push(last->chld[c]);
+
+   return last;
 }
 
 IPv6RadixTree *root[2] = {NULL, NULL};
