@@ -276,7 +276,6 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       return ne;
    }
 
-   ///// IPV6 TBD ///////
    if (typeid(*ptree) == typeid(FilterRSNAME)) {
       ne = new NormalExpression;
 
