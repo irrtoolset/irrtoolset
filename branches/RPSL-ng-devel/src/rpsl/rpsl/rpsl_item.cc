@@ -422,6 +422,59 @@ Buffer *ItemList::bufferize(Buffer *buf = NULL, bool lcase = false) const {
    return buf;
 }
 
+ItemList *ItemList::expand() {
+  ItemList *list = new ItemList;
+  ItemList *list2 = new ItemList;
+
+  // do the mapping
+  for (Item *item = this->head();
+       item;
+       item = this->next(item)) 
+  {
+    if (strcasecmp (((ItemAFI *) item)->afi, "any") == 0) 
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "any.unicast") == 0) 
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "any.multicast") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "ipv4") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "ipv6") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else {
+      list->append (item->dup());
+    }
+  }
+  // remove duplicates
+  for (Item *item = list->head();
+       item;
+       item = list->next(item)) 
+  {
+    if (! list2->contains(item))
+      list2->append(item->dup());
+  }
+  
+  delete list;
+  return list2;
+}
+
 ostream &ItemSequence::print(ostream &out) const {
    Item *item = head();
    if (item) {

@@ -865,6 +865,8 @@ public:
          append((ItemAFI *) item->dup());
    }
 
+   virtual ItemList *expand();
+
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
    virtual const char *className(void) const {

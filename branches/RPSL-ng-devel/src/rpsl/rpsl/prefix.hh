@@ -78,7 +78,11 @@ class ipv6_addr_t {
 
     friend ipv6_addr_t& operator&(ipv6_addr_t one, ipv6_addr_t two);
     friend ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two);
-    ipv6_addr_t& operator|(unsigned int i);
+    ipv6_addr_t& operator|(u_int64_t i);
+    ipv6_addr_t& operator+(u_int64_t i);
+    ipv6_addr_t& operator=(u_int64_t i);
+    int operator==(u_int64_t i);
+
     ipv6_addr_t& operator<<(unsigned int i);
     ipv6_addr_t& operator>>(unsigned int i);
     ipv6_addr_t& operator~() const;
@@ -115,10 +119,12 @@ char *compact(ipv6_addr_t *ip, char *buffer);
 extern class PrefixRange NullPrefixRange;
 extern class Prefix      NullPrefix;
 extern class IPAddr      NullIPAddr;
+extern class PrefixRange MulticastPrefixRange;
 extern class IPv6PrefixRange NullIPv6PrefixRange;
 extern class IPv6Prefix    NullIPv6Prefix;
 extern class IPv6Addr    NullIPv6Addr;
 extern class ipv6_addr_t NullIPv6;
+extern class IPv6PrefixRange MulticastIPv6PrefixRange;
 
 class PrefixRange {
 

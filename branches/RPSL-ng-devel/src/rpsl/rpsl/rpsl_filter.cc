@@ -177,11 +177,10 @@ FilterPRFXList* FilterMPPRFXList::get_v4() {
 
    MPPrefixRanges::const_iterator p;
    FilterPRFXList *list_v4 = new FilterPRFXList;
-   bool f;
 
    for (p = begin(); p != end(); ++p) {
      if (p->ipv4)
-       list_v4->add_high(*(p->ipv4));   
+       list_v4->add_high(*(p->ipv4));
    }
    if (list_v4->isEmpty())
      return NULL;
@@ -189,12 +188,13 @@ FilterPRFXList* FilterMPPRFXList::get_v4() {
      return list_v4;
 }
 
+
 FilterMPPRFXList* FilterMPPRFXList::get_v6() {
    MPPrefixRanges::const_iterator p;
    FilterMPPRFXList *list_v6 = new FilterMPPRFXList;
 
    for (p = begin(); p != end(); ++p) {
-     if (p->ipv6)
+     if (p->ipv6) 
        list_v6->push_back(*p);
    }
    if (list_v6->begin() == list_v6->end())

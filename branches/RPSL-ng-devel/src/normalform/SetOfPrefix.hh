@@ -61,6 +61,7 @@
 #include <cassert>
 #include "RadixSet.hh"
 #include "gnu/prefixranges.hh"
+#include "rpsl/rpsl_item.hh"
 
 // the following set class can perform set complement operation 
 // without knowing the universal set
@@ -129,6 +130,41 @@ public:
       members.makeMoreSpecific(code, n, m);
       if (members.isEmpty())
 	 clear();
+   }
+
+   void restrict(ItemList *afi_list) {
+     // create multicast set
+     SetOfPrefix *multicast = new SetOfPrefix();
+     multicast->members.insert(MulticastPrefixRange.get_ipaddr(), 
+                              MulticastPrefixRange.get_length(),
+                              MulticastPrefixRange.get_range()
+                              );
+     SetOfPrefix *unicast = new SetOfPrefix(*multicast);
+     ~*unicast;
+
+     SetOfPrefix *res = new SetOfPrefix();
+     
+     for (Item *afi_item = afi_list->head(); afi_item; afi_item = afi_list->next(afi_item)) {
+       if (((ItemAFI *) afi_item)->is_Matching("ipv4.multicast")) {
+         SetOfPrefix *set = new SetOfPrefix(*this);
+         *set &= *multicast;   
+         *res |= *set;
+         delete set;
+       } else if (((ItemAFI *) afi_item)->is_Matching("ipv4.unicast")) {
+         SetOfPrefix *set = new SetOfPrefix(*this);
+         *set &= *unicast;
+         *res |= *set;
+         delete set;
+       }
+       // other afi's - do nothing
+     }
+     
+     this->clear();
+     *this = *res;
+     delete res;
+     delete multicast;
+     delete unicast;
+
    }
 
 private:

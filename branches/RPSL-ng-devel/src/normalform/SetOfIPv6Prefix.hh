@@ -58,6 +58,7 @@
 #include <cassert>
 #include "IPv6RadixSet.hh"
 #include "rpsl/prefix.hh"
+#include "rpsl/rpsl_item.hh"
 
 // the following set class can perform set complement operation 
 // without knowing the universal set
@@ -128,6 +129,44 @@ public:
       if (members.isEmpty())
 	 clear();
    }
+
+
+     void restrict(ItemList *afi_list) {
+     // create multicast set
+     SetOfIPv6Prefix *multicast = new SetOfIPv6Prefix();
+     multicast->members.insert(*(MulticastIPv6PrefixRange.get_ipaddr()),
+                              MulticastIPv6PrefixRange.get_length(),
+                              MulticastIPv6PrefixRange.get_range()
+                              );
+     SetOfIPv6Prefix *unicast = new SetOfIPv6Prefix(*multicast);
+     ~*unicast;
+
+     SetOfIPv6Prefix *res = new SetOfIPv6Prefix();
+     
+     for (Item *afi_item = afi_list->head(); afi_item; afi_item = afi_list->next(afi_item)) {
+       if (((ItemAFI *) afi_item)->is_Matching("ipv6.multicast")) {
+         SetOfIPv6Prefix *set = new SetOfIPv6Prefix(*this);
+         *set &= *multicast;   
+         *res |= *set;
+         delete set;
+       }
+       else if (((ItemAFI *) afi_item)->is_Matching("ipv6.unicast")) {
+         SetOfIPv6Prefix *set = new SetOfIPv6Prefix(*this);
+         *set &= *unicast;
+         *res |= *set;
+         delete set;
+       }
+       // other afi's - do nothing
+     }
+
+     this->clear();
+     *this = *res;
+     delete res;
+     delete multicast;
+     delete unicast;
+
+   }
+
 
 private:
    IPv6RadixSet        members;	// elements if not = false
