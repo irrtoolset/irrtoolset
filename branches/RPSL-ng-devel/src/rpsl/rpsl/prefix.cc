@@ -84,48 +84,44 @@ static unsigned long long int bits[] = { 0x100000000ULL,
 };
 
 static ip_v6word_t ipv6bits[] = { 
-0x0000000000000000LL,
-0x8000000000000000LL,0x4000000000000000LL,0x2000000000000000LL, 0x1000000000000000LL,
-0x0800000000000000LL,0x0400000000000000LL,0x0200000000000000LL, 0x0100000000000000LL,
-0x0080000000000000LL,0x0040000000000000LL,0x0020000000000000LL, 0x0010000000000000LL,
-0x0008000000000000LL,0x0004000000000000LL,0x0002000000000000LL, 0x0001000000000000LL,
-0x0000800000000000LL,0x0000400000000000LL,0x0000200000000000LL, 0x0000100000000000LL,
-0x0000080000000000LL,0x0000040000000000LL,0x0000020000000000LL, 0x0000010000000000LL,
-0x0000008000000000LL,0x0000004000000000LL,0x0000002000000000LL, 0x0000001000000000LL,
-0x0000000800000000LL,0x0000000400000000LL,0x0000000200000000LL, 0x0000000100000000LL,
-0x0000000080000000LL,0x0000000040000000LL,0x0000000020000000LL, 0x0000000010000000LL,
-0x0000000008000000LL,0x0000000004000000LL,0x0000000002000000LL, 0x0000000001000000LL,
-0x0000000000800000LL,0x0000000000400000LL,0x0000000000200000LL, 0x0000000000100000LL,
-0x0000000000080000LL,0x0000000000040000LL,0x0000000000020000LL, 0x0000000000010000LL,
-0x0000000000008000LL,0x0000000000004000LL,0x0000000000002000LL, 0x0000000000001000LL,
-0x0000000000000800LL,0x0000000000000400LL,0x0000000000000200LL, 0x0000000000000100LL,
-0x0000000000000080LL,0x0000000000000040LL,0x0000000000000020LL, 0x0000000000000010LL,
-0x0000000000000008LL,0x0000000000000004LL,0x0000000000000002LL, 0x0000000000000001LL
+0x0000000000000000ULL, // extra bit is used to cover numbers > 64 bit
+0x8000000000000000ULL,0x4000000000000000ULL,0x2000000000000000ULL, 0x1000000000000000ULL,
+0x0800000000000000ULL,0x0400000000000000ULL,0x0200000000000000ULL, 0x0100000000000000ULL,
+0x0080000000000000ULL,0x0040000000000000ULL,0x0020000000000000ULL, 0x0010000000000000ULL,
+0x0008000000000000ULL,0x0004000000000000ULL,0x0002000000000000ULL, 0x0001000000000000ULL,
+0x0000800000000000ULL,0x0000400000000000ULL,0x0000200000000000ULL, 0x0000100000000000ULL,
+0x0000080000000000ULL,0x0000040000000000ULL,0x0000020000000000ULL, 0x0000010000000000ULL,
+0x0000008000000000ULL,0x0000004000000000ULL,0x0000002000000000ULL, 0x0000001000000000ULL,
+0x0000000800000000ULL,0x0000000400000000ULL,0x0000000200000000ULL, 0x0000000100000000ULL,
+0x0000000080000000ULL,0x0000000040000000ULL,0x0000000020000000ULL, 0x0000000010000000ULL,
+0x0000000008000000ULL,0x0000000004000000ULL,0x0000000002000000ULL, 0x0000000001000000ULL,
+0x0000000000800000ULL,0x0000000000400000ULL,0x0000000000200000ULL, 0x0000000000100000ULL,
+0x0000000000080000ULL,0x0000000000040000ULL,0x0000000000020000ULL, 0x0000000000010000ULL,
+0x0000000000008000ULL,0x0000000000004000ULL,0x0000000000002000ULL, 0x0000000000001000ULL,
+0x0000000000000800ULL,0x0000000000000400ULL,0x0000000000000200ULL, 0x0000000000000100ULL,
+0x0000000000000080ULL,0x0000000000000040ULL,0x0000000000000020ULL, 0x0000000000000010ULL,
+0x0000000000000008ULL,0x0000000000000004ULL,0x0000000000000002ULL, 0x0000000000000001ULL
 };
 
 static ip_v6word_t ipv6masks[] = {
-0x0000000000000000LL,
-0x8000000000000000LL,0xC000000000000000LL,0xE000000000000000LL,0xF000000000000000LL, 
-0xF800000000000000LL,0xFC00000000000000LL,0xFE00000000000000LL,0xFF00000000000000LL, 
-0xFF80000000000000LL,0xFFC0000000000000LL,0xFFE0000000000000LL,0xFFF0000000000000LL, 
-0xFFF8000000000000LL,0xFFFC000000000000LL,0xFFFE000000000000LL,0xFFFF000000000000LL, 
-0xFFFF800000000000LL,0xFFFFC00000000000LL,0xFFFFE00000000000LL,0xFFFFF00000000000LL, 
-0xFFFFF80000000000LL,0xFFFFFC0000000000LL,0xFFFFFE0000000000LL,0xFFFFFF0000000000LL, 
-0xFFFFFF8000000000LL,0xFFFFFFC000000000LL,0xFFFFFFE000000000LL,0xFFFFFFF000000000LL, 
-0xFFFFFFF800000000LL,0xFFFFFFFC00000000LL,0xFFFFFFFE00000000LL,0xFFFFFFFF00000000LL, 
-0xFFFFFFFF80000000LL,0xFFFFFFFFC0000000LL,0xFFFFFFFFE0000000LL,0xFFFFFFFFF0000000LL, 
-0xFFFFFFFFF8000000LL,0xFFFFFFFFFC000000LL,0xFFFFFFFFFE000000LL,0xFFFFFFFFFF000000LL, 
-0xFFFFFFFFFF800000LL,0xFFFFFFFFFFC00000LL,0xFFFFFFFFFFE00000LL,0xFFFFFFFFFFF00000LL, 
-0xFFFFFFFFFFF80000LL,0xFFFFFFFFFFFC0000LL,0xFFFFFFFFFFFE0000LL,0xFFFFFFFFFFFF0000LL, 
-0xFFFFFFFFFFFF8000LL,0xFFFFFFFFFFFFC000LL,0xFFFFFFFFFFFFE000LL,0xFFFFFFFFFFFFF000LL, 
-0xFFFFFFFFFFFFF800LL,0xFFFFFFFFFFFFFC00LL,0xFFFFFFFFFFFFFE00LL,0xFFFFFFFFFFFFFF00LL, 
-0xFFFFFFFFFFFFFF80LL,0xFFFFFFFFFFFFFFC0LL,0xFFFFFFFFFFFFFFE0LL,0xFFFFFFFFFFFFFFF0LL, 
-0xFFFFFFFFFFFFFFF8LL,0xFFFFFFFFFFFFFFFCLL,0xFFFFFFFFFFFFFFFELL,0xFFFFFFFFFFFFFFFFLL
+0x0000000000000000ULL,
+0x8000000000000000ULL,0xC000000000000000ULL,0xE000000000000000ULL,0xF000000000000000ULL, 
+0xF800000000000000ULL,0xFC00000000000000ULL,0xFE00000000000000ULL,0xFF00000000000000ULL, 
+0xFF80000000000000ULL,0xFFC0000000000000ULL,0xFFE0000000000000ULL,0xFFF0000000000000ULL, 
+0xFFF8000000000000ULL,0xFFFC000000000000ULL,0xFFFE000000000000ULL,0xFFFF000000000000ULL, 
+0xFFFF800000000000ULL,0xFFFFC00000000000ULL,0xFFFFE00000000000ULL,0xFFFFF00000000000ULL, 
+0xFFFFF80000000000ULL,0xFFFFFC0000000000ULL,0xFFFFFE0000000000ULL,0xFFFFFF0000000000ULL, 
+0xFFFFFF8000000000ULL,0xFFFFFFC000000000ULL,0xFFFFFFE000000000ULL,0xFFFFFFF000000000ULL, 
+0xFFFFFFF800000000ULL,0xFFFFFFFC00000000ULL,0xFFFFFFFE00000000ULL,0xFFFFFFFF00000000ULL, 
+0xFFFFFFFF80000000ULL,0xFFFFFFFFC0000000ULL,0xFFFFFFFFE0000000ULL,0xFFFFFFFFF0000000ULL, 
+0xFFFFFFFFF8000000ULL,0xFFFFFFFFFC000000ULL,0xFFFFFFFFFE000000ULL,0xFFFFFFFFFF000000ULL, 
+0xFFFFFFFFFF800000ULL,0xFFFFFFFFFFC00000ULL,0xFFFFFFFFFFE00000ULL,0xFFFFFFFFFFF00000ULL, 
+0xFFFFFFFFFFF80000ULL,0xFFFFFFFFFFFC0000ULL,0xFFFFFFFFFFFE0000ULL,0xFFFFFFFFFFFF0000ULL, 
+0xFFFFFFFFFFFF8000ULL,0xFFFFFFFFFFFFC000ULL,0xFFFFFFFFFFFFE000ULL,0xFFFFFFFFFFFFF000ULL, 
+0xFFFFFFFFFFFFF800ULL,0xFFFFFFFFFFFFFC00ULL,0xFFFFFFFFFFFFFE00ULL,0xFFFFFFFFFFFFFF00ULL, 
+0xFFFFFFFFFFFFFF80ULL,0xFFFFFFFFFFFFFFC0ULL,0xFFFFFFFFFFFFFFE0ULL,0xFFFFFFFFFFFFFFF0ULL, 
+0xFFFFFFFFFFFFFFF8ULL,0xFFFFFFFFFFFFFFFCULL,0xFFFFFFFFFFFFFFFEULL,0xFFFFFFFFFFFFFFFFULL
 };
-
-ipv6_addr_t mask;
-ipv6_addr_t range;
-ipv6_addr_t t;
 
 char PrefixRange::formattingbuffer[128];
 char IPv6PrefixRange::formattingbuffer[256];
@@ -730,48 +726,50 @@ int IPv6PrefixRange::contains(const IPv6PrefixRange& other) const
 }
 
 ipv6_addr_t IPv6PrefixRange::get_mask() const {  
+   ipv6_addr_t *mask = new ipv6_addr_t(0,0,0);
  
    if (length <= 64) {
-      mask.high = ipv6masks[length];
-      mask.low = ipv6masks[0];
+      mask->high = ipv6masks[length];
+      mask->low = ipv6masks[0];
    } else {
-     mask.high = ipv6masks[64];
-     mask.low = ipv6masks[length-64];
+     mask->high = ipv6masks[64];
+     mask->low = ipv6masks[length-64];
    }
 
-   return mask;
+   return *mask;
 
 }
 
 ipv6_addr_t IPv6PrefixRange::get_range() const {
-   range.high = 0;
-   range.low = 0;
+   ipv6_addr_t *range = new ipv6_addr_t(0,0,0);
    int i;
    
    if ( (n <= 64) && (m <= 64) ) {
-      range.low |= ipv6bits[0];
+      range->low |= 0;
       for (i = n; i <= m; ++i) {
-        range.high |= ipv6bits[i];
+        range->high |= ipv6bits[i];
       }
    }
    if ( (n <= 64) && (m > 64) )  {
       for (i = n; i <= 64; ++i) {
-        range.high |= ipv6bits[i];
+        range->high |= ipv6bits[i];
       }
       for (i = 0; i <= (m-64); ++i) {
-        range.low |= ipv6bits[i];
+        range->low |= ipv6bits[i];
       }
 
    }
    if ( (n > 64) && (m > 64) )  {
-      range.high |= ipv6bits[0];
+      range->high |= 0;
       for (i = (n-64); i <= (m-64); ++i) {
-        range.low |= ipv6bits[i];
+        range->low |= ipv6bits[i];
       }
 
    }
+   if (n == 0)
+     range->xbit = true;
 
-   return range;
+   return *range;
 }
 
 
@@ -887,7 +885,7 @@ ipv6_addr_t MPPrefix::get_range() const {
 
 int operator<(ipv6_addr_t one, ipv6_addr_t two)
 {
-  if ( (one.high < two.high) || ( (one.high == two.high) && (one.low < two.low) )) 
+  if ( (one.xbit < two.xbit) || (one.high < two.high) || ( (one.high == two.high) && (one.low < two.low) )) 
     return 1;
   else 
     return 0;
@@ -895,7 +893,7 @@ int operator<(ipv6_addr_t one, ipv6_addr_t two)
 
 int operator!=(ipv6_addr_t one, ipv6_addr_t two)
 {
-  if ((one.high != two.high) || (one.low != two.low))
+  if ((one.xbit != two.xbit) ||(one.high != two.high) || (one.low != two.low))
     return 1;
   else 
     return 0;
@@ -903,7 +901,7 @@ int operator!=(ipv6_addr_t one, ipv6_addr_t two)
 
 int operator==(ipv6_addr_t one, ipv6_addr_t two)
 {  
-  if ((one.high == two.high) && (one.low == two.low))
+  if ((one.xbit == two.xbit) && (one.high == two.high) && (one.low == two.low))
     return 1;
   else 
     return 0;
@@ -911,56 +909,63 @@ int operator==(ipv6_addr_t one, ipv6_addr_t two)
 
 ipv6_addr_t& operator&(ipv6_addr_t one, ipv6_addr_t two)
 {
- 
-  t.high = one.high & two.high;
-  t.low = one.low & two.low;
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
+  t->xbit = one.xbit & two.xbit;
+  t->high = one.high & two.high;
+  t->low = one.low & two.low;
 
-  return t;
-   
+  return *t;
 }
 
 ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two)
 {
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
-  t.high = one.high | two.high;
-  t.low = one.low | two.low;
-  return t;
+  t->xbit = one.xbit | two.xbit;
+  t->high = one.high | two.high;
+  t->low = one.low | two.low;
+  return *t;
 
 }
 
 ipv6_addr_t& ipv6_addr_t::operator|(unsigned int i)
 {
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
-  t.high = high;
-  t.low  = low | i;
+  t->xbit = xbit;
+  t->high = high;
+  t->low  = low | i;
 
-  return t;
-
+  return *t;
 }
 
 ipv6_addr_t& ipv6_addr_t::operator<<(unsigned int i)
 {
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
-  t.high = (high << i) | (low >> (64-i));
-  t.low  = low << i;
+  t->xbit = (xbit << i) | (high >> (64-i)); 
+  t->high = (high << i) | (low >> (64-i));
+  t->low  = low << i;
 
-  return t;
+  return *t;
 
 }
 
 ipv6_addr_t& ipv6_addr_t::operator>>(unsigned int i)
 {
-
-  t.low = (low >> i) | (high << (64-i));
-  t.high  = high >> i;
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
   
-  return t;
+  t->xbit = xbit >> i;
+  t->high  = (high >> i) | xbit << (64-i);
+  t->low = (low >> i) | (high << (64-i));
+  
+  return *t;
 
 }
 
 bool ipv6_addr_t::operator&&(bool b) {
 
-  if ((high && b) && (low && b)) 
+  if ((xbit || high || low) && b) 
     return true;
   return false;
 
@@ -976,51 +981,58 @@ bool ipv6_addr_t::is_true() const {
 
 ipv6_addr_t& ipv6_addr_t::operator~() const
 {
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);  
 
-  t.high = ~ high;
-  t.low = ~ low;
-  return t;
+  t->xbit = ~ xbit;
+  t->high = ~ high;
+  t->low = ~ low;
+  return *t;
 
 }
 
 int ipv6_addr_t::operator!() const
 {
-  return (!high && !low);
+  return (!(xbit || high || low));
 }
 
 ipv6_addr_t& ipv6_addr_t::getbits(unsigned int len)
 {
+  ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
   if (len <= 64) {
-    t.high = ipv6bits[len];
-    t.low = ipv6bits[0];
+    t->high = ipv6bits[len];
+    t->low = 0;
   } else {
-    t.high = ipv6bits[0];
-    t.low = ipv6bits[len-64];
+    t->high = 0;
+    t->low = ipv6bits[len-64];
   }
+  if (len == 0)
+    t->xbit = true;
 
-  return t;
+  return *t;
 
 }
 
 ipv6_addr_t& ipv6_addr_t::getmask(unsigned int len)
 { 
+   ipv6_addr_t *t = new ipv6_addr_t(0,0,0);
 
    if (len <= 64) {
-      t.high = ipv6masks[len];
-      t.low = ipv6masks[0];
+      t->high = ipv6masks[len];
+      t->low = ipv6masks[0];
    } else {
-      t.high = ipv6masks[64];
-      t.low = ipv6masks[len-64];
+      t->high = ipv6masks[64];
+      t->low = ipv6masks[len-64];
    }
 
-  return t;
+  return *t;
 
 }
 
 ostream& operator<<(ostream& stream, const ipv6_addr_t& p) {
    char buf[40];
    ipv62hex((ipv6_addr_t *) &p, buf); 
+ //  stream << "xbit " << xbit << " ";
    stream << buf;
    return stream;
 }

@@ -301,6 +301,8 @@ public:
 
    void insert(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) {
      root = root->insert(addr, leng, rngs);
+     cout << "result" << endl;
+     root->print();
    }
    void insert(ipv6_addr_t addr, u_int leng) {
      root = root->insert(addr, leng, addr.getbits(leng) );

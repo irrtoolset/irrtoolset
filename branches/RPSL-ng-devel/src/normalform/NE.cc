@@ -50,6 +50,7 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>
 
 #include "config.h"
 #include <iostream.h>
@@ -313,14 +314,18 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    }
 
    if (typeid(*ptree) == typeid(FilterFLTRNAME)) {
-      SymID name = symbols.resolvePeerAS(((FilterFLTRNAME *) ptree)->fltrname,
-					 peerAS);
+      cout << "eval. FilterFLTRNAME" << endl;
+      SymID name = symbols.resolvePeerAS(((FilterFLTRNAME *) ptree)->fltrname, peerAS);
       const FilterSet *fset = irr->getFilterSet(name);
       if (fset) {
-	 AttrIterator<AttrFilter> itr(fset, "filter");
-	 
-	 if (itr)
-	    return evaluate(itr()->filter, peerAS, expand);
+      	 AttrIterator<AttrFilter> itr(fset, "filter");
+	       if (itr) {
+	         return evaluate(itr()->filter, peerAS, expand);
+         }
+
+         AttrIterator<AttrFilter> itr1(fset, "mp-filter"); 
+         if (itr1)
+           return evaluate(itr1()->filter, peerAS, expand);
       }
 
       ne = new NormalExpression;
@@ -360,6 +365,9 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    
       cout << "eval. FilterAFI" << endl;
       ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
+      cout << "NE before restrict" << endl;
+      cout << *ne;
+      cout << " END" << endl;
       ne->restrict((FilterAFI *) ptree);
       Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
       Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
@@ -373,7 +381,7 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       // mixed v4/v6 prefix lists
       FilterPRFXList *list_v4 = ((FilterMPPRFXList *) ptree)->get_v4();
       FilterMPPRFXList *list_v6 = ((FilterMPPRFXList *) ptree)->get_v6();
-      
+
       ne = new NormalExpression;
       if (list_v4) {
         nt = new NormalTerm;
@@ -591,23 +599,21 @@ void NormalExpression::do_and(NormalExpression &other) {
 
 void NormalExpression::restrict(FilterAFI *af) {
 
-   NormalExpression *new_ne = new NormalExpression;
    NormalTerm *term = new NormalTerm;
-
+   NormalExpression *ne = new NormalExpression (*this);
+   become_empty();
    if (af->afi_item->is_ipv6()) { //v6
-      new_ne->singleton_flag = NormalTerm::IPV6_PRFX;
-      for (term = this->first(); term ; term = this->next())
+      this->singleton_flag = NormalTerm::IPV6_PRFX;
+      for (term = ne->first(); term ; term = ne->next())
         if (term->prfx_set.universal())
-          *new_ne += term;
+          *this += term;
    } 
    else { //v4
-      new_ne->singleton_flag = NormalTerm::PRFX;
-      for (term = this->first(); term ; term = this->next())
+      this->singleton_flag = NormalTerm::PRFX;
+      for (term = ne->first(); term ; term = ne->next())
         if (term->ipv6_prfx_set.universal())
-          *new_ne += term;
+           *this += term;
    }
-   do_and(*new_ne);
-   singleton_flag = new_ne->singleton_flag;
 }
 
 void NormalExpression::do_not() {
