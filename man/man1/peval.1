@@ -77,7 +77,7 @@ the expression can be given as an argument.
 .PP
 By default peval evaluates the expression for ipv4 unicast address family. Also the list of address families can be specified in order to restrict the results. The syntax is: afi <afi_list> <mp-filter>.
 .PP
-<afi_list> is a comma separated list of address families. The supported ones are: ipv4, ipv4.unicast (same as ipv4), ipv4.multicast, ipv6, ipv6.unicast (same as ipv6), ipv6.multicast. If the results are to be restricted to uncomparable address families (ipv4, ipv6), in the output they will be joined using 'OR' clause.
+<afi_list> is a comma separated list of address families. The supported ones are: ipv4, ipv4.unicast (same as ipv4), ipv4.multicast, ipv6, ipv6.unicast (same as ipv6), ipv6.multicast, any.unicast (ipv4.unicast, ipv6.unicast), any.multicast (ipv4.multicast, ipv6.multicast), any (ipv4.unicast, ipv4.multicast, ipv6.unicast, ipv6.multicast). If the results are to be restricted to uncomparable address families (ipv4, ipv6), in the output they will be joined using 'OR' clause.
 .PP
 <mp-filter> is a valid RPSLng filter over AS-numbers, ipv4/ipv6 prefixes, range operators, filter-sets, route-sets, as-sets and logical operators. For more details about mp-filter format see RPSLng documentation.
 .PP
