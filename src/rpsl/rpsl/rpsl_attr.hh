@@ -590,25 +590,36 @@ public:
 
 ///////////////////////// aut-num ///////////////////////////////////
 
+/// mp-import/import
+
 class AttrImport: public Attr {
 public:
+   ItemList *afi_list;
    PolicyExpr *policy;
    const AttrProtocol *fromProt;
    const AttrProtocol *intoProt;
 public:
    AttrImport(const AttrProtocol *fprot, 
 	      const AttrProtocol *iprot, 
+        ItemList *af,
 	      PolicyExpr *p) : 
-      policy(p), fromProt(fprot), intoProt(iprot)  {}
-   // Modified by wlee
-   //   AttrImport(const AttrImport &b) {
+      afi_list(af), policy(p), fromProt(fprot), intoProt(iprot)  {}
+   AttrImport(const AttrProtocol *fprot,
+        const AttrProtocol *iprot,
+        PolicyExpr *p) :
+      afi_list(new ItemList), policy(p), fromProt(fprot), intoProt(iprot)  {
+      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
+    }
+
    AttrImport(const AttrImport &b) : Attr(b) {
+      afi_list = (ItemList *) b.afi_list->dup();
       policy = (PolicyExpr *) b.policy->dup();
       fromProt = b.fromProt;
       intoProt = b.intoProt;
    }
    virtual ~AttrImport() {
       delete policy;
+      delete afi_list;
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
@@ -631,31 +642,45 @@ public:
       else {
 	 INDENT(indent); os << "  NULL" << endl;
       }
+      INDENT(indent); os << "afi ";
+      afi_list->printClass(os, indent +2); 
       INDENT(indent); os << "policy (" << policy->className() << " *)" << endl;
       policy->printClass(os, indent + 2);
    }
 #endif // DEBUG
 };
 
+// mp-export/export
+
 class AttrExport: public Attr {
 public:
+   ItemList *afi_list;
    PolicyExpr *policy;
    const AttrProtocol *fromProt;
    const AttrProtocol *intoProt;
 public:
    AttrExport(const AttrProtocol *fprot, 
-		   const AttrProtocol *iprot, 
-		   PolicyExpr *p) : 
-      policy(p), fromProt(fprot), intoProt(iprot) {}
-   // Modified by wlee
-   //   AttrExport(const AttrExport &b) {
+	      const AttrProtocol *iprot, 
+        ItemList *af,
+	      PolicyExpr *p) : 
+      afi_list(af), policy(p), fromProt(fprot), intoProt(iprot)  {}
+   AttrExport(const AttrProtocol *fprot,
+        const AttrProtocol *iprot,
+        PolicyExpr *p) :
+      afi_list(new ItemList), policy(p), fromProt(fprot), intoProt(iprot)  {
+      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
+    }
+
+
    AttrExport(const AttrExport &b) : Attr(b) {
+      afi_list = (ItemList *) b.afi_list->dup();
       policy = (PolicyExpr *) b.policy->dup();
       fromProt = b.fromProt;
       intoProt = b.intoProt;
    }
    virtual ~AttrExport() {
       delete policy;
+      delete afi_list;
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
@@ -667,38 +692,51 @@ public:
    }
    virtual void printClass(ostream &os, int indent) const {
       INDENT(indent); os << "fromProt" << endl;
-      if (fromProt) fromProt->printClass(os, indent + 2);
+      if (fromProt) 
+	 fromProt->printClass(os, indent + 2);
       else {
 	 INDENT(indent); os << "  NULL" << endl;
       }
       INDENT(indent); os << "intoProt" << endl;
-      if (intoProt) intoProt->printClass(os, indent + 2);
+      if (intoProt) 
+	 intoProt->printClass(os, indent + 2);
       else {
 	 INDENT(indent); os << "  NULL" << endl;
       }
+      INDENT(indent); os << "afi ";
+      afi_list->printClass(os, indent +2); 
       INDENT(indent); os << "policy (" << policy->className() << " *)" << endl;
       policy->printClass(os, indent + 2);
    }
 #endif // DEBUG
 };
 
+// mp-default/default
+
 class AttrDefault: public Attr {
 public: 
+   ItemList *afi_list;
    PolicyPeering      *peering;
    PolicyActionList   *action;
    Filter             *filter;
 public:
-   AttrDefault(PolicyPeering *prng, PolicyActionList *act, Filter *flt) : 
-      peering(prng), action(act), filter(flt) {
+   AttrDefault(ItemList *af, PolicyPeering *prng, PolicyActionList *act, Filter *flt) : 
+      afi_list(af), peering(prng), action(act), filter(flt) {
    }
-   // Modified by wlee
-   //   AttrDefault(const AttrDefault &pt) {
+   AttrDefault(PolicyPeering *prng, PolicyActionList *act, Filter *flt):
+      afi_list(new ItemList), peering(prng), action(act), filter(flt)
+   {
+      afi_list->append(new ItemAFI(new AddressFamily("ipv4")));
+   }
+
    AttrDefault(const AttrDefault &pt) : Attr(pt) {
+      afi_list = new ItemList(*pt.afi_list);
       peering = new PolicyPeering(*pt.peering);
       action  = new PolicyActionList(*pt.action);
       filter  = (Filter *)pt.filter->dup();
    }
    virtual ~AttrDefault() {
+      delete afi_list;
       delete peering;
       delete action;
       delete filter;
@@ -750,6 +788,35 @@ public:
 #endif // DEBUG
 };
 
+class AttrMPPeval: public Attr {
+public:
+   Filter             *filter;
+public:
+   AttrMPPeval(Filter *flt) : filter(flt) {
+   }
+   // Modified by wlee
+   AttrMPPeval(const AttrMPPeval &pt) : Attr(pt) {
+      filter  = (Filter *)pt.filter->dup();
+   }
+   virtual ~AttrMPPeval() {
+      delete filter;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrMPPeval(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrMPPeval";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "mp-peval (Filter *)" << endl;
+      filter->printClass(os, indent + 2);
+   }
+#endif // DEBUG
+};
+
+
 class AttrPeering: public Attr {
 public: 
    PolicyPeering    *peering;
@@ -777,6 +844,37 @@ public:
    }
 #endif // DEBUG
 };
+
+// TBD!!!
+class AttrMPPeering: public Attr {
+public: 
+   PolicyPeering    *peering;
+public:
+   AttrMPPeering(PolicyPeering *p) : peering(p) {
+   }
+   // Modified by wlee
+   AttrMPPeering(const AttrMPPeering &pt) : Attr(pt) {
+      peering  = (PolicyPeering *)pt.peering->dup();
+   }
+   virtual ~AttrMPPeering() {
+      delete peering;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrMPPeering(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrMPPeering";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "mp-peering (PolicyPeering *)" << endl;
+      peering->printClass(os, indent + 2);
+   }
+#endif // DEBUG
+};
+
+
 
 ///////////////////////// inet-rtr ///////////////////////////////////
 
@@ -815,6 +913,62 @@ public:
    }
 #endif // DEBUG
 };
+
+class Tunnel {
+  public:
+    MPPrefix *remote_ip;
+    ItemWORD *encapsulation;
+  
+  public:
+    Tunnel(MPPrefix *_ip, ItemWORD *_enc) {
+      remote_ip = _ip;
+      encapsulation = _enc;
+    }
+};
+
+class AttrInterface: public Attr {
+public:
+   MPPrefix           *ifaddr;
+   PolicyActionList   *action; // may be NULL
+   Tunnel             *tunnel; // may be NULL
+
+public:
+   AttrInterface(MPPrefix *ip, int masklen, PolicyActionList *_action, Tunnel *_tunnel) {
+      action = _action;
+      tunnel = _tunnel;
+      ifaddr = ip;
+      ifaddr->define(masklen);
+   }
+   AttrInterface(const AttrInterface& b) {
+      ifaddr = new MPPrefix(*b.ifaddr);
+      action = (PolicyActionList *) b.action->dup();
+   }
+   virtual ~AttrInterface() {
+      if (action)
+        delete action;
+      if (tunnel)
+        delete tunnel;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrInterface(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrInterface";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent);
+      // ??? This causes a lot of warning mesg right now
+      // It's hard to fix since it involves modification to
+      // hundred of places across the whole src tree
+      //     os << "ifaddr = " << ifaddr << endl;
+      os << "(*** Need to fix const declaration in the extraction operator ***)"
+   << endl;
+   }
+#endif // DEBUG
+};
+
 
 class AttrPeerOption: public ListNode {
 public: 
@@ -892,21 +1046,55 @@ public:
 #endif // DEBUG
 };
 
+class AttrMPPeer: public Attr {
+public:
+   const AttrProtocol   *protocol;
+   MPPrefix             *peer;
+   List<AttrPeerOption> *options;
+public:
+   AttrMPPeer(const AttrProtocol *_protocol, MPPrefix *_peer,
+      List<AttrPeerOption> *_options) :
+      protocol(_protocol), peer(_peer), options(_options) {
+   }
+   // Modified by wlee
+   AttrMPPeer(const AttrMPPeer &b) : Attr(b), protocol(b.protocol) {
+      peer = new MPPrefix(*b.peer);
+      options = new List<AttrPeerOption>(*b.options);
+   }
+   virtual ~AttrMPPeer() {
+      // Added by wlee
+      if (peer) delete peer;
+      if (options) delete options;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrMPPeer(*this);
+   }
+   const AttrPeerOption *searchOption(const char *name) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrMPPeer";
+   }
+#endif // DEBUG
+};
+
+
+
 class AttrMntRoutes: public Attr {
 public: 
    class MntPrfxPair : public ListNode {
    public:
       char           *mnt;
-      FilterPRFXList *prefixes;
+      FilterMPPRFXList *prefixes;
 
 
-      MntPrfxPair(char *mntner, FilterPRFXList *prfxs) : 
+      MntPrfxPair(char *mntner, FilterMPPRFXList *prfxs) : 
 	 mnt(mntner), prefixes(prfxs) {
       }
 
       MntPrfxPair(const MntPrfxPair &b) {
 	 if (b.prefixes)
-	    prefixes = new FilterPRFXList(*b.prefixes);
+	    prefixes = new FilterMPPRFXList(*b.prefixes);
 	 else
 	    prefixes = NULL;
 	 mnt = strdup(b.mnt);

@@ -1,4 +1,3 @@
-//  $Id$
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -49,10 +48,6 @@
 //  Questions concerning this software should be directed to 
 //  ratoolset@isi.edu.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
-
-#ifndef RADIXTREE_H
-#define RADIXTREE_H
 
 #include "config.h"
 #include <cstdio>
@@ -64,185 +59,189 @@
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
 
 #ifndef u_int64_t
-#define u_int64_t unsigned long long
+#define u_int64_t unsigned long long int
 #endif
 
-extern u_int64_t bits[];
-extern u_int masks[];
+#ifndef u_int
+#define u_int unsigned int
+#endif
 
 #include "util/FixedSizeAllocator.hh"
 
-extern FixedSizeAllocator RadixTreeAllocator;
+extern FixedSizeAllocator IPv6RadixTreeAllocator;
+extern ip_v6word_t ipv6masks[];
+extern ip_v6word_t ipv6bits[];
 
-class RadixTree {
+class IPv6RadixTree {
 public:
    friend class Iterator {
    private:
-      const RadixTree* last;
-      const RadixTree* root;
-      BoundedStack<const RadixTree*> dfsStack;
+      const IPv6RadixTree* last;
+      const IPv6RadixTree* root;
+      BoundedStack<const IPv6RadixTree*> dfsStack;
       Iterator(const Iterator &);
 
    public:
-      Iterator(const RadixTree* r) : last((const RadixTree *) NULL), 
+      Iterator(const IPv6RadixTree* r) : last((const IPv6RadixTree *) NULL), 
 	 root(r), dfsStack(65) {}
-      inline const RadixTree* first();
-      inline const RadixTree* next(const RadixTree* _last);
+      inline const IPv6RadixTree* first();
+      inline const IPv6RadixTree* next(const IPv6RadixTree* _last);
    };
 
 public:
-   u_int addr;
+   ipv6_addr_t addr;
    u_int leng;
-   u_int64_t rngs;
+   ipv6_addr_t rngs;
    enum Direction { LEFT = 0, RIGHT = 1, HERE, UP};
 
 private:
-   RadixTree *chld[2];
+   IPv6RadixTree *chld[2];
   
 public:
 
-   RadixTree(u_int _addr, u_int _leng, u_int64_t _rngs) : 
+   IPv6RadixTree(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t _rngs) : 
       addr(_addr), leng(_leng), rngs(_rngs) {
       foreachchild(c)
-	 chld[c] = (RadixTree *) NULL;
+	 chld[c] = (IPv6RadixTree *) NULL;
    }
 
-   RadixTree(const RadixTree &b) : addr(b.addr), leng(b.leng), rngs(b.rngs) {
+   IPv6RadixTree(const IPv6RadixTree &b) : addr(b.addr), leng(b.leng), rngs(b.rngs) {
       foreachchild(c)
-	 chld[c] = b.chld[c] ? new RadixTree(*b.chld[c]) : (RadixTree *) NULL;
-    //  cout << "2 " << addr << leng << rngs;
+	 chld[c] = b.chld[c] ? new IPv6RadixTree(*b.chld[c]) : (IPv6RadixTree *) NULL;
+   //   cout << "2 " << "ip" << addr << "leng" << leng << "rng" << rngs << endl;
    }
 
-   ~RadixTree() {
+   ~IPv6RadixTree() {
       foreachchild(c)
 	 if (chld[c])
 	    delete chld[c];
    }
 
-   RadixTree *insert(u_int addr, u_int leng, u_int64_t rngs);
-   RadixTree *remove(u_int addr, u_int leng, u_int64_t rngs);
+   IPv6RadixTree *insert(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs);
+   IPv6RadixTree *remove(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs);
 
-   bool contains(u_int addr, u_int leng, u_int64_t rngs) const;
+   bool contains(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) const;
 
-   bool equals(const RadixTree *b) const;
+   bool equals(const IPv6RadixTree *b) const;
 
-   RadixTree *and_(const RadixTree *b);      // this becomes this and      b
-   RadixTree *or_(const RadixTree *b);       // this becomes this or       b
-   RadixTree *setminus(const RadixTree *b); // this becomes this setminus b
+   IPv6RadixTree *and_(const IPv6RadixTree *b);      // this becomes this and      b
+   IPv6RadixTree *or_(const IPv6RadixTree *b);       // this becomes this or       b
+   IPv6RadixTree *setminus(const IPv6RadixTree *b); // this becomes this setminus b
 
+   void IPv6RadixTree::print() const;
    void *operator new(size_t s) {
-      return RadixTreeAllocator.allocate();
+      return IPv6RadixTreeAllocator.allocate();
    }
    void operator delete(void *p, size_t s) {
-      RadixTreeAllocator.deallocate(p);
+      IPv6RadixTreeAllocator.deallocate(p);
    }
-   RadixTree *makeMoreSpecific(int code, int n, int m);
-
-public:
-   void RadixTree::print() const;
+   IPv6RadixTree *makeMoreSpecific(int code, int n, int m);
 
 protected:
-   RadixTree();
+   IPv6RadixTree();
 
 private:
-   RadixTree *removeRange(u_int64_t _rngs);
-   Direction direction(u_int addr, u_int leng, u_int _addr, u_int _leng) const;
-   void commonAnscestor(u_int _addr,  u_int _leng, u_int addr,   u_int leng,
-			u_int &paddr, u_int &pleng) const;
+   IPv6RadixTree *removeRange(ipv6_addr_t _rngs);
+   Direction direction(ipv6_addr_t addr, u_int leng, ipv6_addr_t _addr, u_int _leng) const;
+   void commonAnscestor(ipv6_addr_t _addr,  u_int _leng, ipv6_addr_t addr,   u_int leng, ipv6_addr_t &paddr, u_int &pleng) const;
 };
 
-class RadixSet {
+class IPv6RadixSet {
+
 public:
    static bool compressedPrint;
 
    friend class Iterator {
    private:
-      RadixTree::Iterator itr;
-      const RadixTree *now;     // points to current node during iteration
+      IPv6RadixTree::Iterator itr;
+      const IPv6RadixTree *now;     // points to current node during iteration
 
    public:
-      Iterator(const RadixSet *s) : itr(s->root) {}
-      bool first(u_int &_addr, u_int &_leng, u_int64_t &rngs);
-      bool next(u_int &_addr, u_int &_leng, u_int64_t &rngs);
+      Iterator(const IPv6RadixSet *s) : itr(s->root) {}
+      bool first(ipv6_addr_t &_addr, u_int &_leng, ipv6_addr_t &rngs);
+      bool next(ipv6_addr_t &_addr, u_int &_leng, ipv6_addr_t &rngs);
    };
 
    friend class SortedIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
-	 u_int addr;
-	 u_int leng;
-	 u_int64_t rngs;
+      	 ipv6_addr_t addr;
+      	 u_int leng;
+      	 ipv6_addr_t rngs;
 
-	 PrefixLNode(u_int _addr, u_int _leng, u_int64_t _rngs) : 
-	    addr(_addr), leng(_leng), rngs(_rngs) {}
+      public:
+      	 PrefixLNode(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t _rngs) : 
+   	    addr(_addr), leng(_leng), rngs(_rngs) {}
       };
       List<PrefixLNode> l;
-      const RadixSet *set;
+      const IPv6RadixSet *set;
 
    public:
-      SortedIterator(const RadixSet *s) : set(s) {}
+      SortedIterator(const IPv6RadixSet *s) : set(s) {}
       ~SortedIterator() {
-	 l.clear();
+	       l.clear();
       }
-      bool first(u_int &_addr, u_int &_leng, u_int64_t &_rngs);
-      bool next(u_int &_addr, u_int &_leng, u_int64_t &_rngs);
+      bool first(ipv6_addr_t &_addr, u_int &_leng, ipv6_addr_t &_rngs);
+      bool next(ipv6_addr_t &_addr, u_int &_leng, ipv6_addr_t &_rngs);
    };
 
    friend class PrefixIterator {
    private:
-      RadixTree::Iterator itr;
-      const RadixTree *current;
+      IPv6RadixTree::Iterator itr;
+      const IPv6RadixTree *current;
       PrefixIterator(const PrefixIterator &);
-      u_int addr;
+      ipv6_addr_t addr;
       u_int leng;
-      u_int64_t rngs;
+      ipv6_addr_t rngs;
       u_int cleng;
       u_int number;
 
    public:
-      PrefixIterator(const RadixSet *s) : itr(s->root) {}
-      bool first(u_int &_addr, u_int &_leng);
-      bool next(u_int &_addr, u_int &_leng);
+      PrefixIterator(const IPv6RadixSet *s) : itr(s->root) {}
+      bool first(ipv6_addr_t &_addr, u_int &_leng);
+      bool next(ipv6_addr_t &_addr, u_int &_leng);
    };
 
    friend class SortedPrefixIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
-	 u_int addr;
+	 ipv6_addr_t addr;
 	 u_int leng;
 
-	 PrefixLNode(u_int _addr, u_int _leng) : 
+	 PrefixLNode(ipv6_addr_t _addr, u_int _leng) : 
 	    addr(_addr), leng(_leng) {}
       };
       List<PrefixLNode> l;
-      const RadixSet *set;
+      const IPv6RadixSet *set;
 
    public:
-      SortedPrefixIterator(const RadixSet *s) : set(s) {}
+      SortedPrefixIterator(const IPv6RadixSet *s) : set(s) {
+      }
       ~SortedPrefixIterator() {
 	 l.clear();
       }
-      bool first(u_int &_addr, u_int &_leng);
-      bool next(u_int &_addr, u_int &_leng);
+      bool first(ipv6_addr_t &_addr, u_int &_leng);
+      bool next(ipv6_addr_t &_addr, u_int &_leng);
    };
 
    friend class PrefixRangeIterator {
    private:
-      RadixTree::Iterator itr;
-      const RadixTree *current;
+      IPv6RadixTree::Iterator itr;
+      const IPv6RadixTree *current;
       PrefixRangeIterator(const PrefixRangeIterator &);
-      u_int addr;
+      ipv6_addr_t addr;
       u_int leng;
-      u_int64_t rngs;
+      ipv6_addr_t rngs;
       u_int cleng;
 
    public:
-      PrefixRangeIterator(const RadixSet *s) : itr(s->root) {}
-      bool first(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
-      bool next(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      PrefixRangeIterator(const IPv6RadixSet *s) : itr(s->root) {}
+      bool first(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      bool next(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
       // Added by wlee@isi.edu for roe
+/*
       bool first(PrefixRange &pr) {
 	u_int _addr, _leng, _start, _end;
 	bool b = first(_addr, _leng, _start, _end);
@@ -257,66 +256,67 @@ public:
 			 (unsigned char)_start, (unsigned char)_end);
 	return b;
       }
+*/
    };
 
    friend class SortedPrefixRangeIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
-	 u_int addr;
+	 ipv6_addr_t addr;
 	 u_int leng;
 	 u_int start;
 	 u_int end;
 
-	 PrefixLNode(u_int _addr, u_int _leng, u_int _start, u_int _end) : 
+	 PrefixLNode(ipv6_addr_t _addr, u_int _leng, u_int _start, u_int _end) : 
 	    addr(_addr), leng(_leng), start(_start), end(_end) {}
       };
       List<PrefixLNode> l;
-      const RadixSet *set;
+      const IPv6RadixSet *set;
 
    public:
-      SortedPrefixRangeIterator(const RadixSet *s) : set(s) {}
+      SortedPrefixRangeIterator(const IPv6RadixSet *s) : set(s) {}
       ~SortedPrefixRangeIterator() {
 	 l.clear();
       }
-      bool first(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
-      bool next(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      bool first(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      bool next(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
    };
 
 private:
-   RadixTree *root;
+   IPv6RadixTree *root;
 
 
 public:
-   RadixSet() {
-     root = (RadixTree *) NULL;
+   IPv6RadixSet() {
+     root = (IPv6RadixTree *) NULL;
    }
 
-   RadixSet(const RadixSet &b) {
+   IPv6RadixSet(const IPv6RadixSet &b) {
       if (b.root)
-	 root = new RadixTree(*b.root);
+	 root = new IPv6RadixTree(*b.root);
       else
-	 root = (RadixTree *) NULL;
+	 root = (IPv6RadixTree *) NULL;
    }
 
-   ~RadixSet() {
+   ~IPv6RadixSet() {
       if (root)
 	 delete root;
    }
 
-   void insert(u_int addr, u_int leng, u_int64_t rngs) {
+   void insert(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) {
      root = root->insert(addr, leng, rngs);
    }
-   void insert(u_int addr, u_int leng) {
-     root = root->insert(addr, leng, bits[leng]);
+   void insert(ipv6_addr_t addr, u_int leng) {
+     root = root->insert(addr, leng, addr.getbits(leng) );
    }
-   void remove(u_int addr, u_int leng, u_int64_t rngs) {
+   void remove(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) {
      root = root->remove(addr, leng, rngs);
    }
-   void remove(u_int addr, u_int leng) {
-     root = root->remove(addr, leng, bits[leng]);
+   void remove(ipv6_addr_t addr, u_int leng) {
+     root = root->remove(addr, leng, addr.getbits(leng));
    }
-   bool contains(u_int addr, u_int leng, u_int64_t rngs) const {
+   bool contains(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) const {
       return root->contains(addr, leng, rngs);
    }
 
@@ -325,6 +325,7 @@ public:
    }
 
    // Added by wlee@isi.edu, used by roe
+/*
    void insert(const PrefixRange &pr) {
      u_int n = pr.get_n();
      u_int m = pr.get_m();
@@ -339,11 +340,11 @@ public:
                         (~(u_int64_t)0 << (32 - m));
      return contains(pr.get_ipaddr(), pr.get_length(), range);
    }
-
+*/
    void clear() {
       if (root) {
 	 delete root;
-	 root = (RadixTree *) NULL;
+	 root = (IPv6RadixTree *) NULL;
       }
    }
 
@@ -351,26 +352,25 @@ public:
       return !root;
    }
 
-   void operator |= (const RadixSet& b) {
+   void operator |= (const IPv6RadixSet& b) {
       root = root->or_(b.root);
    }
-   void operator &= (const RadixSet& b) {
+   void operator &= (const IPv6RadixSet& b) {
       root = root->and_(b.root);
    }
-   void operator -= (const RadixSet& b) {
+   void operator -= (const IPv6RadixSet& b) {
       root = root->setminus(b.root);
    }
-   int  operator == (const RadixSet& b) const {
+   int  operator == (const IPv6RadixSet& b) const {
       return root->equals(b.root);
    }
-   void operator =  (const RadixSet& b) {
+   void operator =  (const IPv6RadixSet& b) {
       if (root == b.root)
 	 return;
       delete root;
-      root = new RadixTree(*b.root);
+      root = new IPv6RadixTree(*b.root);
    }
 
-   friend ostream& operator<<(ostream&, const RadixSet &set);
+   friend ostream& operator<<(ostream&, const IPv6RadixSet &set);
 };
 
-#endif   // RADIXTREE_H

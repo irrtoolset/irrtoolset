@@ -268,10 +268,20 @@ void AutNum::gatherRouters(Filter *f, SetOfUInt *result) {
    } else if (typeid(*f) == typeid(FilterRTRSNAME)) {
       SymID set = ((FilterRTRSNAME *) f)->rtrsname;
       if (irr) {
-	 const PrefixRanges *rtrSet = irr->expandRtrSet(set);
-	 if (rtrSet) 
-	    for (Pix p = rtrSet->first(); p; rtrSet->next(p))
-	       result->add(((*rtrSet)(p)).get_ipaddr());
+   // TBD !!!! /////
+	 //const PrefixRanges *rtrSet = irr->expandRtrSet(set);
+	 //if (rtrSet) 
+	 //   for (Pix p = rtrSet->first(); p; rtrSet->next(p))
+	 //      result->add(((*rtrSet)(p)).get_ipaddr());
+
+   /*     const MPPrefixRanges *rtrSet = irr->expandRtrSet(set);
+        if (rtrSet) {
+          MPPrefixRanges::const_iterator p;
+          for (p = begin(); p != end(); ++p) {
+            //result->add((()); Add IP to list TBD!!!!!
+          }
+        }
+    */
       }
    } else if (typeid(*f) == typeid(FilterAND)) {
       SetOfUInt *s1 = new SetOfUInt;

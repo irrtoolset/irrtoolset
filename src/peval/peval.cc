@@ -98,32 +98,68 @@ int  opt_symbolic                = 0;
 
 const int SIZE = 8*1024;
 char base[SIZE] = "peval: ";
+char temp[SIZE];
+char safe_base[SIZE];
 char *filter;
+char *cut;
 
 void evaluate() {
    if (opt_expand & EXPAND_ASSets)
       regexp_nf::expandASSets();
 
    strcat(filter, "\n\n");
+   safe_base = base;
+
+   cut = strstr(filter, "afi");
+   if (cut && isspace(*(cut+3))) {
+     strcat (temp, "mp-");
+     strcat (temp, base);
+     base = temp;
+     bzero(temp, SIZE);
+   }
 
    Object *o = new Object;
    o->scan(base, strlen(base));
    if (o->has_error) {
       delete o;
+      base = safe_base;
       return;
    }
 
+   if (strcmp(o->type->getName(), "mp-peval") == 0) {
+
+     AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+
+     NormalExpression *ne = 
+        NormalExpression::evaluate(itr()->filter, ~0, opt_expand);
+
+     if (ne)
+        cout << *ne << endl;
+     else
+        cerr << "Error: Internal error." << endl;
+	
+     delete ne;
+     delete o;
+
+   } else {
+ 
    AttrIterator<AttrFilter> itr(o, "peval");
 
    NormalExpression *ne = 
       NormalExpression::evaluate(itr()->filter, ~0, opt_expand);
+
    if (ne)
       cout << *ne << endl;
    else
       cerr << "Error: Internal error." << endl;
-			
+  
    delete ne;
    delete o;
+
+   }
+   base = safe_base;
+  
+
 }
 
 int start_tracing(char *dst, char *key, char *nextArg) {

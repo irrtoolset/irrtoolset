@@ -247,6 +247,54 @@ Buffer *ItemPRFXV4Range::bufferize(Buffer *buf = NULL, bool lcase = false) const
    return buf;
 }
 
+ostream &ItemIPV6::print(ostream &out) const {
+   out << *ipv6;
+   return out;
+}
+
+Buffer *ItemIPV6::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(ipv6->get_text());
+   return buf;
+}
+
+ostream &ItemPRFXV6::print(ostream &out) const {
+   out << *prfxv6;
+   return out;
+}
+
+Buffer *ItemPRFXV6::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(prfxv6->get_text());
+   return buf;
+}
+
+ostream &ItemPRFXV6Range::print(ostream &out) const {
+   out << *prfxv6;
+   return out;
+}
+
+Buffer *ItemPRFXV6Range::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(prfxv6->get_text());
+   return buf;
+}
+
+Buffer *ItemAFI::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append( ((AddressFamily *) this)->name());
+   return buf;
+}
+
+ostream &ItemAFI::print(ostream &out) const {
+   out << (AddressFamily &) *this;
+   return out;
+}
+
 ostream &ItemConnection::print(ostream &out) const {
    if (ip)
       out << *ip;

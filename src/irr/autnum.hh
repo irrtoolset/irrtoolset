@@ -163,11 +163,25 @@ static bool isPeeringMatching(Filter *f, const ASt as) {
    return false;
 }
 
-static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
+// REIMPLEMENTED
+static bool isPeeringMatching(Filter *f, const MPPrefix *ip) {
+
+   cout << "Entering isPeeringMatching with filter " << *f << " ip " << *ip << endl;
+
    if (typeid(*f) == typeid(FilterANY))
       return true;
-   if (typeid(*f) == typeid(FilterRouter))
-      return ((FilterRouter *) f)->ip->get_ipaddr() == ip->get_ipaddr();
+   if (typeid(*f) == typeid(FilterRouter)) {
+      if (ip->ipv4) {
+        return ((FilterRouter *) f)->ip->get_ipaddr() == ip->ipv4->get_ipaddr();
+      }
+      return false;
+   }
+   if (typeid(*f) == typeid(FilterIPv6Router)) {
+      if (ip->ipv6) {
+        return (*((FilterIPv6Router *) f)->ip->get_ipaddr()) == ip->get_ipaddr();
+      }
+      return false;
+   }
    if (typeid(*f) == typeid(FilterRouterName)) {
       char *dns = ((FilterRouterName *) f)->name;
       if (!irr)
@@ -177,9 +191,23 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
 	 return false;
       AttrIterator<AttrIfAddr> itr(rtr, "ifaddr");
       while (itr) {
-	 if (itr()->ifaddr.get_ipaddr() == ip->get_ipaddr())
-	    return true;
-	 itr++;
+        if (ip->ipv4) {
+	        if (itr()->ifaddr.get_ipaddr() == ip->ipv4->get_ipaddr())
+	          return true;
+        }
+	    itr++;
+      }
+      AttrIterator<AttrInterface> itr1(rtr, "interface");
+      while (itr1) {
+         if (itr1()->ifaddr->ipv4 && ip->ipv4) {
+            if (itr1()->ifaddr->ipv4->get_ipaddr() == ip->ipv4->get_ipaddr())
+               return true;
+         }
+         if (itr1()->ifaddr->ipv6 && ip->ipv6) {
+            if (itr1()->ifaddr->get_ipaddr() == ip->get_ipaddr())
+               return true;
+         }
+         itr1++;
       }
 
       return false;
@@ -189,7 +217,7 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
       if (!irr)
 	 return false;
 
-      const PrefixRanges *rtrSet = irr->expandRtrSet(set);
+      const MPPrefixRanges *rtrSet = irr->expandRtrSet(set);
       return (rtrSet && rtrSet->contains(*ip));
    }
    if (typeid(*f) == typeid(FilterAND))
@@ -201,14 +229,16 @@ static bool isPeeringMatching(Filter *f, const IPAddr *ip) {
    if (typeid(*f) == typeid(FilterOR))
       return isPeeringMatching(((FilterOR *) f)->f1, ip)
 	 || isPeeringMatching(((FilterOR *) f)->f2, ip);
-   if (typeid(*f) == typeid(FilterANY))
-      return true;
+   //if (typeid(*f) == typeid(FilterANY))
+   //   return true;
    assert(false);
    return false;
 }
 
 static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
-		const ASt peerAS, const IPAddr *peerIP, const IPAddr *ip) {
+		const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip) {
+
+   cout << "entering isPeeringMatching" << endl;
    if (!prng)
       return false;
 
@@ -216,12 +246,16 @@ static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
       if (pset)
 	 return prng->prngSet == pset;
       else {
+   cout << "searching peering-set " << endl;
 	 const PeeringSet *peers = irr->getPeeringSet(prng->prngSet);
 	 if (!peers)
 	    return false;
 	 for (AttrIterator<AttrPeering> itr(peers, "peering"); itr; itr++)
 	    if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
 	       return true;
+   for (AttrIterator<AttrMPPeering> itr(peers, "mp-peering"); itr; itr++)
+      if (isPeeringMatching(itr()->peering, pset, peerAS, peerIP, ip))
+         return true;
 	 
 	 return false;
       }
@@ -243,11 +277,12 @@ static bool isPeeringMatching(PolicyPeering *prng, SymID pset,
    return true;
 }
 
+// partly REIMPLEMENTED
 class AutNumDefaultIterator : public AttrIterator<AttrDefault> {
 private:
    const ASt peerAS;
-   const IPAddr *peerIP;
-   const IPAddr *ip;
+   const MPPrefix *peerIP;
+   const MPPrefix *ip;
 
 // Made it protected by wlee
 protected:      
@@ -259,8 +294,8 @@ protected:
 public:
    AutNumDefaultIterator(const AutNum *an,
 			 const ASt _peerAS = INVALID_AS, 
-			 const IPAddr *_peerIP = NULL, 
-			 const IPAddr *_ip = NULL):
+			 const MPPrefix *_peerIP = NULL, 
+			 const MPPrefix *_ip = NULL):
      AttrIterator<AttrDefault>(an, "default"), 
      peerAS(_peerAS), peerIP(_peerIP), ip(_ip) {}
 };
@@ -348,13 +383,14 @@ public:
 template<class AttrType> 
 class AutNumSelector {
 private:
+   ItemList *afi_list;
    List<FilterAction> filterActionList;
    FilterAction      *current;
 public:
    AutNumSelector(const AutNum *an, const char *attrib, SymID pset,
-                  const ASt peerAS, const IPAddr *peerIP, const IPAddr *ip,
+                  const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip,
                   char *fProtName = "BGP4", char *iProtName = "BGP4"):
-      current(NULL) {
+      current(NULL), afi_list(new ItemList) {
       AttrIterator<AttrType> itr(an, attrib);
       const AttrType *import;
       List<FilterAction> *list;
@@ -368,6 +404,7 @@ public:
                filterActionList.splice(*list);
                delete list;
             }
+            afi_list->splice(*(import->afi_list));
          }
       }
    }
@@ -383,10 +420,18 @@ public:
       return current;
    }
 
+   List<FilterAction> *get_fa_list() {
+      return &filterActionList;
+   }
+
+   ItemList *get_afi_list() {
+     return afi_list;
+   }
+
 private:
    List<FilterAction> *select(PolicyExpr *policy, SymID pset,
-                                  const ASt peerAS, const IPAddr *peerIP, 
-                                  const IPAddr *ip,
+                                  const ASt peerAS, const MPPrefix *peerIP, 
+                                  const MPPrefix *ip,
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
@@ -401,8 +446,8 @@ private:
             for (pa = pf->peeringActionList->head(); 
                  pa; 
                  pa = pf->peeringActionList->next(pa)) {
-               if (noMatch 
-		   && isPeeringMatching(pa->peering, pset,peerAS,peerIP,ip)) {
+                cout << "checking PeerinActionList " << *pa << endl;
+               if (noMatch && isPeeringMatching(pa->peering, pset,peerAS,peerIP,ip)) {
                   list->append((new FilterAction((Filter *) 
                                                  pf->filter->dup(), 
                                                  (PolicyActionList *) 
@@ -416,8 +461,7 @@ private:
                if (combinedFilter)
                   if (*combinedFilter)
                      *combinedFilter = 
-                        new FilterOR(*combinedFilter, 
-                                          (Filter *) pf->filter->dup());
+                        new FilterOR(*combinedFilter, (Filter *) pf->filter->dup());
                   else
                      *combinedFilter = (Filter *) pf->filter->dup();
             }

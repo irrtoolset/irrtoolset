@@ -89,6 +89,7 @@ public:
 
    void do_and(NormalExpression &other);
    void do_or(NormalExpression &other);
+   void restrict(FilterAFI *af);
    void do_not();
 
    int is_universal() {

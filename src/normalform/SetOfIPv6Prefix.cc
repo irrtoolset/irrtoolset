@@ -55,83 +55,71 @@
 
 #include "config.h"
 #include "util/debug.hh"
-#include "SetOfPrefix.hh"
+#include "SetOfIPv6Prefix.hh"
 #include <cstdio>
 #include <cassert>
-#include "rpsl/prefix.hh"
 
-void SetOfPrefix::insert(const PrefixRanges& b) { 
+void SetOfIPv6Prefix::insert(const MPPrefixRanges& b) { 
+    ipv6_addr_t rngs;
+    MPPrefixRanges::const_iterator p;
+    
    if (_universal)
       return;
 
-   u_int64_t rngs; int i;
-
-   for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
-      rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
-	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
+    //iterator
+    for (p = b.begin(); p != b.end(); ++p) {
+      rngs = p->get_range();
 
       if (not_)
-	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
+         members.remove(p->get_ipaddr(), p->get_length(), rngs); 
       else
-	 members.insert(b[j].get_ipaddr(), b[j].get_length(), rngs); 
+         members.insert(p->get_ipaddr(), p->get_length(), rngs); 
    }
+
 }
 
-void SetOfPrefix::remove(const PrefixRanges& b) { 
+void SetOfIPv6Prefix::remove(const MPPrefixRanges& b) { 
+   ipv6_addr_t rngs;
+   MPPrefixRanges::const_iterator p;
+
    if (_universal) {
       _universal = 0;
       not_ = 1;
    }
 
-   u_int64_t rngs; int i;
-
-   for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
-      rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
-	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
+   for (p = b.begin(); p != b.end(); ++p) {
+      rngs = p->get_range();
       if (not_)
-	 members.insert(b[j].get_ipaddr(), b[j].get_length(), rngs); 
+         members.insert(p->get_ipaddr(), p->get_length(), rngs);
       else
-	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
+         members.remove(p->get_ipaddr(), p->get_length(), rngs);
    }
+
 }
 
-void SetOfPrefix::operator= (const PrefixRanges& b) {
+void SetOfIPv6Prefix::operator= (const MPPrefixRanges& b) {
    clear();
    insert(b);
 }
 
-void SetOfPrefix::do_print (ostream& stream) {
+void SetOfIPv6Prefix::do_print (ostream& stream) {
    stream << *this;
 }
 
-ostream& operator<<(ostream& stream, SetOfPrefix& set) {
+ostream& operator<<(ostream& stream, SetOfIPv6Prefix& set) {
    if (set._universal)
       stream << "UNIVERSAL";
-   else {
+   else  {
       if (set.not_)
-	 stream << "NOT";
+      	 stream << "NOT";
 
       stream << set.members;
    }
-   
    return stream;
 }
 
-
-void SetOfPrefix::operator |= (const SetOfPrefix& b) { // union
-   RadixSet c;
+void SetOfIPv6Prefix::operator |= (const SetOfIPv6Prefix& b) { // union
+   IPv6RadixSet c;
 
    if (_universal || b.isEmpty())
       ; // done
@@ -167,8 +155,8 @@ void SetOfPrefix::operator |= (const SetOfPrefix& b) { // union
       }
 }
 
-void SetOfPrefix::operator &= (const SetOfPrefix& b) { // intersection
-   RadixSet c;
+void SetOfIPv6Prefix::operator &= (const SetOfIPv6Prefix& b) { // intersection
+   IPv6RadixSet c;
 
    if (isEmpty() || b._universal)
       ; // done
@@ -204,8 +192,7 @@ void SetOfPrefix::operator &= (const SetOfPrefix& b) { // intersection
 	    }
 	 }
 }
-
-void SetOfPrefix::operator ~  () { // complement
+void SetOfIPv6Prefix::operator ~  () { // complement
    if (_universal) {
       assert(members.isEmpty());
       _universal = 0;
@@ -216,14 +203,13 @@ void SetOfPrefix::operator ~  () { // complement
       } else
 	 not_ = ! not_;
 }
-
-int  SetOfPrefix::operator == (const SetOfPrefix& other) const { // equivalance
+int  SetOfIPv6Prefix::operator == (const SetOfIPv6Prefix& other) const { // equivalance
    return (_universal == other._universal 
 	   && not_ == other.not_
 	   && members == other.members);
 }
 
-void  SetOfPrefix::operator = (const SetOfPrefix& other) { // assignment
+void  SetOfIPv6Prefix::operator = (const SetOfIPv6Prefix& other) { // assignment
    members.clear();
    not_ = other.not_;
    _universal = other._universal;

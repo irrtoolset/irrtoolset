@@ -1,3 +1,8 @@
+4.8.0
+
+* RPSLng dictionary implemented
+* only for peval, rpslcheck
+
 4.7.3
 
 * bugfixes & new in RtConfig, fixes in prpath, rpslcheck, libirr.

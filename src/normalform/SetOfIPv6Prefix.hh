@@ -1,4 +1,3 @@
-//  $Id$
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -47,97 +46,94 @@
 //  OR PERFORMANCE OF THIS SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@ripe.net.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//  Author(s): Katie Petrusha <katie@ripe.net>
+
+#pragma interface
+
 
 #include "config.h"
-#include <cstdio>
-#include "rpsl_policy.hh"
-#include "rpsl_attr.hh"
+#include <iostream.h>
+#include <cassert>
+#include "IPv6RadixSet.hh"
+#include "rpsl/prefix.hh"
 
-//// printing ////////////////////////////////////////////////////////
+// the following set class can perform set complement operation 
+// without knowing the universal set
 
-ostream& Policy::print(ostream &out) const {
-   return out;
-}
+class SetOfIPv6Prefix {
+   friend class RtConfig;
+   friend class CiscoConfig;
+   friend class JunosConfig;
+   friend class GatedConfig;
+   friend class RsdConfig;
+   friend class BccConfig;
 
-ostream &PolicyAction::print(ostream &out) const {
-   out << rp_attr->name;
-   if (rp_method->isOperator)
-      out << " " << (rp_method->name + 8) << " " << *args;
-   else
-      out << "." << rp_method->name << "(" << *args << ")";
+public:
+   SetOfIPv6Prefix() : members() {
+      _universal = 0;
+      not_ = false;
+   };
+   ~SetOfIPv6Prefix() {
+      members.clear();
+   };
 
-   return out;
-}
-
-ostream &PolicyActionList::print(ostream &out) const {
-   if (!isEmpty()) {
-      out << "action ";
-      for (PolicyAction *nd = head(); nd; nd = next(nd))
-	 out << *nd << "; ";
-   }
-      
-   return out;
-}
-
-ostream &PolicyPeeringAction::print(ostream &out) const {
-   out << *peering << "\n";
-   if (!action->isEmpty())
-      out << "       \t" << *action << "\n";
-   return out;
-}
-
-ostream &PolicyFactor::print(ostream &out) const {
-   for (PolicyPeeringAction *pa = peeringActionList->head();
-	pa;
-	pa = peeringActionList->next(pa))
-      out << "\tfrom/to " << *pa << "\n";
-
-   out << "       \taccept/announce " << *filter <<";";
-
-   return out;
-}
-
-ostream &PolicyTerm::print(ostream &out) const {
-   bool indent = !isEmpty() && !isSingleton();
-   if (indent) 
-      out << "{\n";
-
-   for (PolicyFactor *pf = head(); pf; pf = next(pf)) {
-      if (indent)
-	 out << "   ";
-      out << *pf << "\n";
-   }
-   if (indent) 
-      out << "}";
-
-   return out;
-}
-
-ostream &PolicyRefine::print(ostream &out) const {
-   out << *left << " refine " << *right;
-   return out;
-}
-   
-ostream &PolicyExcept::print(ostream &out) const {
-   out << *left << " except " << *right;
-   return out;
-}
-   
-
-ostream &PolicyPeering::print(ostream &out) const {
-   if (prngSet)
-      out << prngSet;
-   else {
-      out << *peerASes;
-      if (peerRtrs)
-	 out << " " << *peerRtrs;
-      if (localRtrs)
-	 out << " at " << *localRtrs;
+   virtual int isEmpty() const {
+      return (! _universal && members.isEmpty());
    }
 
-   return out;
-}
+   virtual int universal() {
+      return (_universal);
+   }
+   virtual bool negated() {
+      return (not_);
+   }
+
+   virtual void make_universal() {
+      _universal = 1;
+      not_ = false;
+      members.clear();
+   }
+
+   virtual void clear() {
+      members.clear();
+      _universal = 0;
+      not_ = false;
+   }
+
+   virtual void operator ~  (); // complement
+   void operator |= (const SetOfIPv6Prefix& b); // union
+   void operator &= (const SetOfIPv6Prefix& b); // intersection
+   int  operator == (const SetOfIPv6Prefix& b) const; // equivalance
+   void operator =  (const SetOfIPv6Prefix& b); // assignment
+
+   void operator =  (const MPPrefixRanges& b);
+   void operator |= (const MPPrefixRanges& b) {
+      insert(b);
+   }
+
+   void insert(const MPPrefixRanges& b);
+   void remove(const MPPrefixRanges& b);
+
+   friend ostream& operator<<(ostream& stream, SetOfIPv6Prefix& nt);
+   virtual void do_print (ostream& stream);
+
+   int length();
+
+   int contains(ipv6_addr_t i);
+
+   void makeMoreSpecific(int code, int n, int m) {
+      members.makeMoreSpecific(code, n, m);
+      if (members.isEmpty())
+	 clear();
+   }
+
+private:
+   IPv6RadixSet        members;	// elements if not = false
+   unsigned char    _universal;  // true if set equals universal set
+   bool            not_;         // if true, set = not members
+
+};
+
 

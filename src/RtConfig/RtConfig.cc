@@ -109,17 +109,19 @@ typedef struct {
 } config_format_type;
 
 CiscoConfig ciscoConfig;
+/*
 JunosConfig junosConfig;
 GatedConfig gatedConfig;
 RSdConfig   rsdConfig;
 BccConfig bccConfig;
+*/
 
 config_format_type config_formats[] = {
-   { "rsd",         &rsdConfig },
-   { "gated",       &gatedConfig },
+//   { "rsd",         &rsdConfig },
+//   { "gated",       &gatedConfig },
    { "cisco",       &ciscoConfig },
-   { "junos",       &junosConfig },
-   { "bcc",       &bccConfig },
+//   { "junos",       &junosConfig },
+//   { "bcc",       &bccConfig },
    //   { "rsd",         rsd_process_line },
    { "", 0 }
 };
@@ -211,10 +213,10 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       (char *) NULL, (char *) &CiscoConfig::emptyLists,
       "Generate access lists for ANY and NOT ANY prefix filters.\n\t\t\t\tCisco only."},
      
-     {"-junos_no_compress_acls", ARGV_BOOL, 
+/*     {"-junos_no_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &JunosConfig::compressAcls,
       "Do not combine multiple route-filter lines into a single line whenever possible.\n\t\t\t\tJunos only."},
-
+*/
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
    };
@@ -282,6 +284,11 @@ void RtConfig::loadDictionary() {
 
 // @RtConfig configureRouter rtr.isp.net
 void RtConfig::configureRouter(char *name) {
+
+    cout << "NOT IMPLEMENTED" << endl;
+
+   /// needs TBD!!!!
+   /*
    const InetRtr *rtr = irr->getInetRtr(name);
    if (!rtr)	{
 	cerr << "Error: no object for router: " << name << endl;
@@ -309,6 +316,7 @@ void RtConfig::configureRouter(char *name) {
       		}
  	}
    }
+   */
 }
 
 void RtConfig::printPrefixes(char *filter, char *fmt) {
@@ -690,7 +698,8 @@ void RtConfig::aspathAccessList(char *filter) {
    delete o;
 }
 
-void RtConfig::printPolicyWarning(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr, const char* policy)	
+// REIMPLEMENTED
+void RtConfig::printPolicyWarning(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, const char* policy)	
 {
 	cerr << "Warning: AS" << as;
         cerr << " has no " << policy << " policy for AS" << peerAS;

@@ -58,6 +58,9 @@
 %x USELESS_LINE
 
 DNAME          [[:alnum:]_-]+
+QUAD           [0-9A-F]{1,4}
+IPV6           {QUAD}(:{QUAD}){7}
+IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 
 %{
 #include "config.h"
@@ -173,7 +176,20 @@ int yywrap () {
 }
 
 <USEFUL_LINE>[0-9]+(\.[0-9]+){3,3} {
-   yylval.ip = new IPAddr(yytext);
+   //yylval.ip = new IPAddr(yytext);
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6} {
+   //yylval.ip = new IPAddr(yytext);
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6DC} {
+   //yylval.ip = new IPAddr(yytext);
+   yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
 }
 

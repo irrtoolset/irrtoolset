@@ -150,6 +150,9 @@ public:
 
    friend istream& operator>>(istream &is, const Object &o);
    friend ostream& operator<<(ostream &os, const Object &o);
+   
+   bool hasAttr(char *name);
+   void validate();
 
    // Added by wlee@isi.edu
 #ifdef DEBUG

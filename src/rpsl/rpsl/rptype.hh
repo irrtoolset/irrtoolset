@@ -496,6 +496,57 @@ public:
    }   
 };
 
+class RPTypeIPv6Address : public RPType {
+   friend class Schema;
+public:
+   RPTypeIPv6Address() {}
+   virtual ~RPTypeIPv6Address() {}
+   virtual bool validate(const Item *item) const;
+   virtual RPType *dup() const {
+      return new RPTypeIPv6Address(*this);
+   }
+   virtual const char *name() {
+      if (! _name)
+         _name = strdup("ipv6_address");
+      return _name;
+   }   
+};
+
+class RPTypeIPv6Prefix : public RPType {
+   friend class Schema;
+public:
+   RPTypeIPv6Prefix() {}
+   virtual ~RPTypeIPv6Prefix() {}
+   virtual bool validate(const Item *item) const;
+   virtual RPType *dup() const {
+      return new RPTypeIPv6Prefix(*this);
+   }
+   virtual const char *name() {
+      if (! _name)
+         _name = strdup("ipv6_prefix");
+      return _name;
+   }   
+};
+
+class RPTypeIPv6PrefixRange : public RPType {
+   friend class Schema;
+public:
+   RPTypeIPv6PrefixRange() {}
+   virtual ~RPTypeIPv6PrefixRange() {}
+   virtual bool validate(const Item *item) const;
+   virtual Item *typeCast(const Item *item) const;
+   virtual RPType *dup() const {
+      return new RPTypeIPv6PrefixRange(*this);
+   }
+   virtual const char *name() {
+      if (! _name)
+         _name = strdup("ipv6_prefix_range");
+      return _name;
+   }   
+};
+
+
+
 class RPTypeConnection : public RPType {
    friend class Schema;
 public:
