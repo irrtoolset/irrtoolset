@@ -3,7 +3,7 @@
 * RPSLng dictionary implemented for RtConfig (cisco format only).
   other configuration file formats are underway.
 
-* The tools work with irrd too in most of the cases (see RELEASE_NOTES)
+* The tools work with irrd too in most of the cases (see RELEASE-NOTES)
 
 * import/export/default in aut-num are now treated as a partial case of corresponding mp-attributes.
   While having multiple attributes, the same logic applies for peering/action/filter selection.
