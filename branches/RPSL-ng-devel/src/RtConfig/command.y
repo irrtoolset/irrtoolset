@@ -150,7 +150,9 @@ input_stream: {
 ;
 
 input: input_line '\n'
-| error '\n'
+| error '\n' {
+  yyerrok;
+}
 | '\n'
 ;
 
@@ -446,10 +448,8 @@ source_line: KW_SET KW_SOURCE '=' TKN_STR {
 
 %%
 
-extern char *yytext;
-
 int yyerror(char *s) {
-   cerr << "Error in template file\n";
+   printf ("Error in template file at line %d: %s\n", yylineno, s);
    return(0);
 }
 
