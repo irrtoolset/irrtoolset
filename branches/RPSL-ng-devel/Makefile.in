@@ -1,0 +1,108 @@
+# $Id$
+
+GOAL   = 
+
+OBJS   = 
+SRCS   = 
+HFILES = 
+
+LIBS   = 
+
+# directories
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+VPATH           = @srcdir@
+INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @EXTRA_INCLUDE_DIRS@
+
+# programs
+
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @LD@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# release
+PRODUCT = IRRToolSet
+VERSION = @VERSION_RELEASE@
+DISTFILES = bin contrib man src tests acconfig.h Changes \
+	    config.guess config.sub configure configure.in \
+	    install-sh Makefile.in README RELEASE-NOTES VERSION 
+
+# The default location for installation.
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+mandir      = @mandir@
+man1dir     = $(mandir)/man1
+man3dir     = $(mandir)/man3
+
+DEFINES  = @DEFS@
+CFLAGS   = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS  = @LDFLAGS@
+CXXFLAGS = @CXXFLAGS@
+
+.y.o:
+
+.c.o:
+	$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.SUFFIXES: .cc
+
+#
+# No need to make changes below
+#
+
+all: 
+	cd src; $(MAKE) all
+
+clean:
+	@rm -f config.cache config.log ; cd src; $(MAKE) clean
+
+mostlyclean:
+	@cd src; $(MAKE) mostlyclean
+
+depend:
+	@cd src; $(MAKE) depend
+
+install:
+	@cd src; $(MAKE) install
+
+tags:
+	@cd src; $(MAKE) tags
+
+check:
+	@cd src; $(MAKE) check
+
+config-clean:
+	rm config.status config.cache config.log 
+	cd src; rm Makefile config.h \
+	Core/config.h Core/config.log Core/config.status Core/Makefile \
+	Core/gnu/Makefile Core/sched/Makefile \
+	Core/sys/Makefile Core/util/Makefile \
+	aoe/Makefile roe/Makefile bgp/Makefile CIDRAdvisor/Makefile \
+	gnug++/Makefile irr/Makefile normalform/Makefile peval/Makefile \
+	prpath/Makefile prtraceroute/Makefile re2dfa/Makefile \
+	rpsl/Makefile rpsl/config.h rpsl/config.log rpsl/config.status \
+	rpsl/gnu/Makefile \
+	rpslcheck/Makefile RtConfig/Makefile util/Makefile 
+
+release_tag: 
+	cvs tag ${RELEASE_TAG}
+	@echo tagged with ${RELEASE_TAG}
+
+release: config-clean
+	mkdir ${PRODUCT}-${VERSION}
+	@(cd ${PRODUCT}-${VERSION}; for i in ${DISTFILES}; do ln -s ../$$i $$i; done)
+	gtar -cvzhf ${PRODUCT}-${VERSION}.tar.gz `find ${PRODUCT}-${VERSION} -follow ! -type d | egrep -v --file=EXCLFILE`
+	rm -rf ${PRODUCT}-${VERSION}

@@ -1,0 +1,14 @@
+id: 006
+summary: error in window definition when updating IRR; 
+owner: katie
+status: closed
+priority: high
+program: aoe
+module(s): aoe
+reported: unknown
+closed: unknown
+
+detail:
+
+window was not created and resized properly.
+
