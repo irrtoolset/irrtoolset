@@ -1,0 +1,15 @@
+# execute
+#       RtConfig -config rsd -h rpsl.merit.edu < eg:rsd
+# and see the below @RtConfig line replaced by filters
+#
+traceoptions "/var/spool/gated/gatedlog" size 25m files 2 normal route;
+autonomoussystem 2885;
+
+# other usual rsd command should be put around here
+view {
+        peer 198.32.4.1/32 preference 80 dampen;
+@RtConfig import AS3561 1.1.1.1 AS114 1.1.1.2
+};
+
+# other usual rsd command should be put around here
+
