@@ -772,7 +772,7 @@ public:
       return "AttrMPFilter";
    }
    virtual void printClass(ostream &os, int indent) const {
-      INDENT(indent); os << "filter (Filter *)" << endl;
+      INDENT(indent); os << "mp-filter (Filter *)" << endl;
       filter->printClass(os, indent + 2);
    }
 #endif // DEBUG
@@ -843,6 +843,61 @@ public:
    }
 #endif // DEBUG
 };
+
+class Tunnel {
+  public:
+    MPPrefix *remote_ip;
+    ItemWORD *encapsulation;
+  
+  public:
+    Tunnel(MPPrefix *_ip, ItemWORD *_enc) {
+      remote_ip = _ip;
+      encapsulation = _enc;
+    }
+};
+
+class AttrInterface: public Attr {
+public:
+   MPPrefix           *ifaddr;
+   PolicyActionList   *action; // may be NULL
+   Tunnel             *tunnel; // may be NULL
+
+public:
+   AttrInterface(MPPrefix *ip, int masklen, PolicyActionList *_action, Tunnel *_tunnel) {
+      action = _action;
+      tunnel = _tunnel;
+      ifaddr->define(ip, masklen);
+   }
+   AttrInterface(const AttrInterface& b) {
+      ifaddr = new MPPrefix(*b.ifaddr);
+      action = (PolicyActionList *) b.action->dup();
+   }
+   virtual ~AttrInterface() {
+      if (action)
+        delete action;
+      if (tunnel)
+        delete tunnel;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrInterface(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrInterface";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent);
+      // ??? This causes a lot of warning mesg right now
+      // It's hard to fix since it involves modification to
+      // hundred of places across the whole src tree
+      //     os << "ifaddr = " << ifaddr << endl;
+      os << "(*** Need to fix const declaration in the extraction operator ***)"
+   << endl;
+   }
+#endif // DEBUG
+};
+
 
 class AttrPeerOption: public ListNode {
 public: 
@@ -919,6 +974,40 @@ public:
    }
 #endif // DEBUG
 };
+
+class AttrMPPeer: public Attr {
+public:
+   const AttrProtocol   *protocol;
+   MPPrefix             *peer;
+   List<AttrPeerOption> *options;
+public:
+   AttrMPPeer(const AttrProtocol *_protocol, MPPrefix *_peer,
+      List<AttrPeerOption> *_options) :
+      protocol(_protocol), peer(_peer), options(_options) {
+   }
+   // Modified by wlee
+   AttrMPPeer(const AttrMPPeer &b) : Attr(b), protocol(b.protocol) {
+      peer = new MPPrefix(*b.peer);
+      options = new List<AttrPeerOption>(*b.options);
+   }
+   virtual ~AttrMPPeer() {
+      // Added by wlee
+      if (peer) delete peer;
+      if (options) delete options;
+   }
+   virtual ostream& print(ostream &out) const;
+   virtual Attr *dup() const {
+      return new AttrMPPeer(*this);
+   }
+   const AttrPeerOption *searchOption(const char *name) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "AttrMPPeer";
+   }
+#endif // DEBUG
+};
+
+
 
 class AttrMntRoutes: public Attr {
 public: 

@@ -757,3 +757,26 @@ ostream& operator<<(ostream& stream, const IPv6Addr& p) {
    return stream;
 }
 
+ostream& operator<<(ostream& stream, const MPPrefix& p) {
+    if (p.ipv4 != NULL)
+      stream << *p.ipv4;
+    if (p.ipv6 != NULL)
+      stream << *p.ipv6;
+    return stream;
+  }
+bool MPPrefix::is_valid() {
+
+  if ((ipv4 && afi->is_valid(ipv4)) ||
+      (ipv6 && afi->is_valid(ipv6)))
+      return true;
+  return false;
+}
+
+void MPPrefix::define(MPPrefix *_ip, int masklen) {
+
+  if (afi->is_ipv4())
+    ipv4->PrefixRange::define(_ip->ipv4->get_ipaddr(), _ip->ipv4->get_length(), _ip->ipv4->get_n(), _ip->ipv4->get_m());    
+  if (afi->is_ipv6())
+    ipv6->IPv6PrefixRange::define(_ip->ipv6->get_ipaddr(), _ip->ipv6->get_length(), _ip->ipv6->get_n(), _ip->ipv6->get_m());
+
+}

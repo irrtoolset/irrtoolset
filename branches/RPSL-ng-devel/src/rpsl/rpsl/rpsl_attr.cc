@@ -139,6 +139,19 @@ ostream &AttrPeer::print(ostream &out) const {
    return out;
 }
 
+ostream &AttrMPPeer::print(ostream &out) const {
+   out << "mp-peer:\t" << protocol->name ;
+   //    << " " << *peer << " ";
+   for (AttrPeerOption *nd = options->head(); nd; ) {
+      nd->print(out);
+      nd = options->next(nd);
+      if (nd)
+   out << ", ";
+   }
+   return out;
+}
+
+
 ostream &AttrTypedef::print(ostream &out) const {
    if (type)
       out << "typedef: " << name << " " << *type;   

@@ -59,7 +59,6 @@
 #include <sys/types.h>
 
 class ostream;
-class AddressFamily;
 
 typedef u_int64_t       ip_v6word_t;
 
@@ -82,7 +81,6 @@ extern class IPv6PrefixRange NullIPv6PrefixRange;
 extern class IPv6Prefix    NullIPv6Prefix;
 extern class IPv6Addr    NullIPv6Addr;
 
-
 class PrefixRange {
  protected:
    static char formattingbuffer[128];
@@ -91,9 +89,6 @@ class PrefixRange {
    unsigned char length;
    unsigned char n;
    unsigned char m;
-
-// protected:
-//   AddressFamily *afi;
 
   public:
    PrefixRange(void);
@@ -184,9 +179,6 @@ class IPv6PrefixRange {
    unsigned char n;
    unsigned char m;
 
- protected:
-   AddressFamily *afi;
-
   public:
    IPv6PrefixRange(void);
    IPv6PrefixRange(const IPv6PrefixRange &p);
@@ -266,4 +258,40 @@ public:
    friend ostream& operator<<(ostream& stream, const IPv6Addr& p);
 };
 
+class AddressFamily;
+
+class MPPrefix {
+public:
+   AddressFamily *afi;
+   PrefixRange *ipv4;
+   IPv6PrefixRange *ipv6;
+
+public: 
+   MPPrefix(void) : 
+      afi(NULL),
+      ipv4(NULL),
+      ipv6(NULL)
+   {
+   }
+
+   MPPrefix(AddressFamily *_afi, PrefixRange *_ipv4 ) :
+      afi(_afi),
+      ipv4(_ipv4),
+      ipv6(NULL)
+   {
+   }
+
+   MPPrefix(AddressFamily *_afi, IPv6PrefixRange *_ipv6 ) :
+      afi(_afi),
+      ipv4(NULL),
+      ipv6(_ipv6)
+   {
+   }
+
+  bool is_valid();
+  void define(MPPrefix *_ip, int masklen);
+
+  friend ostream& operator<<(ostream& stream, const MPPrefix& p);
+
+};
 #endif // PREFIX_HH

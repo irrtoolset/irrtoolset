@@ -290,8 +290,8 @@ attr:  tech-c                                                                  	
 
 class: peering-set
 attr:  peering-set    syntax(peering_set_name),                                   mandatory, single,   key
-attr:  peering        syntax(special, peering),                                   mandatory, multiple
-attr:  mp-peering     syntax(special, mp-peering),                                mandatory, multiple                   " CMN_ATTRS "
+attr:  peering        syntax(special, peering),                                   optional, multiple
+attr:  mp-peering     syntax(special, mp-peering),                                optional, multiple                   " CMN_ATTRS "
 attr:  descr                                                                   	  mandatory, multiple
 attr:  mnt-by         syntax(list of rpsl_word),                               	  mandatory, multiple, lookup
 attr:  admin-c                                                                 	  mandatory, multiple, lookup

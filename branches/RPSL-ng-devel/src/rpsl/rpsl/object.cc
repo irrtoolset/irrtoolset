@@ -133,6 +133,7 @@ bool Object::read(Buffer &buf, istream &in) {
 void Object::parse() {
    rpsl_scan_object(this);
    rpslparse(this);
+   validate();
 
    if (type) {
       bool forgiving = schema.isForgiving();
@@ -254,6 +255,30 @@ bool Object::setClass(char *cls) {
    append("\n", 1);
    return type;
 }
+
+bool Object::hasAttr(char *name) {
+  Attr *attr;
+  for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+     if (strcasecmp(attr->type->name(), name) == 0) 
+        return true;
+  }
+  return false;
+}
+
+void Object::validate() {
+  if (strcasecmp(type->name, "filter-set") == 0) {
+    Attr *attr;
+    static char buffer[1024];
+    for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+      if (strcasecmp(attr->type->name(), "filter") == 0 || strcasecmp(attr->type->name(), "mp-filter") == 0)
+        return;
+    }
+    sprintf(buffer, "***Error: either filter or mp-filter must be present.\n");
+    errors += buffer;
+    has_error = true;
+  }
+}
+
 
 bool Object::addAttr(char *attr, Item *item) {
    if (!type)
