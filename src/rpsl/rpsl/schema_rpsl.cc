@@ -233,7 +233,7 @@ attr:  holes            syntax(ListOfIPv4Prefix),                              o
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
-attr:  mnt-routes       syntax(list of rpsl_word),                             optional, multiple, lookup
+attr:  mnt-routes       syntax(special, mnt-routes),                           optional, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -253,7 +253,7 @@ attr:  holes            syntax(ListOfIPv6Prefix),                              o
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-lower        syntax(list of rpsl_word),                             optional, multiple, lookup
-attr:  mnt-routes6      syntax(special, mnt-routes6),                             optional, multiple, lookup
+attr:  mnt-routes      syntax(special, mnt-routes),                             optional, multiple, lookup
 attr:  admin-c                                                                 optional,  multiple, lookup
 attr:  tech-c                                                                  optional,  multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -319,7 +319,6 @@ attr:  mp-default       syntax(special,mp-default),                            o
 attr:  descr                                                                   mandatory, multiple
 attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup
 attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup
-attr:  mnt-routes6      syntax(special, mnt-routes6),                             optional, multiple, lookup
 attr:  admin-c                                                                 mandatory, multiple, lookup
 attr:  tech-c                                                                  mandatory, multiple, lookup
 attr:  cross-nfy        syntax(list of rpsl_word),                             optional,  multiple
@@ -617,7 +616,6 @@ static RPSLKeyword rpsl_rules[] = {
    RPSLKeyword("mp-peering",        ATTR_MP_PEERING,        1),
    RPSLKeyword("blobs",             ATTR_BLOBS,             1),
    RPSLKeyword("mnt-routes",        ATTR_MNT_ROUTES,        1),
-   RPSLKeyword("mnt-routes6",       ATTR_MNT_ROUTES6,        1),
    RPSLKeyword("components",        ATTR_COMPONENTS,        1),
    RPSLKeyword("v6_components",     ATTR_V6_COMPONENTS,     1),
    RPSLKeyword("inject",            ATTR_INJECT,            1),

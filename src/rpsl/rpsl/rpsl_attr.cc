@@ -103,6 +103,12 @@ ostream &AttrFilter::print(ostream &out) const {
    return out;
 }
 
+ostream &AttrMPFilter::print(ostream &out) const {
+   out << "filter: " << *filter;
+
+   return out;
+}
+
 ostream &AttrPeering::print(ostream &out) const {
    out << "peering: " << *peering;
 
