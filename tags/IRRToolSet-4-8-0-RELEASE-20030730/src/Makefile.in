@@ -1,0 +1,100 @@
+# $Id$
+
+GOAL   = 
+
+OBJS   = 
+SRCS   = 
+HFILES = 
+
+LIBS   = 
+
+# directories
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+VPATH		= @srcdir@
+INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@
+
+LIBDIRS =  util gnug++ irr re2dfa normalform bgp Core rpsl
+#TOOLDIRS = rpslcheck peval RtConfig roe prpath prtraceroute CIDRAdvisor aoe
+TOOLDIRS = rpslcheck peval # RtConfig roe prpath prtraceroute CIDRAdvisor aoe
+SUBDIRS = $(LIBDIRS) $(TOOLDIRS)
+
+# programs
+@SET_MAKE@
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @LD@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# The default location for installation.
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+mandir      = @mandir@
+man1dir     = $(mandir)/man1
+man3dir     = $(mandir)/man3
+
+DEFINES  = @DEFS@
+CFLAGS   = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS  = @LDFLAGS@
+CXXFLAGS = @CXXFLAGS@
+
+.y.o:
+
+.c.o:
+	$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.SUFFIXES: .cc
+
+#
+# No need to make changes below
+#
+
+all: 
+	for i in $(TOOLDIRS); do cd $$i; $(MAKE) $(MFLAGS) all; cd ..; done
+
+$(GOAL): $(OBJS) dolibs
+	$(CXX) $(CFLAGS) -o $(GOAL) $(OBJS) $(LIBS)
+
+dolibs:
+	for i in $(LIBDIRS); do cd $$i; $(MAKE) $(MFLAGS) all; cd ..; done
+
+clean:
+	for i in $(SUBDIRS); do cd $$i; $(MAKE) $(MFLAGS) clean; cd ..; done
+
+mostlyclean:
+	for i in $(SUBDIRS); do cd $$i; $(MAKE) $(MFLAGS) mostlyclean; cd ..; done
+
+depend:
+	for i in $(SUBDIRS); do cd $$i; $(MAKE) $(MFLAGS) depend; cd ..; done
+
+install:
+	@for i in $(prefix) $(bindir) $(mandir) $(man1dir) $(man3dir) ; do \
+		test -d $$i || mkdir -p $$i; \
+	done
+	for i in $(TOOLDIRS); do $(INSTALL_PROGRAM) $$i/$$i $(bindir); done
+	for i in ../man/man1/*; do $(INSTALL_DATA) $$i $(man1dir); done
+	for i in ../man/man3/*; do $(INSTALL_DATA) $$i $(man3dir); done
+
+tags:
+	@find `pwd` -name \*.hh -or -name \*.cc -or -name \*.c -or -name \*.h -or -name \*.y -or -name \*.l | xargs etags -t
+
+list:
+	@find `pwd` -name \*.hh -or -name \*.cc -or -name \*.c -or -name \*.h -or -name \*.y -or -name \*.l
+
+check:
+	@for i in $(TOOLDIRS); do \
+		test -f $$i/$$i || echo "$$i was not built properly!"; \
+	done
+	@echo "Check done!"

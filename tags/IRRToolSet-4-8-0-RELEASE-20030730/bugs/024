@@ -1,0 +1,71 @@
+id: 024
+summary: in RtConfig, unproper error message is a result of empty result filter 
+owner: katie
+status: closed
+priority: high
+program: RtConfig
+module(s): RtConfig
+reported: unknown - by Ambrose
+closed: unknown
+
+detail:
+This error is common for 5 functions which evaluate the filters and print result. (but aspath_access_list generates aspath regexp instead).
+
+RtConfig::printPrefixes
+RtConfig::printPrefixRanges
+RtConfig::printSuperPrefixRanges
+RtConfig::accessList
+RtConfig::aspathAccessList
+
+if (ne && ne->singleton_flag == NormalTerm::PRFX) // or NormalTerm::AS_PATH
+         printAccessList(ne->first()->prfx_set);
+      else
+         cerr << "Error: Filter can only contain prefix filters." << endl; // or as_path filters
+      
+Apparently this is a known bug. See message from Cengix below.
+When we get this kind of error message:
+1. if the evaluation gives the empty set of routes (empty intersection for ex.)
+2. if the object is non-existent in the DB - we have empty result again.
+3. in aspath_access_list filter, if we specify ASpath filter with wrong syntax. Maybe the reason is that aspath filter is not ordinary RPSL filter. It results as-path regexp, not a set of prefixes.
+
+What needs to be considered:
+
+1. when the resulting set is ANY/NOT ANY,  should we generate the filter for it?(the same question is for import/export commands, for instance).
+
+2. Is the error message meaningful at all? the problem is that filters can be interpreted differently (as_path filters and ordinary RPSL filters), and peval does not distinguish them when evaluating the expression. But the semantics of the command requires to report the error if we put AS111 in as_path filter instead of <AS111>. Meanwhile, AS111 may be syntactically correct RPSL filter! 
+I need to put examples for it and explanation in man page.
+
+Anyway, the behaviour can be:
+1. if the result is an empty set of filters, interpret as NOT ANY and do not report 'can only contain ... filters' error.
+2. if the result is semantically incorrect, interpret as command-related syntax error and report it.
+
+The way might be:
+	if (ne && proper_term_type)
+		print_result;
+	else
+		if (!empty && !proper_term_type)
+			command_syntax_error;
+		else // (!ne || empty )- do nothing ?
+
+From: Cengiz Alaettinoglu <cengiz@packetdesign.com>
+To: "Ambrose Magee (LMI)" <Ambrose.Magee@eei.ericsson.se>
+Cc: Katie Petrusha <katie@ripe.net>
+Subject: Re: Quick question about RtConfig.
+Date: 29 Mar 2002 08:11:23 -0800
+X-Mailer: Ximian Evolution 1.0.3.99 
+
+Hi Ambrose,
+
+There is a bug here (hence I cc'ed Katie). The intersection of as226 and
+as52 is empty, hence you dont get any routes back. But the error message
+the tool gives back is confusing and it should have generated a filter
+that matches no routes...
+
+If you are looking for examples, you can use the following combination
+of as numbers (and many others):
+@RtConfig access_list filter as226 or as52
+@RtConfig access_list filter as226 and as5736
+
+--------------------------------
+fixed, now gives the warning; see also N22.
+
