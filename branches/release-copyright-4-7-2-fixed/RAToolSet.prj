@@ -1,0 +1,910 @@
+;; -*- Lisp -*-
+(Created-By-Prcs-Version 1 2 16)
+(Project-Description "RAToolSet")
+(Project-Version RAToolSet 471 1)
+(Parent-Version RAToolSet 470 5)
+(Version-Log "")
+(New-Version-Log "")
+(Checkin-Time "Thu, 06 Sep 2001 08:47:45 -0700")
+(Checkin-Login cengiz)
+(Populate-Ignore ("/rpsl/"
+                  "~$"
+                  "\\.bak$"
+                  "src/bird$"
+                  "\\.o$"
+                  "\\.a$"
+                  "a.out$"
+                  "core$"
+                  "\\.dvi$"
+                  "\\.aux$"
+                  "\\.log$"
+                  "Makefile$"
+                  "makedep$"
+                  "eddep$"
+                  "\\.deps"
+                  "obsolete"
+                  ".conflicting$"
+                  "\\.y\\.cc$"
+                  "\\.y\\.hh$"
+                  "\\.y\\.c$"
+                  "\\.y\\.h$"
+                  "y.tab.c"
+                  "y.tab.h"
+                  "xx_parser.cc$"
+                  "xx_parser.h$"
+                  "ro_parser.cc$"
+                  "ro_parser.h$"
+                  "\\.l\\.cc$"
+                  "\\.l\\.hh$"
+                  "\\.l\\.c$"
+                  "\\.l\\.h$"
+                  "lex\\..*\\.c"
+                  "xx_lexer.cc$"
+                  "ro_lexer.cc$"
+                  "bgp_lexer.cc$"
+                  "bgp_dump.cc$"
+                  "\\.gdb_"
+                  "TAGS$"
+                  "config.status$"
+                  "config.cache$"
+                  "^config.h$"
+                  "/config.h$"
+                  "\\.nfs"
+                  "peval$"
+                  "pmatch$"
+                  "prpath$"
+                  "RtConfig$"
+                  "CIDRAdvisor$"
+                  "prcheck$"
+                  "irrstat$"
+                  "roe$"
+                  "aoe$"
+                  "relayd$"
+                  "prtraceroute$"
+                  "cidrasst$"
+                  "rpslcheck$"
+                  "\\.tk\\.cc$"
+                  "update_irr.cc$"
+                  "layout.cc$"
+                  "fileselect.cc$"
+                  "utils.cc$"
+                  "version.cc$"
+                  "/Core/"))
+(Project-Keywords)
+(Files
+;; This is a comment.  Fill in files here.
+;; For example:  (prcs/checkout.cc ())
+
+;; Files added by populate at Fri, 18 Jul 1997 15:40:13 -0700:
+
+  
+  
+  (src/peval/peval.cc (RAToolSet/2_peval.cc 1.26.1.11 644))
+  (src/normalform/SymbolConjunct.hh (RAToolSet/3_SymbolConj 1.14 644))
+  (src/normalform/SymbolConjunct.cc (RAToolSet/4_SymbolConj 1.7 644))
+  (src/normalform/SetOfSymbol.hh (RAToolSet/5_SetOfSymbo 1.11 644))
+  (src/normalform/SetOfSymbol.cc (RAToolSet/6_SetOfSymbo 1.14 644))
+  
+  
+  (src/normalform/NT.hh (RAToolSet/9_NT.hh 1.10.2.9 644))
+  (src/normalform/NT.cc (RAToolSet/10_NT.cc 1.9.2.5 644))
+  (src/normalform/NE.hh (RAToolSet/11_NE.hh 1.11.1.7 644))
+  (src/normalform/NE.cc (RAToolSet/12_NE.cc 1.11.1.22 644))
+  (src/util/trace.hh (RAToolSet/13_trace.hh 1.7 644))
+  (src/util/trace.cc (RAToolSet/14_trace.cc 1.7 644))
+  
+  
+  (src/util/debug.hh (RAToolSet/17_debug.hh 1.11 644))
+  (src/util/debug.cc (RAToolSet/18_debug.cc 1.9 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  (README (RAToolSet/27_README 1.18.1.6 644))
+
+;; Files added by populate at Fri, 18 Jul 1997 15:40:45 -0700:
+
+  
+
+;; Files added by populate at Fri, 18 Jul 1997 15:41:03 -0700:
+
+  
+
+;; Files added by populate at Fri, 18 Jul 1997 15:43:01 -0700:
+
+  
+  
+
+;; Files added by populate at Fri, 18 Jul 1997 15:43:19 -0700:
+
+  
+  (src/re2dfa/regexp_nf.hh (RAToolSet/33_regexp.hh 1.10.1.12.1.5 644))
+  (src/re2dfa/regexp_nf.cc (RAToolSet/34_regexp.cc 1.7.1.1.1.18 644))
+  (src/re2dfa/re2dfa.h (RAToolSet/35_re2dfa.h 1.5.1.6 644))
+  (src/re2dfa/re2dfa.c (RAToolSet/36_re2dfa.c 1.5.2.10 644))
+  
+  
+
+;; Files added by populate at Fri, 18 Jul 1997 15:43:51 -0700:
+
+  
+  
+  (Changes (RAToolSet/41_Changes 1.29.1.20 644))
+
+;; Files added by populate at Fri, 18 Jul 1997 15:44:19 -0700:
+
+  
+  (src/re2dfa/Makefile.in (RAToolSet/43_Makefile.i 1.14 644))
+  (src/peval/Makefile.in (RAToolSet/44_Makefile.i 1.16 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  (src/gnug++/SymbolConjunctPtr.defs.h (RAToolSet/b/7_SymbolConj 1.3 644))
+  (src/gnug++/SymbolConjunctPtr.SplayNode.h (RAToolSet/b/8_SymbolConj 1.2 644))
+  (src/gnug++/SymbolConjunctPtr.SplayNode.cc (RAToolSet/b/9_SymbolConj 1.2 644))
+  (src/gnug++/SymbolConjunctPtr.SplayBag.h (RAToolSet/b/10_SymbolConj 1.2 644))
+  (src/gnug++/SymbolConjunctPtr.SplayBag.cc (RAToolSet/b/11_SymbolConj 1.2 644))
+  (src/gnug++/SymbolConjunctPtr.Bag.h (RAToolSet/b/12_SymbolConj 1.3 644))
+  (src/gnug++/SymbolConjunctPtr.Bag.cc (RAToolSet/b/13_SymbolConj 1.4 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  (src/gnug++/Pix.h (RAToolSet/b/28_Pix.h 1.1 644))
+  
+  
+  
+  
+  
+  
+  
+  (src/gnug++/NormalTermPtr.defs.h (RAToolSet/b/36_NormalTerm 1.3 644))
+  (src/gnug++/NormalTermPtr.DLList.h (RAToolSet/b/37_NormalTerm 1.3 644))
+  (src/gnug++/NormalTermPtr.DLList.cc (RAToolSet/b/38_NormalTerm 1.5 644))
+  (src/gnug++/Makefile.in (RAToolSet/b/39_Makefile.i 1.7.1.1.1.19 644))
+  
+  
+  
+  
+  
+  
+  
+  (install-sh (RAToolSet/b/47_install-sh 1.3 755))
+  (configure.in (RAToolSet/b/48_configure. 1.25.1.6.1.19 644))
+  (configure (RAToolSet/b/49_configure 1.12.1.1.1.15.1.6.1.20 755))
+  (config.sub (RAToolSet/b/50_config.sub 1.3 755))
+  (config.guess (RAToolSet/b/51_config.gue 1.3 755))
+  (acconfig.h (RAToolSet/c/0_acconfig.h 1.4.1.9 644))
+  (Makefile.in (RAToolSet/c/1_Makefile.i 1.7.1.3 644))
+
+;; Files added by populate at Fri, 18 Jul 1997 15:45:43 -0700:
+
+  (tests/eg:rsd (RAToolSet/c/2_eg:rsd 1.3 644))
+  (tests/eg:gated (RAToolSet/c/3_eg:gated 1.2 644))
+  (tests/eg:cisco (RAToolSet/c/4_eg:cisco 1.2 644))
+  
+  
+  
+  (src/prpath/prpath.cc (RAToolSet/c/8_prpath.cc 1.5.1.19 644))
+  (src/prpath/Makefile.in (RAToolSet/c/9_Makefile.i 1.4.1.14 644))
+  
+  
+  
+  
+  
+  
+  
+  (src/normalform/Makefile.in (RAToolSet/c/17_Makefile.i 1.4.2.12 644))
+  (src/util/Makefile.in (RAToolSet/c/18_Makefile.i 1.6.1.12 644))
+  
+  (src/gnug++/int.int.VHMap.h (RAToolSet/c/20_int.int.VH 1.1 644))
+  (src/gnug++/int.int.VHMap.cc (RAToolSet/c/21_int.int.VH 1.1.1.1 644))
+  (src/gnug++/int.int.Map.h (RAToolSet/c/22_int.int.Ma 1.2 644))
+  (src/gnug++/int.int.Map.cc (RAToolSet/c/23_int.int.Ma 1.1.1.3 644))
+  (src/gnug++/int.defs.h (RAToolSet/c/24_int.defs.h 1.1 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  (src/RtConfig/command.y (RAToolSet/c/43_xx_parser. 1.5.1.2.1.6.1.14 644))
+  (src/RtConfig/command.l (RAToolSet/c/44_xx_lexer.y 1.3.1.4.1.11 644))
+  (src/RtConfig/f_rsd.cc (RAToolSet/c/45_f_rsd.cc 1.4.2.16 644))
+  (src/RtConfig/f_gated.cc (RAToolSet/c/46_f_gated.cc 1.4.2.17.1.3 644))
+  (src/RtConfig/f_cisco.cc (RAToolSet/c/47_f_cisco.cc 1.10.1.5.1.50.1.5 644))
+  (src/RtConfig/RtConfig.hh (RAToolSet/c/48_RtConfig.h 1.6.1.1.1.19 644))
+  (src/RtConfig/RtConfig.cc (RAToolSet/c/49_RtConfig.c 1.8.1.1.1.36 644))
+  (src/RtConfig/Makefile.in (RAToolSet/c/50_Makefile.i 1.7.1.1.1.14 644))
+  
+  
+  (src/CIDRAdvisor/Makefile.in (RAToolSet/d/1_Makefile.i 1.7.1.5 644))
+  (src/config.h.in (RAToolSet/d/2_config.hh. 1.5.1.1.1.12 644))
+  (src/Makefile.in (RAToolSet/d/3_Makefile.i 1.11.1.19 644))
+  (man/man1/RtConfig.1 (RAToolSet/d/4_RtConfig.1 1.29 644))
+  
+  
+  
+  
+  
+  (bin/abridge_gated.pl (RAToolSet/d/10_abridge_ga 1.1 755))
+  (bin/DIFF.gated (RAToolSet/d/11_DIFF 1.1 644))
+
+;; Files deleted by populate at Fri, 18 Jul 1997 15:45:43 -0700:
+
+  ; tests/eg:cisco.pl
+  ; tests/eg:rsd.pl
+  ; tests/eg:rsdtest.pl
+  ; tests/DIFF
+  ; tests/eg:gdtest.pl
+  ; tests/eg:gated.pl
+  ; tests/abridge_gated.pl
+
+;; Files added by populate at Fri, 18 Jul 1997 15:47:44 -0700:
+
+  (tests/abridge_gated.pl (RAToolSet/d/12_abridge_ga 1.1 755))
+  (tests/DIFF (RAToolSet/d/13_DIFF 1.2 644))
+  
+  
+  (src/CIDRAdvisor/aggchk.cc (RAToolSet/d/16_aggchk.cc 1.9 644))
+
+;; Files added by populate at Fri, 18 Jul 1997 15:48:21 -0700:
+
+  (man/man1/rpslcheck.1 (RAToolSet/d/20_prcheck.1 1.4 644))
+
+  (src/roe/update_irr.tk (RAToolSet/d/27_update_irr 1.3 644))
+  (src/roe/schedule.hh (RAToolSet/d/28_schedule.h 1.6 644))
+  (src/roe/schedule.cc (RAToolSet/d/29_schedule.c 1.13 644))
+  (src/roe/route-list.hh (RAToolSet/d/30_route-list 1.15 644))
+  (src/roe/route-list.cc (RAToolSet/d/31_route-list 1.5.1.10.1.21 644))
+  (src/roe/roe_tcl.hh (RAToolSet/d/32_roe_tcl.hh 1.4.1.1.1.2 644))
+  (src/roe/roe_tcl.cc (RAToolSet/d/33_roe_tcl.cc 1.12 644))
+  (src/roe/roe_config.hh (RAToolSet/d/34_roe_config 1.6 644))
+  (src/roe/roe_config.cc (RAToolSet/d/35_roe_config 1.10 644))
+  (src/roe/roe.hh (RAToolSet/d/36_roe.hh 1.6 644))
+  (src/roe/roe.cc (RAToolSet/d/37_roe.cc 1.17 644))
+  (src/roe/roe.y (RAToolSet/d/38_ro_parser. 1.8 644))
+  
+  (src/roe/roe.l (RAToolSet/d/40_ro_lexer.y 1.8 644))
+  (src/roe/object.hh (RAToolSet/d/41_object.hh 1.6 644))
+  (src/roe/object.cc (RAToolSet/d/42_object.cc 1.9 644))
+  (src/roe/layout.tk (RAToolSet/d/43_layout.tk 1.5.1.2 644))
+  (src/roe/fileselect.tk (RAToolSet/d/44_fileselect 1.3 644))
+  (src/roe/config_tmpl.tk (RAToolSet/d/45_config_tmp 1.3 644))
+  
+  (src/roe/config_irr.tk (RAToolSet/d/47_config_irr 1.3 644))
+  
+  (src/roe/bgp.l (RAToolSet/d/49_bgp_lexer. 1.9 644))
+  (src/roe/RadixSet.hh (RAToolSet/d/50_RadixSet.h 1.8 644))
+  (src/roe/RadixSet.cc (RAToolSet/d/51_RadixSet.c 1.7 644))
+  (src/roe/Makefile.in (RAToolSet/e/0_Makefile.i 1.18 644))
+  
+  
+  
+  (src/irr/rawhoisc.hh (RAToolSet/e/4_whois.hh 1.22 644))
+  (src/irr/rawhoisc.cc (RAToolSet/e/5_whois.cc 1.11.1.15.1.9 644))
+  (man/man1/roe.1 (RAToolSet/e/6_roe.1 1.6 644))
+  (contrib/alan.barrett (RAToolSet/e/7_alan.barre 1.1 644))
+
+;; Files deleted by populate at Fri, 18 Jul 1997 15:50:30 -0700:
+
+  ; contrib/shorten-regexp.pl
+  ; src/dbase/DBCnxn.cc
+  ; src/dbase/DBCnxn.h
+
+;; Files added by populate at Fri, 18 Jul 1997 15:51:45 -0700:
+
+  
+  
+
+;; Files deleted by populate at Fri, 18 Jul 1997 15:51:45 -0700:
+
+  ; src/roe/config_irr.cc
+  ; src/roe/config_tmpl.cc
+  ; src/roe/ro_parser.hh
+  ; tests/eg:cisco.pl
+  ; tests/eg:gated.pl
+  ; tests/eg:gdtest.pl
+  ; tests/eg:rsd.pl
+  ; tests/eg:rsdtest.pl
+  ; compatibility/eg:cisco.pl
+  ; compatibility/eg:gated.pl
+  ; compatibility/eg:gdtest.pl
+  ; compatibility/eg:rsd.pl
+  ; compatibility/eg:rsdtest.pl
+  ; src/dbase/irr_lexer.cc
+  ; src/dbase/irr_parser.cc
+  ; src/dbase/irr_parser.h
+
+;; Files added by populate at Fri, 18 Jul 1997 15:53:08 -0700:
+
+  
+  
+  
+  
+  
+  (src/prtraceroute/prtraceroute.hh (RAToolSet/e/15_prtracerou 1.2.1.8 644))
+  (src/prtraceroute/prtraceroute.cc (RAToolSet/e/16_prtracerou 1.8.1.7 644))
+  (src/prtraceroute/Makefile.in (RAToolSet/e/17_Makefile.i 1.5.1.10 644))
+  
+  
+  
+  (src/util/version.hh (RAToolSet/e/21_version.hh 1.4 644))
+  (src/util/version.cc.in (RAToolSet/e/22_version.cc 1.3 644))
+  (src/util/net.hh (RAToolSet/e/23_net.hh 1.20 644))
+  (src/util/net.cc (RAToolSet/e/24_net.cc 1.10 644))
+  (src/util/Error.hh (RAToolSet/e/25_Error.hh 1.3.1.1.1.5 644))
+  (src/util/Argv.hh (RAToolSet/e/26_Argv.hh 1.2 644))
+  (src/util/Argv.cc (RAToolSet/e/27_Argv.cc 1.4 644))
+  (src/aoe/layout.tk (RAToolSet/e/28_layout.tk 1.4.1.3.1.4 644))
+  (src/aoe/fileselect.tk (RAToolSet/e/29_fileselect 1.2 644))
+  (src/aoe/bgp_dump.l (RAToolSet/e/30_bgp_dump.l 1.6 644))
+  (src/aoe/as_peer.hh (RAToolSet/e/31_as_peer.hh 1.7 644))
+  (src/aoe/as_peer.cc (RAToolSet/e/32_as_peer.cc 1.7 644))
+  
+  
+  
+  
+  
+  
+  (src/aoe/aoe.hh (RAToolSet/e/39_aoe.hh 1.3.1.3.1.3 644))
+  (src/aoe/aoe.cc (RAToolSet/e/40_aoe.cc 1.5.1.9.1.20.1.2 644))
+  (src/aoe/TclToggleButton.hh (RAToolSet/e/41_TclToggleB 1.5 644))
+  (src/aoe/TclToggleButton.cc (RAToolSet/e/42_TclToggleB 1.7 644))
+  (src/aoe/TclText.hh (RAToolSet/e/43_TclText.hh 1.7 644))
+  (src/aoe/TclText.cc (RAToolSet/e/44_TclText.cc 1.10 644))
+  (src/aoe/TclRadioButton.hh (RAToolSet/e/45_TclRadioBu 1.4 644))
+  (src/aoe/TclRadioButton.cc (RAToolSet/e/46_TclRadioBu 1.7 644))
+  (src/aoe/TclObj.hh (RAToolSet/e/47_TclObj.hh 1.3 644))
+  (src/aoe/TclList.hh (RAToolSet/e/48_TclList.hh 1.4 644))
+  (src/aoe/TclList.cc (RAToolSet/e/49_TclList.cc 1.6 644))
+  (src/aoe/TclLabel.hh (RAToolSet/e/50_TclLabel.h 1.4 644))
+  (src/aoe/TclLabel.cc (RAToolSet/e/51_TclLabel.c 1.6 644))
+  (src/aoe/TclCmd.hh (RAToolSet/f/0_TclCmd.hh 1.4 644))
+  (src/aoe/TclCmd.cc (RAToolSet/f/1_TclCmd.cc 1.6 644))
+  (src/aoe/TclCheckButton.hh (RAToolSet/f/2_TclCheckBu 1.4 644))
+  (src/aoe/TclCheckButton.cc (RAToolSet/f/3_TclCheckBu 1.7 644))
+  (src/aoe/TclApp.hh (RAToolSet/f/4_TclApp.hh 1.5.1.2 644))
+  (src/aoe/TclApp.cc (RAToolSet/f/5_TclApp.cc 1.8.1.3 644))
+  (src/aoe/Makefile.in (RAToolSet/f/6_Makefile.i 1.17 644))
+  (src/CIDRAdvisor/proxyagg.cc (RAToolSet/f/7_proxyagg.c 1.5 644))
+  (src/CIDRAdvisor/CIDRAdvisor.hh (RAToolSet/f/8_CIDRAdviso 1.6 644))
+  (src/CIDRAdvisor/CIDRAdvisor.cc (RAToolSet/f/9_CIDRAdviso 1.9 644))
+  
+  
+  (man/man1/prpath.1 (RAToolSet/f/12_prpath.1 1.2 644))
+  
+  (man/man1/peval.1 (RAToolSet/f/14_peval.1 1.4 644))
+  (man/man1/CIDRAdvisor.1 (RAToolSet/f/15_CIDRAdviso 1.2 644))
+  (VERSION (RAToolSet/f/16_VERSION 1.7.1.4.1.7.1.2.1.3.2.13 644))
+
+;; Files deleted by populate at Fri, 18 Jul 1997 15:53:08 -0700:
+
+  ; src/CIDRAdvisor/cidr.cc
+  ; src/CIDRAdvisor/cidr.hh
+  ; src/dbase/Error.cc
+  ; src/dbase/Error.hh
+  ; src/re2dfa/match.cc
+  ; src/re2dfa/match.hh
+
+;; Files added by populate at Fri, 18 Jul 1997 15:55:41 -0700:
+
+  (tests/ornet-gw.ra (RAToolSet/f/17_ornet-gw.r 1.2 644))
+  (src/prtraceroute/netraw.hh (RAToolSet/f/18_netraw.hh 1.3.1.7 644))
+  (src/prtraceroute/netraw.cc (RAToolSet/f/19_netraw.cc 1.2.1.3 644))
+
+;; Files added by populate at Fri, 18 Jul 1997 15:56:57 -0700:
+
+  (src/aoe/utils.tk (RAToolSet/f/20_utils.tk 1.3.1.3 644))
+  (src/aoe/bgp_aspath.hh (RAToolSet/f/21_bgp_aspath 1.5 644))
+  (src/aoe/bgp_aspath.cc (RAToolSet/f/22_bgp_aspath 1.6 644))
+  (src/aoe/bgp.dump.example (RAToolSet/f/23_bgp.dump.e 1.2 644))
+  (src/aoe/aoe.xbm (RAToolSet/f/24_aoe.xbm 1.4 644))
+  
+  (src/aoe/TclVar.hh (RAToolSet/f/26_TclVar.hh 1.4 644))
+  (src/aoe/TclVar.cc (RAToolSet/f/27_TclVar.cc 1.6 644))
+  (src/aoe/TclEntry.hh (RAToolSet/f/28_TclEntry.h 1.3 644))
+  (src/aoe/TclEntry.cc (RAToolSet/f/29_TclEntry.c 1.5 644))
+  (src/aoe/TclButton.hh (RAToolSet/f/30_TclButton. 1.3 644))
+  (src/aoe/TclButton.cc (RAToolSet/f/31_TclButton. 1.5 644))
+  (man/man1/aoe.1 (RAToolSet/f/32_aoe.1 1.3 644))
+  (contrib/prtraceroute-linux.patch (RAToolSet/f/33_prtracerou 1.1 644))
+
+;; Files deleted by populate at Fri, 18 Jul 1997 15:56:57 -0700:
+
+  ; src/aoe/as.cc
+  ; src/aoe/as.hh
+  ; src/aoe/as_path.cc
+  ; src/aoe/as_path.hh
+
+;; Files added by populate at Fri, 18 Jul 1997 16:00:19 -0700:
+
+  (src/roe/utils.tk (RAToolSet/f/34_utils.tk 1.4 644))
+  (src/prtraceroute/linux-compat.h (RAToolSet/f/35_linux-comp 1.2 644))
+  
+  
+  
+  
+  
+  (src/aoe/aoerc.tk (RAToolSet/f/41_aoerc.tk 1.3.1.3 644))
+
+;; Files deleted by populate at Fri, 18 Jul 1997 16:00:19 -0700:
+
+  ; src/aoe/aoe.rc
+  ; src/aoe/aoe_conf.cc
+  ; src/aoe/aoe_conf.hh
+
+;; Files added by populate at Wed, 30 Jul 1997 14:32:11 -0700:
+
+  (src/normalform/FilterOfSymbol.hh (RAToolSet/f/44_FilterOfSy 1.6 644))
+  (src/normalform/FilterOfPrefix.cc (RAToolSet/f/45_FilterOfPr 1.5 644))
+  (src/normalform/FilterOfSymbol.cc (RAToolSet/f/46_FilterOfSy 1.5 644))
+  (src/normalform/FilterOfPrefix.hh (RAToolSet/f/47_FilterOfPr 1.3.1.5 644))
+  (src/normalform/FilterOfCommunity.hh (RAToolSet/f/48_FilterOfCo 1.8.1.3 644))
+  (src/normalform/FilterOfASPath.cc (RAToolSet/f/49_FilterOfAS 1.5 644))
+  (src/normalform/Filter.cc (RAToolSet/f/50_Filter.cc 1.6 644))
+  (src/normalform/Filter.hh (RAToolSet/f/51_Filter.hh 1.6 644))
+  (src/normalform/FilterOfCommunity.cc (RAToolSet/g/0_FilterOfCo 1.12 644))
+  (src/normalform/FilterOfASPath.hh (RAToolSet/g/1_FilterOfAS 1.7.1.3 644))
+  (src/gnug++/unsigned.Plex.cc (RAToolSet/g/2_unsigned.P 1.1.1.4 644))
+  (src/gnug++/unsigned.Plex.h (RAToolSet/g/3_unsigned.P 1.2 644))
+  (src/gnug++/unsigned.XPlex.cc (RAToolSet/g/4_unsigned.X 1.1.1.1 644))
+  (src/gnug++/unsigned.XPlex.h (RAToolSet/g/5_unsigned.X 1.1 644))
+  (src/gnug++/unsigned.OXPSet.cc (RAToolSet/g/6_unsigned.O 1.1.1.2 644))
+  (src/gnug++/unsigned.OXPSet.h (RAToolSet/g/7_unsigned.O 1.3 644))
+  (src/gnug++/unsigned.defs.h (RAToolSet/g/8_unsigned.d 1.1 644))
+  (src/gnug++/unsigned.Set.cc (RAToolSet/g/9_unsigned.S 1.1.1.3 644))
+  (src/gnug++/unsigned.Set.h (RAToolSet/g/10_unsigned.S 1.3 644))
+  (src/normalform/community.cc (RAToolSet/g/11_community. 1.8 644))
+  (src/normalform/community.hh (RAToolSet/g/12_community. 1.13 644))
+
+;; Files deleted by populate at Wed, 30 Jul 1997 14:32:11 -0700:
+
+  ; src/normalform/SetOfASPath.cc
+  ; src/normalform/SetOfASPath.hh
+  ; src/normalform/Set.cc
+  ; src/normalform/Set.hh
+
+;; Files deleted by populate at Wed, 30 Jul 1997 15:14:02 -0700:
+
+  ; src/normalform/SetOfPix.cc
+  ; src/normalform/SetOfPix.hh
+
+;; Files added by populate at Wed, 30 Jul 1997 17:57:53 -0700:
+
+  
+  
+  
+  (src/irr/irr.cc (RAToolSet/e/0_irr.cc 1.5.1.11.1.28 644))
+  (src/irr/irr.hh (RAToolSet/f/0_irr.hh 1.5.1.24 644))
+  (src/irr/Makefile.in (RAToolSet/g/0_Makefile.i 1.1.1.15 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+;; Files deleted by populate at Wed, 30 Jul 1997 17:57:53 -0700:
+
+  ; src/dbase/irr_lexer.y
+  ; src/dbase/irr_parser.y
+
+;; Files added by populate at Fri, 01 Aug 1997 16:05:07 -0700:
+
+  
+  
+  
+  
+  
+  (src/irr/route.hh (RAToolSet/g/42_route.hh 1.7 644))
+  (src/irr/route.cc (RAToolSet/g/43_route.cc 1.5 644))
+  (src/irr/autnum.hh (RAToolSet/g/44_autnum.hh 1.3.1.1.1.28.1.10 644))
+  (src/irr/autnum.cc (RAToolSet/g/45_autnum.cc 1.3.1.1.1.3.1.11.1.4 644))
+
+;; Files deleted by populate at Fri, 01 Aug 1997 16:05:07 -0700:
+
+  ; src/util2/Trail.cc
+  ; src/util2/Trail.hh
+  ; src/dbase/radix.cc
+  ; src/dbase/radix.hh
+  ; src/dbase/CommunityMap.cc
+  ; src/dbase/CommunityMap.hh
+  ; src/dbase/Map.cc
+  ; src/dbase/Node.cc
+  ; src/dbase/Node.h
+  ; src/dbase/autnum.cc
+  ; src/dbase/autnum.hh
+  ; src/dbase/dbase.hh
+  ; src/dbase/Map.hh
+  ; src/dbase/PrefaskMap.cc
+  ; src/dbase/PrefaskMap.hh
+  ; src/dbase/RegisterMap.cc
+  ; src/dbase/RegisterMap.hh
+  ; src/dbase/ASMacroMap.cc
+  ; src/dbase/ASMacroMap.h
+  ; src/dbase/ASMap.cc
+  ; src/dbase/ASMap.h
+  ; src/dbase/STName.h
+  ; src/dbase/SymTab.h
+
+;; Files added by populate at Mon, 04 Aug 1997 22:28:02 -0700:
+
+  (src/gnug++/SetOfUInt.hh (RAToolSet/g/46_SetOfUInt. 1.1.1.4 644))
+
+;; Files deleted by populate at Mon, 04 Aug 1997 22:28:02 -0700:
+
+  ; src/re2dfa/asno.cc
+  ; src/re2dfa/asno.hh
+
+;; Files added by populate at Tue, 05 Aug 1997 16:59:07 -0700:
+
+  
+  (src/RtConfig/f_cisco.hh (RAToolSet/g/48_f_cisco.hh 1.2.1.21 644))
+
+;; Files deleted by populate at Mon, 11 Aug 1997 05:43:31 -0700:
+
+  ; src/gnug++/Prefask.AVLSet.cc
+  ; src/gnug++/Prefask.AVLSet.h
+  ; src/gnug++/Prefask.Set.cc
+  ; src/gnug++/Prefask.Set.h
+  ; src/gnug++/Prefask.defs.h
+  ; src/gnug++/STName.NormalExpressionPtr.AVLMap.cc
+  ; src/gnug++/STName.NormalExpressionPtr.AVLMap.h
+  ; src/gnug++/STName.NormalExpressionPtr.Map.cc
+  ; src/gnug++/STName.NormalExpressionPtr.Map.h
+  ; src/gnug++/STName.SymTab.AVLMap.cc
+  ; src/gnug++/STName.SymTab.AVLMap.h
+  ; src/gnug++/STName.SymTab.Map.cc
+  ; src/gnug++/STName.SymTab.Map.h
+  ; src/gnug++/STName.defs.h
+
+;; Files added by populate at Wed, 13 Aug 1997 14:39:10 -0700:
+
+  
+  
+  
+
+
+  (src/prtraceroute/ifaddrlist.h (RAToolSet/f/42_ifaddrlist 1.1 644))
+  (src/prtraceroute/ifaddrlist.c (RAToolSet/f/43_ifaddrlist 1.4 644))
+  (bin/DIFF.cisco (RAToolSet/h/0_DIFF.cisco 1.1 755))
+  (src/util/Stack.hh (RAToolSet/h/4_Stack.hh 1.3 644))
+  (src/normalform/RadixSet.cc (RAToolSet/h/5_RadixSet.c 1.23 644))
+  (src/normalform/SetOfPrefix.hh (RAToolSet/h/6_SetOfPrefi 1.17 644))
+  (src/normalform/SetOfPrefix.cc (RAToolSet/h/7_SetOfPrefi 1.13 644))
+  (src/normalform/RadixSet.hh (RAToolSet/h/8_RadixSet.h 1.19.1.2 644))
+;; Files added by populate at Tue, 24 Feb 1998 14:33:48 -0800:
+
+  
+  
+  
+  
+  
+  
+
+;; Files added by populate at Wed, 25 Feb 1998 18:32:13 -0800:
+
+  (src/irr/cache_value.hh (RAToolSet/h/12_cache_valu 1.6 644))
+  (src/irr/cache_value.cc (RAToolSet/h/13_cache_valu 1.3 644))
+  (src/irr/cache.hh (RAToolSet/h/14_cache.hh 1.6 644))
+  (src/gnug++/CacheKey.CacheValue.AVLMap.cc (RAToolSet/h/15_CacheKey.C 1.1 644))
+  (src/gnug++/CacheKey.CacheValue.AVLMap.h (RAToolSet/h/16_CacheKey.C 1.1 644))
+  (src/gnug++/CacheKey.CacheValue.Map.cc (RAToolSet/h/17_CacheKey.C 1.2 644))
+  (src/gnug++/CacheKey.CacheValue.Map.h (RAToolSet/h/18_CacheKey.C 1.2 644))
+  (src/gnug++/CacheKey.defs.h (RAToolSet/h/19_CacheKey.d 1.1 644))
+
+;; Files deleted by populate at Fri, 27 Feb 1998 11:10:17 -0800:
+
+  ; src/irrstat/Makefile.in
+  ; src/irrstat/irrstat.cc
+  ; src/irrstat/irrstat.hh
+  ; src/dbase/Makefile.in
+
+
+;; Files added by populate at Thu, 12 Mar 1998 19:24:45 -0800:
+
+  (src/irr/ripewhoisc.cc (RAToolSet/h/23_ripewhoisc 1.4.1.1.1.9.1.11.1.19 644))
+  (src/irr/ripewhoisc.hh (RAToolSet/h/24_ripewhoisc 1.5.1.16 644))
+  
+  
+
+
+  
+  (src/rpslcheck/Makefile.in (RAToolSet/h/21_Makefile.i 1.12 644))
+  (src/rpslcheck/rpslcheck.cc (RAToolSet/h/22_rpslcheck. 1.4.1.9.1.3 644))
+;; Files added by populate at Thu, 19 Mar 1998 17:18:08 -0800:
+
+  
+  
+  
+  
+  
+
+  (bin/ripe2rpsl (RAToolSet/h/32_ripe2rpsl 1.6 755))
+
+;; Files deleted by populate at Sun, 10 May 1998 19:02:05 -0700,
+;; from version 4-0-0.68(w), by cengiz:
+
+  ; (src/gnug++/_SetOfPix.hh ())
+  ; (src/gnug++/Pix.Set.cc ())
+  ; (src/gnug++/Pix.Set.h ())
+  ; (src/gnug++/Pix.SplayNode.cc ())
+  ; (src/gnug++/Pix.SplayNode.h ())
+  ; (src/gnug++/Pix.SplaySet.cc ())
+  ; (src/gnug++/Pix.SplaySet.h ())
+  ; (src/gnug++/Pix.defs.h ())
+
+;; Files added by populate at Sun, 10 May 1998 19:12:13 -0700,
+;; to version 4-0-0.68(w), by cengiz:
+
+  
+
+
+  (README.v4 (RAToolSet/h/36_README.v4 1.5 644))
+
+  (prj/4-0-2 (RAToolSet/h/37_4-0-2 1.1 644))
+;; Files added by populate at Wed, 10 Jun 1998 15:29:31 -0700,
+;; to version Cengiz.28(w), by cengiz:
+
+  
+  (src/gnug++/Regex.cc (RAToolSet/h/39_Regex.cc 1.7 444))
+  (src/gnug++/BitSet.cc (RAToolSet/h/40_BitSet.cc 1.2 444))
+  (src/gnug++/String.cc (RAToolSet/h/41_String.cc 1.1 444))
+  (src/gnug++/bitprims.h (RAToolSet/h/42_bitprims.h 1.1 444))
+  (src/gnug++/Regex.h (RAToolSet/h/43_Regex.h 1.1 444))
+  (src/gnug++/String.h (RAToolSet/h/44_String.h 1.1 444))
+  (src/gnug++/std.h (RAToolSet/h/45_std.h 1.1 444))
+  (src/gnug++/BitSet.h (RAToolSet/h/46_BitSet.h 1.3 444))
+
+;; Files deleted by populate at Wed, 10 Jun 1998 15:29:31 -0700,
+;; from version Cengiz.28(w), by cengiz:
+
+  ; (src/gnug++/stl/Makefile.in ())
+  ; (src/gnug++/stl/algobase.h ())
+  ; (src/gnug++/stl/defalloc.h ())
+  ; (src/gnug++/stl/function.h ())
+  ; (src/gnug++/stl/iterator.h ())
+  ; (src/gnug++/stl/map.h ())
+  ; (src/gnug++/stl/pair.h ())
+  ; (src/gnug++/stl/projectn.h ())
+  ; (src/gnug++/stl/tree.cc ())
+  ; (src/gnug++/stl/tree.h ())
+
+
+  
+  
+  
+  
+;; Files added by populate at Tue, 14 Jul 1998 15:41:27 -0700,
+;; to version Cengiz.33(w), by cengiz:
+
+  
+  
+  
+
+
+
+
+  
+  
+  (src/irr/birdwhoisc.hh (RAToolSet/i/7_birdwhoisc 1.11 644))
+  (src/irr/birdwhoisc.cc (RAToolSet/i/8_birdwhoisc 1.33 644))
+
+  (src/RtConfig/f_gated.hh (RAToolSet/i/9_f_gated.hh 1.7 644))
+
+  
+  (src/gnug++/fmtq.cc (RAToolSet/i/11_fmtq.cc 1.1 444))
+  (src/gnug++/gcd.cc (RAToolSet/i/12_gcd.cc 1.1 444))
+  (src/gnug++/builtin.cc (RAToolSet/i/13_builtin.cc 1.1 444))
+  (src/gnug++/AllocRing.cc (RAToolSet/i/14_AllocRing. 1.2 444))
+  (src/gnug++/builtin.h (RAToolSet/i/15_builtin.h 1.1 644))
+  (src/gnug++/AllocRing.h (RAToolSet/i/16_AllocRing. 1.1 644))
+  (src/gnug++/Obstack.h (RAToolSet/i/17_Obstack.h 1.1 644))
+
+  (src/RtConfig/f_rsd.hh (RAToolSet/i/18_f_rsd.hh 1.3 644))
+
+  
+  
+  
+  
+  
+  
+  
+  
+;; Files added by populate at Wed, 16 Sep 1998 15:42:04 -0700,
+;; to version 430.5(w), by wlee:
+
+  (src/util/buffer.cc (RAToolSet/i/27_buffer.cc 1.2 644))
+  (src/util/buffer.hh (RAToolSet/i/28_buffer.hh 1.3 644))
+
+
+  
+  
+  
+  
+
+  (man/man3/librpsl.3 (RAToolSet/i/37_librpsl.3 1.3 644))
+;; Files added by populate at Fri, 13 Nov 1998 19:39:31 -0800,
+;; to version 430.45(w), by wlee:
+
+  
+  
+
+;; Files deleted by populate at Fri, 13 Nov 1998 19:39:48 -0800,
+;; from version 430.45(w), by wlee:
+
+  ; (src/gnug++/rx.c ())
+  ; (src/gnug++/rx.h ())
+
+
+  (src/bgp/Makefile.in (RAToolSet/i/48_Makefile.i 1.5 644))
+  (src/bgp/actiondictionary.hh (RAToolSet/i/49_actiondict 1.2 644))
+  (src/bgp/actiondictionary.cc (RAToolSet/i/50_actiondict 1.4 644))
+  (src/bgp/bgproute.hh (RAToolSet/i/51_bgproute.h 1.6 644))
+  (src/bgp/bgproute.cc (RAToolSet/j/0_bgproute.c 1.10 644))
+  (src/irr/classes.hh (RAToolSet/j/5_set.hh 1.2 644))
+
+  
+  
+
+  
+;; Files added by populate at Tue, 08 Jun 1999 14:57:37 -0700,
+;; to version 440.47(w), by cengiz:
+
+  
+
+
+  (man/man1/prtraceroute.1 (RAToolSet/j/13_prtracerou 1.2 644))
+  (src/CIDRAdvisor/radix.hh (RAToolSet/j/14_radix.hh 1.1 644))
+  (src/CIDRAdvisor/radix.cc (RAToolSet/j/15_radix.cc 1.1 644))
+
+;; Files added by populate at Tue, 20 Jul 1999 12:03:02 -0700,
+;; to version 440.61(w), by cengiz:
+
+  
+  
+
+;; Files deleted by populate at Tue, 20 Jul 1999 12:03:02 -0700,
+;; from version 440.61(w), by cengiz:
+
+  ; (src/util/Buffer.cc () :symlink)
+  ; (src/util/Buffer.hh () :symlink)
+  ; (src/util/BufferIterator.hh () :symlink)
+  ; (src/util/List.hh () :symlink)
+  ; (src/rpsl/object_log.hh ())
+  ; (src/rpsl/object_log.l ())
+  ; (src/util/strtol.c ())
+  ; (src/util/atoll.c ())
+  ; (src/gnug++/regex.c ())
+  ; (src/gnug++/regex.h ())
+  ; (src/rpsl/rpsl_filter.cc ())
+  ; (src/rpsl/rpsl_attr.hh ())
+  ; (src/rpsl/rpsl_item.cc ())
+  ; (src/rpsl/rpsl_filter.hh ())
+  ; (src/rpsl/rpsl_policy.cc ())
+  ; (src/rpsl/rpsl_item.hh ())
+  ; (src/rpsl/rpsl_policy.hh ())
+  ; (src/rpsl/rpsl_attr.cc ())
+  ; (src/gnug++/error.cc ())
+  ; (src/gnug++/hash.cc ())
+  ; (src/gnug++/SetOfSymID.hh ())
+  ; (src/util/strupr.c ())
+  ; (src/util/strlwr.c ())
+  ; (src/util/xstring.h ())
+  ; (src/gnug++/prefixranges.hh ())
+  ; (src/gnug++/PrefixRange.Plex.h ())
+  ; (src/gnug++/PrefixRange.Plex.cc ())
+  ; (src/gnug++/PrefixRange.XPlex.h ())
+  ; (src/gnug++/PrefixRange.XPlex.cc ())
+  ; (src/gnug++/PrefixRange.defs.h ())
+  ; (src/rpsl/rpsl.hh ())
+  ; (src/gnug++/SymID.defs.h ())
+  ; (src/gnug++/SymID.Set.h ())
+  ; (src/gnug++/SymID.Set.cc ())
+  ; (src/gnug++/SymID.VHSet.h ())
+  ; (src/gnug++/SymID.VHSet.cc ())
+  ; (src/rpsl/object.cc ())
+  ; (src/rpsl/object.hh ())
+  ; (src/rpsl/rangelist.cc ())
+  ; (src/rpsl/rangelist.hh ())
+  ; (src/rpsl/regexp.cc ())
+  ; (src/rpsl/regexp.hh ())
+  ; (src/rpsl/symbols.cc ())
+  ; (src/rpsl/symbols.hh ())
+  ; (src/rpsl/rpsl.l ())
+  ; (src/rpsl/rpsl.y ())
+  ; (src/rpsl/rptype.cc ())
+  ; (src/rpsl/rptype.hh ())
+  ; (src/rpsl/schema.cc ())
+  ; (src/rpsl/schema.hh ())
+  ; (src/rpsl/schema_rpsl.cc ())
+  ; (src/rpsl/prefix.cc ())
+  ; (src/util/strchr.cc ())
+  ; (src/util/strerror.c ())
+  ; (src/util/Allocator.hh ())
+  ; (src/util/FixedSizeAllocator.hh ())
+  ; (src/rpsl/prefix.hh ())
+  ; (src/util/rusage.cc ())
+  ; (src/util/rusage.hh ())
+
+
+
+  (src/RtConfig/f_bcc.hh (RAToolSet/j/16_f_bcc.hh 1.2 644))
+  (src/RtConfig/f_bcc.cc (RAToolSet/j/17_f_bcc.cc 1.1 644))
+
+;; Files added by populate at Mon, 01 Nov 1999 18:16:27 -0800,
+;; to version 450.9(w), by cengiz:
+
+  
+  
+
+;; Files added by populate at Thu, 20 Apr 2000 09:45:38 -0700,
+;; to version 452.6(w), by cengiz:
+
+  (src/RtConfig/f_junos.cc (RAToolSet/j/20_f_junos.cc 1.12 644))
+
+;; Files added by populate at Thu, 20 Apr 2000 09:45:41 -0700,
+;; to version 452.6(w), by cengiz:
+
+  (src/RtConfig/f_junos.hh (RAToolSet/j/21_f_junos.hh 1.7 644))
+
+
+  (src/gnug++/rx.h (RAToolSet/j/24_rx.h 1.1 644))
+  (src/gnug++/rx.c (RAToolSet/j/25_rx.c 1.2 644))
+
+  (README.aoe.is.broken (RAToolSet/j/26_README.aoe 1.1 644)))
+(Merge-Parents)
+(New-Merge-Parents)
