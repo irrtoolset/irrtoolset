@@ -181,7 +181,7 @@ void RAWhoisClient::SetSources(const char *_sources) {
 
    Trace(TR_WHOIS_QUERY) << "Whois: SetSources " << sources << endl;
 
-   if (! QueryKillResponse("!s%s", sources)) {
+   if (QueryKillResponse("!s%s", sources) == 0) {
       err = 1;
       error.error("Error: setting source to %s failed.\n", sources);
    }
@@ -192,7 +192,7 @@ void RAWhoisClient::SetSources(const char *_sources) {
    current_sources[strlen(current_sources) - 1] = 0; // chop \n
 
    if (err)
-      error.error("Error: current source setting is %s.\n", sources);
+      error.error("Error: current source setting is %s.\n", current_sources);
 }
 
 const char *RAWhoisClient::GetSources(void) {
@@ -254,6 +254,9 @@ int RAWhoisClient::Response(char *&response) {
       response = new char[1];
       *response = 0;
       return 1;
+   }
+   if (buffer[0] == 'F') { // some other query error
+      return 0;
    }
    if (*buffer != 'A') { // we are expecting a byte-count line
       error.Die("Warning: no byte count error for query %s.\n", last_query);
