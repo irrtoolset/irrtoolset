@@ -1,0 +1,997 @@
+#  $Id$
+# Copyright (c) 2001,2002                        RIPE NCC
+#
+# All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation, and that the name of the author not be
+# used in advertising or publicity pertaining to distribution of the
+# software without specific, written prior permission.
+#
+# THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+# ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+# AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+#
+#  Copyright (c) 1994 by the University of Southern California
+#  All rights reserved.
+#
+#  Permission to use, copy, modify, and distribute this software and its
+#  documentation in source and binary forms for lawful non-commercial
+#  purposes and without fee is hereby granted, provided that the above
+#  copyright notice appear in all copies and that both the copyright
+#  notice and this permission notice appear in supporting documentation,
+#  and that any documentation, advertising materials, and other materials
+#  related to such distribution and use acknowledge that the software was
+#  developed by the University of Southern California, Information
+#  Sciences Institute. The name of the USC may not be used to endorse or
+#  promote products derived from this software without specific prior
+#  written permission.
+#
+#  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
+#  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
+#  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
+#  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
+#  TITLE, AND NON-INFRINGEMENT.
+#
+#  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+#  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
+#  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
+#  OR PERFORMANCE OF THIS SOFTWARE.
+#
+#  Questions concerning this software should be directed to
+#  ratoolset@isi.edu.
+#
+#  Author(s): WeeSan Lee <wlee@ISI.EDU>
+
+
+########################
+# Define procedures here
+
+proc aoe:saveResourceSetting {fileID varName} {
+    upvar $varName var
+    if [catch {puts $fileID [format "set $varName\t{$var}"]}] {
+	puts stderr "Writing setting error into resource file!"
+    }
+}
+
+proc aoe:saveResourceComment {fileID comment} {
+    if [catch {puts $fileID $comment}] {
+	puts stderr "Writing comment error into resource file!"
+    }
+}
+
+#proc aoe:saveResource {rcFile} {
+proc aoe:saveResource {rcFile version} {
+    # Declare the variables would like to save here first
+    global printCommand
+    global ChangedField
+    global IRR_Update
+    global PolicyTemplate
+    global User
+    global Hostname
+    global Email
+    global yyyy YYYY
+    global mm MM
+    global dd DD
+    global ChangedField
+    global AutNumTemplate
+    global ColorSyntax
+    global tmpFile
+    if [catch {open $rcFile w} fileID] {
+	puts stderr "Resource file cannot be opened!"
+    } else {
+	# Writing comments
+	aoe:saveResourceComment $fileID \
+		"# This file is generated automatically by aoe $version"
+	aoe:saveResourceComment $fileID \
+		"# Please do not try to edit it manually, thanks!"
+	aoe:saveResourceComment $fileID \
+		"# If something bad happen, please delete this file,"
+	aoe:saveResourceComment $fileID \
+		"# aoe will regenerate a fresh copy with default settings."
+	aoe:saveResourceComment $fileID "#"
+	aoe:saveResourceComment $fileID "# wlee@ISI.EDU"
+	aoe:saveResourceComment $fileID "#"
+	aoe:saveResourceComment $fileID ""
+	# Writing settings
+	aoe:saveResourceComment $fileID "# Printing command"
+	aoe:saveResourceSetting $fileID printCommand
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# IRR update commands"
+	aoe:saveResourceSetting $fileID IRR_Update(Registries)
+	aoe:saveResourceSetting $fileID IRR_Update(Command,Selection)
+	foreach registry $IRR_Update(Registries) {
+	    aoe:saveResourceSetting $fileID IRR_Update(Command,$registry)
+	}
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# For Policy Templates"
+	aoe:saveResourceSetting $fileID PolicyTemplate(Total)
+	for {set i 0} {$i < $PolicyTemplate(Total)} {incr i} {
+	    aoe:saveResourceSetting $fileID PolicyTemplate($i,Description)
+	    aoe:saveResourceSetting $fileID PolicyTemplate($i,import)
+	    aoe:saveResourceSetting $fileID PolicyTemplate($i,export)
+	}
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# For the changed field"
+	aoe:saveResourceComment $fileID "if \[info exists env(USER)\] {"
+	aoe:saveResourceComment $fileID "  set User \$env(USER)"
+	aoe:saveResourceComment $fileID "} elseif \[info exists env(LOGNAME)\] {"
+	aoe:saveResourceComment $fileID "  set User \$env(LOGNAME)"
+	aoe:saveResourceComment $fileID "} else {"
+	aoe:saveResourceComment $fileID "  set User unknown"
+	aoe:saveResourceComment $fileID "}"
+	aoe:saveResourceComment $fileID "if \[info exists env(HOSTNAME)\] {"
+	aoe:saveResourceComment $fileID "  set Hostname \$env(HOSTNAME)"
+	aoe:saveResourceComment $fileID "} elseif \[info exists env(HOST)\] {"
+	aoe:saveResourceComment $fileID "  set Hostname \$env(HOST)"
+	aoe:saveResourceComment $fileID "} else {"
+	aoe:saveResourceComment $fileID "  set Hostname \[exec hostname\]"
+	aoe:saveResourceComment $fileID "}"
+	aoe:saveResourceComment $fileID {set Email "$User@$Hostname"}
+	aoe:saveResourceComment $fileID {set yyyy [lindex [exec date] 5]}
+	aoe:saveResourceComment $fileID {set yy   [exec date +%y]}
+	aoe:saveResourceComment $fileID {set mm   [exec date +%m]}
+	aoe:saveResourceComment $fileID {set dd   [exec date +%d]}
+	aoe:saveResourceComment $fileID "# For convenient"
+	aoe:saveResourceComment $fileID {set YYYY $yyyy}
+	aoe:saveResourceComment $fileID {set YY   $yy}
+	aoe:saveResourceComment $fileID {set MM   $mm}
+	aoe:saveResourceComment $fileID {set DD   $dd}
+	aoe:saveResourceSetting $fileID ChangedField(Mode)
+	aoe:saveResourceSetting $fileID ChangedField(Template)
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# For New menu option"
+	aoe:saveResourceSetting $fileID AutNumTemplate(Line,Total)
+	for {set i 0} {$i < $AutNumTemplate(Line,Total)} {incr i} {
+	    aoe:saveResourceSetting $fileID AutNumTemplate(Line,$i)
+	}
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# For color syntax"
+	aoe:saveResourceSetting $fileID ColorSyntax(Mode)
+	aoe:saveResourceSetting $fileID ColorSyntax(Keywords)
+	aoe:saveResourceSetting $fileID ColorSyntax(Color,Keywords)
+	aoe:saveResourceSetting $fileID ColorSyntax(Color,Attributes)
+	aoe:saveResourceSetting $fileID ColorSyntax(Color,Values)
+	aoe:saveResourceComment $fileID ""
+	aoe:saveResourceComment $fileID "# Misc"
+	aoe:saveResourceComment $fileID {set tmpFile	"/tmp/aoe.[pid]"}
+	// Close resource file
+	close $fileID
+    }
+}
+
+proc aoe:new {} {
+    global tmpFile
+    global AutNumTemplate
+    global ChangedField Email User yyyy yy mm dd YYYY YY MM DD 
+    global env
+    global PeerAS MyAS
+
+    if [catch {open "$tmpFile" w} fileID] {
+       showError "Tmp file cannot be opened!"
+    } else {
+	for {set i 0} {$i < $AutNumTemplate(Line,Total)} {incr i} {
+	    puts $fileID [subst [subst $AutNumTemplate(Line,$i)]]
+	}
+	close $fileID
+	fileOpen $tmpFile
+	exec rm -f $tmpFile
+    }
+}
+
+proc aoe:open {} {
+    set fname [ut:fsbox -prompt "Open file:" -grab 1]
+    update
+    if [string compare $fname ""] { fileOpen $fname }
+}
+
+proc aoe:save {} {
+    set fname [ut:fsbox -prompt "Save file:" -grab 1]
+    update
+    if [string compare $fname ""] { fileSave $fname }
+}
+# new for peers' list save
+proc aoe:listsave {} {  
+    set fname [ut:fsbox -prompt "Save file:" -grab 1]
+    update
+    if [string compare $fname ""] { listSave $fname }
+}
+
+proc aoe:revert {} {
+    fileRevert
+}
+
+proc aoe:loadBgpDump {} {
+    set fname [ut:fsbox -prompt "BGP Dump File:" -grab 1]
+    update
+    if [string compare $fname ""] { loadBgpDump $fname }
+}
+
+proc aoe:print {} {
+    global printCommand
+    set command $printCommand
+    set command [GetValue {Please input print command:} $command]
+    update
+    if [string compare $command ""] {
+	set printCommand $command
+	filePrint $printCommand
+    }
+}
+
+proc aoe:quit {} {
+    destroy .
+}
+
+proc aoe:irrUpdateCommandsDialog {} {
+    global IRR_Update
+    global temp
+
+    if {[winfo exists .irrUpdateCommandsDialog]} {
+	wm deiconify .irrUpdateCommandsDialog
+	return
+    }
+    set IRR_Update(Dialog) [toplevel .irrUpdateCommandsDialog]
+    wm title $IRR_Update(Dialog) "IRR Update Commands"
+
+    set i 0
+    set temp(Command,Selection) $IRR_Update(Command,Selection)
+    foreach registry $IRR_Update(Registries) {
+	set temp(Command,$registry) $IRR_Update(Command,$registry)
+	set lregistry [string tolower $registry]
+	set f [frame $IRR_Update(Dialog).$lregistry]
+	radiobutton $f.${lregistry}_radio \
+		-text [format "%-8s: " $registry] \
+		-value $i \
+		-variable temp(Command,Selection)
+	entry $f.entry \
+		-relief sunken \
+		-width 50 \
+		-textvar temp(Command,$registry)
+	pack $f.${lregistry}_radio $f.entry -side left
+	pack $f
+	incr i
+    }
+
+    button $IRR_Update(Dialog).ok \
+	    -text OK \
+	    -underline 0 \
+	    -command { 
+	set IRR_Update(Command,Selection) $temp(Command,Selection)
+	foreach register $IRR_Update(Registries) {
+	    set IRR_Update(Command,$register) $temp(Command,$register)
+	}
+	destroy $IRR_Update(Dialog) 
+    }
+    button $IRR_Update(Dialog).default \
+	    -text Default \
+	    -underline 0 \
+	    -command {
+	set temp(Command,Selection)    3
+	set temp(Command,ANS)          "mail auto-dbm@ans.net"
+	set temp(Command,CANET)        "mail auto-dbm@canet.net"
+	set temp(Command,MCI)          "mail auto-rr@mci.net"
+	set temp(Command,RADB)         "mail auto-dbm@radb.ra.net"
+	set temp(Command,RIPE)         "mail auto-dbm@ripe.net"
+    }
+    button $IRR_Update(Dialog).cancel \
+	    -text Cancel \
+	    -underline 0 \
+	    -command { destroy $IRR_Update(Dialog) }
+    pack $IRR_Update(Dialog).cancel \
+	 $IRR_Update(Dialog).default \
+	 $IRR_Update(Dialog).ok \
+	 -side right
+    bind $IRR_Update(Dialog) <Alt-o> \
+	    "focus .irrUpdateCommandsDialog.ok ; break"
+    bind $IRR_Update(Dialog) <Alt-c> \
+	    "focus .irrUpdateCommandsDialog.cancel ; break"
+    bind $IRR_Update(Dialog) <Return> { destroy $IRR_Update(Dialog) }
+}
+
+proc aoe:updateIRR { text } {
+    global IRR_Update
+    set registry [lindex $IRR_Update(Registries) $IRR_Update(Command,Selection)]
+    puts $IRR_Update(Command,$registry)
+    if [catch {open "|$IRR_Update(Command,$registry)" w} fileID] {
+       showError "Open pipe error with command: $IRR_Update(Command,$registry)"
+    } else {
+	if [catch {puts $fileID $text}] {
+	    showError "Update IRR fails!"
+	} else {
+	    showInfo "Update completed!"
+	}
+	close $fileID
+    }
+}
+
+proc aoe:updateIRR_Dialog {} {
+    global IRR_Update
+    global ChangedField Email yyyy yy mm dd YYYY YY MM DD 
+
+    if {[winfo exists .updateIRR_Dialog]} {
+	wm deiconify .updateIRR_Dialog
+	return
+    }
+    toplevel .updateIRR_Dialog
+    wm title .updateIRR_Dialog "Update IRR" 
+    # Destination
+    frame .updateIRR_Dialog.dest -relief groove -borderwidth 2
+    set register [lindex $IRR_Update(Registries) $IRR_Update(Command,Selection)]
+    label .updateIRR_Dialog.dest.label \
+	    -text "Command: $IRR_Update(Command,$register)" 
+    pack .updateIRR_Dialog.dest.label -side left
+    pack .updateIRR_Dialog.dest -fill x
+    # Policy
+    frame .updateIRR_Dialog.policy
+    text .updateIRR_Dialog.policy.text \
+	    -yscrollcommand [list .updateIRR_Dialog.policy.yscroll set] \
+	    -xscrollcommand [list .updateIRR_Dialog.policy.xscroll set] \
+	    -wrap none \
+	    -width 60 \
+	    -height 20 
+    scrollbar .updateIRR_Dialog.policy.yscroll \
+	    -orient vertical \
+	    -command [list .updateIRR_Dialog.policy.text yview]
+    scrollbar .updateIRR_Dialog.policy.xscroll \
+	    -orient horizontal \
+	    -command [list .updateIRR_Dialog.policy.text xview]
+    .updateIRR_Dialog.policy.text \
+	    insert end [.body.workingpolicy.text get 1.0 end]
+    # Find the appropreate position to insert changed field
+    set insertPos [.updateIRR_Dialog.policy.text search \
+	           -nocase -regexp "^changed:" 1.0 end]
+    # If not found, simply insert changed field at the end of the object
+    if { ![string length $insertPos] } {
+	set insertPos end
+    }
+    # If it's "replace mode", delete all the changed field lines
+    if { $ChangedField(Mode) == 1 } {
+	set matchPos $insertPos
+	while { 1 } {
+	    set matchPos [.updateIRR_Dialog.policy.text search \
+		    -nocase -regexp "^changed:" $matchPos end]
+	    if { ![string length $matchPos] } {
+		break
+	    }
+	    .updateIRR_Dialog.policy.text delete \
+		    "$matchPos linestart" \
+		    "$matchPos lineend + 1 char"
+	}
+    }
+    .updateIRR_Dialog.policy.text insert $insertPos \
+	    "[subst {[subst $ChangedField(Template)]}]\n"
+
+    aoe:colorSyntax  .updateIRR_Dialog.policy.text
+
+    pack .updateIRR_Dialog.policy.yscroll -side right -fill y
+    pack .updateIRR_Dialog.policy.xscroll -side bottom -fill x
+    pack .updateIRR_Dialog.policy.text -expand true -fill both
+    pack .updateIRR_Dialog.policy -expand true -fill both
+    # Buttons
+    frame .updateIRR_Dialog.button
+    button .updateIRR_Dialog.button.ok \
+	    -text {OK} \
+	    -underline 0 \
+	    -command {
+	             aoe:updateIRR [.updateIRR_Dialog.policy.text get 1.0 end]
+	             destroy .updateIRR_Dialog
+                     }
+    button .updateIRR_Dialog.button.cancel \
+	    -text {Cancel} \
+	    -underline 0 \
+	    -command { destroy .updateIRR_Dialog }
+    pack .updateIRR_Dialog.button.cancel .updateIRR_Dialog.button.ok \
+	    -side right 
+    pack .updateIRR_Dialog.button -fill x
+}
+
+proc aoe:policyTemplatesDialogLayout { i } {
+    global PolicyTemplate
+    frame .policyTemplatesDialog.template.$i
+    frame .policyTemplatesDialog.template.$i.left \
+	    -relief groove \
+	    -borderwidth 1
+    frame .policyTemplatesDialog.template.$i.right \
+	    -relief groove \
+	    -borderwidth 1
+    set upper [frame .policyTemplatesDialog.template.$i.right.upper]
+    set lower [frame .policyTemplatesDialog.template.$i.right.lower]
+    # Left part
+    radiobutton .policyTemplatesDialog.template.$i.left.radiobutton$i \
+	    -value $i \
+	    -variable PolicyTemplate(DeletingItem) \
+	    -command {
+	             .policyTemplatesDialog.button.delete configure \
+			     -state normal
+            }
+    entry .policyTemplatesDialog.template.$i.left.desc$i \
+	    -textvar PolicyTemplate($i,Description) \
+	    -width 27
+    pack .policyTemplatesDialog.template.$i.left.radiobutton$i -side left
+    pack    .policyTemplatesDialog.template.$i.left.desc$i \
+	    -side left \
+	    -fill x \
+	    -expand true
+    # Right upper part
+    frame $upper.labelframe
+    frame $upper.entryframe
+    label $upper.labelframe.label -text "import:"
+    text $upper.entryframe.entry -width 80 -height 3 -wrap none
+    $upper.entryframe.entry insert insert $PolicyTemplate($i,import)
+    pack $upper.labelframe.label -side top
+    pack $upper.entryframe.entry -fill both -expand true
+    pack $upper.labelframe -side left -fill y
+    pack $upper.entryframe -side left -fill both -expand true
+    # Right lower part
+    frame $lower.labelframe
+    frame $lower.entryframe
+    label $lower.labelframe.label -text "export:"
+    text $lower.entryframe.entry -width 80 -height 3 -wrap none
+    $lower.entryframe.entry insert insert $PolicyTemplate($i,export)
+    pack $lower.labelframe.label -side top
+    pack $lower.entryframe.entry -fill both -expand true
+    pack $lower.labelframe -side left -fill y
+    pack $lower.entryframe -side left -fill both -expand true
+    
+    pack .policyTemplatesDialog.template.$i.right.upper \
+	    .policyTemplatesDialog.template.$i.right.lower \
+	    -side top \
+	    -fill both -expand true
+    pack .policyTemplatesDialog.template.$i.left \
+	    .policyTemplatesDialog.template.$i.right \
+	    -side left \
+	    -fill both \
+	    -expand true
+    pack .policyTemplatesDialog.template.$i \
+	    -fill both -expand true
+}
+
+proc aoe:policyTemplatesDialog {} {
+    global PolicyTemplate
+    if {[winfo exists .policyTemplatesDialog]} {
+	wm deiconify .policyTemplatesDialog
+	return
+    }
+    toplevel .policyTemplatesDialog
+    wm title .policyTemplatesDialog "Policy templates"
+    # Some initial values
+    set PolicyTemplate(DeletingItem) -1
+    set PolicyTemplate(TempTotal) $PolicyTemplate(Total)
+    # Policy templates
+    frame .policyTemplatesDialog.template
+    for {set i 0} {$i < $PolicyTemplate(TempTotal)} {incr i} {
+	aoe:policyTemplatesDialogLayout $i
+    }
+    pack .policyTemplatesDialog.template -fill both -expand true
+    # Buttons
+    frame .policyTemplatesDialog.button
+    button .policyTemplatesDialog.button.add \
+	    -text {Add} \
+	    -underline 0 \
+	    -command {
+	set i $PolicyTemplate(TempTotal)
+	incr PolicyTemplate(TempTotal)
+	set PolicyTemplate($i,Description) ""
+	set PolicyTemplate($i,import)      ""
+	set PolicyTemplate($i,export)      ""
+	aoe:policyTemplatesDialogLayout $i
+	focus .policyTemplatesDialog.template.$i.left.desc$i
+    }
+    button .policyTemplatesDialog.button.delete \
+	    -text {Delete} \
+	    -underline 0 \
+	    -state disabled \
+	    -command {
+	destroy .policyTemplatesDialog.template.$PolicyTemplate(DeletingItem)
+    }
+    button .policyTemplatesDialog.button.ok \
+	    -text {OK} \
+	    -underline 0 \
+	    -command {
+	set nNewTotal 0
+	for {set i 0} {$i < $PolicyTemplate(TempTotal)} {incr i} {
+	    if [winfo exists .policyTemplatesDialog.template.$i] {
+		set PolicyTemplate($nNewTotal,Description) \
+			$PolicyTemplate($i,Description)
+		set PolicyTemplate($nNewTotal,import) \
+			[string trimright [.policyTemplatesDialog.template.$i.right.upper.entryframe.entry get 1.0 end]]
+		set PolicyTemplate($nNewTotal,export) \
+			[string trimright [.policyTemplatesDialog.template.$i.right.lower.entryframe.entry get 1.0 end]]
+		incr nNewTotal
+	    }
+	}
+	set PolicyTemplate(Total) $nNewTotal
+	createPolicyTemplateMenu
+	destroy .policyTemplatesDialog
+    }
+    button .policyTemplatesDialog.button.cancel \
+	    -text {Cancel} \
+	    -underline 0 \
+	    -command {destroy .policyTemplatesDialog}
+    pack .policyTemplatesDialog.button.add \
+	 .policyTemplatesDialog.button.delete \
+	 -side left
+    pack .policyTemplatesDialog.button.cancel \
+	 .policyTemplatesDialog.button.ok \
+	 -side right
+    pack .policyTemplatesDialog.button -fill x    
+}
+
+proc aoe:changedFieldDialog {} {
+    global ChangedField
+    if {[winfo exists .changedFieldDialog]} {
+	wm deiconify .changedFieldDialog
+	return
+    }
+    toplevel .changedFieldDialog
+    wm title .changedFieldDialog "changed field Configuration"   
+    # Some initial stuff
+    set ChangedField(Temp,Mode) $ChangedField(Mode)
+    set ChangedField(Temp,Template) $ChangedField(Template)
+    frame .changedFieldDialog.mode
+    label .changedFieldDialog.mode.label -text {Mode:}
+    radiobutton .changedFieldDialog.mode.append \
+	    -text Append \
+	    -value 0 \
+	    -variable ChangedField(Temp,Mode)
+    radiobutton .changedFieldDialog.mode.replace \
+	    -text Replace \
+	    -value 1 \
+	    -variable ChangedField(Temp,Mode)
+    pack .changedFieldDialog.mode.label -side left 
+    pack .changedFieldDialog.mode.append -side left
+    pack .changedFieldDialog.mode.replace -side left
+    pack .changedFieldDialog.mode 
+
+    frame .changedFieldDialog.template
+    label .changedFieldDialog.template.label \
+	    -text {changed field template:}
+    entry .changedFieldDialog.template.entry \
+	    -width 39 \
+	    -textvar ChangedField(Temp,Template)
+    pack .changedFieldDialog.template.label -side left
+    pack .changedFieldDialog.template.entry -side left
+    pack .changedFieldDialog.template
+
+    frame .changedFieldDialog.button
+    button .changedFieldDialog.button.ok \
+	    -text {OK} \
+	    -underline 0 \
+	    -command {
+	             set ChangedField(Mode) $ChangedField(Temp,Mode)
+	             set ChangedField(Template) $ChangedField(Temp,Template)
+	             destroy .changedFieldDialog
+                     }
+    button .changedFieldDialog.button.cancel \
+	    -text {Cancel} \
+	    -underline 0 \
+	    -command {destroy .changedFieldDialog}
+    pack .changedFieldDialog.button.cancel \
+	 .changedFieldDialog.button.ok \
+	 -side right
+    pack .changedFieldDialog.button -fill x -side bottom
+
+    pack .changedFieldDialog.template
+}
+
+proc aoe:colorSyntax { textwidget } {
+    global ColorSyntax
+    if { ! $ColorSyntax(Mode) } {
+	return
+    }
+    # Setup syntax color
+    $textwidget tag configure Attributes \
+	    -foreground $ColorSyntax(Color,Attributes)
+    $textwidget tag configure Values \
+	    -foreground $ColorSyntax(Color,Values)
+    $textwidget tag configure Keywords -foreground $ColorSyntax(Color,Keywords)
+    # High light attributes and values
+    set lastLine [$textwidget index end]
+    for {set i 1} {[$textwidget compare $i.0 != $lastLine]} {incr i} {
+	set line [$textwidget get $i.0 $i.end]
+	set pos [string first ":" $line]
+	if { $pos > 0 } {
+	    $textwidget tag add Attributes $i.0 $i.$pos
+	    $textwidget tag add Values $i.[expr $pos + 1] $i.end
+	} else {
+	    $textwidget tag add Values $i.0 $i.end
+	}
+    }
+    # High light keywords
+    foreach keyword $ColorSyntax(Keywords) {
+	set matchPos 1.0
+	while { 1 } {
+	    set matchPos [$textwidget search -nocase $keyword $matchPos end]
+	    if { ![string length $matchPos] } {
+		break
+	    } else {
+		set wordStartPos "$matchPos wordstart"
+		set wordEndPos "$matchPos wordend"
+		if {[string length $keyword] == \
+                [string length [$textwidget get $wordStartPos $wordEndPos]] } {
+	            $textwidget tag add Keywords $wordStartPos $wordEndPos
+	        }
+		set matchPos $wordEndPos
+	    }
+	}
+    }
+}
+
+
+###################
+# Define a menu bar
+set aoe(MenuBar) [frame .menubar -relief groove -borderwidth 1]
+
+# Define a "File" menu
+set aoe(MenuBar,File) \
+  [menubutton .menubar.file -text File -underline 0 -menu .menubar.file.menu]
+
+#menu .menubar.file.menu -tearoff 0
+set aoe(MenuBar,File,Menu) [menu .menubar.file.menu -tearoff 1]
+$aoe(MenuBar,File,Menu) add command \
+	-label {New} \
+	-underline 0 \
+	-command aoe:new
+$aoe(MenuBar,File,Menu) add command \
+	-label {Open           F3} \
+	-underline 0 \
+	-command aoe:open
+$aoe(MenuBar,File,Menu) add command \
+	-label {Save           F2} \
+	-underline 0 \
+	-command aoe:save
+$aoe(MenuBar,File,Menu) add command \
+	-label {Save Peer List} \
+	-underline 0 \
+	-command aoe:listsave
+$aoe(MenuBar,File,Menu) add separator
+$aoe(MenuBar,File,Menu) add command \
+	-label {Revert} \
+	-underline 0 \
+	-command aoe:revert
+$aoe(MenuBar,File,Menu) add separator
+$aoe(MenuBar,File,Menu) add command \
+	-label {Load BGP dump} \
+	-underline 5 \
+	-command aoe:loadBgpDump
+$aoe(MenuBar,File,Menu) add separator
+$aoe(MenuBar,File,Menu) add command \
+	-label Print \
+	-underline 0 \
+	-command aoe:print
+$aoe(MenuBar,File,Menu) add separator
+$aoe(MenuBar,File,Menu) add command \
+	-label {Quit        Alt-X} \
+	-underline 0 \
+	-command aoe:quit
+
+# Define a "Configure" menu
+set aoe(MenuBar,Configure) \
+	[menubutton .menubar.configure -text Configure \
+	                               -underline 0 \
+				       -menu .menubar.configure.menu]
+#menu .menubar.configure.menu -tearoff 0
+set aoe(MenuBar,Configure,Menu) [menu .menubar.configure.menu -tearoff 1]
+$aoe(MenuBar,Configure,Menu) add command \
+	-label "IRR update commands" \
+	-underline 0 \
+	-command aoe:irrUpdateCommandsDialog
+$aoe(MenuBar,Configure,Menu) add command \
+	-label "Policy templates" \
+	-underline 7 \
+	-command aoe:policyTemplatesDialog
+$aoe(MenuBar,Configure,Menu) add command \
+	-label "changed field" \
+	-underline 0 \
+	-command aoe:changedFieldDialog
+$aoe(MenuBar,Configure,Menu) add separator
+$aoe(MenuBar,Configure,Menu) add check \
+	-label "Color Syntax" \
+	-underline 6 \
+	-variable ColorSyntax(Mode) \
+	-command { listPeer [.body.aspeer.listbox.list curselection] }
+
+# Display menu
+pack $aoe(MenuBar,File) $aoe(MenuBar,Configure) -side left
+pack $aoe(MenuBar) -side top -fill x
+
+
+###############
+# Define a body
+set aoe(Body) [frame .body]
+
+# Define a AS peer 
+frame .body.aspeer -relief groove -borderwidth 1
+
+# Define a AS peer listbox
+frame .body.aspeer.listbox
+
+# Define a AS peer list
+listbox .body.aspeer.listbox.list \
+	-width 20 \
+	-yscrollcommand [list .body.aspeer.listbox.yscroll set]
+
+# Define a y-scroll bar attacted to the listbox
+scrollbar .body.aspeer.listbox.yscroll \
+	-orient vertical \
+	-command [list .body.aspeer.listbox.list yview] 
+
+# Display the AS peer list
+pack .body.aspeer.listbox.yscroll \
+	-side right \
+	-fill y
+pack .body.aspeer.listbox.list \
+	-side left \
+	-fill y 
+
+# Display the AS peer listbox
+pack .body.aspeer.listbox \
+	-side top \
+	-fill y \
+	-expand true
+
+# Define aspeer buttons
+frame .body.aspeer.button
+
+# Define buttons for peer listbox
+button .body.aspeer.button.delete -text {Delete Peer} \
+	-width 9 \
+	-command {deletePeer [.body.aspeer.listbox.list curselection]}
+button .body.aspeer.button.add -text {Add Peer} \
+	-width 6 \
+	-command {
+                 set peer [GetValue {Please input a new peer AS:} {AS}]
+                 update
+                 set peer [string toupper $peer]
+                 if [string compare $peer ""] {
+		     if {[string compare [string range $peer 0 1] "AS"] == 0} {
+			 addPeer $peer
+		     } else {
+			 showError "AS number should start with \"AS\""
+		     }
+		 }
+	}
+
+# Display the buttons
+pack .body.aspeer.button.delete .body.aspeer.button.add \
+	-side left \
+	-fill x \
+	-expand true
+
+# Display the aspeer buttons
+pack .body.aspeer.button -fill x
+
+# Display the whole AS peer
+pack .body.aspeer -side left -fill y
+
+
+# Define a working text widget
+frame .body.workingpolicy 
+text .body.workingpolicy.text \
+	-yscrollcommand [list .body.workingpolicy.yscroll set] \
+	-xscrollcommand [list .body.workingpolicy.xscroll set] \
+	-state disabled \
+	-wrap none \
+	-height 10
+scrollbar .body.workingpolicy.yscroll \
+	-orient vertical \
+	-command [list .body.workingpolicy.text yview]
+scrollbar .body.workingpolicy.xscroll \
+	-orient horizontal \
+	-command [list .body.workingpolicy.text xview]
+pack .body.workingpolicy.yscroll -side right -fill y
+pack .body.workingpolicy.xscroll -side bottom -fill x
+pack .body.workingpolicy.text -fill both -expand true
+pack .body.workingpolicy -fill both -expand true
+
+frame .body.workingpolicybutton
+#button .body.workingpolicybutton.delete -text Delete \
+#	-command deletePolicyText
+checkbutton .body.workingpolicybutton.edit \
+	-text Edit \
+	-relief raised \
+	-pady 5 -padx 10 \
+	-command editPolicyText
+checkbutton .body.workingpolicybutton.show \
+	-relief raised \
+	-pady 5 \
+	-padx 10 \
+	-text {Peer AS} \
+	-relief raised \
+	-pady 5 -padx 10 \
+	-command showPolicyText
+button .body.workingpolicybutton.commit \
+	-text {Update IRR} \
+	-command aoe:updateIRR_Dialog
+#pack .body.workingpolicybutton.delete \
+pack .body.workingpolicybutton.edit .body.workingpolicybutton.show \
+        -side left \
+	-fill x 
+pack .body.workingpolicybutton.commit -side right -fill x
+pack .body.workingpolicybutton -fill x 
+
+# Define a dummy frame
+frame .body.dummy -height 10
+pack .body.dummy -fill x
+
+# Define a template area for text display
+frame .body.templatearea 
+
+# Define a label for def text area
+label .body.templatearea.deflabel -relief groove
+pack .body.templatearea.deflabel -fill x
+
+# Define a defination text widget
+frame .body.templatearea.def 
+text .body.templatearea.def.text \
+	-yscrollcommand [list .body.templatearea.def.yscroll set] \
+	-xscrollcommand [list .body.templatearea.def.xscroll set] \
+	-wrap none \
+	-height 5 
+scrollbar .body.templatearea.def.yscroll \
+	-orient vertical \
+	-command [list .body.templatearea.def.text yview]
+scrollbar .body.templatearea.def.xscroll \
+	-orient horizontal \
+	-command [list .body.templatearea.def.text xview]
+pack .body.templatearea.def.yscroll -side right -fill y
+pack .body.templatearea.def.xscroll -side bottom -fill x
+pack .body.templatearea.def.text -fill x -expand true
+pack .body.templatearea.def -fill x
+
+# Define a lable for neighbor text area
+label .body.templatearea.neighborlabel -relief groove
+pack .body.templatearea.neighborlabel -fill x
+
+# Define a neighbor (peer) text widget
+frame .body.templatearea.neighbor
+text .body.templatearea.neighbor.text \
+	-yscrollcommand [list .body.templatearea.neighbor.yscroll set] \
+        -xscrollcommand [list .body.templatearea.neighbor.xscroll set] \
+        -state disabled \
+	-wrap none \
+	-height 5
+scrollbar .body.templatearea.neighbor.yscroll \
+	-orient vertical \
+        -command [list .body.templatearea.neighbor.text yview]
+scrollbar .body.templatearea.neighbor.xscroll \
+	-orient horizontal \
+        -command [list .body.templatearea.neighbor.text xview]
+pack .body.templatearea.neighbor.yscroll -side right -fill y
+pack .body.templatearea.neighbor.xscroll -side bottom -fill x
+pack .body.templatearea.neighbor.text -fill x -expand true
+pack .body.templatearea.neighbor -fill x
+
+
+# Display the template area
+pack .body.templatearea -fill both -expand true -side left
+
+
+# Define buttons
+frame .body.templatebutton -relief groove -borderwidth 3
+label .body.templatebutton.policy \
+	-text Policy: \
+	-relief groove
+checkbutton .body.templatebutton.export \
+	-text Export \
+	-relief raised \
+	-pady 4 \
+	-command { listPeer [.body.aspeer.listbox.list curselection] }
+checkbutton .body.templatebutton.import \
+	-text Import \
+	-relief raised \
+	-pady 4 \
+	-command { listPeer [.body.aspeer.listbox.list curselection] }
+#checkbutton .body.templatebutton.style \
+#	-text {ASxx} \
+#	-relief raised \
+#	-pady 4 \
+#	-command { listPeer [.body.aspeer.listbox.list curselection] }
+menubutton .body.templatebutton.category \
+	-text Templates \
+	-relief raised \
+	-menu .body.templatebutton.category.menu
+menu .body.templatebutton.category.menu 
+.body.templatebutton.category.menu add radio \
+	-label {from IRR} \
+	-value 0 \
+	-command { listPeer [.body.aspeer.listbox.list curselection] } \
+	-variable categoryVar ;# Have to be added manually
+.body.templatebutton.category.menu add radio \
+	-label {from BGP Dump} \
+	-value 1 \
+	-command { listPeer [.body.aspeer.listbox.list curselection] } \
+	-variable categoryVar ;# Have to be added manually
+.body.templatebutton.category.menu add radio \
+	-label {from Peer`s aut-num} \
+	-value 2 \
+	-command { listPeer [.body.aspeer.listbox.list curselection] } \
+	-variable categoryVar ;# Have to be added manually
+.body.templatebutton.category.menu add separator
+button .body.templatebutton.append \
+	-text {Append} \
+	-command {
+                 updatePolicy append [.body.aspeer.listbox.list curselection]
+                 }
+button .body.templatebutton.replace \
+	-text {Replace} \
+	-command {
+                 updatePolicy replace [.body.aspeer.listbox.list curselection]
+                 }
+button .body.templatebutton.quit -text Quit -command exit
+button .body.templatebutton.logo \
+	-bitmap info \
+	-fg blue \
+	-cursor hand2 \
+	-height 60 \
+	-command {showInfo "aoe (Autonomous system Object Editor) is part 
+of RAToolSet.  The newest version is always 
+available from ftp://ftp.isi.edu/ra/RAToolSet/
+Please send your comments to ratoolset@ISI.EDU"}
+pack .body.templatebutton.policy   \
+     .body.templatebutton.import   \
+     .body.templatebutton.export   \
+     .body.templatebutton.category \
+     .body.templatebutton.append   \
+     .body.templatebutton.replace  \
+     -side top \
+     -fill x
+pack .body.templatebutton.logo -side top -fill both -expand true    
+
+pack .body.templatebutton -fill y
+
+# Display body
+pack $aoe(Body) -fill both -expand true
+
+
+######################
+# Define a status line
+set aoe(StatusLine) [frame .statusline -relief groove -borderwidth 1]
+set aoe(StatusLine,Content) \
+	[label .statusline.content \
+	 -text {Querying data from server, please wait.......}]
+
+# Display the status line
+pack $aoe(StatusLine,Content) -side left -fill x 
+pack $aoe(StatusLine) -side bottom -fill x
+
+
+
+#######################
+# Do some bindings here
+bind .body.aspeer.listbox.list <ButtonRelease-1> { 
+    listPeer [%W curselection]  ;# a C++ written command
+}
+
+bind all <Alt-x> aoe:quit
+bind all <F2>    aoe:save
+bind all <F3>    aoe:open
+
+# displays some hints on status line
+StatusLine:init $aoe(StatusLine,Content)
+StatusLine:set .menubar.file "Save, Load, Load BGP dump, Print, Quit"
+StatusLine:set .menubar.configure "IRR update commands, Policy templates, changed field, Color Syntax"
+StatusLine:set .body.aspeer.button.delete "Delete a Peer AS"
+StatusLine:set .body.aspeer.button.add "Add a Peer AS"
+StatusLine:set .body.workingpolicybutton.edit "Edit the aut-num object above"
+StatusLine:set .body.workingpolicybutton.show "Toggle displaying aut-num object between current AS and peer AS"
+StatusLine:set .body.workingpolicybutton.commit "Update aut-num object above to IRR"
+StatusLine:set .body.templatebutton.import "Display/hide import attributes"
+StatusLine:set .body.templatebutton.export "Display/hide export attribute"
+StatusLine:set .body.templatebutton.category "Select a template"
+StatusLine:set .body.templatebutton.append {Append policies generated in "Policy Generation Area" into aut-num object in "aut-num Area"}
+StatusLine:set .body.templatebutton.replace {Replace policies of aut-num object in "aut-num Area" with policies generated in "Policy Generation Area"}
+StatusLine:set .body.templatebutton.logo "About aoe and RAToolSet"
+StatusLine:set .body.aspeer.listbox.list {This is the "Peer List", click the buttons below to add or delete peers}
+StatusLine:set .body.workingpolicy.text {This is the "aut-num Area", click the "Edit" button below for editing if necessary}
+StatusLine:set .body.templatearea.def.text {This is the "Policy Generation Area", click to edit if necessary}
+StatusLine:set .body.templatearea.neighbor.text {This is the "Peer Area" which displays policies of the peer AS selected from "Peer List"}
+StatusLine:set .statusline "This is just a status line, move your mouse some places else, thanks"
