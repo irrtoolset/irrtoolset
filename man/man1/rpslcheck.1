@@ -67,13 +67,13 @@ rpslcheck syntax-checks the aut-num object for <as-no> registered
 in the Internet Routing Registry (IRR). If <as-no> is not specified,
 object is expected as a standard input. 
 Rpslcheck only checks the syntax of policy related attributes 
-such as as-in, and default.
+such as import, export and default.
 If an aut-num passes rpslcheck's syntax checking,
 it will not create cause errors to any of the tools in RAToolSet, 
 such as RtConfig.
 Future versions of this tool will generate better error messages and do
 more than just syntax checking.
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -86,8 +86,10 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an radbserver connection to host <host-name>.
+The default is whois.radb.net
 .IP "\-p <port-no>"
 Establish an radbserver connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
@@ -137,6 +139,17 @@ Command line options take precedence over environment variables.
 	Error:                            ^^^^^^^^^^^^^^
 .fi
 .PP
+.SH ERROR AND WARNING MESSAGES
+Error: no object for AS <as_no>
+.RS
+.PP
+Aut-num object for <as_no> is not found in specified IRR for specified source. You could mistype the source, hostname or AS-number, or the object is truly non-existent.
+.PP
+.RE
+For more error descriptions, please see
+.B
+Errors
+manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
 

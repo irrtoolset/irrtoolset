@@ -106,7 +106,7 @@ In addition it prints for each neighbour the aggregates that can be
 advertised to it without violating the policy constraints of ASes
 within the specified radius .
 
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -119,12 +119,14 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an radbserver connection to host <host-name>.
+The default is whois.radb.net.
 .IP "\-p <port-no>"
 Establish an radbserver connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
-the old ripe server.
+the ripe server.
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
@@ -213,5 +215,25 @@ Command line options take precedence over environment variables.
 
 .fi
 .PP
+.SH ERROR AND WARNING MESSAGES
+Unknown protocol!
+.RS
+.PP
+Connection to IRR host failed. This can be caused by various reasons, see Errors manpage, IRR Communication errors.
+.PP
+.RE
+No autnum for AS <source_as>
+.PP
+Warning: No autnum record found for AS
+.RS
+.PP
+Aut-num object for <source_as> cannot be found on specified IRR for specified source(s). You might mistype the source, host or AS-number, or the object is non-existent.
+.PP
+.RE
+For more error descriptions, please see 
+.B
+Errors 
+manual page.
 .SH AUTHORS
 Satish Kumar        <kkumar@isi.edu>
+

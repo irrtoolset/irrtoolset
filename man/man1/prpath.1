@@ -66,7 +66,7 @@ prpath
 prpath enumerates a list of paths between <as-no>
 and <destination-specification>.
 <destination-specification> can be an AS number,
-an IP address, a host name or an address prefix.
+an IP address or an address prefix.
 If <as-no> is not specified it is deduced for your
 system from the IP address of your host and IRR. If no
 <destination-specification> is given prpath goes into a command loop where
@@ -75,7 +75,7 @@ it inputs <destination-specification> from stdin, one at a line.
 prpath ignores error and warning messages due to communication to the
 database server or parsing policy objects.
 Please see \-ignore_errors and \-report_errors options below.
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -88,12 +88,14 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an radbserver connection to host <host-name>.
+The default is whois.radb.net.
 .IP "\-p <port-no>"
 Establish an radbserver connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
-the old ripe server.
+the ripe server.
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
@@ -113,7 +115,7 @@ database server or parsing policy objects.
 .SH OTHER OPTIONS
 .RS
 .IP "\-as <as-no>"
-Syntax check the aut-num object for <as-no>.
+Use AS <as-no> as a source AS.
 .IP "\-mpl <integer>"
 If the shortest path between the source and the destination is N hops,
 report all paths that are shorter than N + <integer>.
@@ -140,7 +142,32 @@ Command line options take precedence over environment variables.
 	AS2819 AS286 AS2914
 .fi
 .PP
+.SH ERROR AND WARNING MESSAGES
+Warning: No autnum record found for AS
+.RS
+.PP
+The AS specified in nonexistent in the specified Database for specified soure list
+.PP
+.RE
+Unable to lookup destination AS
+.RS
+.PP
+If you do not specify which AS is destination AS, prpath tries to query IRR to get originating autnum. If route is non-existent, you get this error.
+If you specify <ipv4_prefix> as <destination>, prpath will try to find origin of this prefix. If you specify <ipv4_address> as <destination>, prpath will try to find origin of prefix <ipv4_address>/32.
+.PP
+.RE
+Unknown protocol!
+.PP
+.RS
+Connection to IRR server failed. This can be caused by various reasons, see Errors manpage, IRR Communication errors.
+.RE
+.PP
+For more error descriptions, please see
+.B
+Errors manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
+.PP
+Katie Petrusha <katie@ripe.net>
 .SH ACKNOWLEDGEMENTS
 This is enhanced version of RIPE's prpath tool.

@@ -55,7 +55,7 @@
 .\"//  Author(s): WeeSan Lee <wlee@isi.edu>
 .\"
 .\"
-.TH aoe 1 "December 2, 1996" "WeeSan Lee" RAToolSet
+.TH aoe 1 "December 2, 1996" "WeeSan Lee" IRRToolSet
 .SH NAME
 aoe (Autonomous System Object Editor)
 .SH SYNOPSIS
@@ -65,22 +65,25 @@ aoe (Autonomous System Object Editor)
 .PP
 aoe is a C++/Tcl/Tk program that displays the aut-num object for <as-no>.
 aoe organizes the display into four parts:
+.PP
 a "Peer List" on the left hand side
-for listing peer ASes and one of them will be selected to restrict policy 
-editing only to that peer;
+for listing peer ASes and one of them will be selected to restrict policy editing only to that peer;
+.PP
 a "Policy Generation Area" on the middle right hand side
-for editing the as-in, as-out and default attributes
+for editing the import, export and default attributes
 for the selected peer;
+.PP
 a "Peer's Policy Area" on the bottom right hand side
 for displaying the selected peer's policy for your AS; 
-and  
+.PP
 an "aut-num Area" on the top right hand side
 for displaying the aut-num object for  <as-no>
 and for hand editing attributes
 including the administrative attributes.
 aoe simplifies the creation of aut-num objects 
 by employing some heuristics to  
-add and modify as-in and as-out attributes.
+add and modify import and export attributes.
+.PP
 For example, 
 given a BGP dump from a router inside <as-no>, 
 aoe parses the AS_PATH attributes in the BGP dump,
@@ -89,6 +92,7 @@ by taking the first AS number in the AS_PATH attributes,
 and the import policies for each peer AS
 by taking the last AS number in the AS_PATHs that start with the peer's
 AS number.
+.PP
 A template based mechanism is provided
 for users
 to create their own heuristics
@@ -97,9 +101,9 @@ aoe can register the aut-num object in the IRR
 after editing is done.
 
 If <as-no> is not specified it is deduced for your system from the 
-IP address of your host and IRR.
+IP address of your host and IRR. If originating <as-no> of your host's IP address is not found in IRR, aoe will issue the error.
 
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -112,12 +116,14 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an RAWhoisd connection to host <host-name>.
+The default is whois.radb.net.
 .IP "\-p <port-no>"
 Establish an RAWhoisd connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
-the old ripe server.
+the ripe server.
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 .IP \-rusage
@@ -159,7 +165,7 @@ Each AS number in this list is followed by the following indications:
 IRR, BGP, and NEW.
 The indication IRR means that the peer is derived from the policy in the
 aut-num object by inspecting 
-the as-in and as-out attributes.
+the import and export attributes. Please note that as-sets and peering sets fill be expanded to get actual peers.
 The indication BGP means that the peer is derived from
 an AS_PATH attribute in a BGP dump.
 The indication NEW means that the peer is created manually by the user.
@@ -188,12 +194,12 @@ This button is located at the bottom right corner of the
 object in the "aut-num Area" in the IRR.
 .IP Import
 This is a toggle button and located on the right hand side of 
-"Policy Generation Area".  It allows users to display/hide the as-in
+"Policy Generation Area".  It allows users to display/hide the import
 attributes of the current working aut-num object.  It is useful when
 a user prefers working only on the export policies.
 .IP Export
 This is a toggle button and located on the right hand side of 
-"Policy Generation Area".  It allows users to display/hide the as-out
+"Policy Generation Area".  It allows users to display/hide the export
 attributes of the current working aut-num object.  It is useful when
 a user prefers working only on the import policies.
 .IP Templates
@@ -244,7 +250,7 @@ the policies for the selected AS in the "aut-num Area"
 with the policies in the "Policy Generation Area".
 .IP "aoe logo"
 This button is located at the right bottom corner of aoe display.
-It displays the down-loading information of aoe and RAToolSet tools.
+It displays the down-loading information of aoe and IRRToolSet tools.
 .SH MENUS
 .PP
 .RS
@@ -282,7 +288,7 @@ aoe will pipe the aut-num object in the "aut-num Area"
 to the update command for the selected registry.
 .IP "Configure/Policy templates"
 There are "Add" and "Delete" buttons.  The "Add" button is used to create 
-new templates for import (i.e. as-in) and export (i.e. as-out) policies.  
+new templates for import and export policies.  
 When the "Add" button is clicked,
 a blank template will be appended to the existing templates.  
 It allows the users to type in a new policy template.
@@ -345,10 +351,69 @@ click on the "Update IRR" button to register your aut-num object.
 .SH FILES
 aoe creates a ~/.aoerc file which stores the templates, the update
 commands and the printing command.  This file is not meant for hand editing.
+.SH ERROR AND WARNING MESSAGES
+AS number should start with "AS"
+.RS
 .PP
+Syntax error with as-number. AS-number here should be AS<integer>.
+.PP
+.RE
+Please point the peer in the listbox
+.RS
+.PP
+You are trying to execute an action on peer without a peer being selected. Select the peer in the Peer List area on the left.
+.PP
+.RE
+Peer list is empty now!
+.RS
+.PP
+No peers to work with, because the peer list if empty. You can add them by Add Peer command or generate this list from BGP dump (by File->Load BGP Dump command).
+.PP
+.RE
+Open pipe error with command: <command>
+.RS
+.PP
+TCL interpreter failed to execute the command <command>
+.PP
+.RE
+Printing error!
+.RS
+.PP
+TCL interpreter failed to execute printing command
+.PP
+.RE
+Writing setting error into resource file!
+.RS
+.PP
+Failed to write into the resource files. Check file permissions.
+.PP
+.RE
+Writing comment error into resource file!
+.RS
+.PP
+Failed to write into the resource files. Check file permissions.
+.PP 
+.RE
+No peer to be displayed!
+.RS
+.PP
+You are trying to display the policy for the peer, but peer list is empty and aoe couldn't pick up any peer from there.
+.RE
+.PP
+Nothing to be deleted!
+.RS
+.PP
+You are trying to delete the peer, but Peer List is empty.
+.PP
+.RE
+.PP
+For more error descriptions, please see 
+.B
+Errors 
+manual page.
 .SH AUTHORS
 WeeSan Lee <wlee@isi.edu>
 .PP
 Cengiz Alaettinoglu <cengiz@isi.edu>
 .PP
-Kateryna Petrusha <katie@ripe.net>
+Katie Petrusha <katie@ripe.net>

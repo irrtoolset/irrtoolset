@@ -73,7 +73,7 @@ evaluates the resulting expression
 and outputs the result.
 Instead of a command loop,
 the expression can be given as an argument.
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -86,8 +86,10 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an radbserver connection to host <host-name>.
+The default is whois.radb.net.
 .IP "\-p <port-no>"
 Establish an radbserver connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
@@ -168,5 +170,27 @@ Expand all and evaluate
 ({192.237.125.0/24, 192.92.56.0/24, 196.2.41.0/24, 196.2.40.0/24})
 .fi
 
+.SH ERROR AND WARNING MESSAGES
+Error: Internal error.
+.RS
+.PP
+Fails if couldn't evaluate the filter to resulting normal expression.
+.PP
+.RE
+Unknown protocol!
+.RS
+.PP
+Connection to IRR server failed. This can be caused by various reasons, please see Errors manpage, IRR Communication errors.
+.PP
+.RE
+***Error: badly formed filter.
+.RS
+.PP
+syntax error in RPSL filter specification. 
+.PP
+.RE
+For more error descriptions, please see 
+.B
+Errors manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>

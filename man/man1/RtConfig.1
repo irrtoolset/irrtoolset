@@ -74,7 +74,7 @@ except for the lines that start with "@RtConfig"
 which instruct RtConfig to perform special operation
 (please see "RtConfig Commands" Section below).
 RtConfig establishes an radbserver connection to query IRR.
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -87,8 +87,10 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an radbserver connection to host <host-name>.
+The default is whois.radb.net.
 .IP "\-p <port-no>"
 Establish an radbserver connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
@@ -173,6 +175,8 @@ This option only affects cisco configurations. It forces * and + operators
 in AS path regular expressions to be interpreted as ~* and ~+ operators.
 This is useful if you get as path access lists with real long lines, it
 will force them to multiple lines.
+.IP "\-cisco_empty_lists"
+This option only affects Cisco configurations. It forces interpreting ANY/NOT ANY prefix filters as universal/empty set of prefixes, and produces access lists for them. By default only warning is issued.
 .RE
 .SH ENVIRONMENT VARIABLES
 .RS
@@ -497,5 +501,89 @@ Gated Configuration Generation:
 As path regular expressions generated for gated requires ISI's
 patches to gated's regular expressions.
 .RE
+.SH ERROR AND WARNING MESSAGES
+.PP
+Error: Unknown RtConfig/RSd command.
+.RS
+.PP
+Wrong rsd command specified, see manpage for details on rsd commands supported.
+.RE
+.PP
+Error in template file
+.RS
+.PP
+Wrong RtConfig command, syntax or arguments to RtConfig command.
+.PP
+.RE
+Error: config file format <config_format> is not supported...
+.RS
+.PP
+Unknown config format specified. Supported formats are:
+cisco, junos, bcc, gated, rsd.
+.PP
+.RE
+Error: no object for router: <router_name>
+.RS
+.PP
+inet-rtr object cannot be found in the specified IRR for specified source. It can be a typo or a real error, and the object is non-existent.
+.PP
+.RE
+Error: no object for AS <as_number>
+.RS
+.PP
+aut-num object cannot be found in the specified IRR for specified source. It can be a typo or a real error, and the object is non-existent.
+.PP
+.RE
+Unknown operator: 
+.RS
+.PP
+Syntax error in format specification, check the description of the printPrefixes command.
+.PP
+.RE
+Error: Badly formed prefix filter
+.RS
+.PP
+Syntax error in prefix filter specification.
+See RFC [2622] (Address prefix filters)
+.PP
+.RE
+Error: Badly formed AS_path filter
+.RS
+.PP
+Syntax error in AS_path filter specification.
+See RFC [2622] (AS_path filters)
+.PP
+.RE
+Warning: filter matches ANY/NOT ANY
+.RS
+.PP
+Filter is empty or universal, i.e. matches none or all prefixes respectively.
+.PP
+.RE
+Warning: AS <as_no> has no import(export) policy for AS <peer_as> <peer_IP> at <local_IP>
+.RS
+.PP
+The matching import(export) policy cannot be found in the aut-num object for <as_no>, for peering aut-num <peer_as> with <peer_IP> at <local_IP> address. It can be a typo or your policy is incomplete. Check your aut-num object.
+.PP
+.RE
+Warning: AS <as_no> has no default policy for AS <peer_as>
+.RS
+.PP
+The matching default policy cannot be found int the aut-num object for <as_no>
+.PP
+.RE
+Warning: unimplemented method <rp_attr>.<method>
+.PP
+.RS
+.PP
+Unimplemented method for this rp_attribute is specified. This error indicates that method is correctly specified in RPSL dictionary, but has no actual implementation for RtConfig.
+.PP
+.RE
+.PP
+For more error descriptions, please see
+.B
+Errors 
+manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
+Katie Petrusha <katie@ripe.net>
