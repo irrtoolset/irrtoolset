@@ -61,6 +61,7 @@
 #define FILTER_HH
 
 #include "config.h"
+#include <sstream> // For class ostream
 #include <cassert>
 extern "C" {
 #ifdef HAVE_MALLOC_H
@@ -81,14 +82,13 @@ extern "C" {
 
 typedef unsigned int ASt;
 
-class ostream;
 class AttrRPAttr;
 class AttrMethod;
 
 class Filter {
 public:
    virtual ~Filter() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const = 0;
 #ifdef DEBUG
    virtual const char *className(void) const = 0;
@@ -98,7 +98,7 @@ public:
 #endif // DEBUG
 };
 
-inline ostream &operator<<(ostream &out, const Filter &f) {
+inline std::ostream &operator<<(std::ostream &out, const Filter &f) {
    return f.print(out);
 }
 
@@ -117,7 +117,7 @@ public:
       delete f1;
       delete f2;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterOR(*this);
    } 
@@ -149,7 +149,7 @@ public:
       delete f1;
       delete f2;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterAND(*this);
    } 
@@ -178,7 +178,7 @@ public:
    virtual ~FilterNOT() {
       delete f1;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterNOT(*this);
    } 
@@ -208,7 +208,7 @@ public:
       delete f1;
       delete f2;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterEXCEPT(*this);
    } 
@@ -247,7 +247,7 @@ public:
       if (f1)
 	 delete f1;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterMS(*this);
    } 
@@ -271,7 +271,7 @@ public:
       asno = asn;
    }
    virtual ~FilterASNO() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterASNO(*this);
    } 
@@ -293,7 +293,7 @@ public:
       asname = sid;
    }
    virtual ~FilterASNAME() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterASNAME(*this);
    } 
@@ -315,7 +315,7 @@ public:
       rsname = sid;
    }
    virtual ~FilterRSNAME() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterRSNAME(*this);
    } 
@@ -337,7 +337,7 @@ public:
       rtrsname = sid;
    }
    virtual ~FilterRTRSNAME() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterRTRSNAME(*this);
    } 
@@ -359,7 +359,7 @@ public:
       fltrname = sid;
    }
    virtual ~FilterFLTRNAME() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterFLTRNAME(*this);
    } 
@@ -367,7 +367,7 @@ public:
    virtual const char *className(void) const {
       return "FilterFLTRNAME";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "fltrname = \"" << fltrname << "\"" << endl;
    }
 #endif // DEBUG
@@ -378,7 +378,7 @@ public:
    FilterANY() {
    }
    virtual ~FilterANY() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterANY(*this);
    } 
@@ -397,7 +397,7 @@ public:
    FilterPeerAS() {
    }
    virtual ~FilterPeerAS() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterPeerAS(*this);
    } 
@@ -424,7 +424,7 @@ public:
       re = b.re->dup();
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterASPath(*this);
    } 
@@ -444,7 +444,7 @@ public:
    }
    virtual ~FilterPRFXList() {}
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterPRFXList(*this);
    } 
@@ -457,6 +457,73 @@ public:
    }
 #endif // DEBUG
 };
+
+class FilterMPPRFXList: public Filter, public MPPrefixRanges {
+public:
+   FilterMPPRFXList() {
+   }
+   FilterMPPRFXList(const MPPrefixRanges &list) {
+     (MPPrefixRanges &) *this = list;
+   }
+   virtual ~FilterMPPRFXList() {}
+
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterMPPRFXList(*this);
+   } 
+   virtual FilterPRFXList* get_v4();
+   virtual FilterMPPRFXList* get_v6();
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterMPPRFXList";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << *this << endl;
+   }
+#endif // DEBUG
+};
+
+class FilterAFI: public Filter {
+
+public:
+   Filter *f;
+   ItemList *afi_list;
+
+public:
+   FilterAFI() {
+   }
+   FilterAFI(ItemList *_afi_list, Filter *_f) :
+     afi_list(_afi_list),
+     f(_f)
+   {
+   }
+   FilterAFI(ItemAFI *_afi, Filter *_f) :
+     f(_f) {
+     afi_list = new ItemList;
+     afi_list->append(_afi);
+   }
+   FilterAFI(const FilterAFI &pt) {
+      f = (Filter *)pt.f->dup();
+      afi_list = (ItemList *)pt.afi_list->dup();
+   }
+   virtual ~FilterAFI() {}
+
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Filter* FilterAFI::dup() const {
+      return new FilterAFI(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterAFI";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << *this << endl;
+   }
+#endif // DEBUG
+
+
+
+}; 
 
 class FilterRPAttribute: public Filter {
 public: 
@@ -479,7 +546,7 @@ public:
 	 delete args;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterRPAttribute(*this);
    } 
@@ -518,7 +585,7 @@ public:
       delete prfxs;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterHAVE_COMPONENTS(*this);
    } 
@@ -542,7 +609,7 @@ public:
       delete prfxs;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterEXCLUDE(*this);
    } 
@@ -553,24 +620,79 @@ public:
 #endif // DEBUG
 };
 
+//// the following is needed by route6 class ///////////////////////////
 
-////// The following is needed by <peering> ///////////////////////////
+class FilterV6HAVE_COMPONENTS: public Filter {
+public:
+   FilterMPPRFXList *prfxs;
+public:
+   FilterV6HAVE_COMPONENTS(FilterMPPRFXList *p) : prfxs(p) {
+   }
+   FilterV6HAVE_COMPONENTS(const FilterV6HAVE_COMPONENTS &b) {
+      prfxs = new FilterMPPRFXList(*b.prfxs);
+   }
+   virtual ~FilterV6HAVE_COMPONENTS() {
+      delete prfxs;
+   }
+
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterV6HAVE_COMPONENTS(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterV6HAVE_COMPONENTS";
+   }
+#endif // DEBUG
+};
+
+class FilterV6EXCLUDE: public Filter {
+public:
+   FilterMPPRFXList *prfxs;
+public:
+   FilterV6EXCLUDE(FilterMPPRFXList *p) : prfxs(p) {
+   }
+   FilterV6EXCLUDE(const FilterV6EXCLUDE &b) {
+      prfxs = new FilterMPPRFXList(*b.prfxs);
+   }
+   virtual ~FilterV6EXCLUDE() {
+      delete prfxs;
+   }
+
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterV6EXCLUDE(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterV6EXCLUDE";
+   }
+#endif // DEBUG
+};
+
+
+
+////// The following is needed by <peering/mp-peering> ///////////////////////////
 
 class FilterRouter : public Filter {
 public:
-   IPAddr *ip;
+   MPPrefix *ip;
 public:
-   FilterRouter(IPAddr *_ip): ip(_ip) {
+   FilterRouter(IPAddr *_ip) {
+     ip = new MPPrefix((PrefixRange *) _ip);
+   }
+   FilterRouter(IPv6Addr *_ip) {
+     ip = new MPPrefix((IPv6PrefixRange *) _ip);
    }
    FilterRouter(const FilterRouter &b) {
-      ip = new IPAddr(*b.ip);
+      ip = new MPPrefix(*b.ip);
    }
 
    virtual ~FilterRouter() {
       delete ip;
    }
 
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterRouter(*this);
    } 
@@ -591,7 +713,7 @@ public:
    }
    virtual ~FilterRouterName() {
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const {
       return new FilterRouterName(*this);
    } 
@@ -599,7 +721,7 @@ public:
    virtual const char *className(void) const {
       return "FilterRouterName";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "name = \"" << name << "\"" << endl;
    }
 #endif // DEBUG

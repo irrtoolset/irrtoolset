@@ -20,6 +20,9 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #endif
 #include <builtin.h>
 
+#include <cstdlib>
+
+using namespace std;
 
 /*
  common functions on built-in types
@@ -27,8 +30,8 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 long gcd(long x, long y)        // euclid's algorithm
 {
-  long a = abs(x);
-  long b = abs(y);
+  long a = labs(x);
+  long b = labs(y);
 
   long tmp;
   

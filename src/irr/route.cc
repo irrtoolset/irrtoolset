@@ -54,11 +54,20 @@
 #include "config.h"
 #include "route.hh"
 
-
-Prefix *Route::getPrefix(void) const
+MPPrefix *Route::getPrefix(void) const
 {
    AttrGenericIterator<ItemPRFXV4> prefixIterator(this, "route");
    const ItemPRFXV4 *pt = prefixIterator.first();
-   if (pt) return pt->prfxv4;
+   if (pt) {
+     return new MPPrefix(new PrefixRange (*(pt->prfxv4)));
+     }
+   else {
+     // route6
+     AttrGenericIterator<ItemPRFXV6> prefixIterator(this, "route6");
+     const ItemPRFXV6 *pt = prefixIterator.first();
+     if (pt) {
+       return new MPPrefix(new IPv6PrefixRange (*(pt->prfxv6)));
+     }
+   }
    return NULL;
 }

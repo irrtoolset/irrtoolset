@@ -54,11 +54,11 @@
 #ifndef STRINGBUFFER_HH
 #define STRINGBUFFER_HH
 
-#include <iostream.h>
+#include <iostream>
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
-#include <assert.h>
+#include <cassert>
 
 #define PROBE_BUFFER_SIZE 8191
 
@@ -147,8 +147,8 @@ class StringBuffer
       va_end(ap);
       return append(pzcText, strlen(pzcText));
     }
-    friend ostream &operator<<(ostream &os, const StringBuffer &b) {
-      os << "[" << b.pzcBuffer + b.ulBegin << "]" << endl;
+    friend std::ostream &operator<<(std::ostream &os, const StringBuffer &b) {
+      os << "[" << b.pzcBuffer + b.ulBegin << "]" << std::endl;
       return os;
     }
 };

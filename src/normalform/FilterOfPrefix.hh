@@ -50,14 +50,16 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>   
 
 #ifndef FilterOfPrefix_H
 #define FilterOfPrefix_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "Filter.hh"
 #include "SetOfPrefix.hh"
+#include "SetOfIPv6Prefix.hh"
 
 class FilterOfPrefix : public NEFilter, public SetOfPrefix {
 public:
@@ -118,13 +120,80 @@ public:
       *this = (FilterOfPrefix&) b;
    }
 
-   virtual void do_print (ostream& stream) {
+   virtual void do_print (std::ostream& stream) {
       stream << (SetOfPrefix &) *this;
    }
 
    CLASS_DEBUG_MEMORY_HH(FilterOfPrefix);
 
 };
+
+class FilterOfIPv6Prefix : public NEFilter, public SetOfIPv6Prefix {
+public:
+
+   virtual int isEmpty() {
+      return SetOfIPv6Prefix::isEmpty();
+   }
+
+   virtual int is_universal() {
+      return SetOfIPv6Prefix::universal();
+   }
+
+   virtual void make_universal() {
+      SetOfIPv6Prefix::make_universal();
+   }
+
+   virtual void make_empty() {
+      SetOfIPv6Prefix::clear();
+   }
+
+   virtual void operator ~  () { // complement
+      SetOfIPv6Prefix::operator~();
+   }
+   void operator |= (FilterOfIPv6Prefix& b) { // union
+      SetOfIPv6Prefix::operator|=(b);
+   }
+   void operator &= (FilterOfIPv6Prefix& b) { // intersection
+      SetOfIPv6Prefix::operator&=(b);
+   }
+   int  operator == (FilterOfIPv6Prefix& b) { // equivalance
+      return SetOfIPv6Prefix::operator==(b);
+   }
+   void operator =  (FilterOfIPv6Prefix& b) { // assignment
+      SetOfIPv6Prefix::operator=(b);
+   }
+
+   void operator = (const MPPrefixRanges& b) { // assignment
+      SetOfIPv6Prefix::operator=(b);
+   }
+   void operator |= (const MPPrefixRanges & b) { // union
+      SetOfIPv6Prefix::operator|=(b);
+   }
+
+   // below is an ugly trick
+   virtual void operator |= (NEFilter& b) {
+      *this |= (FilterOfIPv6Prefix&) b;
+   }
+   virtual void operator &= (NEFilter& b) {
+      *this &= (FilterOfIPv6Prefix&) b;
+   }
+   virtual int  operator == (NEFilter& b) {
+      return (*this == (FilterOfIPv6Prefix&) b);
+   }
+   virtual void operator =  (NEFilter& b) {
+      *this = (FilterOfIPv6Prefix&) b;
+   }
+
+   virtual void do_print (std::ostream& stream) {
+      stream << (SetOfIPv6Prefix &) *this;
+   }
+
+   CLASS_DEBUG_MEMORY_HH(FilterOfIPv6Prefix);
+
+};
+
+
+
 
 
 #endif // FilterOfPrefix_H

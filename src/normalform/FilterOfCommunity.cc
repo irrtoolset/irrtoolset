@@ -55,6 +55,9 @@
 #include "config.h"
 #include "FilterOfCommunity.hh"
 #include "util/debug.hh"
+#include <ostream>
+
+using namespace std;
 
 ostream& operator<<(ostream& os, CommunityConjunct& set) {
    CommunitySet *cs;

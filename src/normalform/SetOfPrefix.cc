@@ -59,6 +59,9 @@
 #include <cstdio>
 #include <cassert>
 #include "rpsl/prefix.hh"
+#include <ostream>
+
+using namespace std;
 
 void SetOfPrefix::insert(const PrefixRanges& b) { 
    if (_universal)
@@ -75,6 +78,7 @@ void SetOfPrefix::insert(const PrefixRanges& b) {
       for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
 	 rngs |= bits[i];
 */
+
       if (not_)
 	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
       else

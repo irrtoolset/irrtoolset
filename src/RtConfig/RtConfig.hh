@@ -55,62 +55,85 @@
 #define RTCONFIG_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "rpsl/rpsl.hh"
 
 class AttrRPAttr;
 class AttrMethod;
 class SetOfPrefix;
+class SetOfIPv6Prefix;
 class FilterOfASPath;
+class MPPrefix;
 
 class RtConfig {
 public:
-   virtual void importP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: import not implemented" << endl;
+   virtual void importP(ASt as,
+                        MPPrefix* addr,
+                        ASt peerAS,
+                        MPPrefix* peerAddr) {
+      std::cerr << "Error: import not implemented" << std::endl;
    }
-   virtual void exportP(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: export not implemented" << endl;
+   virtual void exportP(ASt as,
+                        MPPrefix* addr,
+                        ASt peerAS,
+                        MPPrefix* peerAddr) {
+      std::cerr << "Error: export not implemented" << std::endl;
    }
+
    virtual void exportGroup(ASt as, char *pset) {
-      cerr << "Error: exportGroup not implemented" << endl;
+      std::cerr << "Error: exportGroup not implemented" << std::endl;
    }
    virtual void importGroup(ASt as, char *pset) {
-      cerr << "Error: importGroup not implemented" << endl;
+      std::cerr << "Error: importGroup not implemented" << std::endl;
    }
+   
    void printPrefixes(char *filter, char *fmt);
    void printPrefixRanges(char *filter, char *fmt);
    void printSuperPrefixRanges(char *filter, char *fmt);
+
    void accessList(char *filter);
    void aspathAccessList(char *filter);
-   virtual void static2bgp(ASt as, IPAddr* addr) {
-      cerr << "Error: static2bgp not implemented" << endl;
+   virtual void static2bgp(ASt as, MPPrefix* addr) {
+      std::cerr << "Error: static2bgp not implemented" << std::endl;
    }
    virtual void deflt(ASt as, ASt peerAS) {
-      cerr << "Error: default not implemented" << endl;
+      std::cerr << "Error: default not implemented" << std::endl;
    }
    virtual void networks(ASt as) {
-      cerr << "Error: networks not implemented" << endl;
+      std::cerr << "Error: networks not implemented" << std::endl;
+   }
+   virtual void IPv6networks(ASt as) {
+      std::cerr << "Error: v6networks not implemented" << std::endl;
    }
    virtual void packetFilter
-   (char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: pkt_filter not implemented" << endl;
+   (char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {
+      std::cerr << "Error: pkt_filter not implemented" << std::endl;
    }
    virtual void outboundPacketFilter
-   (char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr) {
-      cerr << "Error: outbound_pkt_filter not implemented" << endl;
-   }
+   (char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {
+      std::cerr << "Error: outbound_pkt_filter not implemented" << std::endl;
+   } 
+
    virtual void configureRouter(char *name);
-   void printPolicyWarning(ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr, const char* policy);
+   void printPolicyWarning(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, const char* policy);
 
 protected:
    void printPrefixes_(SetOfPrefix& nets, char *fmt);
    void printPrefixRanges_(SetOfPrefix& nets, char *fmt);
    void printSuperPrefixRanges_(SetOfPrefix& nets, char *fmt);
+
+   void printPrefixes_(SetOfIPv6Prefix& nets, char *fmt);
+   void printPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt);
+   void printSuperPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt);
+
    virtual void printAccessList(SetOfPrefix& nets) {
-      cerr << "Error: accessList not implemented" << endl;
+      std::cerr << "Error: accessList not implemented" << std::endl;
+   }
+   virtual void printAccessList(SetOfIPv6Prefix& nets) {
+      std::cerr << "Error: accessList not implemented" << std::endl;
    }
    virtual void printAspathAccessList(FilterOfASPath& path) {
-       cerr << "Error: aspathAccessList not implemented" << endl;
+      std::cerr << "Error: aspathAccessList not implemented" << std::endl;
   }
 
 public:

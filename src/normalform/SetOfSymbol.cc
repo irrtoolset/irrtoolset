@@ -51,12 +51,15 @@
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
+#include <ostream>
 #include <cstdio>
 #include <cassert>
 #include "config.h"
 #include "SetOfSymbol.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "util/debug.hh"
+
+using namespace std;
 
 SetOfSymbol::SetOfSymbol(SetOfSymbol &a) {
    _universal = a._universal;

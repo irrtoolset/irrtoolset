@@ -56,9 +56,16 @@
 #define RUSAGE_H
 
 #include "config.h"
-#include <ostream.h>
+#include <ostream>
 
 class Rusage {
+private:
+   double last_rtime,
+          last_utime,
+          last_stime;
+   // Added by wlee@isi.edu
+   std::ostream *out;
+   bool *flag;
 public:
    Rusage() : flag(0) {
       start();
@@ -66,7 +73,7 @@ public:
       last_stime = 0.0;
    }
    // Added by wlee@isi.edu
-   Rusage(ostream &out, bool *flag) : out(&out), flag(flag) {
+   Rusage(std::ostream &out, bool *flag) : out(&out), flag(flag) {
      start();           // Will get the user time, system time and elapsed time
      last_utime = 0.0;  // By the time Rusage gets called, it has been mini
      last_stime = 0.0;  // seconds passed already, do the correction here!
@@ -81,15 +88,9 @@ public:
       start();
    }
 
-   friend ostream& operator<<(ostream& stream, Rusage& ru);
-
-private:
-   double last_rtime, last_utime, last_stime;
-   // Added by wlee@isi.edu
-   ostream *out;
-   bool *flag;
+   friend std::ostream& operator<<(std::ostream& stream, Rusage& ru);
 };
 
-ostream& operator<<(ostream& stream, Rusage& ru);
+std::ostream& operator<<(std::ostream& stream, Rusage& ru);
 
 #endif   // RUSAGE_H

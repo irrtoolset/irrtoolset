@@ -56,7 +56,10 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
-#include <iostream.h>
+#include <iostream>
+#include <cassert>
+
+using namespace std;
 
 
 extern "C" {
@@ -99,6 +102,10 @@ extern u_short htons(unsigned short);
 #  define memcpy(d, s, n) bcopy ((s), (d), (n))
 #endif
 }
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE            2047
+#endif
 
 void RAWhoisClient::Open(const char *_host, const int _port, const char *_sources) {
    if (_is_open)
@@ -166,6 +173,33 @@ void RAWhoisClient::Close() {
    fclose(in);
    fclose(out);
    _is_open = 0;
+}
+
+void RAWhoisClient::CheckConnection() {
+   if (_is_open && feof(in)) {
+      Trace(TR_WHOIS_QUERY) << "Whois: Closed" << endl;
+      _is_open = 0;
+      fclose(in);
+      fclose(out);
+      // Don't know who we are talking to now.
+      version = 0;
+   }
+}
+
+void RAWhoisClient::GetVersion() {
+   char *buffer = (char *) calloc (80,1);
+   char *start;
+
+   if (! _is_open)
+      Open();
+
+   Trace(TR_WHOIS_QUERY) << "Whois: Version " << "!v" << endl;
+   QueryResponse(buffer, "!v");
+   start = strstr(buffer, "version");
+   start = start + 8; //jump
+   version = atoi(start)*10 + atoi(start+2); // x.x... format  
+   Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
+   free(buffer);
 }
 
 void RAWhoisClient::SetSources(const char *_sources) {
@@ -236,15 +270,16 @@ int RAWhoisClient::Response(char *&response) {
    if (!_is_open)
       Open();
 
-   char buffer[1024]; 
+   char buffer[BUFFER_SIZE]; 
 
    // Read the "A<byte-count>" line
    if (! fgets(buffer, sizeof(buffer), in)) {
-      error.Die("Error: fgets() failed.\n");
+      error.Die("Error: fgets() failed: no answer\n");
       return 0;
    }
 
-   Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
+   if (!is_rpslng()) // one-liners
+     Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
 
    if (*buffer == 'D') { // key not found error
       error.warning("Warning: key not found error for query %s.\n", last_query);
@@ -258,9 +293,49 @@ int RAWhoisClient::Response(char *&response) {
    if (buffer[0] == 'F') { // some other query error
       return 0;
    }
-   if (*buffer != 'A') { // we are expecting a byte-count line
+   if (*buffer != 'A' && !is_rpslng()) { // we are expecting a byte-count line
       error.Die("Warning: no byte count error for query %s.\n", last_query);
       return 0;
+   }
+   if (is_rpslng()) {
+      response = strdup("");
+      char *prev;
+      do {
+        prev = strdup(buffer);
+        Trace(TR_WHOIS_RESPONSE) << "Whois: Response <<\n" << buffer <<">>"<< endl;
+        if (strstr (buffer, "route") || strstr(buffer, "route6")) {
+          char *prefix;
+          char end_prefix[18];
+          char *tmp;
+          prefix = strstr(buffer, ":");
+          do {
+            prefix++;
+          } while (isspace (*prefix));
+          sscanf (prefix, "%s\n", &end_prefix);
+          // save response
+          tmp = strdup (response);
+          // allocate new string
+          response = new char [strlen(tmp) + strlen(end_prefix) + 2];
+          memset(response, 0, strlen(response));
+          // copy old and new response
+          strncat (response, tmp, strlen(tmp));
+          strncat (response, " ", 1);
+          strncat (response, end_prefix, strlen(end_prefix));
+          free(tmp);
+        }
+      } while (fgets(buffer, sizeof(buffer), in) && 
+      // this condition should work with irrd version >= 2.2b19
+      // until then, ripe-style queries won't work with persistent connections
+               !((*prev == '\n') && (*buffer == '\n')));
+
+      // The WHOIS protocol and RPSL give no indication of
+      // end of a protocol data unit, so we need to keep
+      // connections open.  Of course, then long-running
+      // programs can have connections time out, so we
+      // need to restore those.
+      CheckConnection();
+
+      return (strlen(response) + 1);
    }
 
    int count = atoi(buffer + 1);
@@ -385,7 +460,7 @@ void RAWhoisClient::Query(const char *format, ...) {
 int RAWhoisClient::QueryResponse(char *&response, const char *format, ...) { 
    if (!_is_open)
       Open();
-
+   
    va_list ap;
    va_start(ap, format);
 
@@ -436,15 +511,28 @@ bool RAWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len) {
    return len;
 }
 
-bool RAWhoisClient::expandAS(char *as,       PrefixRanges *result) {
+bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
   char *response;
-  if (!QueryResponse(response, "!g%s", as)) return false;
-  for (char *word = strtok(response, " \t\n");
+
+  if (!version)
+    GetVersion();
+  
+  if (! is_rpslng()) {   
+    if (!QueryResponse(response, "!g%s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
        word; 
        word = strtok(NULL, " \t\n")) 
-    result->add_high(PrefixRange(word));
+       result->push_back(MPPrefix(word));
+  } else {
+    if (!QueryResponse(response, "-K -r -i origin %s", as)) return false;
+    for (char *word = strtok(response, " \t\n");
+       word; 
+       word = strtok(NULL, " \t\n"))  {
+       result->push_back(MPPrefix(word));
+       }
+  }
   if (response)
-     delete [] response;
+   delete [] response;
   return true;
 }
 
@@ -460,19 +548,19 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
   return true;
 }
 
-bool RAWhoisClient::expandRSSet(SymID rsset, PrefixRanges *result) {
+bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
   char *response;
   if (!QueryResponse(response, "!i%s,1", rsset)) return false;
   for (char *word = strtok(response, " \t\n"); 
        word; 
        word = strtok(NULL, " \t\n"))
-    result->add_high(PrefixRange(word));
+    result->push_back(MPPrefix(word));
   if (response)
      delete [] response;
   return true;
 }
 
-bool RAWhoisClient::expandRtrSet(SymID sname, PrefixRanges *result) {
+bool RAWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
    const Set *set = IRR::getRtrSet(sname);
    AttrGenericIterator<Item> itr(set, "members");
    for (Item *pt = itr.first(); pt; pt = itr.next())

@@ -57,6 +57,8 @@
 #include "config.h"
 #include <cstring>
 #include <string>
+#include <fstream>  // For class ifstream
+#include <sstream>  // For class ostream, class istream
 #include "util/List.hh"
 #include "util/Buffer.hh"
 #include "util/debug.hh"
@@ -65,9 +67,6 @@
 #define RPSL_CLASS_UNKONWN 0
 #define RPSL_CLASS_AUTNUM 1
 
-class istream;
-class ifstream;
-class ostream;
 class Buffer;
 
 class Object : public Buffer {
@@ -79,7 +78,7 @@ public:
    bool  isDeleted;             // object is being deleted
    bool  has_error;             // the object's definition has error
    bool  has_warning;           // the object's definition has error
-   string errors;               // errors about this object
+   std::string errors;          // errors about this object
    // note that individual errors are stored with each attribute
    // these are the object wide errors such as mandatory attribute missing
 
@@ -118,14 +117,14 @@ public:
       return *this;
    }
 
-   bool read(istream &in = cin);
-   static bool read(Buffer &buf, istream &in = cin);
+   bool read(std::istream &in = std::cin);
+   static bool read(Buffer &buf, std::istream &in = std::cin);
 
    void parse();
-   bool scan(const char *_text, const int sz, ostream &err = cerr);
-   bool scan(ostream &err = cerr); 
+   bool scan(const char *_text, const int sz, std::ostream &err = std::cerr);
+   bool scan(std::ostream &err = std::cerr); 
 
-   void reportErrors(ostream &ostrm = cerr);
+   void reportErrors(std::ostream &ostrm = std::cerr);
 
    int getLen(void) const {
       return size;
@@ -148,12 +147,15 @@ public:
    bool setAttr(char *attr, Item *item);
    bool setAttr(char *attrName, Attr *attr);
 
-   friend istream& operator>>(istream &is, const Object &o);
-   friend ostream& operator<<(ostream &os, const Object &o);
+   friend std::istream& operator>>(std::istream &is, const Object &o);
+   friend std::ostream& operator<<(std::ostream &os, const Object &o);
+   
+   bool hasAttr(char *name);
+   void validate();
 
    // Added by wlee@isi.edu
 #ifdef DEBUG
-   void printPTree(ostream &os) const;
+   void printPTree(std::ostream &os) const;
 #endif // #ifdef DEBUG
 };
 

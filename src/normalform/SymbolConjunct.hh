@@ -55,7 +55,7 @@
 #define SymbolConjunct_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 extern "C" {
 #include <sys/types.h>
 }
@@ -72,8 +72,8 @@ class SymbolConjunct {
 public:
    friend class SetOfSymbol;
    friend class NormalTerm;
-   friend ostream& operator<<(ostream& stream, SetOfSymbol& set);
-   friend ostream& operator<<(ostream& os, const regexp& r);
+   friend std::ostream& operator<<(std::ostream& stream, SetOfSymbol& set);
+   friend std::ostream& operator<<(std::ostream& os, const regexp& r);
 
    SymbolConjunct() : symbols(), notSymbols() {
    }
@@ -93,7 +93,8 @@ public:
       notSymbols.clear();
    }
 
-   friend ostream& operator<<(ostream& stream, SymbolConjunct &conjunct);
+   friend std::ostream& operator<<(std::ostream& stream,
+                                   SymbolConjunct &conjunct);
 
    int length() {
       return symbols.length() + notSymbols.length();

@@ -85,7 +85,12 @@ check:
 	@cd src; $(MAKE) check
 
 config-clean:
-	rm config.status config.cache config.log 
+	touch config.status
+	rm config.status
+	touch config.cache
+	rm config.cache
+	touch config.log
+	rm config.log 
 	cd src; rm Makefile config.h \
 	Core/config.h Core/config.log Core/config.status Core/Makefile \
 	Core/gnu/Makefile Core/sched/Makefile \
@@ -104,5 +109,5 @@ release_tag:
 release: config-clean
 	mkdir ${PRODUCT}-${VERSION}
 	@(cd ${PRODUCT}-${VERSION}; for i in ${DISTFILES}; do ln -s ../$$i $$i; done)
-	gtar -cvzhf ${PRODUCT}-${VERSION}.tar.gz `find ${PRODUCT}-${VERSION} -follow ! -type d | egrep -v --file=EXCLFILE`
+	tar -cvzhf ${PRODUCT}-${VERSION}.tar.gz `find ${PRODUCT}-${VERSION} -follow ! -type d | egrep -v --file=EXCLFILE`
 	rm -rf ${PRODUCT}-${VERSION}

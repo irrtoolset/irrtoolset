@@ -50,9 +50,10 @@
 .\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"//
 .\"//  Questions concerning this software should be directed to 
-.\"//  info-ra@isi.edu.
+.\"//  irrtoolset@ripe.net
 .\"//
 .\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"//             Katie Petrusha <katie@ripe.net>
 .\"
 .\"
 .TH peval 1 local
@@ -67,12 +68,19 @@ peval is a low level policy evaluation tool
 that can be used to write router configuration generators.
 peval, in a command loop,
 inputs policy expressions,
-expands the AS sets, route sets, AS numbers 
+expands the AS sets, route sets, filter sets, AS numbers 
 (unless specified otherwise using command line options),
 evaluates the resulting expression
 and outputs the result.
 Instead of a command loop,
 the expression can be given as an argument.
+.PP
+By default peval evaluates the expression for ipv4 unicast address family. Also the list of address families can be specified in order to restrict the results. The syntax is: afi <afi_list> <mp-filter>.
+.PP
+<afi_list> is a comma separated list of address families. The supported ones are: ipv4, ipv4.unicast (same as ipv4), ipv4.multicast, ipv6, ipv6.unicast (same as ipv6), ipv6.multicast, any.unicast (ipv4.unicast, ipv6.unicast), any.multicast (ipv4.multicast, ipv6.multicast), any (ipv4.unicast, ipv4.multicast, ipv6.unicast, ipv6.multicast). If the results are to be restricted to uncomparable address families (ipv4, ipv6), in the output they will be joined using 'OR' clause.
+.PP
+<mp-filter> is a valid RPSLng filter over AS-numbers, ipv4/ipv6 prefixes, range operators, filter-sets, route-sets, as-sets and logical operators. For more details about mp-filter format see RPSLng documentation.
+.PP
 .SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
@@ -167,7 +175,13 @@ Expand all and evaluate
 % ./peval 'AS1220 AND AS226'
 ({192.237.125.0/24, 192.92.56.0/24, 196.2.41.0/24, 196.2.40.0/24})
 .fi
-
+.PP 
+Evaluate the filter for ipv4 and ipv6 address families:
+.PP
+.nf
+% ./peval 'afi ipv6, ipv4 rs-rpslng'
+({1001:0:0:0:0:0:0:0/35, 1:0:0:0:0:0:0:0/35})
+ OR ({1.0.0.0/8, 1.2.3.0/24})
 .SH ERROR AND WARNING MESSAGES
 Error: Internal error.
 .RS
@@ -192,3 +206,5 @@ For more error descriptions, please see
 Errors manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
+.PP
+Katie Petrusha <katie@ripe.net>

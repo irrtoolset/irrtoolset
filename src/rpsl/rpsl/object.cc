@@ -52,14 +52,16 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include <istream.h>
+#include <istream>
 #include <cstdio>
-#include <strstream.h>
-#include <fstream.h>
-#include <iomanip.h>
+#include <sstream>
+#include <fstream>
+#include <iomanip>
 
 #include "object.hh"
 #include "schema.hh"
+
+using namespace std;
 
 extern int rpslparse(void *);
 extern void rpsl_scan_object(Object *);
@@ -133,22 +135,23 @@ bool Object::read(Buffer &buf, istream &in) {
 void Object::parse() {
    rpsl_scan_object(this);
    rpslparse(this);
+   validate();
 
    if (type) {
       bool forgiving = schema.isForgiving();
       if (isDeleted || schema.isVeryForgiving()) {
-	 if (has_error) {
-	    has_error = false;
-	    Attr *n_attr;
+	      if (has_error) {
+   	      has_error = false;
+	        Attr *n_attr;
 
-	    for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
-	       if (! attr->errors.empty() 
-		   && attr->type && attr->type->isKey()) {
-		  has_error = true;
-		  break;
-	       }
-	 }
-	 schema.beForgiving();
+   	      for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
+	          if (! attr->errors.empty() 
+  		         && attr->type && attr->type->isKey()) {
+         		  has_error = true;
+	        	  break;
+	          }
+       	 }
+	       schema.beForgiving();
       }
       has_error |= ! type->validate(errors);
       schema.beForgiving(forgiving);
@@ -255,6 +258,43 @@ bool Object::setClass(char *cls) {
    return type;
 }
 
+bool Object::hasAttr(char *name) {
+  Attr *attr;
+  for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+     if (strcasecmp(attr->type->name(), name) == 0) 
+        return true;
+  }
+  return false;
+}
+
+void Object::validate() {
+  if (type && (strcasecmp(type->name, "filter-set") == 0)) {
+    Attr *attr;
+    static char buffer[1024];
+    for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+      if (strcasecmp(attr->type->name(), "filter") == 0 || strcasecmp(attr->type->name(), "mp-filter") == 0)
+        return;
+    }
+    sprintf(buffer, "***Error: either filter or mp-filter must be present.\n");
+    
+    errors += buffer;
+    has_error = true;
+  }
+  else if (type && (strcasecmp(type->name, "peering-set") == 0)) {
+    Attr *attr;
+    static char buffer[1024];
+    for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
+      if (strcasecmp(attr->type->name(), "peering") == 0 || strcasecmp(attr->type->name(), "mp-peering") == 0)
+        return;
+    }
+    sprintf(buffer, "***Error: at least one from peering or mp-peering must be present.\n");
+
+    errors += buffer;
+    has_error = true;
+  }
+}
+
+
 bool Object::addAttr(char *attr, Item *item) {
    if (!type)
       return false;
@@ -267,16 +307,15 @@ bool Object::addAttr(char *attr, Item *item) {
    items->append(item);
    Attr *attrib = new AttrGeneric(attrType, items);
 
-   ostrstream s;
-   s << *attrib << ends;
+   ostringstream os;
+   os << *attrib << ends;
    attrib->offset = size;
-   attrib->len    = strlen(s.str());
+   attrib->len    = (os.str()).length();
 
    // delete the extra \n at the end, and reinsert after this attribute
    size--;
-   append(s.str(), attrib->len);
+   append((os.str()).c_str(), static_cast<unsigned long>(attrib->len));
    append("\n", 1);
-   s.freeze(0);
 
    (*this) += attrib;
    return true;
@@ -317,16 +356,15 @@ bool Object::setAttr(char *attrName, Attr *attr) {
 
    (*this) += attr;
 
-   ostrstream s;
-   s << *attr << "\n" << ends;
+   ostringstream os;
+   os << *attr << "\n" << ends;
    attr->offset = size;
-   attr->len    = strlen(s.str());
+   attr->len    = (os.str()).length();
    
    // delete the extra \n at the end, and reinsert after this attribute
    size--;
-   append(s.str(), attr->len);
+   append((os.str()).c_str(), static_cast<unsigned long>(attr->len));
    append("\n", 1);
-   s.freeze(0);
 
    return true;
 }

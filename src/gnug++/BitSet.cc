@@ -27,10 +27,12 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #include <limits.h>
 #include <Obstack.h>
 #include <AllocRing.h>
-#include <new.h>
+#include <new>
 #include <builtin.h>
-#include <string.h>
-#include <strstream.h>
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 #undef OK
 
@@ -893,7 +895,8 @@ const char* BitSettoa(const BitSet& x, char f, char t, char star)
   trim(x.rep);
   int wrksiz = (x.rep->len + 1) * BITSETBITS + 2;
   char* fmtbase = (char *) _libgxx_fmtq.alloc(wrksiz);
-  ostrstream stream(fmtbase, wrksiz);
+  //ostrstream stream(fmtbase, wrksiz);
+  std::ostringstream stream(fmtbase, ios_base::out | ios_base::trunc);
   
   x.printon(stream, f, t, star);
   stream << ends;
@@ -1037,11 +1040,15 @@ BitSet atoBitSet(const char* s, char f, char t, char star)
 
 #endif
 
-ostream& operator << (ostream& s, const BitSet& x)
+
+ostream& operator<<(ostream& s, const BitSet& x)
 {
-  if (s.opfx())
-    x.printon(s);
-  return s;
+    ostream::sentry opfx(s);
+
+    if (opfx) {
+        x.printon(s);
+    }
+    return s;
 }
 
 void BitSet::printon(ostream& os, char f, char t, char star) const

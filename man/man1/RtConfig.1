@@ -50,9 +50,10 @@
 .\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"//
 .\"//  Questions concerning this software should be directed to 
-.\"//  info-ra@isi.edu.
+.\"//  irrtoolset@ripe.net
 .\"//
 .\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"//             Katie Petrusha <katie@ripe.net>
 .\"
 .\"
 .TH RtConfig 1 local
@@ -205,7 +206,7 @@ where
 <rtr-2> in <ASN-2>.
 The appropriate filters are generated 
 by considering 
-the import lines for <ASN-2>-<rtr-1>-<rtr-2>
+the import/mp-import lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
 .IP "@RtConfig export <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 The arguments of the export command are the same as the import command.
@@ -215,30 +216,30 @@ where
 <rtr-2> in <ASN-2>.
 The appropriate filters are generated 
 by considering 
-the export lines for <ASN-2>-<rtr-1>-<rtr-2>
+the export/mp-export lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
 .IP "@RtConfig configureRouter <inet-rtr-name>"
 <inet-rtr-name> is the DNS name of an inet-rtr object.
 This command will use the named inet-rtr object,
-and configure import and export policies
+and configure import/mp-import and export/mp-export policies
 for each of the BGP4 peers of the router 
 (using the peer attribute).
 .IP "@RtConfig importGroup <ASN-1> <peering-set-name>"
 .IP "@RtConfig exportGroup <ASN-1> <peering-set-name>"
 <peering-set-name> is a name of a peering set object.
-This command instructs RtConfig to generate import (export) filters
+This command instructs RtConfig to generate import/mp-import (export/mp-export) filters
 where 
 <ASN-1> is importing (exporting) routes from (to) the peers listed in 
 <peering-set-name>.
 The aut-num object for <ASN-1>
-should have an import (export) attribute using the peering set's name.
+should have an import/mp-import (export/mp-export) attribute using the peering set's name.
 .IP "@RtConfig static2bgp <ASN-1> <rtr-1>"
 This command instructs RtConfig to generate inject filters
 where 
 <rtr-1> in <ASN-1> is injecting static routes into BGP4.
 The appropriate filters are generated 
 by considering 
-the import policies of <ASN-1>
+the import/mp-import policies of <ASN-1>
 where "protocol STATIC" or "protocol STATIC into BGP4" is used.
 .IP "@RtConfig set sources = <source-list>"
 <source-list> is string containing comma separated list of sources to
@@ -248,6 +249,7 @@ This command instruct RtConfig to change the list of sources considered.
 <filter> is an RPSL filter over AS numbers, AS set names and route set
 names using operators AND, OR and NOT.
 This command instruct RtConfig to generate an access list for <filter>.
+<mp-filter> is also accepted.
 .IP "@RtConfig aspath_access_list filter <filter>"
 <filter> is an RPSL filter over AS path regular expressions using
 operators AND, OR and NOT. 
@@ -255,7 +257,7 @@ This command instruct RtConfig to generate an as path access list for <filter>.
 .IP "@RtConfig printPrefixes <format> filter <filter>"
 <format> is a quoted string, and
 <filter> is an RPSL filter over AS numbers, AS set names and route set
-names using operators AND, OR and NOT.
+names using operators AND, OR and NOT, <mp-filter> is also accepted.
 This command instruct RtConfig to print the prefixes in <filter> using
 <format>.
 The <format> can contain the following escape sequences:
@@ -278,13 +280,13 @@ Example, use:
 .IP "@RtConfig printPrefixRanges <format> filter <filter>"
 This command is same as the "printPrefixes" command,
 except the consecutive address prefixes are compressed into a single
-address prefix range.
+address prefix range. <mp-filter> is also accepted.
 .IP "@RtConfig printSuperPrefixRanges <format> filter <filter>"
 This command is same as the "printPrefixRanges" command,
 except it compresses more aggresively. The %n and %m information is
 lost. But,
 %D, a set of dont care bits representing different %n-%m ranges are
-provided. 
+provided. <mp-filter> is also accepted.
 .RE
 .PP
 Cisco specific commands:
@@ -330,6 +332,10 @@ preferred) and counting down from there.
 .IP "@RtConfig networks <ASN-1>"
 <ASN-1> is an AS number preceded with string "AS". 
 For each route registered with origin <ASN-1>,
+a network statement of the form "network <prefix> mask <mask>" is generated.
+.IP "@RtConfig v6networks <ASN-1>"
+<ASN-1> is an AS number preceded with string "AS".
+For each route6 registered with origin <ASN-1>,
 a network statement of the form "network <prefix> mask <mask>" is generated.
 .IP "@RtConfig default <ASN-1> <ASN-2>"
 <ASN-1> and <ASN-2> are AS numbers preceded with string "AS". 
@@ -582,6 +588,6 @@ For more error descriptions, please see
 .B
 Errors 
 manual page.
-.SH AUTHORS
+.SH AUTHORS AND CONTRIBUTORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
 Katie Petrusha <katie@ripe.net>
