@@ -75,7 +75,7 @@ one can register all the routes which are routed but not registered in
 couple of mouse clicks.
 If <as-no> is not specified it is deduced for your
 system from the IP address of your host and IRR. 
-.SH RAToolSet COMMON OPTIONS
+.SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
 Print summary of command-line options and abort.
@@ -88,7 +88,7 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish an RAWhoisd connection to host <host-name>.
-
+The default is whois.radb.net.
 This means that roe obtains its data only from
 <host-name>. If it displays routes from other
 registries, those are the mirror copies of those routes
@@ -96,6 +96,7 @@ in <host-name>. However, roe can update any registry,
 not just <host-name>.
 .IP "\-p <port-no>"
 Establish an RAWhoisd connection to port <port-no>.
+The default is 43.
 .IP "\-protocol <protocol>"
 Use the <protocol> to connect to the IRR server. <protocol> can be irrd,
 ripe, and bird. The default is irrd. The ripe option should be used with
@@ -402,5 +403,50 @@ choice to use a "show ip bgp regex ^$" within the home AS
 the IRRs and the actual routes.  He advises to get an EBGP table 
 from an external peer using "show ip bgp regex ^<as-no>"
 .PP
+.SH ERROR AND WARNING MESSAGES
+AS number should start with "AS"
+.RS
+.PP
+Syntax error in AS number, which should be AS<integer>.
+.PP
+.RE
+Error: while parsing <yyline>
+.RS
+.PP
+Yacc parser error on BGP dump file. This may be caused by wrong BGP dump format (see above). 
+.PP
+.RE
+Unknown protocol!
+.RS
+.PP
+The connection to IRR failed. This can be caused by various reasons, see Errors manpage, IRR Communication errors.
+.PP
+.RE
+No <asno> on IRR!
+.RS
+.PP
+Originating aut-num is not found on IRR. You might mistype the source, hostname or as-number, or the object is truly non-existent.
+.PP
+.RE
+No route for <as_no>
+.RS
+.PP
+No route objects are originated from <as_no> (from IRR). This can be a typing mistake for the AS-number, or also truly error.
+.PP
+.RE
+No object for <as_no>
+.RS 
+.PP
+No aut-num object is found on IRR for <as_no>
+.RS
+.PP
+See above.
+.PP
+.RE
+.PP
+For more error descriptions, please see 
+.B Error manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
+
+Katie Petrusha <katie@ripe.net>
