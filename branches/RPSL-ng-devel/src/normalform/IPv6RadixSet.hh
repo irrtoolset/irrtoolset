@@ -99,13 +99,12 @@ public:
       addr(_addr), leng(_leng), rngs(_rngs) {
       foreachchild(c)
 	 chld[c] = (IPv6RadixTree *) NULL;
-     // cout << "1 " << "ip" << addr << "leng" << leng << "rng" << rngs << endl;
    }
 
    IPv6RadixTree(const IPv6RadixTree &b) : addr(b.addr), leng(b.leng), rngs(b.rngs) {
       foreachchild(c)
 	 chld[c] = b.chld[c] ? new IPv6RadixTree(*b.chld[c]) : (IPv6RadixTree *) NULL;
-    //  cout << "2 " << addr << leng << rngs;
+   //   cout << "2 " << "ip" << addr << "leng" << leng << "rng" << rngs << endl;
    }
 
    ~IPv6RadixTree() {
@@ -301,7 +300,6 @@ public:
    }
 
    void insert(ipv6_addr_t addr, u_int leng, ipv6_addr_t rngs) {
-     cout << "entering IPv6RadixSet::insert" << endl;
      root = root->insert(addr, leng, rngs);
    }
    void insert(ipv6_addr_t addr, u_int leng) {

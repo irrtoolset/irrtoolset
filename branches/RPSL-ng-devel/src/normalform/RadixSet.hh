@@ -110,6 +110,7 @@ public:
    RadixTree(const RadixTree &b) : addr(b.addr), leng(b.leng), rngs(b.rngs) {
       foreachchild(c)
 	 chld[c] = b.chld[c] ? new RadixTree(*b.chld[c]) : (RadixTree *) NULL;
+    //  cout << "2 " << addr << leng << rngs;
    }
 
    ~RadixTree() {
@@ -129,7 +130,6 @@ public:
    RadixTree *or_(const RadixTree *b);       // this becomes this or       b
    RadixTree *setminus(const RadixTree *b); // this becomes this setminus b
 
-   void RadixTree::print() const;
    void *operator new(size_t s) {
       return RadixTreeAllocator.allocate();
    }
@@ -138,8 +138,13 @@ public:
    }
    RadixTree *makeMoreSpecific(int code, int n, int m);
 
-private:
+public:
+   void RadixTree::print() const;
+
+protected:
    RadixTree();
+
+private:
    RadixTree *removeRange(u_int64_t _rngs);
    Direction direction(u_int addr, u_int leng, u_int _addr, u_int _leng) const;
    void commonAnscestor(u_int _addr,  u_int _leng, u_int addr,   u_int leng,
@@ -367,9 +372,5 @@ public:
 
    friend ostream& operator<<(ostream&, const RadixSet &set);
 };
-
-
-
-
 
 #endif   // RADIXTREE_H

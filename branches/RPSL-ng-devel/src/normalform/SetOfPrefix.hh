@@ -1,4 +1,4 @@
-//  $Id$
+// $Id$
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -49,13 +49,12 @@
 //  Questions concerning this software should be directed to 
 //  ratoolset@isi.edu.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
-
-#ifndef SetOfPrefix_H
-#define SetOfPrefix_H
+//  Author(s): Katie Petrusha <katie@ripe.net>
 
 #pragma interface
 
+#ifndef SetOfPrefix_H
+#define SetOfPrefix_H
 
 #include "config.h"
 #include <iostream.h>

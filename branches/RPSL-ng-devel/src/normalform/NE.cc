@@ -343,7 +343,8 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       ne = new NormalExpression;
       nt = new NormalTerm;
 
-      nt->prfx_set |= * (FilterPRFXList *) ptree;
+      cout << "eval. FilterPRFXList" << endl;
+      nt->prfx_set |= * (FilterPRFXList *) ptree; //RadixSet created here
       nt->make_universal(NormalTerm::PRFX);	     // this makes it universal
       ne->singleton_flag = NormalTerm::PRFX;
 
@@ -353,6 +354,41 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
    if (typeid(*ptree) == typeid(FilterRPAttribute))
       return evaluate((FilterRPAttribute *) ptree, peerAS, expand);
+
+
+   if (typeid(*ptree) == typeid(FilterAFI)) {
+   
+      cout << "eval. FilterAFI" << endl;
+      ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
+      ne->restrict((FilterAFI *) ptree);
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
+      return ne;
+
+   }
+
+   if (typeid(*ptree) == typeid(FilterMPPRFXList)) {
+      cout << "eval. FilterMPPRFXList" << endl;
+
+      // mixed v4/v6 prefix lists
+      FilterPRFXList *list_v4 = ((FilterMPPRFXList *) ptree)->get_v4();
+      FilterMPPRFXList *list_v6 = ((FilterMPPRFXList *) ptree)->get_v6();
+      
+      ne = new NormalExpression;
+      if (list_v4) {
+        nt = new NormalTerm;
+        nt->prfx_set |= * (FilterPRFXList *) list_v4; // radix set created here
+        nt->make_universal(NormalTerm::PRFX);      // this makes it universal
+        *ne += nt;
+      }
+      if (list_v6) {
+        nt = new NormalTerm;
+        nt->ipv6_prfx_set |= * (FilterMPPRFXList *) list_v6; // radix set created here
+        nt->make_universal(NormalTerm::IPV6_PRFX);      // this makes it universal
+        *ne += nt;
+      }
+      return ne;
+   }
 
    assert(0);
 }
@@ -551,6 +587,27 @@ void NormalExpression::do_and(NormalExpression &other) {
    terms.join(result.terms);
    if (!terms.empty())
       reduce();   // get rid of duplicate terms
+}
+
+void NormalExpression::restrict(FilterAFI *af) {
+
+   NormalExpression *new_ne = new NormalExpression;
+   NormalTerm *term = new NormalTerm;
+
+   if (af->afi_item->is_ipv6()) { //v6
+      new_ne->singleton_flag = NormalTerm::IPV6_PRFX;
+      for (term = this->first(); term ; term = this->next())
+        if (term->prfx_set.universal())
+          *new_ne += term;
+   } 
+   else { //v4
+      new_ne->singleton_flag = NormalTerm::PRFX;
+      for (term = this->first(); term ; term = this->next())
+        if (term->ipv6_prfx_set.universal())
+          *new_ne += term;
+   }
+   do_and(*new_ne);
+   singleton_flag = new_ne->singleton_flag;
 }
 
 void NormalExpression::do_not() {

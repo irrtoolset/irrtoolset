@@ -63,7 +63,7 @@
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
 #endif
 
-// this array contains masks for ipv6 prefixes
+// bits are used to determine the number of prefixes inside the range.
 ip_v6word_t ipv6bits[] = { 
 0x0000000000000000LL,
 0x8000000000000000LL,0x4000000000000000LL,0x2000000000000000LL, 0x1000000000000000LL,
@@ -84,7 +84,7 @@ ip_v6word_t ipv6bits[] = {
 0x0000000000000008LL,0x0000000000000004LL,0x0000000000000002LL, 0x0000000000000001LL
 };
 
-// bits are used to determine the number of prefixes inside the range.
+// this array contains masks for ipv6 prefixes
 ip_v6word_t ipv6masks[] = {
 0x0000000000000000LL,
 0x8000000000000000LL,0xC000000000000000LL,0xE000000000000000LL,0xF000000000000000LL, 
@@ -187,10 +187,10 @@ bool IPv6RadixSet::PrefixIterator::first(ipv6_addr_t &_addr, u_int &_leng) {
    addr = current->addr;
    leng = current->leng;
    rngs = current->rngs;
+
    for (cleng = leng; cleng <= 128 && ! (addr.getbits(cleng) & rngs); cleng++) ;
    number = 0;
-   
-	 
+
    _addr = addr;
    _leng  = cleng;
    number++;
@@ -331,11 +331,11 @@ bool IPv6RadixSet::PrefixRangeIterator::first(ipv6_addr_t &_addr, u_int &_leng,
    leng = current->leng;
    rngs = current->rngs;
 	 
-   for (cleng = leng; cleng <= 128 && ! (addr.getbits(cleng) & rngs); cleng++) ;
+   for (cleng = leng; cleng <= 128 && (! (addr.getbits(cleng) & rngs)); cleng++) ;
    _addr  = addr;
    _leng  = leng;
    _start = cleng;
-   for (; (addr.getbits(cleng) & rngs) && cleng <= 128 ; cleng++) ;
+   for (; (addr.getbits(cleng) & rngs) && (cleng <= 128) ; cleng++) ;
    _end   = cleng - 1;
 
    return true;
@@ -344,7 +344,7 @@ bool IPv6RadixSet::PrefixRangeIterator::first(ipv6_addr_t &_addr, u_int &_leng,
 bool IPv6RadixSet::PrefixRangeIterator::next(ipv6_addr_t &_addr, u_int &_leng, 
 					 u_int &_start, u_int &_end) {
 
-   for (; ! (addr.getbits(cleng) & rngs) && cleng <= 128; cleng++) ;
+   for (; ! (addr.getbits(cleng) & rngs) && (cleng <= 128); cleng++) ;
 
    if (cleng > 128) {
       for (current = itr.next(current); 
@@ -358,13 +358,13 @@ bool IPv6RadixSet::PrefixRangeIterator::next(ipv6_addr_t &_addr, u_int &_leng,
       leng = current->leng;
       rngs = current->rngs;
 
-      for (cleng = leng; cleng <= 128 && ! (addr.getbits(cleng) & rngs); cleng++) ;
+      for (cleng = leng; cleng <= 128 && (!(addr.getbits(cleng) & rngs)); cleng++) ;
    }
 
    _addr  = addr;
    _leng  = leng;
    _start = cleng;
-   for (; (addr.getbits(cleng) & rngs) && cleng <= 128 ; cleng++) ;
+   for (; (addr.getbits(cleng) & rngs) && (cleng <= 128) ; cleng++) ;
    _end   = cleng - 1;
 
    return true;
@@ -378,12 +378,10 @@ IPv6RadixTree::Direction IPv6RadixTree::direction(ipv6_addr_t addr, u_int leng,
    // assumes addr is already anded with mask
 
    if (leng == _leng && addr == _addr) {
-      cout << "HERE" << endl;
       return HERE;
    }
 
    if (leng >= _leng) { // a parent or a sibling or aunt :-)
-      cout << "UP" << endl;
       return UP;
    }
 
@@ -391,11 +389,9 @@ IPv6RadixTree::Direction IPv6RadixTree::direction(ipv6_addr_t addr, u_int leng,
    if ((_addr & _addr.getmask(leng)) == addr)  // my child 
    {
       if ((_addr & _addr.getbits(leng+1)).is_true()) {
-        cout << "RIGHT" << endl;
         return RIGHT;
       }
       else  {
-        cout << "LEFT" << endl;
         return LEFT;
       }
    } 
@@ -412,21 +408,15 @@ void IPv6RadixTree::commonAnscestor(ipv6_addr_t _addr,  u_int _leng,
       pleng--;
    }
    paddr = addr & paddr.getmask(pleng);
+
 }
 
 // inserts arguments to the tree
 IPv6RadixTree *IPv6RadixTree::insert(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t _rngs) {
-   cout << "inserting into RadixTree: address " ;
-   cout << _addr;
-   cout << " length ";
-   cout << _leng;
-   cout << " ranges ";
-   cout << _rngs;
-
    if (! _rngs) // nothing to insert
       return this;
 
-   if (!this)
+   if (!this) 
       return new IPv6RadixTree(_addr, _leng, _rngs);
 
    ipv6_addr_t common_rngs;
@@ -442,14 +432,7 @@ IPv6RadixTree *IPv6RadixTree::insert(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t
    ipv6_addr_t caddr;
    u_int cleng;
 
-   cout << "IPv6RadixTree::insert initial" << endl;
-
    while (_rngs.is_true()) {
-      cout << "IPv6RadixTree::insert loop" << endl;
-      cout << "current tree start:";
-      root->print();
-      cout << "current tree end" << endl;
-
       dir = direction(now->addr, now->leng, _addr, _leng);
       switch (dir) {
         case HERE:
@@ -538,7 +521,6 @@ IPv6RadixTree *IPv6RadixTree::insert(ipv6_addr_t _addr, u_int _leng, ipv6_addr_t
      cleanup:
         pStack.setPosition(pStackPos);
 
-   cout << "exiting IPv6RadixTree::insert" << endl;
    return root;
 }
 
@@ -836,29 +818,26 @@ ostream& operator<<(ostream& o, const IPv6RadixSet &set) {
    o << "{";
    if (set.root) {
       if (IPv6RadixSet::compressedPrint) {
-	 IPv6RadixSet::PrefixRangeIterator itr(&set);
-	 for (bool flag = itr.first(addr, leng, n, m); 
-	      flag;
-	      flag = itr.next(addr, leng, n, m)) {
-	    if (need_comma)
-	       o << ", ";
-	    else
-	       need_comma = true;
-	    o << ipv62hex(&addr, buffer) << "/" << leng << "^" << n << "-" << m;
-	 }
-      } else {
-	 IPv6RadixSet::PrefixIterator itr(&set);
-	 for (bool flag = itr.first(addr, leng); 
-	      flag;
-	      flag = itr.next(addr, leng)) {
-	    if (need_comma)
-	       o << ", ";
-	    else
-	       need_comma = true;
-	    o << ipv62hex(&addr, buffer) << "/" << leng;
-	 }
-      }
-   }
+      	 IPv6RadixSet::PrefixRangeIterator itr(&set);
+      	 for (bool flag = itr.first(addr, leng, n, m); flag; flag = itr.next(addr, leng, n, m)) {
+       	    if (need_comma)
+	            o << ", ";
+       	    else
+	            need_comma = true;
+	          o << ipv62hex(&addr, buffer) << "/" << leng << "^" << n << "-" << m;
+	       } // end of for loop
+      } else { // not a compressed point
+      	 IPv6RadixSet::PrefixIterator itr(&set);
+      	 for (bool flag = itr.first(addr, leng); flag; flag = itr.next(addr, leng)) {
+           if (need_comma)
+             o << ", ";
+	         else
+	           need_comma = true;
+           o << ipv62hex(&addr, buffer) << "/" << leng;
+      	 } // end of for loop
+       } // end of else statement
+   } // end of if statement
+
    o << "}";
    return o;
 }
