@@ -27,6 +27,11 @@
 #include <stdlib.h>
 #include "afi.hh"
 
+AddressFamily::AddressFamily(void) :
+  afi(NULL)
+{
+}
+
 AddressFamily::AddressFamily(char *name) : 
   afi(strdup(name))
 {

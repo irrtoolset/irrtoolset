@@ -478,6 +478,29 @@ public:
 #endif // DEBUG
 };
 
+class FilterAFI: public Filter, public AddressFamily {
+public:
+   Filter *f;
+
+public:
+   FilterAFI() {
+   }
+   virtual ~FilterAFI() {}
+   
+   virtual ostream& print(ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterAFI(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterAFI";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << *this << endl;
+   }
+#endif // DEBUG
+}; 
+
 
 class FilterRPAttribute: public Filter {
 public: 
@@ -573,6 +596,57 @@ public:
    }
 #endif // DEBUG
 };
+
+//// the following is needed by route6 class ///////////////////////////
+
+class FilterV6HAVE_COMPONENTS: public Filter {
+public:
+   FilterMPPRFXList *prfxs;
+public:
+   FilterV6HAVE_COMPONENTS(FilterMPPRFXList *p) : prfxs(p) {
+   }
+   FilterV6HAVE_COMPONENTS(const FilterV6HAVE_COMPONENTS &b) {
+      prfxs = new FilterMPPRFXList(*b.prfxs);
+   }
+   virtual ~FilterV6HAVE_COMPONENTS() {
+      delete prfxs;
+   }
+
+   virtual ostream& print(ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterV6HAVE_COMPONENTS(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterV6HAVE_COMPONENTS";
+   }
+#endif // DEBUG
+};
+
+class FilterV6EXCLUDE: public Filter {
+public:
+   FilterMPPRFXList *prfxs;
+public:
+   FilterV6EXCLUDE(FilterMPPRFXList *p) : prfxs(p) {
+   }
+   FilterV6EXCLUDE(const FilterV6EXCLUDE &b) {
+      prfxs = new FilterMPPRFXList(*b.prfxs);
+   }
+   virtual ~FilterV6EXCLUDE() {
+      delete prfxs;
+   }
+
+   virtual ostream& print(ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterV6EXCLUDE(*this);
+   }
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterV6EXCLUDE";
+   }
+#endif // DEBUG
+};
+
 
 
 ////// The following is needed by <peering> ///////////////////////////

@@ -394,6 +394,9 @@ attr:  notify         optional,  multiple,              syntax(email)
 class: peval   
 attr:  peval            syntax(special,filter),                                 optional,  single
 
+class: mp-peval   
+attr:  mp-peval         syntax(special,mp-filter),                              optional,  single
+
 class: repository
 attr:  repository           mandatory,  single,  key,   syntax(rpsl_word)
 attr:  query-address        mandatory,  multiple

@@ -1589,22 +1589,19 @@ opt_mp_filter_prefix_list: {
 }
 | mp_filter_prefix_list {
   $$ = $1;
-  cout << *$$;
-  printf ("prefix list found!\n");
 }
 ;
 
 mp_filter_prefix_list: mp_filter_prefix_list_prefix {
- //  ((FilterPRFXList *) ($$ = new FilterPRFXList))->add_high(*$1);
 
    ((FilterMPPRFXList *) ($$ = new FilterMPPRFXList))->push_back(*$1);
 
-   //delete $1;
+   delete $1;
 }
 | mp_filter_prefix_list ',' mp_filter_prefix_list_prefix {
    $$ = $1;
    ((FilterMPPRFXList *) ($$))->push_back(*$3);
-//   delete $3;
+   delete $3;
 }
 ;
 
@@ -1617,6 +1614,8 @@ mp_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
 }
 | KEYW_AFI afi TKN_PRFXV6RNG {
   $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  $$->get_mask();
+  $$->get_range();
   if (! $$->is_valid()) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
@@ -1631,7 +1630,8 @@ mp_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
 
 }
 | KEYW_AFI afi TKN_PRFXV4RNG {
-    $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
+  $$->get_range();
   if (! $$->is_valid()) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;

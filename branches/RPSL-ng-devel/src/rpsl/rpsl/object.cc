@@ -138,18 +138,18 @@ void Object::parse() {
    if (type) {
       bool forgiving = schema.isForgiving();
       if (isDeleted || schema.isVeryForgiving()) {
-	 if (has_error) {
-	    has_error = false;
-	    Attr *n_attr;
+	      if (has_error) {
+   	      has_error = false;
+	        Attr *n_attr;
 
-	    for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
-	       if (! attr->errors.empty() 
-		   && attr->type && attr->type->isKey()) {
-		  has_error = true;
-		  break;
-	       }
-	 }
-	 schema.beForgiving();
+   	      for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
+	          if (! attr->errors.empty() 
+  		         && attr->type && attr->type->isKey()) {
+         		  has_error = true;
+	        	  break;
+	          }
+       	 }
+	       schema.beForgiving();
       }
       has_error |= ! type->validate(errors);
       schema.beForgiving(forgiving);
@@ -266,7 +266,7 @@ bool Object::hasAttr(char *name) {
 }
 
 void Object::validate() {
-  if (strcasecmp(type->name, "filter-set") == 0) {
+  if (type && (strcasecmp(type->name, "filter-set") == 0)) {
     Attr *attr;
     static char buffer[1024];
     for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
