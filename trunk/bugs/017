@@ -1,7 +1,7 @@
 id: 017
 summary: destination-specification=IP is handled as /32 always! 
 owner: katie
-status: wait
+status: solving
 priority: high
 program: prpath
 module(s): prpath
@@ -11,8 +11,19 @@ closed: unknown
 detail:
 
 Ambrose. in prpath, destination-specification=IP is handled as /32. which is
- not correct! Error when such route doest not exist in the DB. We must query fo
-r most specific route and consider it destination.
+ not correct! Error when such route doest not exist in the DB. We must query fo r most specific route and consider it destination.???
 
 Need to be checked.
 
+In fact, we can't change the behaviour from current one. We may just add the warning, without exiting silently. 
+Sug:
+1. if AS -> take as AS-number.
+2. if Prefix -> find originating AS-number.
+3. if IP-addr OR Prefix which does not have "route" object - ???
+	3a. query for most specific route, go to 2.
+	3b. issue a warning to use only existing routes in IRR, and exit.
+
+And anyways the question remains: how do we handle non-existing routes as destination-specification?
+
+resume:
+added small check for existence of originator. Need to ask someone, if this makes sence. New behaviour: if route is not existent, issue "unable to lookup destination AS", and exit.
