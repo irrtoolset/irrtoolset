@@ -3016,8 +3016,15 @@ afi_list: afi {
   $$->append($1);
 }
 | afi_list ',' afi {
+  bool t = true;
   $$ = $1;
-  $$->append($3);
+  for (Item *afi_item = $$->head(); afi_item; afi_item = $$->next(afi_item)) {
+    if ( *(ItemAFI *)afi_item == *(ItemAFI *)$3 ) {
+      t = false;
+    }
+  }
+  if (t)
+    $$->append($3);
 }
 ;
 

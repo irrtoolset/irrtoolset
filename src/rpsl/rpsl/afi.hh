@@ -51,6 +51,12 @@ class AddressFamily {
    virtual bool is_valid(MPPrefix *p);
    virtual bool is_valid(PrefixRange *p);
    virtual bool is_valid(IPv6PrefixRange *p);
+
+   bool operator==(AddressFamily &p) {
+     if (! strcasecmp(afi, p.afi))
+       return true;
+     return false;
+   }
    
    friend ostream& operator<<(ostream& stream, const AddressFamily &p);
 

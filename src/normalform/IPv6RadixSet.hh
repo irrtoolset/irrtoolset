@@ -59,7 +59,11 @@
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
 
 #ifndef u_int64_t
-#define u_int64_t unsigned long long
+#define u_int64_t unsigned long long int
+#endif
+
+#ifndef u_int
+#define u_int unsigned int
 #endif
 
 #include "util/FixedSizeAllocator.hh"

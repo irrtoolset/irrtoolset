@@ -425,60 +425,54 @@ PrefixRange NullPrefixRange("0.0.0.0/32^32-32");
 Prefix      NullPrefix("0.0.0.0/32");
 IPAddr      NullIPAddr("0.0.0.0");
 
-IPv6PrefixRange NullIPv6PrefixRange("0::0/128^128-128");
-IPv6Prefix      NullIPv6Prefix("0::0/128");
-IPv6Addr        NullIPv6Addr("0::0");
+IPv6PrefixRange NullIPv6PrefixRange("::/128^128-128");
+IPv6Prefix      NullIPv6Prefix("::/128");
+IPv6Addr        NullIPv6Addr("::");
 ipv6_addr_t     NullIPv6(0,0);
 
 /* IPv6 stuff */
 
 // ipv6_addr_t to string - pointers should be provided
 char* ipv62hex(ipv6_addr_t *ip, char *buffer){
-    ip_v6word_t high = ip->high;
-    ip_v6word_t low = ip->low;
-
-   sprintf (buffer, "%llX:%llX:%llX:%llX:%llX:%llX:%llX:%llX", (high >> 48) & 0xFFFF, (high >> 32) & 0xFFFF, (high >> 16) & 0xFFFF, high & 0xFFFF, (low >> 48) & 0xFFFF, (low >> 32) & 0xFFFF, (low >> 16) & 0xFFFF, low & 0xFFFF);
-
-  return buffer;
-}
-
-// ipv6_addr_t to string - pointers should be provided
-char* compact(ipv6_addr_t *ip, char *buffer) {
-   char *str = strdup(buffer);
-   char buf[3];
    unsigned int i[8];
    int j = 0;
 
-   ipv62hex(ip, buffer);
-   sscanf(buffer, "%X:%X:%X:%X:%X:%X:%X:%X", &i[0],  &i[1],  &i[2],  &i[3],  &i[4], &i[5],  &i[6],  &i[7]);
-   bzero(str, strlen(str));
+   ip_v6word_t high = ip->high;
+   ip_v6word_t low = ip->low;
+
+   i[0] = (high >> 48) & 0xFFFF;
+   i[1] = (high >> 32) & 0xFFFF;
+   i[2] = (high >> 16) & 0xFFFF;
+   i[3] = high & 0xFFFF;
+   i[4] = (low >> 48) & 0xFFFF;
+   i[5] = (low >> 32) & 0xFFFF;
+   i[6] = (low >> 16) & 0xFFFF;
+   i[7] = low & 0xFFFF;
+   
+   memset(buffer, 0, strlen(buffer));
 
    while ((j <= 7) && (i[j] != 0)) {
-     sprintf(buf, "%X", i[j]);
-     strcat (str, buf);
+     sprintf(buffer + strlen(buffer), "%X", i[j]); 
      if (j != 7)
-       strcat (str, ":");
+       sprintf(buffer + strlen(buffer), ":");
      j++;
    }
 
    if (i[j] == 0) {
      while ((j <= 7) && (i[j] == 0)) {
        if (j == 0)
-         strcat (str, ":");
+         sprintf(buffer + strlen(buffer), ":");
        j++;
      }
-     strcat (str, ":");
+     sprintf(buffer + strlen(buffer), ":");
    }
 
    while ((j <= 7) && (i[j] != 0)) {
-     sprintf(buf, "%X", i[j]);
-     strcat (str, buf);
+     sprintf(buffer + strlen(buffer), "%X", i[j]);
      if (j != 7)
-       strcat (str, ":");
+      sprintf(buffer + strlen(buffer), ":");
      j++;
    } 
-   bzero(buffer, strlen(buffer));
-   strncpy(buffer, str, strlen(str));
    return(buffer);
 
 }
@@ -592,8 +586,11 @@ void IPv6PrefixRange::parse(char *name)
 {
   char *slash;
   char *address =  (char *) calloc (IPV6_LENGTH,1);
-  char *p;
   char ch = ' ';
+  unsigned int uLength, uN, uM;
+  uLength = 0;
+  uN = 0;
+  uM = 0;
 
   ipaddr = (ipv6_addr_t *) calloc (sizeof(ipv6_addr_t),1);
   ipv6_addr_t t = *ipaddr;
@@ -609,38 +606,38 @@ void IPv6PrefixRange::parse(char *name)
     // go further
     slash ++;
     if (strstr(slash, "^+")) {
-      sscanf(slash, "%u^%c", &length, &ch);
+      sscanf(slash, "%u^%c", &uLength, &ch);
     }
-    else if (p = strstr(slash, "^-")) {
-      sscanf(slash, "%u^%c", &length, &ch);
+    else if (strstr(slash, "^-")) {
+      sscanf(slash, "%u^%c", &uLength, &ch);
     } 
-    else if (p = strchr(slash, '-')) {
-      sscanf(slash, "%u^%u-%u", &length, &n, &m);
+    else if (strstr(slash, "-")) {
+      sscanf(slash, "%u^%u-%u", &uLength, &uN, &uM);
     }
-    else if (p = strchr(slash, '^')) {
-      sscanf(slash, "%u^%u", &length, &n);
-      m = n;
+    else if (strstr(slash, "^")) {
+      sscanf(slash, "%u^%u", &uLength, &uN);
+      uM = uN;
     }
     else {
-      sscanf(slash, "%u", &length);
+      sscanf(slash, "%u", &uLength);
     }
     switch (ch)
     {
     case '+':
       // inclusive more specifics operator
-      n = length;
-      m = 128;
+      uN = uLength;
+      uM = 128;
       break;
     case '-':
       // exclusive more specifics operator
-      n = length + 1;
-      m = 128;
+      uN = uLength + 1;
+      uN = 128;
       break;
     default:
-      if (n == 0 || n < length)
-        n = length;
-      if (m == 0 || m < n)
-        m = n;
+      if (uN == 0 || uN < uLength)
+        uN = uLength;
+      if (uM == 0 || uM < uN)
+        uM = uN;
       break;
     }
   } 
@@ -650,14 +647,17 @@ void IPv6PrefixRange::parse(char *name)
     hex2ipv6(address, ipaddr);
     ipv62hex(ipaddr, address);
     //printf ("normalized: %s\n", address);
-    length = 128;
-    n = 128;
-    m = 128;
-    compact(ipaddr, address);
+    uLength = 128;
+    uN = 128;
+    uM = 128;
   }
   t = *ipaddr;
-  t = t & (t.getmask(length));
+  t = t & (t.getmask(uLength));
   *ipaddr = t;
+
+  n = uN;
+  m = uM;
+  length = uLength;
 
   free (address);
 }
@@ -701,7 +701,7 @@ void IPv6PrefixRange::print(void)
 
 char *IPv6PrefixRange::get_ip_text(char *buffer) const
 {
-  compact(ipaddr, buffer);
+  ipv62hex(ipaddr, buffer);
   return buffer;
 }
 
@@ -1116,7 +1116,7 @@ ipv6_addr_t& ipv6_addr_t::getmask(unsigned int len)
 }
 
 ostream& operator<<(ostream& stream, const ipv6_addr_t& p) {
-   char buf[40];
+   char buf[256];
    ipv62hex((ipv6_addr_t *) &p, buf); 
  //  stream << "xbit " << xbit << " ";
    stream << buf;
