@@ -71,6 +71,9 @@ int roe_show_homed_undet       = 1;
 int roe_show_potential_IBGP    = 1;
 int roe_show_routes_hint       = 1;
 
+// katie@ripe.net
+#define DEFAULT_GEOMETRY "1000x500+20+20"
+
 /*
  * Global variables. The Interpreter and a window that is not used :-)
  */
@@ -594,10 +597,11 @@ void roe_initialize_GUI() {
     * Set the geometry of the main window, if requested.  Put the
     * requested geometry into the "geometry" variable.
     */
-   if (geometry != NULL) {
-      Tcl_SetVar(interp, "geometry", geometry, TCL_GLOBAL_ONLY);
-      tcl_Eval("wm geometry . %s", geometry);
-   }
+   // modified a bit by katie@ripe.net to avoid spontaneus resizing
+   if (geometry == NULL) 
+      geometry = DEFAULT_GEOMETRY;
+   Tcl_SetVar(interp, "geometry", geometry ,TCL_GLOBAL_ONLY);
+   tcl_Eval("wm geometry . %s", geometry);
    
    /*
     * Set the "tcl_interactive" variable.

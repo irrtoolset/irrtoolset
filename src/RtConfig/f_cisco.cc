@@ -530,7 +530,7 @@ void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
    out << ends;
 
    int lineLen = strlen(out.str());
-   if (lineLen < 250 && ! hasTilda) {
+   if (lineLen < 240 && ! hasTilda) {
       char *p = out.str();
       for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
 	 *q = '(';
@@ -561,7 +561,7 @@ void CiscoConfig::printRE(ostream &s, const regexp &r, int aclID, bool permit){
 	 s << out.str();
 	 cerr << "Warning: ip as-path access-list is too long for cisco to handle" << endl;
       } else {
-	 int inc = hasTilda ? 1 : (250 - lineLen + size) >? 5;
+	 int inc = hasTilda ? 1 : (240 - lineLen + size) >? 5;
 	 p = out.str();
 	 q = strchr(r, ')') + 1;
 	 *r = 0;

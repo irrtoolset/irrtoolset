@@ -263,15 +263,20 @@ protected:
       {
       PolicyTerm *pt = (PolicyTerm *)policy;
       for (ListIterator<PolicyFactor> i(*pt); i; ++i)
-	for (ListIterator<PolicyPeeringAction> j(*(i->peeringActionList)); 
-	     j; 
-	     ++j)
-#if 0
+        // modified and commented out by katie@ripe.net
+	for (ListIterator<PolicyPeeringAction> j(*(i->peeringActionList)); j; ++j)	
+          // isPeeringMatching for extracting AS from peering-sets and as-sets as peerings
+	  if (j->peering && isPeeringMatching(j->peering, NULL, peerAS, NULL, NULL)) return true;
+
+       // never returned true!
+/*#if 0
 	  if (j()->peering && j()->peering->peerAS == peerAS) return true;
+
+
 #else
       ;
-#endif
-      } 
+#endif */
+    }
     else
       if (typeid(*policy) == typeid(PolicyRefine))
 	{
@@ -302,7 +307,7 @@ public:
       peerAS(_peerAS) {
 	// Has to be called here again in order to get things right!
 	// It's not perfect but it works
-	first();
+	first();	
    }
 };
 

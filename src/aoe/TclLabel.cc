@@ -45,7 +45,7 @@ static char ident[] =
 #include "TclLabel.hh"
 #include "TclApp.hh"
 
-TclLabel::clear(void)
+int TclLabel::clear(void)
 {
   TclApplication *pcApp = (TclApplication *)getExtraArgument();
   return (pcApp->evalf("%s configure -text {}", getName()));

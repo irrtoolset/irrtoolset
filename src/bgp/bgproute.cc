@@ -1022,6 +1022,7 @@ BGPRoute::evaluate(const FilterRPAttribute *filter) {
 //-------------------------------------------------------
 bool 
 BGPRoute::isMatching(ASt PeerAS, Filter * filter, IRR * irr) {
+	
 
   if (typeid(*filter) == typeid(FilterOR)) {
     return (isMatching(PeerAS,((FilterOR *) filter)->f1, irr) ||
@@ -1105,8 +1106,28 @@ BGPRoute::isMatching(ASt PeerAS, Filter * filter, IRR * irr) {
     // to make code more readable
     return evaluate((FilterRPAttribute *) filter);
   }
+
+// katie@ripe.net
+  if (typeid(*filter) == typeid(FilterFLTRNAME)) {
+    // get filter-set 
+    SymID name = ((FilterFLTRNAME *) filter)->fltrname;
+    const FilterSet *fset = irr->getFilterSet(name);
+    if (fset) {
+	 // get filter from the object
+         AttrIterator<AttrFilter> itr(fset, "filter");
+         
+         if (itr)
+	    return (isMatching(PeerAS,((Filter *) itr()->filter), irr)); 
+	 else
+	    return false;
+    }
+    else
+	return false;
+
+  }
   
   assert(!"Unknown Filter");
+
   return false;
 }
 

@@ -359,8 +359,8 @@ proc j:parse_args {arglist} {
 
 # ----------------------------------------------------------------------------
 # $Log$
-# Revision 4.7  2002/03/27 11:32:57  katie
-# Initial revision
+# Revision 4.8  2002/03/27 13:56:39  katie
+# bugfix version, aoe up
 #
 # Revision 1.4  1996/08/16  23:40:04  kkumar
 # Added copyright and $Id

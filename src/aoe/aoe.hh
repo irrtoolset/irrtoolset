@@ -153,6 +153,15 @@ class FileSave : public TclCommand
       FileSave(char *pzcName) : TclCommand(pzcName) {} 
 };
 
+class ListSave : public TclCommand // katie@ripe.net for peers save
+{
+   protected:
+      virtual int command(int argc, char *argv[]);
+
+   public:
+      ListSave(char *pzcName) : TclCommand(pzcName) {} 
+};
+
 class FileRevert : public TclCommand
 {
    protected:
@@ -220,6 +229,8 @@ class AoeApplication : public TclApplication
       TclLabel *pcDefLabel, *pcNeighborLabel;
 //      TclButton *pcPolicyDeleteButton, *pcCommitButton;
       TclButton *pcCommitButton;
+      // katie@ripe.net
+      TclButton *pcCheckButton;
       TclToggleButton *pcPolicyEditButton, *pcPolicyShowButton;
       TclRadioButton *pcPolicyTemplateRadioButton;
       TclLabel *pcStatusLine;
