@@ -458,6 +458,27 @@ public:
 #endif // DEBUG
 };
 
+class FilterMPPRFXList: public Filter, public MPPrefixRanges {
+public:
+   FilterMPPRFXList() {
+   }
+   virtual ~FilterMPPRFXList() {}
+
+   virtual ostream& print(ostream &out) const;
+   virtual Filter* dup() const {
+      return new FilterMPPRFXList(*this);
+   } 
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "FilterMPPRFXList";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << *this << endl;
+   }
+#endif // DEBUG
+};
+
+
 class FilterRPAttribute: public Filter {
 public: 
    const AttrRPAttr *rp_attr;   // into rp-attribute in the dictionary

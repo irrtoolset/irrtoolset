@@ -57,6 +57,7 @@
 
 #include "config.h"
 #include <sys/types.h>
+#include <vector.h>
 
 class ostream;
 
@@ -301,4 +302,7 @@ public:
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 
 };
+
+typedef vector<MPPrefix> MPPrefixRanges;
+
 #endif // PREFIX_HH
