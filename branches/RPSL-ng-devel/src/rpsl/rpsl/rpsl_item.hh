@@ -865,6 +865,35 @@ public:
          append((ItemAFI *) item->dup());
    }
 
+   void and(ItemList &list) {
+     ItemList *result = new ItemList;
+     for (Item *item = head(); item; item = next(item))
+       if (list.contains((ItemAFI *) item))
+         result->append((ItemAFI *) item->dup());
+     clear();
+     merge(*result);
+     delete result;
+   }
+
+   void or(ItemList &list) {
+     merge(list);
+   }
+  
+   void not() {
+     // create complete afi list
+     ItemList *full = new ItemList;
+     full->append(new ItemAFI("any"));
+     full = full->expand();
+     ItemList *result = new ItemList;
+     for (Item *item = full->head(); item; item = full->next(item))
+       if (! contains ((ItemAFI *) item))
+         result->append((ItemAFI *) item->dup());
+     clear();
+     merge(*result);
+     delete full;
+     delete result;
+   }
+
    virtual ItemList *expand();
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
