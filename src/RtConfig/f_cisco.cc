@@ -1285,7 +1285,7 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
      return;
    }
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1355,7 +1355,7 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
      return;
    }
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1426,7 +1426,7 @@ void CiscoConfig::static2bgp(ASt asno, MPPrefix *addr) {
    int last = 0;
 
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
 
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
      // Made asno part of the map name if it's not changed by users
@@ -1674,7 +1674,7 @@ void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr,
      return;
    }
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
    int last = 0;
    SetOfPrefix set;
    SetOfIPv6Prefix ipv6_set;
@@ -1776,7 +1776,7 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    }
 
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
 
    NormalExpression *ne;
    int last = 0;
@@ -1845,7 +1845,7 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
    }
 
    ItemList *afi_list = itr.get_afi_list();
-   afi_list->splice(*(itr1.get_afi_list()));
+   afi_list->merge(*(itr1.get_afi_list()));
 
    NormalExpression *ne;
    int last = 0;

@@ -3018,14 +3018,8 @@ afi_list: afi {
   $$->append($1);
 }
 | afi_list ',' afi {
-  bool t = true;
   $$ = $1;
-  for (Item *afi_item = $$->head(); afi_item; afi_item = $$->next(afi_item)) {
-    if ( *(ItemAFI *)afi_item == *(ItemAFI *)$3 ) {
-      t = false;
-    }
-  }
-  if (t)
+  if (! $$->contains((ItemAFI *) $3))
     $$->append($3);
 }
 ;

@@ -850,6 +850,20 @@ public:
 	 append(item->dup());
       return *this;
    }
+   // for afi
+   bool contains(Item *t) {
+     for (Item *item = head(); item; item = next(item))
+       if ((typeid(*item) == typeid(*t)) && ( typeid(*t) == typeid(ItemAFI)))
+         if (((ItemAFI &) *item) == ((ItemAFI &) *t))
+           return true;
+     return false;
+   }
+   // merge for afi
+   void merge(ItemList &list) {
+     for (Item *item = list.head(); item; item = list.next(item))
+       if (! contains((ItemAFI *) item))
+         append((ItemAFI *) item->dup());
+   }
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
