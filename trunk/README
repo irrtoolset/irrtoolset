@@ -1,12 +1,19 @@
-This is the README file for RAToolSet up to v 3.5.3
+This is the README file for RAToolSet up to v 4.7.2
 
 MAILING LIST
-	ratoolset@isi.edu
+	irrtoolset@ripe.net
 	To subscribe to the mailing list, please send mail to
-	majordomo@isi.edu with body (not the subject) of the message
-	containing "subscribe ratoolset".
+	majordomo@ripe.net with body (not the subject) of the message
+	containing "subscribe irrtoolset".
+
+        Old mailing list ratoolset@isi.edu is now migrated to irrtoolset@ripe.net
 
 FTP and WWW SITES
+	RIPE NCC site:
+        ftp://ftp.ripe.net/tools/IRRToolSet
+        http://www.ripe.net/ripencc/pub-services/db/irrtoolset/index.html
+
+        ISI.EDU site:
 	ftp.isi.edu:pub/ra/RAToolSet
 	http://www.isi.edu/ra/RAToolSet
 
@@ -16,6 +23,7 @@ FTP and WWW SITES
 INSTALLATION
 	0. To install, you need g++ 2.8.0 or higher, libstdc++-2.8.0 or
 	   higher, bison, flex and gmake.
+           Please note that the toolset is not gcc3 compliant (yet).
 
 	   For roe and aoe, you also need Tk4.0/Tcl7.4 or higher. If Tcl/Tk 
 	   is not installed in a standard include directory, please set the
@@ -72,5 +80,5 @@ KNOWN PROBLEMS DURING INSTALLATION
 	these opitons on these platforms.
 
 Please let us know if you face any problems at the mailing list
-ratoolset@isi.edu. Bug reports and suggestions are always welcome.
+irrtoolset@ripe.net. Bug reports and suggestions are always welcome.
 
