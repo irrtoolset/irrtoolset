@@ -260,7 +260,8 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
 
-   Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
+   if (!is_rpslng()) // one-liners
+     Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
 
    if (*buffer == 'D') { // key not found error
       error.warning("Warning: key not found error for query %s.\n", last_query);
@@ -279,33 +280,34 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
    if (is_rpslng()) {
-      char result[1024];
-      memset(result, 0, strlen(result));
-      char prev[1024];
-      memset(prev, 0, strlen(prev));
+      response = strdup("");
+      char *prev;
       do {
+        prev = strdup(buffer);
+        Trace(TR_WHOIS_RESPONSE) << "Whois: Response <<\n" << buffer <<">>"<< endl;
         if (strstr (buffer, "route") || strstr(buffer, "route6")) {
           char *prefix;
-          char end_prefix[1024];
+          char end_prefix[18];
+          char *tmp;
           prefix = strstr(buffer, ":");
           do {
             prefix++;
           } while (isspace (*prefix));
           sscanf (prefix, "%s\n", &end_prefix);
-          strncat (result, end_prefix, strlen(end_prefix));
-          strncat (result, " ", 1);
-          strncpy(prev, buffer, strlen(buffer));
+          // save response
+          tmp = strdup (response);
+          // allocate new string
+          response = new char [strlen(tmp) + strlen(end_prefix) + 2];
+          memset(response, 0, strlen(response));
+          // copy old and new response
+          strncat (response, tmp, strlen(tmp));
+          strncat (response, " ", 1);
+          strncat (response, end_prefix, strlen(end_prefix));
+          free(tmp);
         }
       } while (fgets(buffer, sizeof(buffer), in) && 
-              !((*prev == '\n') && (*buffer == '\n')));
-      //} while (fgets(buffer, sizeof(buffer), in) && 
-      //        !(*buffer == '\n'));
-
-      int count = atoi(result);
-      response = new char [count];
-      memset(response, 0, strlen(response));
-      strncpy(response, result, strlen(result));
-      return count; // provide the char count
+               !((*prev == '\n') && (*buffer == '\n')));
+      return atoi(response);
    }
 
    int count = atoi(buffer + 1);
