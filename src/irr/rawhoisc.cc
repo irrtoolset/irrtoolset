@@ -333,8 +333,6 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
 
-   cout << "RESPONSE END: <<" << response << ">>" << endl;
-   cout << "COUNT " << count << endl;
    return count;
 }
 
