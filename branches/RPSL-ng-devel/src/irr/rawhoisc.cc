@@ -100,6 +100,10 @@ extern u_short htons(unsigned short);
 #endif
 }
 
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE            2047
+#endif
+
 void RAWhoisClient::Open(const char *_host, const int _port, const char *_sources) {
    if (_is_open)
       Close();
@@ -252,7 +256,7 @@ int RAWhoisClient::Response(char *&response) {
    if (!_is_open)
       Open();
 
-   char buffer[1024]; 
+   char buffer[BUFFER_SIZE]; 
 
    // Read the "A<byte-count>" line
    if (! fgets(buffer, sizeof(buffer), in)) {
