@@ -338,6 +338,7 @@ extern Object *current_object;
 
 %type<filter>    mp_filter
 %type<filter>    opt_default_mp_filter
+%type<filter>    mp_filter_exp
 %type<filter>    mp_filter_term
 %type<filter>    mp_filter_factor
 %type<filter>    mp_filter_operand
@@ -1097,7 +1098,10 @@ filter_prefix_operand: TKN_ASNO {
 opt_filter_prefix_list: {
    $$ = new FilterPRFXList;
 }
-| filter_prefix_list
+| filter_prefix_list {
+  $$ = $1;
+  printf("FilterPRFXList created\n");
+}
 ;
 
 filter_prefix_list: filter_prefix_list_prefix {
@@ -1516,14 +1520,18 @@ mp_export_peering_action_list: KEYW_TO mp_peering opt_action {
 
 //// mp-filter TBD //////////////////////
 
-mp_filter: mp_filter OP_OR mp_filter_term {
+mp_filter: KEYW_AFI afi mp_filter_exp {
+  $$ = new FilterAFI((ItemAFI *) $2, $3);
+}
+;
+
+mp_filter_exp: mp_filter_exp OP_OR mp_filter_term {
    $$ = new FilterOR($1, $3);
 }
-| mp_filter mp_filter_term %prec OP_OR {
+| mp_filter_exp mp_filter_term %prec OP_OR {
    $$ = new FilterOR($1, $2);
 }
-| mp_filter_term {
-}
+| mp_filter_term
 ;
 
 mp_filter_term : mp_filter_term OP_AND mp_filter_factor {
@@ -1580,63 +1588,36 @@ mp_filter_prefix_operand: TKN_ASNO {
 }
 | '{' opt_mp_filter_prefix_list '}' { 
    $$ = $2; 
-   
 }
 ;
 
 opt_mp_filter_prefix_list: {
    $$ = new FilterMPPRFXList;
 }
-| mp_filter_prefix_list {
-  $$ = $1;
-}
+| mp_filter_prefix_list
 ;
 
 mp_filter_prefix_list: mp_filter_prefix_list_prefix {
 
    ((FilterMPPRFXList *) ($$ = new FilterMPPRFXList))->push_back(*$1);
-
-   delete $1;
 }
 | mp_filter_prefix_list ',' mp_filter_prefix_list_prefix {
    $$ = $1;
    ((FilterMPPRFXList *) ($$))->push_back(*$3);
-   delete $3;
 }
 ;
 
-mp_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;          
-  }
+mp_filter_prefix_list_prefix: TKN_PRFXV6 {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_PRFXV6RNG {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  $$->get_mask();
-  $$->get_range();
-  if (! $$->is_valid()) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
+| TKN_PRFXV6RNG {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_PRFXV4 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
-
+| TKN_PRFXV4 {
+  $$ = new MPPrefix($1);
 }
-| KEYW_AFI afi TKN_PRFXV4RNG {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  $$->get_range();
-  if (! $$->is_valid()) {
-    handle_error ("Error: afi/prefix mismatch\n");
-    yyerrok;
-  }
-
+| TKN_PRFXV4RNG {
+  $$ = new MPPrefix($1);
 }
 ;
 
@@ -1690,14 +1671,14 @@ mp_router_expr_factor: '(' mp_router_expr ')' {
 ;
 
 mp_router_expr_operand: KEYW_AFI afi TKN_IPV4 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   } else
    $$ = new FilterRouter($3);
 }
 | KEYW_AFI afi TKN_IPV6 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   } else 
@@ -1825,13 +1806,13 @@ filter_attribute: ATTR_FILTER filter TKN_EOA {
 
 /// mp-filter attribute TBD ///
 
-mp_filter_attribute: ATTR_MP_FILTER KEYW_AFI afi mp_filter TKN_EOA {
+mp_filter_attribute: ATTR_MP_FILTER mp_filter TKN_EOA {
   // check that "filter:" is not present
    if (current_object->hasAttr("filter")) {
     handle_error("Error: mp-filter and filter attributes can't be used together\n");
     yyerrok;
   } else {
-    $$ = changeCurrentAttr(new AttrMPFilter($4));
+    $$ = changeCurrentAttr(new AttrMPFilter($2));
   }
 }
 | ATTR_MP_FILTER error TKN_EOA {
@@ -1907,14 +1888,14 @@ rtr_mp_member_list: rtr_mp_member {
 // afi ???
 rtr_mp_member: KEYW_AFI afi TKN_IPV4 {
   $$ = new ItemIPV4($3);
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_IPV6 {
   $$ = new ItemIPV6($3);
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   } 
@@ -1963,15 +1944,15 @@ ifaddr_attribute: ATTR_IFADDR TKN_IPV4 KEYW_MASKLEN TKN_INT opt_action TKN_EOA {
 ////// interface attribute TBD ///////////////////////////////////////////
 
 interface_address: KEYW_AFI afi TKN_IPV4 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
+  $$ = new MPPrefix($3);
+  if (! ((ItemAFI *) $2)->is_valid($$)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_IPV6 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
+  $$ = new MPPrefix($3);
+  if (! ((ItemAFI *) $2)->is_valid($$)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
@@ -2205,15 +2186,15 @@ mp_peer_attribute: ATTR_MP_PEER TKN_WORD mp_peer_id opt_peer_options TKN_EOA {
 ;
 
 mp_peer_id: KEYW_AFI afi TKN_IPV4 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
+  $$ = new MPPrefix($3);
+  if (! ((ItemAFI *) $2)->is_valid($$)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_IPV6 {
-  $$ = new MPPrefix(((ItemAFI *) $2)->afi, $3);
-  if (! $$->is_valid()) {
+  $$ = new MPPrefix($3);
+  if (! ((ItemAFI *) $2)->is_valid($$)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
@@ -2333,14 +2314,15 @@ v6_filter_prefix_list: v6_filter_prefix_list_prefix {
 }
 ;
 
+// TBD!!!
 v6_filter_prefix_list_prefix: KEYW_AFI afi TKN_PRFXV6 {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
 }
 | KEYW_AFI afi TKN_PRFXV6RNG {
-  if (! ((ItemAFI *) $2)->afi->is_valid($3)) {
+  if (! ((ItemAFI *) $2)->is_valid($3)) {
     handle_error ("Error: afi/prefix mismatch\n");
     yyerrok;
   }
@@ -3021,7 +3003,6 @@ afi_list: afi {
 
 afi: TKN_AFI {
     $$ = new ItemAFI($1);
-//    printf ("new AFI class created: %s\n", ((ItemAFI *) $$)->afi->name());
 }
 ;
 

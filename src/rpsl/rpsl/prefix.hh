@@ -76,9 +76,33 @@ class ipv6_addr_t {
     ip_v6word_t high;
     ip_v6word_t low; 
   public:
-    int operator<(const ipv6_addr_t& other) const;
-    int operator==(const ipv6_addr_t& other) const;
-    ipv6_addr_t& operator&(const ipv6_addr_t& other);
+    friend int operator<(ipv6_addr_t one, ipv6_addr_t two);
+    friend int operator==(ipv6_addr_t one, ipv6_addr_t two);
+    friend int operator!=(ipv6_addr_t one, ipv6_addr_t two);
+    int operator!() const;
+
+    friend ipv6_addr_t& operator&(ipv6_addr_t one, ipv6_addr_t two);
+    friend ipv6_addr_t& operator|(ipv6_addr_t one, ipv6_addr_t two);
+    ipv6_addr_t& operator|(unsigned int i);
+    ipv6_addr_t& operator<<(unsigned int i);
+    ipv6_addr_t& operator>>(unsigned int i);
+    ipv6_addr_t& operator~() const;
+
+    bool operator&&(bool b);
+    bool is_true() const;
+
+    ipv6_addr_t& getbits(unsigned int len);
+    ipv6_addr_t& getmask(unsigned int len);
+
+  friend ostream& operator<<(ostream& stream, const ipv6_addr_t& p);
+
+ public:
+    ipv6_addr_t() {}
+
+    ipv6_addr_t(ip_v6word_t i, ip_v6word_t j) :
+    high(i), low(j) {}
+
+    ~ipv6_addr_t() {}
     
 };
 
@@ -95,6 +119,7 @@ extern class IPAddr      NullIPAddr;
 extern class IPv6PrefixRange NullIPv6PrefixRange;
 extern class IPv6Prefix    NullIPv6Prefix;
 extern class IPv6Addr    NullIPv6Addr;
+extern class ipv6_addr_t NullIPv6;
 
 class PrefixRange {
 
@@ -237,8 +262,8 @@ friend class MPPrefix;
    unsigned int get_length() const { return length; }
    unsigned int get_n() const { return n; }
    unsigned int get_m() const { return m; }
-   ipv6_addr_t& get_mask() const;
-   ipv6_addr_t& get_range() const;
+   ipv6_addr_t get_mask() const;
+   ipv6_addr_t get_range() const;
 
    friend ostream& operator<<(ostream& stream, const IPv6PrefixRange& p);
 
@@ -278,41 +303,49 @@ public:
    friend ostream& operator<<(ostream& stream, const IPv6Addr& p);
 };
 
-class AddressFamily;
+//class AddressFamily;
+
+// metaclass for type isolation (ipv4, ipv6)
 
 class MPPrefix { 
  public:
-   AddressFamily *afi;
+//   AddressFamily *afi;
    PrefixRange *ipv4;
    IPv6PrefixRange *ipv6;
 
 public: 
    MPPrefix(void) : 
-      afi(NULL),
+//      afi(NULL),
       ipv4(NULL),
       ipv6(NULL)
    {
    }
 
-   MPPrefix(AddressFamily *_afi, PrefixRange *_ipv4 ) :
-      afi(_afi),
+   MPPrefix(PrefixRange *_ipv4 ) :
+//  MPPrefix(AddressFamily *_afi, PrefixRange *_ipv4 ) :
+//      afi(_afi),
       ipv4(_ipv4),
       ipv6(NULL)
    {
    }
 
-   MPPrefix(AddressFamily *_afi, IPv6PrefixRange *_ipv6 ) :
-      afi(_afi),
+   MPPrefix(IPv6PrefixRange *_ipv6 ) :
+//  MPPrefix(AddressFamily *_afi, IPv6PrefixRange *_ipv6 ) :
+//      afi(_afi),
       ipv4(NULL),
       ipv6(_ipv6)
    {
    }
 
-  bool is_valid();
-  unsigned int get_length();
+//  bool is_valid();
+  unsigned int get_length() const;
+  unsigned int get_n();
+  unsigned int get_m();
   void define (unsigned int masklen);
-  void* get_mask();
-  void* get_range();
+ // Those are used by IPV6 only
+  ipv6_addr_t get_mask() const;
+  ipv6_addr_t get_range() const;
+  ipv6_addr_t get_ipaddr() const;
 
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 

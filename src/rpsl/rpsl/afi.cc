@@ -77,3 +77,11 @@ bool AddressFamily::is_valid(IPv6PrefixRange *p) {
       return true;
    return false;
 }
+
+bool AddressFamily::is_valid(MPPrefix *p) {
+   if ((strstr(afi, "ipv6") && p->ipv6) ||
+       (strstr(afi, "ipv4") && p->ipv4))
+      return true;
+   return false;
+}
+

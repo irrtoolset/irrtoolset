@@ -22,13 +22,16 @@
 
 #include "config.h"
 #include <sys/types.h>
+#include <rpsl/prefix.hh>
 
 class ostream;
 class PrefixRange;
 class IPv6PrefixRange;
+class MPPrefix;
+
 
 class AddressFamily {
- protected:
+ public:
    char *afi;
 
  public:
@@ -42,9 +45,13 @@ class AddressFamily {
    bool is_Matching (char *name); // exact match
    bool is_ipv4 ();  
    bool is_ipv6 ();  
+   virtual bool is_valid(MPPrefix *p);
    virtual bool is_valid(PrefixRange *p);
    virtual bool is_valid(IPv6PrefixRange *p);
    
    friend ostream& operator<<(ostream& stream, const AddressFamily &p);
+
+  friend class ItemAFI;
+  friend class FilterAFI;
 
 };
