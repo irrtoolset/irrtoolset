@@ -371,7 +371,6 @@ public:
   MPPrefixRanges::MPPrefixRanges() {};
   MPPrefixRanges::MPPrefixRanges(void *t) {
     this->append_list((MPPrefixRanges *) t);
-    cout << "CONSTRUCTOR" << endl;
   }
 
   void append_list(const MPPrefixRanges *src); // join

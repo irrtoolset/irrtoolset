@@ -246,9 +246,9 @@ main(int argc, char **argv, char **envp) {
    regexp_nf::expandASSets();
 
    RtConfig::loadDictionary();
-     
+
    commandparse();
-   
+
    if (opt_prompt)
       cout << endl;
 
@@ -285,146 +285,153 @@ void RtConfig::loadDictionary() {
 // @RtConfig configureRouter rtr.isp.net
 void RtConfig::configureRouter(char *name) {
 
-    cout << "NOT IMPLEMENTED" << endl;
-
-   /// needs TBD!!!!
-   /*
-   const InetRtr *rtr = irr->getInetRtr(name);
+   const InetRtr *rtr = irr->getInetRtr(symbols.symID(name));
    if (!rtr)	{
-	cerr << "Error: no object for router: " << name << endl;
-	return;
+	   cerr << "Error: no object for router: " << name << endl;
    }
 
    const AttrProtocol *bgp = schema.searchProtocol("BGP4");
 
-   AttrGenericIterator<ItemASNO> itr2(rtr, "local-as");
-   ASt myAS = itr2()->asno;
+   AttrGenericIterator<ItemASNO> itr1(rtr, "local-as");
+   ASt myAS = itr1()->asno;
 	
-   // fixed for multiple "ifaddr" attribute 
-   AttrIterator<AttrIfAddr> itr1(rtr, "ifaddr");
+   InterfaceIterator itr = InterfaceIterator(rtr);
+   // may need TBD on action/tunnel details
+   PeerIterator itr2 = PeerIterator(rtr);
 
-   AttrIterator<AttrPeer> itr(rtr, "peer");
-
-   for (const AttrPeer *peer = itr.first(); peer; peer = itr.next()) {
-	for (const AttrIfAddr *ifaddr = itr1.first(); ifaddr; ifaddr = itr1.next()) 
-	{
-       		IPAddr myIP(ifaddr->ifaddr.get_ipaddr());
-      		if (peer->protocol == bgp) {
-	 		ASt peerAS = ((ItemASNO *) peer->searchOption("asno")->args->head())->asno;
-	 		importP(myAS, &myIP, peerAS, peer->peer);
-	 		exportP(myAS, &myIP, peerAS, peer->peer);
-      		}
- 	}
+   for (Peer *peer = itr2.first(); peer; peer = itr2.next()) {
+	   for (Interface *ifaddr = itr.first(); ifaddr; ifaddr = itr.next()) {
+       MPPrefix *myIP = new MPPrefix(*(ifaddr->interface.ifaddr));
+         if (peer->peer.protocol == bgp) {
+	 		     ASt peerAS = ((ItemASNO *) peer->peer.searchOption("asno")->args->head())->asno;
+	 		     importP(myAS, myIP, peerAS, peer->peer.peer);
+	 		     exportP(myAS, myIP, peerAS, peer->peer.peer);
+      	}
+ 	   }
    }
-   */
 }
 
+// reimplemented to handle mp-filters
 void RtConfig::printPrefixes(char *filter, char *fmt) {
+
    Buffer peval(strlen(filter)+16);
+
+   if (strstr(filter, "afi ")) {
+     peval.append("mp-");
+   }
    peval.append("peval: ");
    peval.append(filter);
    peval.append("\n\n");
 
    Object *o = new Object(peval);
    if (! o->has_error) {
-      AttrIterator<AttrFilter> itr(o, "peval");
-      
-      NormalExpression *ne = 
-	 NormalExpression::evaluate(itr()->filter, ~0);
 
-      if (ne && ne->is_any() != NEITHER)
-        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-
-      if (ne && ne->singleton_flag == NormalTerm::PRFX)
-	 printPrefixes_(ne->first()->prfx_set, fmt);
-      else
-	 if (ne && ne->is_any() != NEITHER )
-         {
-		if (ciscoConfig.emptyLists)	
-		{
-                	// print "any/not any" prefix list - changed by katie@ripe.net
-                	SetOfPrefix *nets = new SetOfPrefix;
-                	if (ne->is_any() == ANY)
-                        	nets->not_ = true;
-                	printSuperPrefixRanges_(*nets,fmt);
-		}
+     NormalExpression *ne;
+     if (strcmp(o->type->name,"mp-peval") == 0) {
+       AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+     else {
+       AttrIterator<AttrFilter> itr(o, "peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+       
+     if (ne && ne->is_any() != NEITHER)
+       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+     else {
+       if (ne && (ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
+         cerr << "Error: badly formed prefix filter" << endl;
+       } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
+           printPrefixes_(nt->prfx_set, fmt);
+           printPrefixes_(nt->ipv6_prfx_set, fmt);
          }
-        else
-	 	cerr << "Error: Badly formed prefix filter." << endl;
-      
-      delete ne;
+       }
+     }
+     delete ne;
+
    }
-   
    delete o;
 }
 
 void RtConfig::printPrefixRanges(char *filter, char *fmt) {
    Buffer peval(strlen(filter)+16);
+
+   if (strstr(filter, "afi ")) {
+     peval.append("mp-");
+   }
    peval.append("peval: ");
    peval.append(filter);
    peval.append("\n\n");
 
    Object *o = new Object(peval);
    if (! o->has_error) {
-      AttrIterator<AttrFilter> itr(o, "peval");
-      
-      NormalExpression *ne = 
-	 NormalExpression::evaluate(itr()->filter, ~0);
-      if (ne && ne->singleton_flag == NormalTerm::PRFX)
-	 printPrefixRanges_(ne->first()->prfx_set, fmt);
-      else
-	if (ne && ne->is_any() != NEITHER )
-         {
-                // print "any/not any" prefix list - changed by katie@ripe.net
-                SetOfPrefix *nets = new SetOfPrefix;
-                if (ne->is_any() == ANY)
-                        nets->not_ = true;
-                printSuperPrefixRanges_(*nets,fmt);
+
+     NormalExpression *ne;
+     if (strcmp(o->type->name,"mp-peval") == 0) {
+       AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+     else {
+       AttrIterator<AttrFilter> itr(o, "peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+
+     if (ne && ne->is_any() != NEITHER)
+       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+     else {
+       if (ne && ne->singleton_flag != NormalTerm::PRFX && ne->singleton_flag != NormalTerm::IPV6_PRFX) {
+         cerr << "Error: badly formed prefix filter" << endl;
+       } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
+           printPrefixRanges_(nt->prfx_set, fmt);
+           printPrefixRanges_(nt->ipv6_prfx_set, fmt);
          }
-	else
-     		cerr << "Error: Badly formed prefix filter." << endl; 
-      delete ne;
+       }
+     }
+     delete ne;
+
    }
-   
    delete o;
 }
-
 void RtConfig::printSuperPrefixRanges(char *filter, char *fmt) {
    Buffer peval(strlen(filter)+16);
+
+   if (strstr(filter, "afi ")) {
+     peval.append("mp-");
+   }
    peval.append("peval: ");
    peval.append(filter);
    peval.append("\n\n");
 
    Object *o = new Object(peval);
    if (! o->has_error) {
-      AttrIterator<AttrFilter> itr(o, "peval");
-      
-      NormalExpression *ne = 
-	 NormalExpression::evaluate(itr()->filter, ~0);
 
-      if (ne && ne->is_any() != NEITHER)
-        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+     NormalExpression *ne;
+     if (strcmp(o->type->name,"mp-peval") == 0) {
+       AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+     else {
+       AttrIterator<AttrFilter> itr(o, "peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
 
-      if (ne && ne->singleton_flag == NormalTerm::PRFX)
-	 printSuperPrefixRanges_(ne->first()->prfx_set, fmt);
-      else
-	 if (ne && ne->is_any() != NEITHER)
-         {
-		if (ciscoConfig.emptyLists)	
-		{
-                	// print "any/not any" prefix list - changed by katie@ripe.net
-                	SetOfPrefix *nets = new SetOfPrefix;
-                	if (ne->is_any() == ANY)
-                        	nets->not_ = true;
-                	printSuperPrefixRanges_(*nets,fmt);
-		}
+     if (ne && ne->is_any() != NEITHER)
+       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+     else {
+       if (ne && ne->singleton_flag != NormalTerm::PRFX && ne->singleton_flag != NormalTerm::IPV6_PRFX) {
+         cerr << "Error: badly formed prefix filter" << endl;
+       } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
+           printSuperPrefixRanges_(nt->prfx_set, fmt);
+           printSuperPrefixRanges_(nt->ipv6_prfx_set, fmt);
          }
-         else
-	 	cerr << "Error: Badly formed prefix filter." << endl;
-      
-      delete ne;
+       }
+     }
+     delete ne;
+
    }
-   
    delete o;
 }
 
@@ -492,6 +499,65 @@ void RtConfig::printPrefixes_(SetOfPrefix& nets, char *fmt) {
 	       cerr << "Unknown operator: " << *percent << endl;
 	    }
 	 format = ++percent;
+      }
+      if (*format) cout << format;
+   }
+   free(p);
+}
+
+void RtConfig::printPrefixes_(SetOfIPv6Prefix& nets, char *fmt) {
+   char buf[256];
+   char *percent;
+   char *format, *p;
+   p = format = strdup(fmt);
+   IPv6RadixSet::SortedPrefixIterator itr(&nets.members);
+   ipv6_addr_t addr;
+   u_int leng;
+   u_int start;
+   u_int end;
+ 
+   for (bool ok = itr.first(addr, leng);
+        ok;
+        ok = itr.next(addr, leng)) {
+      start = end = leng;
+      format = p;
+      while (percent = strchr(format, '%')) {
+         *percent = 0;
+         cout << format;
+         *percent = '%';
+         percent++;
+         switch (*percent)
+            {
+            case '%':
+            case '\t':
+            case '\n':
+               cout << *percent;
+               break;
+            case 'p':
+               cout << ipv62hex(&addr, buf);
+               break;
+            case 'l':
+               cout << leng;
+               break;
+            case 'L':
+               cout << (128-leng);
+               break;
+            case 'n':
+               cout << start;
+               break;
+            case 'm':
+               cout << end;
+               break;
+            case 'k':
+               cout << ipv62hex(&(addr.getmask(leng)),buf);
+               break;
+            case 'K':
+               cout << ipv62hex(&(~(addr.getmask(leng))),buf);
+               break;
+            default:
+               cerr << "Unknown operator: " << *percent << endl;
+            }
+         format = ++percent;
       }
       if (*format) cout << format;
    }
@@ -567,6 +633,64 @@ void RtConfig::printPrefixRanges_(SetOfPrefix& nets, char *fmt) {
    free(p);
 }
 
+void RtConfig::printPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt) {
+   char buf[256];
+   char *percent;
+   char *format, *p;
+   p = format = strdup(fmt);
+   IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
+   ipv6_addr_t addr;
+   u_int leng;
+   u_int start;
+   u_int end;
+ 
+   for (bool ok = itr.first(addr, leng, start, end);
+        ok;
+        ok = itr.next(addr, leng, start, end)) {
+      format = p;
+      while (percent = strchr(format, '%')) {
+         *percent = 0;
+         cout << format;
+         *percent = '%';
+         percent++;
+         switch (*percent)
+            {
+            case '%':
+            case '\t':
+            case '\n':
+               cout << *percent;
+               break;
+            case 'p':
+               cout << ipv62hex(&addr, buf);
+               break;
+            case 'l':
+               cout << leng;
+               break;
+            case 'L':
+               cout << (128-leng);
+               break;
+            case 'n':
+               cout << start;
+               break;
+            case 'm':
+               cout << end;
+               break;
+            case 'k':
+               cout << ipv62hex(&(addr.getmask(leng)), buf);
+               break;
+            case 'K':
+               cout << ipv62hex(&(~(addr.getmask(leng))), buf);
+               break;
+            default:
+               cerr << "Unknown operator: " << *percent << endl;
+            }
+         format = ++percent;
+      }
+      if (*format) cout << format;
+   }
+   free(p);
+}
+
 void RtConfig::printSuperPrefixRanges_(SetOfPrefix& nets, char *fmt) {
 // eg: printRouteList(nets, "network  %p/%l^%n-%m\tmask %k\n");
 //       where %p represents prefix
@@ -626,6 +750,60 @@ void RtConfig::printSuperPrefixRanges_(SetOfPrefix& nets, char *fmt) {
 	       cerr << "Unknown operator: " << *percent << endl;
 	    }
 	 format = ++percent;
+      }
+      if (*format) cout << format;
+   }
+   free(p);
+}
+
+void RtConfig::printSuperPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt) {
+   char buf[256];
+   char *percent;
+   char *format, *p;
+   p = format = strdup(fmt);
+   IPv6RadixSet::SortedIterator itr(&nets.members);
+   ipv6_addr_t addr;
+   u_int leng;
+   ipv6_addr_t rngs;
+ 
+   for (bool ok = itr.first(addr, leng, rngs);
+        ok;
+        ok = itr.next(addr, leng, rngs)) {
+      format = p;
+      while (percent = strchr(format, '%')) {
+         *percent = 0;
+         cout << format;
+         *percent = '%';
+         percent++;
+         switch (*percent)
+            {
+            case '%':
+            case '\t':
+            case '\n':
+               cout << *percent;
+               break;
+            case 'p':
+               cout << ipv62hex(&addr,buf);
+               break;
+            case 'l':
+               cout << leng;
+               break;
+            case 'L':
+               cout << (128-leng);
+               break;
+            case 'k':
+               cout << ipv62hex(&(addr.getmask(leng)), buf);
+               break;
+            case 'K':
+               cout << ipv62hex(&(~(addr.getmask(leng))), buf);
+               break;
+            case 'D': 
+               cout << ipv62hex(&(addr.getbits(leng)), buf);
+               break;
+            default:
+               cerr << "Unknown operator: " << *percent << endl;
+            }
+         format = ++percent;
       }
       if (*format) cout << format;
    }

@@ -744,6 +744,10 @@ public:
       return typeid(b) == typeid(ItemWORD&) 
 	 && strcasecmp(word, ((ItemWORD&) b).word) < 0;
    }
+   virtual bool operator ==(Item &b) {
+      return typeid(b) == typeid(ItemWORD&)
+   && strcasecmp(word, ((ItemWORD&) b).word) == 0;
+   }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
    virtual const char *className(void) const {

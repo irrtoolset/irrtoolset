@@ -57,6 +57,9 @@
 #include "config.h"
 #include "util/List.hh"
 #include "normalform/FilterOfASPath.hh"
+#include "irr/irr.hh"
+#include "irr/autnum.hh"
+
 
 class FilterOfCommunity;
 class ostream;
@@ -114,6 +117,7 @@ public:
    //void static2bgp(ASt as, IPAddr* addr);
    void static2bgp(ASt as, MPPrefix* addr);
    void networks(ASt as);
+   void IPv6networks(ASt as);
    //void packetFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);
    void packetFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
    //void outboundPacketFilter(char *ifname, ASt as, IPAddr* addr, ASt peerAS, IPAddr* peerAddr);

@@ -118,25 +118,27 @@ ostream &AttrPeering::print(ostream &out) const {
 }
 
 ostream &AttrIfAddr::print(ostream &out) const {
-   static char buffer[128];
+/*   static char buffer[128];
    out << "ifaddr:\t" << int2quad(buffer, ifaddr.get_ipaddr())
        << " masklen " << ifaddr.get_length();
-   return out;
-}
-ostream &AttrInterface::print(ostream &out) const {
-   static char buffer[128];
-   out << "ifaddr:\t" ;
-   out << ifaddr;
+  return out;
+*/
+   out << "ifaddr/interface:\t" ;
+   out << ifaddr->get_ip_text();
    out << " masklen " << ifaddr->get_length();
+   if (action)
+     out << " action " << *action;
+   if (tunnel)
+     out << " tunnel " << *tunnel;
    return out;
 }
-
 
 ostream &AttrPeerOption::print(ostream &out) const {
    out << option << "(" << *args << ")";
    return out;
 }
 
+/*
 ostream &AttrPeer::print(ostream &out) const {
    out << "peer:\t" << protocol->name
        << " " << *peer << " ";
@@ -148,10 +150,11 @@ ostream &AttrPeer::print(ostream &out) const {
    }
    return out;
 }
+*/
 
-ostream &AttrMPPeer::print(ostream &out) const {
-   out << "mp-peer:\t" << protocol->name ;
-   //    << " " << *peer << " ";
+ostream &AttrPeer::print(ostream &out) const {
+   out << "peer/mp-peer:\t" << protocol->name
+       << " " << peer->get_ip_text() << " ";
    for (AttrPeerOption *nd = options->head(); nd; ) {
       nd->print(out);
       nd = options->next(nd);
@@ -160,7 +163,6 @@ ostream &AttrMPPeer::print(ostream &out) const {
    }
    return out;
 }
-
 
 ostream &AttrTypedef::print(ostream &out) const {
    if (type)
@@ -440,5 +442,12 @@ ostream& AttrTRLabel::print(ostream &out) const {
    out << "transaction-label: " 
        << *source << " " << *seq << " " << *stamp;
    return out;
+}
+
+ostream& operator<<(ostream& stream, const Tunnel& p) {
+   stream << p.remote_ip->get_ip_text() << " ";
+   if (p.encapsulation)
+     stream << *p.encapsulation ;
+   return stream; 
 }
 

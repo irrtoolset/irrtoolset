@@ -816,6 +816,7 @@ public:
 #endif // DEBUG
 };
 
+// peering mp-peering
 
 class AttrPeering: public Attr {
 public: 
@@ -845,40 +846,8 @@ public:
 #endif // DEBUG
 };
 
-// TBD!!!
-/*
-class AttrMPPeering: public Attr {
-public: 
-   PolicyPeering    *peering;
-public:
-   AttrMPPeering(PolicyPeering *p) : peering(p) {
-   }
-   // Modified by wlee
-   AttrMPPeering(const AttrMPPeering &pt) : Attr(pt) {
-      peering  = (PolicyPeering *)pt.peering->dup();
-   }
-   virtual ~AttrMPPeering() {
-      delete peering;
-   }
-   virtual ostream& print(ostream &out) const;
-   virtual Attr *dup() const {
-      return new AttrMPPeering(*this);
-   }
-#ifdef DEBUG
-   virtual const char *className(void) const {
-      return "AttrMPPeering";
-   }
-   virtual void printClass(ostream &os, int indent) const {
-      INDENT(indent); os << "mp-peering (PolicyPeering *)" << endl;
-      peering->printClass(os, indent + 2);
-   }
-#endif // DEBUG
-};
-
-*/
-
 ///////////////////////// inet-rtr ///////////////////////////////////
-
+/*
 class AttrIfAddr: public Attr {
 public: 
    Prefix              ifaddr;
@@ -914,7 +883,7 @@ public:
    }
 #endif // DEBUG
 };
-
+*/
 class Tunnel {
   public:
     MPPrefix *remote_ip;
@@ -925,26 +894,35 @@ class Tunnel {
       remote_ip = _ip;
       encapsulation = _enc;
     }
+    Tunnel *dup() {
+      return new Tunnel(new MPPrefix(*remote_ip), new ItemWORD(*encapsulation));
+    }
+    friend ostream& operator<<(ostream& stream, const Tunnel& p);
 };
 
-class AttrInterface: public Attr {
+class AttrIfAddr: public Attr {
 public:
    MPPrefix           *ifaddr;
    PolicyActionList   *action; // may be NULL
    Tunnel             *tunnel; // may be NULL
 
 public:
-   AttrInterface(MPPrefix *ip, int masklen, PolicyActionList *_action, Tunnel *_tunnel) {
-      action = _action;
-      tunnel = _tunnel;
+   AttrIfAddr(MPPrefix *ip, int masklen, PolicyActionList *_action, Tunnel *_tunnel):  action(NULL), tunnel(NULL) {
+      if (_action)
+        action = _action;
+      if (_tunnel)
+        tunnel = _tunnel;
       ifaddr = ip;
       ifaddr->define(masklen);
    }
-   AttrInterface(const AttrInterface& b) {
+   AttrIfAddr(const AttrIfAddr& b) : action(NULL), tunnel(NULL) {
       ifaddr = new MPPrefix(*b.ifaddr);
-      action = (PolicyActionList *) b.action->dup();
+      if (b.action)
+        action = (PolicyActionList *) b.action->dup();
+      if (b.tunnel)
+        tunnel = (Tunnel *) b.tunnel->dup();
    }
-   virtual ~AttrInterface() {
+   virtual ~AttrIfAddr() {
       if (action)
         delete action;
       if (tunnel)
@@ -952,11 +930,11 @@ public:
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
-      return new AttrInterface(*this);
+      return new AttrIfAddr(*this);
    }
 #ifdef DEBUG
    virtual const char *className(void) const {
-      return "AttrInterface";
+      return "AttrIfAddr";
    }
    virtual void printClass(ostream &os, int indent) const {
       INDENT(indent);
@@ -1015,6 +993,7 @@ public:
 #endif // DEBUG
 };
 
+/*
 class AttrPeer: public Attr {
 public: 
    const AttrProtocol   *protocol;
@@ -1046,35 +1025,35 @@ public:
    }
 #endif // DEBUG
 };
+*/
 
-class AttrMPPeer: public Attr {
+// serves both peer and mp-peer
+class AttrPeer: public Attr {
 public:
    const AttrProtocol   *protocol;
    MPPrefix             *peer;
    List<AttrPeerOption> *options;
 public:
-   AttrMPPeer(const AttrProtocol *_protocol, MPPrefix *_peer,
+   AttrPeer(const AttrProtocol *_protocol, MPPrefix *_peer,
       List<AttrPeerOption> *_options) :
       protocol(_protocol), peer(_peer), options(_options) {
    }
-   // Modified by wlee
-   AttrMPPeer(const AttrMPPeer &b) : Attr(b), protocol(b.protocol) {
+   AttrPeer(const AttrPeer &b) : Attr(b), protocol(b.protocol) {
       peer = new MPPrefix(*b.peer);
       options = new List<AttrPeerOption>(*b.options);
    }
-   virtual ~AttrMPPeer() {
-      // Added by wlee
+   virtual ~AttrPeer() {
       if (peer) delete peer;
       if (options) delete options;
    }
    virtual ostream& print(ostream &out) const;
    virtual Attr *dup() const {
-      return new AttrMPPeer(*this);
+      return new AttrPeer(*this);
    }
    const AttrPeerOption *searchOption(const char *name) const;
 #ifdef DEBUG
    virtual const char *className(void) const {
-      return "AttrMPPeer";
+      return "AttrPeer";
    }
 #endif // DEBUG
 };

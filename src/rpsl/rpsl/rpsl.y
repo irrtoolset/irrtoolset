@@ -1894,8 +1894,7 @@ mp_peering_attribute: ATTR_MP_PEERING mp_peering TKN_EOA {
 ////// ifaddr attribute ///////////////////////////////////////////////////
 
 ifaddr_attribute: ATTR_IFADDR TKN_IPV4 KEYW_MASKLEN TKN_INT opt_action TKN_EOA {
-   $$ = changeCurrentAttr(new AttrIfAddr($2->get_ipaddr(), $4, $5));
-   delete $2;
+   $$ = changeCurrentAttr(new AttrIfAddr(new MPPrefix((PrefixRange *) $2), $4, $5, NULL));
 }
 | ATTR_IFADDR TKN_IPV4 KEYW_MASKLEN TKN_INT error TKN_EOA {
    delete $2;
@@ -1933,6 +1932,7 @@ interface_address: TKN_IPV4 {
 ;
 
 opt_tunnel_spec: {
+  $$ = NULL;
 }
 | KEYW_TUNNEL interface_address ',' TKN_WORD {
   $$ = new Tunnel($2, new ItemWORD($4));
@@ -1947,14 +1947,18 @@ opt_tunnel_spec: {
 interface_attribute: ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT 
                      opt_action
                      opt_tunnel_spec TKN_EOA {
-   $$ = changeCurrentAttr(new AttrInterface($2, $4, $5, $6));
-   //delete $2;
+   $$ = changeCurrentAttr(new AttrIfAddr($2, $4, $5, $6));
    if ($6) {
       if (($2->ipv4 && $6->remote_ip->ipv6) || ($2->ipv6 && $6->remote_ip->ipv4)) {
         handle_error("Error: address family mismatch in local/remote tunnel endpoint\n");
         yyerrok;
       }
    }
+}
+| ATTR_INTERFACE interface_address KEYW_MASKLEN TKN_INT opt_action error TKN_EOA {
+   $$ = $1;
+   handle_error("Error: error in tunnel specification.\n");
+   yyerrok;
 }
 | ATTR_INTERFACE interface_address KEYW_MASKLEN error TKN_EOA {
    $$ = $1;
@@ -2058,7 +2062,8 @@ peer_attribute: ATTR_PEER tkn_word peer_id opt_peer_options TKN_EOA {
    }
       
    if (!error)
-      $$ = changeCurrentAttr(new AttrPeer(protocol, $3, $4));
+      //$$ = changeCurrentAttr(new AttrPeer(protocol, $3, $4));
+      $$ = changeCurrentAttr(new AttrPeer(protocol, new MPPrefix((PrefixRange *) $3), $4));
    else {
       free($2);
       delete $3;
@@ -2135,7 +2140,7 @@ mp_peer_attribute: ATTR_MP_PEER TKN_WORD mp_peer_id opt_peer_options TKN_EOA {
    }
       
    if (!error) {
-     $$ = changeCurrentAttr(new AttrMPPeer(protocol, $3, $4));
+     $$ = changeCurrentAttr(new AttrPeer(protocol, $3, $4));
    }
    else {
       free($2);
