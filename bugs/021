@@ -22,6 +22,7 @@ Tried to fix it by adding expansion to multiple /32's and selecting the policy f
 Fixed. Now ifaddr is first /32. Iterator goes through all "ifaddr" attrs and all peers. 
 Do we need to put 'interface' and extra neighbour statement there to understand how the peering is fully described???
 
+(segm. fault problem is fixed)
 
 
 
