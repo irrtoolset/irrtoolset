@@ -57,37 +57,6 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET(MAKE=make)
 AC_ARG_PROGRAM
 AC_PROG_LN_S
-AC_PROG_LEX
-dnl Warn if not using flex
-XXXLEX=`echo $LEX | awk '{print $1}'`
-if test "`basename $XXXLEX`" != "flex"
-then
-        echo '****************************************************************';
-        echo '**';
-        echo '**   WARNING:  You should compile RAToolSet using GNU flex.';
-        echo "**   Currently, you're using ``$LEX''";
-        echo '**   ';
-        echo '**   To get GNU flex, please goto ftp://prep.ai.mit.edu/pub/gnu/';
-        echo '**   ';
-        echo '****************************************************************';
-        sleep 5
-fi
-
-AC_PROG_YACC
-dnl Warn if not using bison
-XXXYACC=`echo $YACC | awk '{print $1}'`
-if test "`basename $XXXYACC`" != "bison"
-then
-        echo '*****************************************************************';
-        echo '**';
-        echo '**   WARNING:  You should compile RAToolSet using GNU bison.';
-        echo "**   Currently, you're using ``$YACC''";
-        echo '**   ';
-        echo '**   To get GNU bison, please goto ftp://prep.ai.mit.edu/pub/gnu/';
-        echo '**   ';
-        echo '*****************************************************************';
-        sleep 5
-fi
 
 AC_PROG_INSTALL
 AC_C_CONST
@@ -95,6 +64,10 @@ AC_C_BIGENDIAN
 
 : ${LD=$CXX}
 AC_SUBST(LD)
+: ${LEX="flex"}
+AC_SUBST(LEX)
+: ${YACC="bison -y"}
+AC_SUBST(YACC)
 
 AC_PROG_RANLIB
 
