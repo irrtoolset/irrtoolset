@@ -191,7 +191,9 @@ AC_TRY_COMPILE([
 AC_MSG_RESULT(yes)], AC_MSG_RESULT(no)) 	
 
 dnl Check for typedefs
-AC_EGREP_HEADER(in_addr_t, netinet/in.h, ,AC_CHECK_TYPE(in_addr_t, unsigned long))
+AC_EGREP_HEADER(in_addr_t, netinet/in.h, ,
+	AC_EGREP_HEADER(in_addr_t, sys/endian.h, ,
+		AC_CHECK_TYPE(in_addr_t, unsigned long)))
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(gettimeofday socket strstr memcpy vsnprintf)
