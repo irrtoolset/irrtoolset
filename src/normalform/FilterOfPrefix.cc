@@ -57,3 +57,4 @@
 #include <cstdio>
 
 CLASS_DEBUG_MEMORY_CC(FilterOfPrefix);
+CLASS_DEBUG_MEMORY_CC(FilterOfIPv6Prefix);

@@ -58,7 +58,6 @@
 #include "SetOfIPv6Prefix.hh"
 #include <cstdio>
 #include <cassert>
-//#include "rpsl/prefix.hh"
 
 void SetOfIPv6Prefix::insert(const MPPrefixRanges& b) { 
     ipv6_addr_t rngs;
@@ -70,6 +69,7 @@ void SetOfIPv6Prefix::insert(const MPPrefixRanges& b) {
     //iterator
     for (p = b.begin(); p != b.end(); ++p) {
       rngs = p->get_range();
+
       if (not_)
          members.remove(p->get_ipaddr(), p->get_length(), rngs); 
       else
@@ -88,9 +88,7 @@ void SetOfIPv6Prefix::remove(const MPPrefixRanges& b) {
    }
 
    for (p = b.begin(); p != b.end(); ++p) {
-
       rngs = p->get_range();
-
       if (not_)
          members.insert(p->get_ipaddr(), p->get_length(), rngs);
       else
@@ -111,13 +109,12 @@ void SetOfIPv6Prefix::do_print (ostream& stream) {
 ostream& operator<<(ostream& stream, SetOfIPv6Prefix& set) {
    if (set._universal)
       stream << "UNIVERSAL";
-   else {
+   else  {
       if (set.not_)
-	 stream << "NOT";
+      	 stream << "NOT";
 
       stream << set.members;
    }
-   
    return stream;
 }
 

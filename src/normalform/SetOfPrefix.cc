@@ -75,6 +75,7 @@ void SetOfPrefix::insert(const PrefixRanges& b) {
       for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
 	 rngs |= bits[i];
 */
+
       if (not_)
 	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
       else
