@@ -8,10 +8,12 @@ AC_CANONICAL_HOST
 
 dnl Version number control
 top_srcdir="`dirname $0`"
-VERSION="(RAToolSet v`cat ${top_srcdir}/VERSION`) ${USER}@`hostname`"
-VERSION2=RAToolSet`cat ${top_srcdir}/VERSION`
+VERSION="(IRRToolSet v`cat ${top_srcdir}/VERSION`) ${USER}@`hostname`"
+VERSION2=IRRToolSet`cat ${top_srcdir}/VERSION`
+VERSION_RELEASE=`cat ${top_srcdir}/VERSION`
 AC_SUBST(VERSION)
 AC_SUBST(VERSION2)
+AC_SUBST(VERSION_RELEASE)
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on debugging],
 if eval "test x$enable_debug = xyes"; then
