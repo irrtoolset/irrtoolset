@@ -66,7 +66,7 @@ INSTALLATION
 	   installation process should put RAToolSet and its data files.  
 	   This defaults to `/usr/local'. 
 	3. type "make depend" to generate the make file dependencies
-	4. type "make all" to build RAToolSet.
+	4. type "make all" to build IRRToolSet.
 	5. type "make install" to copy the executables/man-pages to
 	   /usr/local/{bin,man} directory (or to the directory 
 	   specified with --prefix argument to configure).
@@ -79,6 +79,10 @@ KNOWN PROBLEMS DURING INSTALLATION
 	used --enable-debug option of configure, try not using that
 	option. Older versions of gcc/g++ seems to have problems with
 	these opitons on these platforms.
+
+  When compiling on FreeBSD from 5.0, be sure to change the compiler 
+  to gcc-2.95 as default compiler is gcc3. It will require to modify 
+  configure.in to pick up appropriate values for CC, CXX and LD.
 
 Please let us know if you face any problems at the mailing list
 irrtoolset@ripe.net. Bug reports and suggestions are always welcome.
