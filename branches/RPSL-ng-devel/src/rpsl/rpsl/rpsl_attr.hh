@@ -897,6 +897,12 @@ class Tunnel {
     Tunnel *dup() {
       return new Tunnel(new MPPrefix(*remote_ip), new ItemWORD(*encapsulation));
     }
+    ~Tunnel() {
+      if (remote_ip)
+        delete (remote_ip);
+      if (encapsulation)
+        delete encapsulation;
+    }
     friend ostream& operator<<(ostream& stream, const Tunnel& p);
 };
 

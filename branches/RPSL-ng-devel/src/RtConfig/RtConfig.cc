@@ -810,40 +810,42 @@ void RtConfig::printSuperPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt) {
    free(p);
 }
 
+// reimplemented to handle mp-filters
 void RtConfig::accessList(char *filter) {
    Buffer peval(strlen(filter)+16);
+
+   if (strstr(filter, "afi ")) {
+     peval.append("mp-");
+   }
    peval.append("peval: ");
    peval.append(filter);
    peval.append("\n\n");
 
    Object *o = new Object(peval);
    if (! o->has_error) {
-      AttrIterator<AttrFilter> itr(o, "peval");
-      
-      NormalExpression *ne = 
-	 NormalExpression::evaluate(itr()->filter, ~0);
+     NormalExpression *ne;
+     if (strcmp(o->type->name,"mp-peval") == 0) {
+       AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
+     else {
+       AttrIterator<AttrFilter> itr(o, "peval");
+       ne = NormalExpression::evaluate(itr()->filter, ~0);
+     }
 
-      if (ne && ne->is_any() != NEITHER)
-      	cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-
-      if (ne && ne->singleton_flag == NormalTerm::PRFX)
-	 printAccessList(ne->first()->prfx_set);
-      else 
-	if (ne && ne->is_any() != NEITHER )
-	 {
-		if (ciscoConfig.emptyLists)
-		{
-			// print "any/not any" prefix list - changed by katie@ripe.net
-      			SetOfPrefix *nets = new SetOfPrefix;
-			if (ne->is_any() == ANY) 
-				nets->not_ = true;
-      			printAccessList(*nets);	
-	 	}
-	  }
-	else 
-		cerr << "Error: Badly formed prefix filter." << endl;
-
-      delete ne;
+     if (ne && ne->is_any() != NEITHER)
+       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+     else {
+       if (ne && (ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
+         cerr << "Error: badly formed prefix filter" << endl;
+       } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
+           printAccessList(nt->prfx_set);
+           printAccessList(nt->ipv6_prfx_set);
+         }
+       }
+     }
+     delete ne;
    }
    
    delete o;
@@ -881,8 +883,8 @@ void RtConfig::printPolicyWarning(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* 
 {
 	cerr << "Warning: AS" << as;
         cerr << " has no " << policy << " policy for AS" << peerAS;
-        cerr << " " << peerAddr->get_text();
-        cerr << " at " << addr->get_text() << endl;
+        cerr << " " << peerAddr->get_ip_text();
+        cerr << " at " << addr->get_ip_text() << endl;
 }
 
 
