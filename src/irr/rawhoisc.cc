@@ -306,6 +306,8 @@ int RAWhoisClient::Response(char *&response) {
           free(tmp);
         }
       } while (fgets(buffer, sizeof(buffer), in) && 
+      // this condition should work with irrd version >= 2.2b19
+      // until then, ripe-style queries won't work with persistent connections
                !((*prev == '\n') && (*buffer == '\n')));
       return atoi(response);
    }
