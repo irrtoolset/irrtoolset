@@ -1,25 +1,37 @@
-Release Notes for IRRToolSet version 4.7.2
+Release Notes for IRRToolSet version 4.7.3
 ***************************************************
 
 This release is intended to be a bug fix release, as well as introducing
 some updates.
 
-rpsl:
+* bugfixes & new in RtConfig
+        - -cisco_empty_lists option implemented: 
+	  prints ANY/NOT ANY access/prefix lists where applicable. 
+          Although it works for cisco format only. 
+          By default, the warning about empty/universal filter is issued.
+        - if policy for specified peering is not found in aut-num, 
+	  more detailed warning is issued.
+        - fixed the bug with non-existent inet-rtr object;
+        - multiple "ifaddr" attributes in inet-rtr object are 
+	  now handled properly.
+        - see RtConfig manpage for updates
 
-o Dictionary updated - "descr" turned to multiple
+* prpath:
+        - fixed the bug with <destination_specification> handling, 
+	  now queries for /32 route for a single IP
+          address, and the warning is issued if route not found.
 
-RtConfig:
+* rpslcheck:
+        - fixed the command-line flags handling
 
-o fixed a bug in AS_PATH filter generation for cisco and junos configurations
+* irr module:
+        - small bug in rawhoisd implementation fixed 
 
-prpath:
+* man pages updated
+        - man pages have been reviewed and updated regarding 
+	  recent bugs and features, typo's fixed.
 
-o filter-set names resolving added
-
-Aoe is alive now, several bugfixes and changes made:
-
-o is RPSL compliant and not RIPE-181 compliant
-o bugs fixed; all documented features are in place
-o peer list can be saved to a file
-o syntax error reporting improved
+* new Errors man page added
+        - explains IRRToolSet's errors common for all 
+	  the tools with references to relevant documentation.
 
