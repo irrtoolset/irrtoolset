@@ -1,0 +1,49 @@
+This is the BUGS file. It is pretty self-explanatory. Just a list
+of the possible values for some attributes:
+
+"Status" can be WAIT, SOLVING, SOLVED.
+"Priority" can be Low/High.
+
++--------+--------+-----------+---------+----------+
+| Bug_id | Module | Attention | Status  | Priority |
++--------+--------+-----------+---------+----------+
+| 001	 |irr,aoe | katie     | SOLVED  | High     |
+| 002	 |    aoe | katie     | SOLVED  | High     |
+| 003	 |    aoe | katie     | SOLVED  | Low      |
+| 004	 |    aoe | katie     | SOLVED  | High     |
+| 005	 |    aoe | katie     | SOLVED  | Low      |
+| 006	 |    aoe | katie     | SOLVED  | High     |
+| 007	 |    aoe | katie     | SOLVED  | Low      |
+| 008	 |    aoe | katie     | SOLVED  | High     |
+| 009	 |    aoe | katie     | WAIT    | Low      |
+| 010	 |    aoe | katie     | WAIT    | Low      |
+| 011	 |    roe | katie     | SOLVED  | Low      |
+| 012	 | bgp    | katie     | SOLVED  | High     |
+| 013	 |RtConfig| cengiz    | SOLVED  | High     |
+| 014	 |RtConfig| cengiz    | SOLVED  | High     |
+| 015	 |RtConfig| cengiz    | SOLVED  | High     |
+| 016	 | tools  | katie     | WAIT    | High     |
+| 017	 | prpath | katie     | WAIT    | High     |
+| 018	 |prtracer| katie     | WAIT    | High     |
+| 019	 |rpslchec| katie     | WAIT    | High     |
++--------+--------+-----------+---------+----------+
+
+001:  display policy from IRR for myAS and peerAS
+002: "generate policy from peer's aut-num" was broken.
+003: generate policy from BGP dump produces long as-path filters. Truncated to 10 in a line.
+004: list generation was broken, also contained duplicate peers.
+005: NEW: to save peer list to the file; with their status;
+006: error in window definition when updating IRR; 
+007: NEW: produce error window if syntax error occured after 'editing done';
+008: manipulation with any kind of peering (prng-set, ip at ip etc) to produce valid peer entry
+009: rawhoisd gives fgets() failed.
+010: NEW: new policy templates (AS_PATH, prefix filters);
+011: spontaneous resizing of application window. 
+012: FilterSet names not resolved in prpath
+013: in RtConfig, cisco aspath prefix lists have too long regexps for cisco
+014: missing parenthesis before ? in junos aspath regexps
+015: the -ddd at the beginning of a junos as path expression (debug leftover)
+016: command-line options are case-sensitive
+017: destination-specification is alsways handled as /32
+018: prtraceroute manpage is not RPSL compliant
+019: documented command-line options are not processed in rpslcheck
