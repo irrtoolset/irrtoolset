@@ -631,7 +631,7 @@ void IPv6PrefixRange::parse(char *name)
     case '-':
       // exclusive more specifics operator
       uN = uLength + 1;
-      uN = 128;
+      uM = 128;
       break;
     default:
       if (uN == 0 || uN < uLength)
