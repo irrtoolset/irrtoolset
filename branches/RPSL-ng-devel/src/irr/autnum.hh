@@ -383,14 +383,16 @@ public:
       List<FilterAction> *list;
       const AttrProtocol *fProt=schema.searchProtocol(fProtName);
       const AttrProtocol *iProt=schema.searchProtocol(iProtName);
+      ItemList *tmp_afi_list = new ItemList;
 
       for (import = itr.first(); import; import = itr.next()) {
          if (import->fromProt == fProt && import->intoProt == iProt) {
-            list = select(import->policy, pset, peerAS, peerIP, ip);
+            list = select(import->policy, pset, peerAS, peerIP, ip, &tmp_afi_list);
             if (list) {
                filterActionList.splice(*list);
-               afi_list->merge(*(import->afi_list));
+               afi_list->merge(*tmp_afi_list);
                delete list;
+               delete tmp_afi_list;
             }
          }
       }
@@ -418,7 +420,7 @@ public:
 private:
    List<FilterAction> *select(PolicyExpr *policy, SymID pset,
                                   const ASt peerAS, const MPPrefix *peerIP, 
-                                  const MPPrefix *ip,
+                                  const MPPrefix *ip, ItemList **tmp_afi_list,
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
@@ -427,6 +429,7 @@ private:
          PolicyFactor *pf;
          PolicyPeeringAction *pa;
          bool          noMatch;
+         ItemList *afi;
 
          for (pf = pt->head(); pf; pf = pt->next(pf)) {
             noMatch = true;
@@ -438,6 +441,9 @@ private:
                                                  pf->filter->dup(), 
                                                  (PolicyActionList *) 
                                                  pa->action->dup())));
+                  // save the afi
+                  afi = ((FilterAFI *) pf->filter)->afi_list;
+                  (*tmp_afi_list)->merge(*(new ItemList (*afi)));
                   // rpsl specification order rule dictates only one match here
                   // so break out of this if statement
                   noMatch = false;
@@ -465,16 +471,22 @@ private:
          PolicyRefine *pr = (PolicyRefine *) policy;
          List<FilterAction> *left;
          List<FilterAction> *rght;
+         ItemList *afi_list_left = new ItemList;
+         ItemList *afi_list_right = new ItemList;
+
          if (combinedFilter) {
             Filter  *leftFilter = NULL;
             Filter  *rghtFilter = NULL;
-            left = select(pr->left, pset, peerAS, peerIP, ip, &leftFilter);
-            rght = select(pr->right, pset, peerAS, peerIP, ip, &rghtFilter);
+            left = select(pr->left, pset, peerAS, peerIP, ip, &afi_list_left, &leftFilter);
+            rght = select(pr->right, pset, peerAS, peerIP, ip, &afi_list_right, &rghtFilter);
             *combinedFilter = new FilterAND(leftFilter, rghtFilter);
          } else {
-            left = select(pr->left, pset, peerAS, peerIP, ip, NULL);
-            rght = select(pr->right, pset, peerAS, peerIP, ip, NULL);
+            left = select(pr->left, pset, peerAS, peerIP, ip, &afi_list_left, NULL);
+            rght = select(pr->right, pset, peerAS, peerIP, ip, &afi_list_right, NULL);
          }
+
+         afi_list_left->and(*afi_list_right);
+         (*tmp_afi_list)->merge(*afi_list_left);
 
          if (!left || !rght) {
             if (left)
@@ -503,6 +515,7 @@ private:
 
          delete left;
          delete rght;
+
          return list;
       }
 
@@ -510,9 +523,12 @@ private:
          PolicyExcept *pe = (PolicyExcept *) policy;
          Filter  *leftFilter = NULL;
          Filter  *rghtFilter = NULL;
-         List<FilterAction> *left = select(pe->left, pset, peerAS, peerIP, ip, 
+         ItemList *afi_list_left = new ItemList;
+         ItemList *afi_list_right = new ItemList;
+
+         List<FilterAction> *left = select(pe->left, pset, peerAS, peerIP, ip, &afi_list_left,
                                                &leftFilter);
-         List<FilterAction> *rght = select(pe->right, pset, peerAS, peerIP, ip,
+         List<FilterAction> *rght = select(pe->right, pset, peerAS, peerIP, ip, &afi_list_right,
                                                &rghtFilter);
 
          if (combinedFilter)
@@ -531,6 +547,10 @@ private:
                  filterAction = left->next(filterAction))
                filterAction->filter = new FilterAND(filterAction->filter,
                   new FilterNOT((Filter  *) rghtFilter->dup()));
+            ItemList *t = new ItemList (*afi_list_right);
+            t->not();
+            afi_list_left->and(*t);
+            delete t;
          }
          delete rghtFilter;
 
@@ -541,18 +561,24 @@ private:
                  filterAction = rght->next(filterAction))
                filterAction->filter = new FilterAND(filterAction->filter,
                                    (Filter  *) leftFilter->dup());
+            afi_list_right->and(*afi_list_left);
          }
          delete leftFilter;
 
-         if (!left)
+         if (!left) {
+            (*tmp_afi_list)->merge(*afi_list_right);
             return rght;
+         }
 
-         if (!rght)
+         if (!rght) {
+            (*tmp_afi_list)->merge(*afi_list_left);
             return left;
+         }
 
          rght->splice(*left);
+         (*tmp_afi_list)->merge(*afi_list_left);
+         (*tmp_afi_list)->merge(*afi_list_right);
          delete left;
-
          return rght;
       }
 
