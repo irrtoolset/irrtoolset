@@ -23,12 +23,12 @@ of the possible values for some attributes:
 | 014	 |RtConfig| cengiz    | SOLVED  | High     |
 | 015	 |RtConfig| cengiz    | SOLVED  | High     |
 | 016	 | tools  | katie     | SOLVED  | High     |
-| 017	 | prpath | katie     | SOLVING | High     |
+| 017	 | prpath | katie     | SOLVED  | High     |
 | 018	 |prtracer| katie     | WAIT    | High     |
 | 019	 |rpslchec| katie     | WAIT    | High     |
 | 020	 |aoe,roe | katie     | WAIT    | Low      |
-| 021	 |RtConfig| katie     | SOLVING | High     |
-| 022	 |RtConfig| katie     | SOLVING | High     |
+| 021	 |RtConfig| katie     | SOLVED  | High     |
+| 022	 |RtConfig| katie     | SOLVED  | High     |
 | 023	 |RtConfig| katie     | SOLVED  | High     |
 +--------+--------+-----------+---------+----------+
 

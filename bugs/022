@@ -12,5 +12,6 @@ detail:
 
 Might be changed in f_cisco.cc, and in every implementation to print acls for ANY/NOT ANY expressions. Now only empty route maps are printed. Need to consider if we need this local hack (printing in print()), or drop empty route-map, or do not change the behaviour or close the bug.
 
-
+decided to change error message only. empty route maps are still generated.
+further discuss for the next release?
 
