@@ -404,6 +404,10 @@ main (int argc, char **argv, char **envp) {
    
   exit(1);*/
 
+  // by katie@ripe.net - if route is non-existent
+  if (bgproute->origin->list.head() == NULL)
+	cout << "Unable to lookup destination AS" << endl;
+
   // Start the search from destination to the source AS
   for (ItemASNO * asln = bgproute->origin->list.head(); asln;
                   asln = bgproute->origin->list.next(asln)) {
