@@ -1,0 +1,211 @@
+#  $Id$
+#
+#  Copyright (c) 1994 by the University of Southern California
+#  All rights reserved.
+#
+#  Permission to use, copy, modify, and distribute this software and its
+#  documentation in source and binary forms for lawful non-commercial
+#  purposes and without fee is hereby granted, provided that the above
+#  copyright notice appear in all copies and that both the copyright
+#  notice and this permission notice appear in supporting documentation,
+#  and that any documentation, advertising materials, and other materials
+#  related to such distribution and use acknowledge that the software was
+#  developed by the University of Southern California, Information
+#  Sciences Institute. The name of the USC may not be used to endorse or
+#  promote products derived from this software without specific prior
+#  written permission.
+#
+#  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
+#  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
+#  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
+#  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
+#  TITLE, AND NON-INFRINGEMENT.
+#
+#  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+#  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
+#  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
+#  OR PERFORMANCE OF THIS SOFTWARE.
+#
+#  Questions concerning this software should be directed to
+#  ratoolset@isi.edu.
+#
+#  Author(s): WeeSan Lee <wlee@ISI.EDU>
+
+
+# A message dialog
+proc showMessage { string {title "Message"} {bitmap "info"} } {
+    global prompt
+    if {[winfo exists .prompt]} {
+	return
+    }
+    set f [toplevel .prompt -borderwidth 10]
+    wm title $f $title
+    set upper [frame $f.upper]
+    label $upper.l -width 30 -bitmap $bitmap 
+    message $upper.msg -text $string -aspect 1000
+    pack $upper.l $upper.msg -side left -fill x
+    pack $upper -side top
+    
+    set b [frame $f.buttons -bd 10]
+    button $b.ok -text OK -underline 0 -command {set prompt(ok) 1} 
+    pack $b.ok        
+    pack $f.buttons -side bottom
+    
+#        foreach w [list $upper.l $b.ok] {
+#            bindtags $w [list .prompt [winfo class $w] $w all]
+#        }
+
+    bind $f <Alt-o> "focus $b.ok ; break"
+    bind $f <Alt-Key> break
+    bind $f <Return> {set prompt(ok) 1}
+
+	# Added below line to prevent from getting error of 
+	#     "grab failed: window not viewable"
+    tkwait visibility $f
+    grab $f
+    tkwait variable prompt(ok)
+    grab release $f
+    destroy $f
+}
+
+proc showInfo { string } {
+    showMessage $string Information info
+}
+
+proc showWarning { string } {
+    showMessage $string Warning warning
+}
+
+proc showError { string } {
+    showMessage $string Error error
+}
+
+#showMessage {This a testing message} 
+#showInfo {This is an info}
+#showWarning {This is a warning}
+#showError {This is an error}
+#showError {This is a long error, what do you think?  Isn't it cool?  Or just me!  You could even put longer message than I do, or even longer than this, and longer and longer and longer  :-) }
+
+
+# Modified from Brent B. Welch's book
+# Dialog chapter
+proc GetValue { string  { default_value "" } } {
+    global prompt
+    set f [toplevel .prompt -borderwidth 10]
+    message $f.msg -text $string -aspect 1000
+    set prompt(result)  $default_value
+    entry $f.entry -textvariable prompt(result)
+    $f.entry icursor end
+    set b [frame $f.buttons -bd 10]
+    pack $f.msg $f.entry $f.buttons -side top -fill x
+    
+    button $b.ok -text OK -command {set prompt(ok) 1} \
+	    -underline 0
+    button $b.cancel -text Cancel -command {set prompt(ok) 0} \
+	    -underline 0
+    pack $b.ok -side left
+    pack $b.cancel -side right
+    
+    foreach w [list $f.entry $b.ok $b.cancel] {
+	bindtags $w [list .prompt [winfo class $w] $w all]
+    }
+    bind .prompt <Alt-o> "focus $b.ok ; break"
+    bind .prompt <Alt-c> "focus $b.cancel ; break"
+    bind .prompt <Alt-Key> break
+    bind .prompt <Return> {set prompt(ok) 1}
+    bind .prompt <Control-c> {set prompt(ok) 0}
+    
+    focus $f.entry
+    grab $f
+    tkwait variable prompt(ok)
+    grab release $f
+    destroy $f
+    if {$prompt(ok)} {
+	return $prompt(result)
+    } else {
+	return {}
+    }
+}
+
+
+# An implementation of balloon hints
+proc Balloon:set { target message } {
+    # Have to be global here in order to let label to use it inside binding
+    global Balloon
+    set Balloon(message,$target) $message
+
+    bind $target <Enter> {
+	toplevel .balloon
+	wm overrideredirect .balloon 1
+	set x [expr [winfo rootx %W] + ([winfo width %W]/2)]
+	set y [expr [winfo rooty %W] + [winfo height %W] + 4]
+	label .balloon.label -text $Balloon(message,%W) \
+			     -bg #ffffaa \
+			     -fg black \
+			     -padx 2 
+	pack .balloon.label -side left -padx 1 -pady 1
+	wm geometry .balloon +$x+$y
+    }
+
+    bind $target <Leave> {
+	if {[winfo exists .balloon] == 1} {
+	    destroy .balloon
+	}
+    }
+}
+
+#button .b1 -text button1
+#button .b2 -text button2
+#pack .b1 .b2 -side left
+#Balloon:set .b1 {Button One} 
+#Balloon:set .b2 {Button Two}
+
+proc Balloon:show { target message {x ""} {y ""} } {
+    # Have to be global here in order to let label to use it inside binding
+    if {[winfo exists .balloon] == 1} {
+	destroy .balloon
+    }
+    toplevel .balloon
+    wm overrideredirect .balloon 1
+    if { $x == "" } {
+	set x [expr [winfo rootx $target] + ([winfo width $target]/2)]
+    }
+    if { $y == "" } {
+	set y [expr [winfo rooty $target] + [winfo height $target] + 4]
+    }
+    label .balloon.label -text $message \
+	                 -bg #ffffaa \
+			 -fg black \
+			 -padx 2 
+    pack .balloon.label -side left -padx 1 -pady 1
+    wm geometry .balloon +$x+$y
+
+    bind $target <Leave> {
+	if {[winfo exists .balloon] == 1} {
+	    destroy .balloon
+	}
+    }
+}
+
+
+# An implementation of statusLine hints
+# target must be a label widget
+proc StatusLine:init { target } {
+    global StatusBar
+    set StatusBar(widget) $target
+}
+
+proc StatusLine:set { target message } {
+    # Have to be global here in order to let label to use it inside binding
+    global StatusBar
+    set StatusBar(message,$target) $message
+
+    bind $target <Enter> {
+	$StatusBar(widget) configure -text $StatusBar(message,%W)
+    }
+
+    bind $target <Leave> {
+	$StatusBar(widget) configure -text {}
+    }
+}
