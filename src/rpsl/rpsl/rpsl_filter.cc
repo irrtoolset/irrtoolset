@@ -159,11 +159,13 @@ ostream &FilterMPPRFXList::print(ostream &out) const {
    out << "{";
 
    p = begin();
-   out << *p;
-   ++p;
-   for (p; p != end(); ++p) {
-     out << ", ";
-     out << *p ;
+   if (p) {
+     out << *p;
+     ++p;
+     for (p; p != end(); ++p) {
+       out << ", ";
+       out << *p ;
+     }
    }
 
    out << "}";
@@ -175,15 +177,16 @@ FilterPRFXList* FilterMPPRFXList::get_v4() {
 
    MPPrefixRanges::const_iterator p;
    FilterPRFXList *list_v4 = new FilterPRFXList;
+   bool f;
 
    for (p = begin(); p != end(); ++p) {
      if (p->ipv4)
        list_v4->add_high(*(p->ipv4));   
    }
-   if (list_v4)
-     return list_v4;
-   else 
+   if (list_v4->isEmpty())
      return NULL;
+   else 
+     return list_v4;
 }
 
 FilterMPPRFXList* FilterMPPRFXList::get_v6() {
@@ -194,10 +197,10 @@ FilterMPPRFXList* FilterMPPRFXList::get_v6() {
      if (p->ipv6)
        list_v6->push_back(*p);
    }
-   if (list_v6)
-     return list_v6;
-   else 
+   if (list_v6->begin() == list_v6->end())
      return NULL;
+   else 
+     return list_v6;
 }
 
 ostream &FilterV6EXCLUDE::print(ostream &out) const {

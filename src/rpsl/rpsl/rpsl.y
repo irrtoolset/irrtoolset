@@ -337,8 +337,8 @@ extern Object *current_object;
 %type<filter>    filter_rp_attribute
 
 %type<filter>    mp_filter
-%type<filter>    opt_default_mp_filter
 %type<filter>    mp_filter_exp
+%type<filter>    opt_default_mp_filter
 %type<filter>    mp_filter_term
 %type<filter>    mp_filter_factor
 %type<filter>    mp_filter_operand
@@ -1466,7 +1466,7 @@ mp_export_term: mp_export_factor ';' {
 
 //// mp-import/mp-export factor TBD ///////////////////////////////////////////////
 
-mp_import_factor: mp_import_peering_action_list KEYW_ACCEPT mp_filter  {
+mp_import_factor: mp_import_peering_action_list KEYW_ACCEPT mp_filter_exp  {
 //   $$ = new PolicyFactor($1, $3);
 }
 ;
@@ -1481,7 +1481,7 @@ mp_import_factor_list: mp_import_factor ';' {
 }
 ;
 
-mp_export_factor: mp_export_peering_action_list KEYW_ANNOUNCE mp_filter  {
+mp_export_factor: mp_export_peering_action_list KEYW_ANNOUNCE mp_filter_exp  {
 //   $$ = new PolicyFactor($1, $3);
 }
 ;
@@ -1521,7 +1521,7 @@ mp_export_peering_action_list: KEYW_TO mp_peering opt_action {
 //// mp-filter TBD //////////////////////
 
 mp_filter: KEYW_AFI afi mp_filter_exp {
-  $$ = new FilterAFI((ItemAFI *) $2, $3);
+    $$ = new FilterAFI((ItemAFI *) $2, $3);
 }
 ;
 
