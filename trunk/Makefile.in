@@ -90,7 +90,7 @@ config-clean:
 	Core/config.h Core/config.log Core/config.status Core/Makefile \
 	Core/gnu/Makefile Core/sched/Makefile \
 	Core/sys/Makefile Core/util/Makefile \
-	aoe/Makefile bgp/Makefile CIDRAdvisor/Makefile \
+	aoe/Makefile roe/Makefile bgp/Makefile CIDRAdvisor/Makefile \
 	gnug++/Makefile irr/Makefile normalform/Makefile peval/Makefile \
 	prpath/Makefile prtraceroute/Makefile re2dfa/Makefile \
 	rpsl/Makefile rpsl/config.h rpsl/config.log rpsl/config.status \
