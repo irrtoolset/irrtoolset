@@ -1,14 +1,17 @@
 id: 016
 summary: command-line options are case-sensitive 
 owner: katie
-status: wait
+status: SOLVED
 priority: high
 program: tools
 module(s): 
 reported: unknown
-closed: unknown
+closed: 13.05.2002
 
 detail:
 
-
+-protocol ripe works, -protocol RIPE doesn't.
 reported by Ambrose
+
+In irr.cc strcmp replaced with strcasecmp().
+
