@@ -215,8 +215,7 @@ void RSdConfig::importP(ASt asno, IPAddr *addr,
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
    if (! fa) {
-      cerr << "Warning: AS" << asno 
-	   << " has no import policy for AS" << peerAS << endl;
+      printPolicyWarning(asno, addr, peerAS, peer_addr, "import");
       return;
    }
 
@@ -224,8 +223,7 @@ void RSdConfig::importP(ASt asno, IPAddr *addr,
 				      NULL, asno, addr, peer_addr);
    const FilterAction *peerFa = peerItr.first();
    if (! peerFa) {
-      cerr << "Warning: AS" << peerAS 
-	   << " has no import policy for AS" << asno << endl;
+      printPolicyWarning(peerAS, peer_addr, asno, addr, "export");
       return;
    }
 

@@ -848,9 +848,10 @@ void JunosConfig::exportP(ASt asno, IPAddr *addr,
    AutNumSelector<AttrExport> itr(autnum, "export", 
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
-   if (! fa)
-      cerr << "Warning: AS" << asno 
-	   << " has no export policy for AS" << peerAS << endl;
+   if (! fa)	{
+	printPolicyWarning(asno, addr, peerAS, peer_addr, "export");
+      	return;
+   }
 
    cout << "policy-options {\n";
    printMartians();
@@ -901,9 +902,10 @@ void JunosConfig::importP(ASt asno, IPAddr *addr,
    AutNumSelector<AttrImport> itr(autnum, "import", 
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
-   if (! fa)
-      cerr << "Warning: AS" << asno 
-	   << " has no import policy for AS" << peerAS << endl;
+   if (! fa) {
+   	printPolicyWarning(asno, addr, peerAS, peer_addr, "import");
+	return;
+   }
 
    cout << "policy-options {\n";
    printMartians();

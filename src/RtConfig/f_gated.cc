@@ -305,8 +305,7 @@ void GatedConfig::importP(ASt asno, IPAddr *addr,
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
    if (! fa) {
-      cerr << "Warning: AS" << asno 
-	   << " has no import policy for AS" << peerAS << endl;
+      printPolicyWarning(asno, addr, peerAS, peer_addr, "import");
       return;
    }
 
@@ -383,8 +382,7 @@ void GatedConfig::exportP(ASt asno, IPAddr *addr,
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
    if (! fa) {
-      cerr << "Warning: AS" << asno 
-	   << " has no import policy for AS" << peerAS << endl;
+      printPolicyWarning(asno, addr, peerAS, peer_addr, "export");
       return;
    }
 

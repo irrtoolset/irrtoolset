@@ -466,8 +466,7 @@ void BccConfig::exportP(ASt asno, IPAddr *addr,
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
    if (! fa) {
-     cerr << "Warning: AS" << asno 
-	  << " has no export policy for AS" << peerAS << endl;
+     printPolicyWarning(asno, addr, peerAS, peer_addr, "export");
      return;
    }
 
@@ -477,8 +476,8 @@ void BccConfig::exportP(ASt asno, IPAddr *addr,
         << "    local-as " << asno << "\n";
 
    if (addr->get_text() && peer_addr->get_text()) {
-     cout << "    peer local " << addr->get_text() << " remote " 
-	  <<	peer_addr->get_text()
+     cout << "    peer local " << addr->get_text() << " remote "; 
+     cout <<	peer_addr->get_text()
 	  << " as " << peerAS << "\n"
 	  << "    back\n";
    } 
@@ -487,6 +486,7 @@ void BccConfig::exportP(ASt asno, IPAddr *addr,
    int last = 0;
    for (; fa && !last; fa = itr.next()) {
      ne = NormalExpression::evaluate(fa->filter, peerAS);          
+
      last = print(ne, fa->action, asno, peerAS, peer_addr,EXPORT);
      delete ne;
    }
@@ -517,7 +517,7 @@ void BccConfig::importP(ASt asno, IPAddr *addr,
 
    //  Made asno part of the map name if it's not changed by users
    sprintf(mapName, mapNameFormat, asno, mapCount++);
-      
+
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(asno);
 
@@ -532,8 +532,7 @@ void BccConfig::importP(ASt asno, IPAddr *addr,
 				  NULL, peerAS, peer_addr, addr);
    const FilterAction *fa = itr.first();
    if (! fa) {
-     cerr << "Warning: AS" << asno 
-	  << " has no import policy for AS" << peerAS << endl;
+     printPolicyWarning(asno, addr, peerAS, peer_addr, "import");
      return;
    }
 
@@ -542,8 +541,8 @@ void BccConfig::importP(ASt asno, IPAddr *addr,
         << "    local-as " << asno << "\n";
 
    if (addr->get_text() && peer_addr->get_text()) {
-     cout << "    peer local " << addr->get_text() << " remote " 
-	  <<	peer_addr->get_text()
+     cout << "    peer local " << addr->get_text() << " remote "; 
+     cout <<	peer_addr->get_text()
 	  << " as " << peerAS << "\n"
 	  << "    back\n";
    } 
