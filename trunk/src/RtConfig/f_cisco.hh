@@ -125,6 +125,7 @@ public:
    static bool usePrefixLists;
    static bool eliminateDupMapParts;
    static bool forceTilda;
+   static bool emptyLists;
    static int  mapIncrements;
    static int  mapNumbersStartAt;
    static int  mapCount;
