@@ -342,8 +342,24 @@ public:
   ipv6_addr_t get_ipaddr() const;
   char *get_text() const;
   char *get_ip_text() const;
+  char *get_afi() const;
   // interface to makeMoreSpecific
   bool makeMoreSpecific(int code, int n, int m);
+
+  int operator==(const MPPrefix &t) const {
+    if (ipv4 && t.ipv4)
+      return (*ipv4 == *(t.ipv4));
+    if (ipv6 && t.ipv6)
+      return (*ipv6 == *(t.ipv6));
+    return false;
+  }
+  int operator<(const MPPrefix &t) const {
+    if (ipv4 && t.ipv4)
+      return (*ipv4 < *(t.ipv4));
+    if (ipv6 && t.ipv6)
+      return (*ipv6 < *(t.ipv6));
+    return false;
+  }
 
   friend ostream& operator<<(ostream& stream, const MPPrefix& p);
 
@@ -358,8 +374,9 @@ public:
     cout << "CONSTRUCTOR" << endl;
   }
 
-
-  void append_list(const MPPrefixRanges *src);
+  void append_list(const MPPrefixRanges *src); // join
+  void and(MPPrefixRanges *src); // intersection
+  void except(MPPrefixRanges *src); // exception
   bool contains(IPAddr ip) const;
   bool contains(IPv6Addr ip) const;
   bool contains(MPPrefix ip) const;

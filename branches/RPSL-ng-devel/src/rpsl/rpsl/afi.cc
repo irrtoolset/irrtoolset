@@ -61,6 +61,12 @@ bool AddressFamily::is_ipv6() {
   return false;
 }
 
+bool AddressFamily::is_default() {
+  if ((strcmp(afi, "ipv4") == 0) || (strcmp(afi, "ipv4.unicast") == 0))
+     return true;
+  return false;
+} 
+
 ostream& operator<<(ostream& stream, const AddressFamily& p) {
    stream << p.afi;
    return stream;

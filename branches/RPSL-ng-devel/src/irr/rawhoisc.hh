@@ -60,12 +60,14 @@
 #include <cstdarg>
 
 #include "irr.hh"
+#include "birdwhoisc.hh"
 #include "util/Error.hh"
 
 class RAWhoisClient : public IRR { 
 // Whois Client that talks to RAWhoisd server
 private:
    char  *current_sources;
+   int version;
 
 protected:
    int _is_open;
@@ -94,6 +96,12 @@ private:
 
    // do a Query and Response but kill the reply
    int  QueryKillResponse(const char *format, ...);
+
+   bool is_rpslng() {
+     if (version >= 22) // RPSLng versions of irrd start from 2.2
+        return true;
+     return false;
+   }
 
 public:
    Error error;
@@ -128,6 +136,8 @@ public:
    // Modified by wlee@isi.edu
    //   char *GetSources(void);
    const char *GetSources(void);
+
+   void GetVersion();
 
    // PendingData() returns true if there is data available for reading
    int  PendingData(); 

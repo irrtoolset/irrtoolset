@@ -59,6 +59,8 @@
 #include "prefix.hh"
 #include <stdlib.h>
 #include <sys/types.h>
+#include <algorithm>
+#include <iterator>
 
 static unsigned int masks[] ={ 0x00000000,
 		 0x80000000, 0xC0000000, 0xE0000000, 0xF0000000,
@@ -754,22 +756,22 @@ IPv6PrefixRange& IPv6PrefixRange::operator=(const IPv6PrefixRange& other)
 
 int IPv6PrefixRange::operator<(const IPv6PrefixRange& other) const
 {
-    return (ipaddr < other.ipaddr ||
-             ( (ipaddr == other.ipaddr) &&
+    return (*ipaddr < *(other.ipaddr) ||
+             ( (*ipaddr == *(other.ipaddr)) &&
                (length < other.length) )
            );
 }
 int IPv6PrefixRange::operator<=(const IPv6PrefixRange& other) const
 {
-    return (ipaddr < other.ipaddr ||
-             ( (ipaddr == other.ipaddr) &&
+    return (*ipaddr < *(other.ipaddr) ||
+             ( (*ipaddr == *(other.ipaddr)) &&
                (length <= other.length) )
            );
 }
 
 int IPv6PrefixRange::operator==(const IPv6PrefixRange& other) const
 {
-  return ipaddr == other.ipaddr &&
+  return *ipaddr == *(other.ipaddr) &&
          length == other.length &&
          n == other.n && m == other.m;
 }
@@ -960,6 +962,12 @@ char *MPPrefix::get_ip_text() const {
   return ipv6->get_ip_text();
 }
 
+char *MPPrefix::get_afi() const {
+  if (ipv4)
+     return strdup("ipv4");
+  return strdup("ipv6");
+}
+
 bool MPPrefix::makeMoreSpecific(int code, int n, int m) {
   if (ipv6)
      return ipv6->makeMoreSpecific(code, n, m);
@@ -968,7 +976,6 @@ bool MPPrefix::makeMoreSpecific(int code, int n, int m) {
 
 int operator<(ipv6_addr_t one, ipv6_addr_t two)
 {
-  //if ( (one.xbit < two.xbit) || (one.high < two.high) || ( (one.high == two.high) && (one.low < two.low) )) 
   if ( (one.xbit < two.xbit) 
      || (one.high < two.high) 
      || ( (one.xbit == two.xbit) && (one.high == two.high) && (one.low < two.low) )) 
@@ -1123,12 +1130,30 @@ ostream& operator<<(ostream& stream, const ipv6_addr_t& p) {
    return stream;
 }
 
+// non-duplicated OR
 void MPPrefixRanges::append_list(const MPPrefixRanges *src) {
    MPPrefixRanges::const_iterator p;
    for (p = src->begin(); p != src->end(); ++p) {
      if (! this->contains (*p))
        this->push_back(*p);
    }
+}
+
+// AND
+void MPPrefixRanges::and(MPPrefixRanges *src) {
+   MPPrefixRanges result = new MPPrefixRanges;
+   insert_iterator<MPPrefixRanges> res_ins(result, result.begin());
+   set_intersection(this->begin(), this->end(), src->begin(), src->end(), res_ins);
+   assign(result.begin(), result.end());
+
+}
+
+// EXCEPT
+void MPPrefixRanges::except(MPPrefixRanges *src) {
+   MPPrefixRanges result = new MPPrefixRanges;
+   insert_iterator<MPPrefixRanges> res_ins(result, result.begin());
+   set_difference(this->begin(), this->end(), src->begin(), src->end(), res_ins);
+   assign(result.begin(), result.end());
 }
 
 bool MPPrefixRanges::contains(IPAddr ip) const {

@@ -263,20 +263,11 @@ ostream &FilterEXCLUDE::print(ostream &out) const {
 }
 
 ostream &FilterRouter::print(ostream &out) const {
-   char buffer[128];
 
-   out << int2quad(buffer, ip->get_ipaddr());
-
-   return out;
-}
-
-ostream &FilterIPv6Router::print(ostream &out) const {
-
-   out << *ip;
+   out << ip->get_ip_text();
 
    return out;
 }
-
 
 ostream &FilterRouterName::print(ostream &out) const {
    out << name;

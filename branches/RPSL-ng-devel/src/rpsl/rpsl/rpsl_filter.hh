@@ -672,16 +672,20 @@ public:
 
 
 
-////// The following is needed by <peering> ///////////////////////////
+////// The following is needed by <peering/mp-peering> ///////////////////////////
 
 class FilterRouter : public Filter {
 public:
-   IPAddr *ip;
+   MPPrefix *ip;
 public:
-   FilterRouter(IPAddr *_ip): ip(_ip) {
+   FilterRouter(IPAddr *_ip) {
+     ip = new MPPrefix((PrefixRange *) _ip);
+   }
+   FilterRouter(IPv6Addr *_ip) {
+     ip = new MPPrefix((IPv6PrefixRange *) _ip);
    }
    FilterRouter(const FilterRouter &b) {
-      ip = new IPAddr(*b.ip);
+      ip = new MPPrefix(*b.ip);
    }
 
    virtual ~FilterRouter() {
@@ -695,34 +699,6 @@ public:
 #ifdef DEBUG
    virtual const char *className(void) const {
       return "FilterRouter";
-   }
-#endif // DEBUG
-};
-
-// for mp-peering
-
-class FilterIPv6Router : public Filter {
-public:
-   IPv6Addr *ip;
-public:
-   FilterIPv6Router(IPv6Addr *_ip) {
-      ip = new IPv6Addr(*_ip);
-   }
-   FilterIPv6Router(const FilterIPv6Router &b) {
-      ip = new IPv6Addr(*b.ip);
-   }
-
-   virtual ~FilterIPv6Router() {
-      delete ip;
-   }
-
-   virtual ostream& print(ostream &out) const;
-   virtual Filter* dup() const {
-      return new FilterIPv6Router(*this);
-   }
-#ifdef DEBUG
-   virtual const char *className(void) const {
-      return "FilterIPv6Router";
    }
 #endif // DEBUG
 };

@@ -130,7 +130,7 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
    // clear this access list
    cout << "!\nno ipv6 access-list " << ipv6_acl << aclID << "\n";
 
-   // print martians
+   // print martians - any in ipv6?
    char *martians[] = { 
       /*
       "host 0.0.0.0 any",
@@ -969,7 +969,7 @@ void CiscoConfig::printCommunityList(ostream &os, ItemList *args) {
    }
 }
 
-void CiscoConfig::printActions(ostream &os, PolicyActionList *actions) {
+void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *afi) {
 #define UNIMPLEMENTED_METHOD \
    cerr << "Warning: unimplemented method " \
 	<< actn->rp_attr->name << "." << actn->rp_method->name << endl
@@ -987,10 +987,20 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions) {
 
       if (actn->rp_attr == dctn_rp_nhop) {
 	 if (actn->rp_method == dctn_rp_nhop_set) {
-	    char buffer[32];
-	    IPAddr *ip = ((ItemIPV4 *) actn->args->head())->ipv4;
-	    ip->get_text(buffer);
-	    os << " set ip next-hop " << buffer << "\n";
+
+      if (afi->is_ipv4() && (typeid(*(actn->args->head())) == typeid(ItemIPV4))) {
+        char buffer[32];
+        IPAddr *ip = ((ItemIPV4 *) actn->args->head())->ipv4;
+        ip->get_text(buffer);
+        os << " set ip next-hop " << buffer << "\n";
+      } else if (afi->is_ipv6() && (typeid(*(actn->args->head())) == typeid(ItemIPV6))) {
+        char buffer[50];
+        IPv6Addr *ip = ((ItemIPV6 *) actn->args->head())->ipv6;
+        ip->get_text(buffer);
+        os << " set ipv6 next-hop " << buffer << "\n";
+      } else {
+        cout << "Warning: next-hop address family doesn't match protocol address family, ignoring next-hop..." << endl;
+      }
 	 } else 
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -1179,29 +1189,33 @@ int CiscoConfig::print(NormalExpression *ne, PolicyActionList *actn,
                  cout << " match ipv6 address prefix-list " << ipv6_pl
                  << i <<"\n";
                else
-               cout << " match ip address " << ipv6_acl << i << "\n";
+               cout << " match ipv6 address " << ipv6_acl << i << "\n";
                }
            }
-           CiscoConfig::printActions(cout, actn);
+           CiscoConfig::printActions(cout, actn, afi);
+           cout << "exit\n"; // exit route map config mode 
          }
 	      }
 	    }
     }
   }
+   
 
    return last;
 }
 
 // Reimplemented to handle different afi's
-// if peer_afi == filter_afi == ipv4, no 'address-family' statements
-
 bool CiscoConfig::printNeighbor(int import, 
 				ASt asno, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi) {
-   bool ipv6_activate = false;
+   bool afi_activate = false;
 
    if (! printRouteMap)
       return false;
 
+   if (!filter_afi->is_default() || !peer_afi->is_default())
+      afi_activate = true;
+
+   const char *indent = (afi_activate) ? " " : "";
    const char *direction = (import == IMPORT) ? "in" : "out";
 
    if (!routeMapGenerated && (!import || ! prefixListGenerated)) {
@@ -1212,44 +1226,44 @@ bool CiscoConfig::printNeighbor(int import,
    }
 
    // create bgp process 
-   cout << "!\nrouter bgp " << asno << "\n";
-
-   // no default ipv4
-   if (peer_afi->is_ipv6()) {
-     cout << "no bgp default ipv4-unicast\n";
-     ipv6_activate = true;
-   }
+   cout << "!\nrouter bgp " << asno << "\n!\n";
 
    if (peerGroup)
-      cout << "neighbor "   << neighbor << " peer-group\n";
+     cout << " neighbor "   << neighbor << " peer-group\n";
+   else 
+     cout << " neighbor "   << neighbor << " remote-as " << asno << "\n";
 
-   if (ipv6_activate) {
-     cout << "address-family ipv6\n";
-     cout << "neighbor " << neighbor << " activate\n";
-   }
+   if (afi_activate)
+     cout << " address-family " << (AddressFamily &) *filter_afi << endl;
+   
+   cout << indent <<" neighbor " << neighbor << " activate\n"; 
 
    if (routeMapGenerated) 
-      cout << "neighbor " << neighbor 
+      cout << indent << " neighbor " << neighbor 
 	   << " route-map " << mapName << " " << direction << "\n";
    
-   if (ipv6_activate)
-      cout << "exit\n";
-
    if (import && ! forcedInboundMatchIP && prefixListGenerated)
       if (usePrefixLists)
-	 cout << "neighbor " << neighbor
+	 cout << indent << " neighbor " << neighbor
 	      << " prefix-list pl" << distributeListNo << " in\n";
       else
-	 cout << "neighbor " << neighbor
+	 cout << indent << " neighbor " << neighbor
 	      << " distribute-list " << distributeListNo << " in\n";
+
+   if (afi_activate)
+      cout << " exit\n"; // exit address-family config mode
+   cout << "!\n";
+
+   if (!peerGroup)
+   cout << "exit\n" ; // exit neighbor config mode explicitly if not peer group
 
    return true;
 }
 
-/// REIMPLEMENTED
+// reimplemented
 void CiscoConfig::exportP(ASt asno, MPPrefix *addr, 
 			 ASt peerAS, MPPrefix *peer_addr) {
-/*
+
    // Made asno part of the map name if it's not changed by users
    sprintf(mapName, mapNameFormat, peerAS, mapCount++);
 
@@ -1261,52 +1275,69 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
       return;
     }
 
-   // get matching export attributes
-   AutNumSelector<AttrExport> itr(autnum, "export", 
-				  NULL, peerAS, peer_addr, addr);
-   const FilterAction *fa = itr.first();
-   if (! fa) {
-      printPolicyWarning(asno, addr, peerAS, peer_addr, "export");
-      return;
-   }
+   int preAclID = prefixMgr.lastID();
    
+   // get matching export & mp-export attributes
+   AutNumSelector<AttrExport> itr(autnum, "export", 
+                                  NULL, peerAS, peer_addr, addr);
+   AutNumSelector<AttrExport> itr1(autnum, "mp-export",
+          NULL, peerAS, peer_addr, addr);
+
+   List<FilterAction> *common_list = itr.get_fa_list();
+   common_list->splice(*(itr1.get_fa_list()));
+
+   FilterAction *fa = common_list->head();
+   if (! fa) {
+     printPolicyWarning(asno, addr, peerAS, peer_addr, "export/mp-export");
+     return;
+   }
+   ItemList *afi_list = itr.get_afi_list();
+   afi_list->splice(*(itr1.get_afi_list()));
+
    NormalExpression *ne;
    NormalExpression done;
    int last = 0;
-   for (; fa && !last; fa = itr.next()) {
-      ne = NormalExpression::evaluate(fa->filter, peerAS);
 
-      if (eliminateDupMapParts) {
-	 NormalExpression ne2(*ne);
-	 NormalExpression done2(done);
-	 done2.do_not();
-	 ne2.do_and(done2);
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+     // Made asno part of the map name if it's not changed by users
+     sprintf(mapName, mapNameFormat, peerAS, mapCount++);
 
-	 if (! ne2.isEmpty())
-	    last = print(ne, fa->action, EXPORT);
+     for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+       ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), peerAS);
 
-	 done.do_or(*ne);
-      } else
-	 last = print(ne, fa->action, EXPORT);
+       if (eliminateDupMapParts) {
+               NormalExpression ne2(*ne);
+         NormalExpression done2(done);
+         done2.do_not();
+         ne2.do_and(done2);
 
-      delete ne;
-   }
+           if (! ne2.isEmpty()) {
+           last = print(ne, fa->action, EXPORT, (ItemAFI *) afi);
+         }
 
-   printNeighbor(EXPORT, asno, peer_addr->get_text(), false);
+               done.do_or(*ne);
+       } else {
+                 last = print(ne, fa->action, EXPORT, (ItemAFI *) afi);
+       }
 
-   routeMapGenerated = false;
-   prefixListGenerated = false;
-*/
+       delete ne;
+     }
+
+     //int postAclID = prefixMgr.lastID();
+
+     // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
+     //ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
+     //printNeighbor(EXPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+
+     routeMapGenerated = false;
+     prefixListGenerated = false;
+  }
 }
 
-
-// REIMP to accept mp-import and restrict afi
 //void CiscoConfig::importP(ASt asno, IPAddr *addr, 
 //			 ASt peerAS, IPAddr *peer_addr) {
 void CiscoConfig::importP(ASt asno, MPPrefix *addr, 
        ASt peerAS, MPPrefix *peer_addr) {
-
-   cout << "Entering importP: with local IP " << *addr << " peer IP " << *peer_addr << endl;
 
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(asno);
@@ -1315,8 +1346,6 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
       cerr << "Error: no object for AS" << asno << endl;
       return;
     }
-   cout << "GOT AUT-NUM" << endl;
-   cout << *autnum << endl;
 
    int preAclID = prefixMgr.lastID();
    
@@ -1337,9 +1366,6 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
    ItemList *afi_list = itr.get_afi_list();
    afi_list->splice(*(itr1.get_afi_list()));
 
-   cout << "***********DEBUG************" << endl;
-   cout << "LIST OF AFIs " << *afi_list << endl;
-
    NormalExpression *ne;
    NormalExpression done;
    int last = 0;
@@ -1348,12 +1374,8 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
      // Made asno part of the map name if it's not changed by users
      sprintf(mapName, mapNameFormat, peerAS, mapCount++);
 
-     cout << "evaluating afi ";
-     afi->print(cout);
-     cout << endl;
      for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
        ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), peerAS);
-       cout << "NE " << *ne << endl;
 
        if (eliminateDupMapParts) {
 	       NormalExpression ne2(*ne);
@@ -1375,7 +1397,9 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
 
      //int postAclID = prefixMgr.lastID();
 
-     printNeighbor(IMPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) afi, (ItemAFI *) afi);
+     // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
+     ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
+     printNeighbor(IMPORT, asno, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
 
      routeMapGenerated = false;
      prefixListGenerated = false;
@@ -1641,7 +1665,7 @@ void CiscoConfig::outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr,
 
 void CiscoConfig::importGroup(ASt asno, char * pset) {
    // Made asno part of the map name if it's not changed by users
-   sprintf(mapName, mapNameFormat, asno, mapCount++);
+   //sprintf(mapName, mapNameFormat, asno, mapCount++);
 
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(asno);
@@ -1654,33 +1678,61 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    SymID psetID = symbols.symID(pset);
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", psetID, ~0, NULL, NULL);
-   const FilterAction *fa = itr.first();
-   if (! fa)
-      cerr << "Warning: AS" << asno 
-	   << " has no import policy for " << pset << endl;
+   AutNumSelector<AttrImport> itr1(autnum, "mp-import", psetID, ~0, NULL, NULL);
+
+   List<FilterAction> *common_list = itr.get_fa_list();
+   common_list->splice(*(itr1.get_fa_list()));
+
+   FilterAction *fa = common_list->head();
+   if (! fa) {
+     cerr << "Warning: AS" << asno << " has no import policy for " << pset << endl;
+     return;
+   }
+
+   ItemList *afi_list = itr.get_afi_list();
+   afi_list->splice(*(itr1.get_afi_list()));
 
    NormalExpression *ne;
    int last = 0;
-   for (; fa && !last; fa = itr.next()) {
-      ne = NormalExpression::evaluate(fa->filter, ~0);
-      last = print(ne, fa->action, IMPORT, NULL);
-      delete ne;
+
+   const PeeringSet *prngSet = irr->getPeeringSet(psetID);
+
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+     cout << "AFI: " << ((AddressFamily *) afi)->name() << endl;
+     for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+       ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), ~0);
+       last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);;
+       delete ne;
+     }
+     // separate peers by afi
+
+     printNeighbor(IMPORT, asno, pset, true, (ItemAFI *) afi, (ItemAFI *) afi);
+
+     for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
+         if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+            cout << " neighbor " << *itr()->peering->peerRtrs
+                 << " remote-as " << *itr()->peering->peerASes
+                 << "\n neighbor " << *itr()->peering->peerRtrs
+                 << " peer-group " << pset << "\n";
+
+     for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
+         if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+            cout << " neighbor " << *itr()->peering->peerRtrs
+                 << " remote-as " << *itr()->peering->peerASes
+                 << "\n neighbor " << *itr()->peering->peerRtrs
+                 << " peer-group " << pset << "\n";
+
    }
 
-   printNeighbor(IMPORT, asno, pset, true, NULL, NULL);
-   const PeeringSet *prngSet = irr->getPeeringSet(psetID);
-   if (prngSet)
-      for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
-	 if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
-	     && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
-	    cout << " neighbor " << *itr()->peering->peerRtrs
-		 << " remote-as " << *itr()->peering->peerASes
-		 << "\n neighbor " << *itr()->peering->peerRtrs
-		 << " peer-group " << pset << "\n";
 
-   routeMapGenerated = false;
-   prefixListGenerated = false;
-}
+
+   // gather v4 and v6 peers
+   // inside every group configure for v4 and v6 afi
+   // TBD!!!
+
+} 
 
 void CiscoConfig::exportGroup(ASt asno, char * pset) {
    // Made asno part of the map name if it's not changed by users

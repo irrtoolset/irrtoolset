@@ -846,6 +846,7 @@ public:
 };
 
 // TBD!!!
+/*
 class AttrMPPeering: public Attr {
 public: 
    PolicyPeering    *peering;
@@ -874,7 +875,7 @@ public:
 #endif // DEBUG
 };
 
-
+*/
 
 ///////////////////////// inet-rtr ///////////////////////////////////
 

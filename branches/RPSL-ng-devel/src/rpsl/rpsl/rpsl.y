@@ -1657,11 +1657,8 @@ mp_filter_prefix_list_prefix: TKN_PRFXV6 {
 
 mp_peering: as_expr opt_mp_router_expr opt_mp_router_expr_with_at {
    $$ = new PolicyPeering($1, $2, $3);
-// need to check here that afi in opt_mp_router_expr == afi in opt_mp_router_expr_with_at
-   if (typeid(*$2) != typeid(*$3)) {
-     handle_error ("Error: routers address families mismatch\n");
-     yyerrok;
-   }
+// need to check here that afi in opt_mp_router_expr == afi in opt_mp_router_expr_with_at ?
+
 }
 | TKN_PRNGNAME {
    $$ = new PolicyPeering($1);
@@ -1711,7 +1708,7 @@ mp_router_expr_operand: TKN_IPV4 {
    $$ = new FilterRouter($1);
 }
 | TKN_IPV6 {
-   $$ = new FilterIPv6Router($1);
+   $$ = new FilterRouter($1);
 }
 | TKN_DNS {
    $$ = new FilterRouterName($1);
@@ -1883,7 +1880,7 @@ peering_attribute: ATTR_PEERING peering TKN_EOA {
 //** mp-peering attribute TBD *****//
 
 mp_peering_attribute: ATTR_MP_PEERING mp_peering TKN_EOA {
-   $$ = changeCurrentAttr(new AttrMPPeering($2));
+   $$ = changeCurrentAttr(new AttrPeering($2));
 }
 | ATTR_MP_PEERING error TKN_EOA {
    $$ = $1;
