@@ -207,6 +207,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-cisco_force_tilda", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::forceTilda,
       "Interpret * and + as ~* and ~+ operators in AS paths to shorten as path acl's lines.\n\t\t\t\tCisco only."},
+     {"-cisco_empty_lists", ARGV_BOOL, 
+      (char *) NULL, (char *) &CiscoConfig::emptyLists,
+      "Generate access lists for ANY and NOT ANY prefix filters.\n\t\t\t\tCisco only."},
      
      {"-junos_no_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &JunosConfig::compressAcls,
@@ -320,10 +323,26 @@ void RtConfig::printPrefixes(char *filter, char *fmt) {
       
       NormalExpression *ne = 
 	 NormalExpression::evaluate(itr()->filter, ~0);
+
+      if (ne && ne->is_any() != NEITHER)
+        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+
       if (ne && ne->singleton_flag == NormalTerm::PRFX)
 	 printPrefixes_(ne->first()->prfx_set, fmt);
       else
-	 cerr << "Error: Filter can only contain prefix filters." << endl;
+	 if (ne && ne->is_any() != NEITHER )
+         {
+		if (ciscoConfig.emptyLists)	
+		{
+                	// print "any/not any" prefix list - changed by katie@ripe.net
+                	SetOfPrefix *nets = new SetOfPrefix;
+                	if (ne->is_any() == ANY)
+                        	nets->not_ = true;
+                	printSuperPrefixRanges_(*nets,fmt);
+		}
+         }
+        else
+	 	cerr << "Error: Badly formed prefix filter." << endl;
       
       delete ne;
    }
@@ -346,8 +365,16 @@ void RtConfig::printPrefixRanges(char *filter, char *fmt) {
       if (ne && ne->singleton_flag == NormalTerm::PRFX)
 	 printPrefixRanges_(ne->first()->prfx_set, fmt);
       else
-	 cerr << "Error: Filter can only contain prefix filters." << endl;
-      
+	if (ne && ne->is_any() != NEITHER )
+         {
+                // print "any/not any" prefix list - changed by katie@ripe.net
+                SetOfPrefix *nets = new SetOfPrefix;
+                if (ne->is_any() == ANY)
+                        nets->not_ = true;
+                printSuperPrefixRanges_(*nets,fmt);
+         }
+	else
+     		cerr << "Error: Badly formed prefix filter." << endl; 
       delete ne;
    }
    
@@ -366,10 +393,26 @@ void RtConfig::printSuperPrefixRanges(char *filter, char *fmt) {
       
       NormalExpression *ne = 
 	 NormalExpression::evaluate(itr()->filter, ~0);
+
+      if (ne && ne->is_any() != NEITHER)
+        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+
       if (ne && ne->singleton_flag == NormalTerm::PRFX)
 	 printSuperPrefixRanges_(ne->first()->prfx_set, fmt);
       else
-	 cerr << "Error: Filter can only contain prefix filters." << endl;
+	 if (ne && ne->is_any() != NEITHER)
+         {
+		if (ciscoConfig.emptyLists)	
+		{
+                	// print "any/not any" prefix list - changed by katie@ripe.net
+                	SetOfPrefix *nets = new SetOfPrefix;
+                	if (ne->is_any() == ANY)
+                        	nets->not_ = true;
+                	printSuperPrefixRanges_(*nets,fmt);
+		}
+         }
+         else
+	 	cerr << "Error: Badly formed prefix filter." << endl;
       
       delete ne;
    }
@@ -593,11 +636,27 @@ void RtConfig::accessList(char *filter) {
       
       NormalExpression *ne = 
 	 NormalExpression::evaluate(itr()->filter, ~0);
+
+      if (ne && ne->is_any() != NEITHER)
+      	cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+
       if (ne && ne->singleton_flag == NormalTerm::PRFX)
 	 printAccessList(ne->first()->prfx_set);
-      else
-	 cerr << "Error: Filter can only contain prefix filters." << endl;
-      
+      else 
+	if (ne && ne->is_any() != NEITHER )
+	 {
+		if (ciscoConfig.emptyLists)
+		{
+			// print "any/not any" prefix list - changed by katie@ripe.net
+      			SetOfPrefix *nets = new SetOfPrefix;
+			if (ne->is_any() == ANY) 
+				nets->not_ = true;
+      			printAccessList(*nets);	
+	 	}
+	  }
+	else 
+		cerr << "Error: Badly formed prefix filter." << endl;
+
       delete ne;
    }
    
@@ -616,11 +675,15 @@ void RtConfig::aspathAccessList(char *filter) {
       
       NormalExpression *ne = 
 	 NormalExpression::evaluate(itr()->filter, ~0);
+
+      if (ne && ne->is_any() != NEITHER)
+        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+
       if (ne && ne->singleton_flag == NormalTerm::AS_PATH)
 	 printAspathAccessList(ne->first()->as_path);
       else
-	 cerr << "Error: Filter can only contain as path filters." << endl;
-      
+	cerr << "Error: badly formed AS_path filter." << endl;
+
       delete ne;
    }
    
