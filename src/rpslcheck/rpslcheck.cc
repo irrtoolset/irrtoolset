@@ -50,6 +50,7 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//	       Katie Petrusha <katie@ripe.net>
 
 #include <config.h>
 #include <istream.h>
@@ -59,17 +60,17 @@
 #include "util/trace.hh"
 #include "util/Argv.hh"
 #include "util/version.hh"
-#ifdef IRR_NEEDED
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#endif // IRR_NEEDED
+#include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
 
 Rusage ru;
 bool opt_stats                   = false;
 bool opt_rusage                  = false;
-char *opt_prompt                 = "RtConfig> ";
+char *opt_prompt                 = "rpslcheck> ";
 bool opt_echo                    = false;
+char *opt_my_as			 = NULL;
 #ifdef DEBUG
 bool opt_debug_rpsl              = false;
 #endif // DEBUG
@@ -100,24 +101,17 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Start debugging the next argument"},
      {"-version", ARGV_FUNC, (char *) &version,      (char *) NULL,
       "Show version"},
-#ifdef IRR_NEEDED
-     {"-h", ARGV_FUNC, (char *) &IRR::ArgvHost,      (char *) NULL,
-      "Host name of the RAWhoisd server"},
-     {"-p", ARGV_FUNC, (char *) &IRR::ArgvPort,      (char *) NULL,
-      "Port number of the RAWhoisd server"},
-     {"-s", ARGV_FUNC, (char *) &IRR::ArgvSources,   (char *) NULL,
-      "Order of databases"},
-     {"-ignore_errors", ARGV_FUNC, (char *)&IRR::IgnoreErrors, (char *)NULL,
-      "Ignore IRR error and warning messages"},
-     {"-report_errors", ARGV_FUNC, (char *)&IRR::ReportErrors, (char *)NULL,
-      "Print IRR error and warning messages"},
-#endif // IRR_NEEDED
+     
+     IRR_COMMAND_LINE_OPTIONS,
+
      {"-rusage", ARGV_BOOL, (char *) NULL,           (char *) &opt_rusage,
       "On termination print resource usage"},
      {"-stats", ARGV_BOOL, (char *) NULL,            (char *) &opt_stats,
       "On termination print class statistics"},
      {"-prompt", ARGV_STRING,  (char *) NULL,        (char *) &opt_prompt,
       "Prompt"},
+     {"-as",  ARGV_STRING,     (char *) NULL, (char *) &opt_my_as, 
+      "AS number of the aut-num object to parse"},
      
      {"-echo", ARGV_BOOL, (char *) NULL,           (char *) &opt_echo,
       "Echo each object parsed"},
@@ -125,22 +119,22 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-debug_rpsl", ARGV_BOOL, (char *) NULL,     (char *) &opt_debug_rpsl,
       "Turn on bison debugging. Intended for developers."},
 #endif // DEBUG
+
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
    };
   
-#ifdef IRR_NEEDED
    IRR::handleEnvironmentVariables(envp);
-#endif // IRR_NEEDED
 
    if (ParseArgv(&argc, argv, argTable, ARGV_NO_LEFTOVERS) != ARGV_OK) {
       cerr << endl;
       exit(1);
    }
 
-#ifdef IRR_NEEDED
-   irr = IRR::newClient();
-#endif // IRR_NEEDED
+   if (! (irr = IRR::newClient())) {
+      cerr << "Unknown protocol!" << endl;
+      exit(1);
+   }
 
    // have a prompt only if the input is coming from a tty
    if (!isatty(fileno(stdin)) || !isatty(fileno(stdout)))
@@ -163,17 +157,38 @@ main(int argc, char **argv, char **envp) {
 
    Object *o;
    bool code = true;
-   int count = 0;
-   while (cin) {
-      o = new Object;
-      code = o->read();
-      if (code)
-	 code = o->scan();
+   int myAS;
+   
+   while (opt_my_as || cin ) {
+       if (opt_my_as) {
+	  myAS = atoi(opt_my_as + 2);
+	  const AutNum *autnum = irr->getAutNum(myAS);
+          if (!autnum)	{
+          	cerr << "Error: no object for AS " << myAS << endl;
+		exit(1);
+	  }
+	  o = new Object((Object &) *autnum);
+          o->scan();
+       }
+       else {
+	  o = new Object;
+          code = o->read();
+          if (code)
+             code = o->scan();
+       }
 
-      if (opt_echo && code)
-	 cout << *o;
+          if (opt_echo && code)
+             cout << *o;
 
-      delete o;
+          if (!o->has_error && code)
+          cout << "Congratulations no errors were found" << endl;
+
+	  delete o;
+
+	  if (opt_my_as)	{
+		break;
+	  }
+
    }
 
    if (opt_stats)
