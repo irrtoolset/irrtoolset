@@ -389,9 +389,9 @@ public:
             list = select(import->policy, pset, peerAS, peerIP, ip);
             if (list) {
                filterActionList.splice(*list);
+               afi_list->merge(*(import->afi_list));
                delete list;
             }
-            afi_list->splice(*(import->afi_list));
          }
       }
    }
