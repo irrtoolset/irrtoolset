@@ -1,0 +1,25 @@
+id: 002
+summary: "generate policy from peer's aut-num" broken
+owner: katie
+status: closed
+priority: high
+program: aoe
+module(s): aoe
+reported: unknown
+closed: unknown
+
+detail:
+
+The previous implementation was not actually working. Also full
+peering descriptions (peer peer_IP local_IP) were not taken into account.  I
+used the classes AutNumPeeringGenerator to iterate the peerings (of Peering
+class), and AutNumSelector<AttrExport> to find the policies for the
+particular peering (not only ASno!). Also FilterAction to pick up the filter
+from the policy.
+
+aoe/aoe.cc              int ListPeer::generatePolicyFromPeer(int iImport, int iExport,
+                                     ASt tMyAS, 
+                                     ASt tPeerAS, const AutNum *pcPeerAutNum, 
+                                     TclText *pcText, int iPeerASType)
+
+
