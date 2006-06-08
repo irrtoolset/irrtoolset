@@ -9,8 +9,12 @@
 #include "util/version.hh"
 #include "rpsl/object_log.hh"
 #include <memory.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <cstring>
+#include <iostream>
+#include <string>
+
+using namespace std;
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE            2047
@@ -28,15 +32,15 @@ BirdWhoisClient::BirdWhoisClient(void) : response(NULL),
 
 BirdWhoisClient::BirdWhoisClient(const char *host, 
 				 const int port,
-				 const char *sources = dflt_sources) :
+				 const char *sources) :
   response(NULL), Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
-  Open(host, port, sources);
+ Open(host, port, sources);
 }
 
-void BirdWhoisClient::Open(const char *_host = dflt_host, 
-		  const int _port = dflt_port, 
-		  const char *_sources = dflt_sources)
+void BirdWhoisClient::Open(const char *_host,
+                           const int _port,
+                           const char *_sources)
 {
   //Trace(TR_WHOIS_QUERY) << getsock() 
   //  			  << " - Whois: Open " << _host << ":" << _port 
@@ -187,10 +191,12 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
       return false;
    }
 
-   Trace(TR_WHOIS_RESPONSE).form("WhoisResponse[%.*s]\n",
-				 result->size, result->contents);
-   text = result->contents;
-   len  = result->size;
+   Trace(TR_WHOIS_RESPONSE)
+      << "WhoisResponse["
+      << string(result->contents, 0, result->size)
+      << "]"
+      << endl;
+
    return true;
 }
 
@@ -259,8 +265,9 @@ bool BirdWhoisClient::getInetRtr(SymID inetrtr,    char *&text, int &len)
   return true;
 }
 
-bool BirdWhoisClient::expandAS(char *as, PrefixRanges *result) {
-  if (!sendQuery("-K -T route -i origin %s", as)) 
+// REIMP
+bool BirdWhoisClient::expandAS(char *as, MPPrefixRanges *result) {
+  if (!sendQuery("-K -i origin %s", as)) 
     return false;
   char *pzcKeys;
   int iKeyLen;
@@ -270,19 +277,25 @@ bool BirdWhoisClient::expandAS(char *as, PrefixRanges *result) {
        *(pzcKeys+iKeyLen) = 0;
        char *p = pzcKeys;
        char *prefix;
+       char *begin;
        while (p && p < pzcKeys + iKeyLen) {
-	  p = strstr(p, "route");
-	  if (!p)
-	     break;
-	  p += 6; // we skip one extra character for ':' or '@' depending on the protocol
-	  while (*p && isspace(*p))
-	     p++;
-	  prefix = p;
-	  while (*p && (!isspace(*p) && *p != '@'))
-	     p++;
-	  *p = 0;
-	  p++;
-	  result->add_high(prefix);
+          begin = strstr(p,"route:");
+          if (!begin) {
+            begin = strstr(p, "route6:"); 
+          }
+          if (!begin)
+            break;
+          p = begin;
+          // locate 1st ":"
+      	  p = strstr(p,":") + 1; // we skip one extra character for ':' or '@' depending on the protocol
+      	  while (*p && isspace(*p))
+      	     p++;
+       	  prefix = p;
+      	  while (*p && (!isspace(*p) && *p != '@'))
+      	     p++;
+      	  *p = 0;
+      	  p++;
+      	  result->push_back(MPPrefix(prefix));
        }
     free(pzcKeys);
     return true;
@@ -331,21 +344,36 @@ bool BirdWhoisClient::getIndirectMembers(char *setName,
    free(response);
 }
 
-bool BirdWhoisClient::expandRSSet(SymID sname, PrefixRanges *result) {
+bool BirdWhoisClient::expandRSSet(SymID sname, MPPrefixRanges *result) {
+  
   const Set *set = IRR::getRSSet(sname);
   AttrGenericIterator<Item> itr(set, "members");
-  for (Item *pt = itr.first(); pt; pt = itr.next())
-     expandItem(pt, result);
-
+  for (Item *pt = itr.first(); pt; pt = itr.next()) {
+     expandItem(pt, (MPPrefixRanges *) result);
+  }
+  AttrGenericIterator<Item> itr1(set, "mp-members");
+  for (Item *pt = itr1.first(); pt; pt = itr1.next()) {
+     expandItem(pt, (MPPrefixRanges *) result);
+  }
+ 
   char buffer[1024];
+
   // ripev3 support
   if (!strcasecmp(protocol, "ripe") && !strcasecmp(sname, "rs-any")) 
-     strcpy(buffer, "-T route -M 0.0.0.0/0");
+     strcpy(buffer, "-Troute -M 0.0.0.0/0");
   else
-     sprintf(buffer, "-T route -i member-of %s", sname);
+     sprintf(buffer, "-i member-of %s", sname);
   getIndirectMembers(sname, set, buffer, collectPrefix, result);
+  
+
+  bzero(buffer, sizeof(buffer));
+  if (!strcasecmp(protocol, "ripe") && !strcasecmp(sname, "rs-any")) {
+     strcpy(buffer, "-Troute6 -M ::/0");
+     getIndirectMembers(sname, set, buffer, collectPrefix, result);
+  }
 
   return true;
+
 }
 
 bool BirdWhoisClient::expandASSet(SymID sname, SetOfUInt *result) {
@@ -355,7 +383,7 @@ bool BirdWhoisClient::expandASSet(SymID sname, SetOfUInt *result) {
     if (typeid(*pt) == typeid(ItemASNAME)) { // ASNAME (aka as-set)
        const SetOfUInt *tmp = IRR::expandASSet(((ItemASNAME *)pt)->name);
        if (tmp) 
-	  *result |= *(SetOfUInt *) tmp;
+    	  *result |= *(SetOfUInt *) tmp;
     } else if (typeid(*pt) == typeid(ItemASNO))
        result->add(((ItemASNO *)pt)->asno);
     else
@@ -368,11 +396,14 @@ bool BirdWhoisClient::expandASSet(SymID sname, SetOfUInt *result) {
   return true;
 }
 
-bool BirdWhoisClient::expandRtrSet(SymID sname, PrefixRanges *result) {
+bool BirdWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
   const Set *set = IRR::getRtrSet(sname);
   AttrGenericIterator<Item> itr(set, "members");
   for (Item *pt = itr.first(); pt; pt = itr.next())
-     expandItem(pt, result);
+     expandItem(pt, (MPPrefixRanges *) result);
+  AttrGenericIterator<Item> itr1(set, "mp-members");
+  for (Item *pt = itr1.first(); pt; pt = itr1.next())
+     expandItem(pt, (MPPrefixRanges *) result);
 
   char buffer[1024];
   sprintf(buffer, "-T inet-rtr -i member-of %s", sname);

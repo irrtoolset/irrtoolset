@@ -224,12 +224,9 @@ extern "C" {
 #include <assert.h>   
 }
 #include <cerrno>
-#ifdef NEED_TO_DECLARE_SYS_ERRLIST
-extern const char *const sys_errlist[];
-#endif
-
-#include <iostream.h>
-#include <iomanip.h>
+#include <cstring>
+#include <iostream>
+#include <iomanip>
 
 static const int BufferSize = 8192;
 
@@ -386,7 +383,7 @@ class Error {
 	if (ignore_)
 	    return;
 	if (errno && syserr_) {
-	    messages_(sys_errlist[errno]);
+	    messages_(strerror(errno));
 	    errno = 0;
 	}
 	messages_(fmt, ap);

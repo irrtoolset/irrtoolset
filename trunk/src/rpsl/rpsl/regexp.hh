@@ -55,7 +55,7 @@
 #define REGEXP_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include <cassert>
 #include "gnu/SetOfSymID.hh"
 #include "util/List.hh"
@@ -63,7 +63,7 @@
 #include "symbols.hh"
 
 #define REGEXP_FRIENDS \
-   friend ostream& operator<<(ostream& os, const regexp& r); \
+   friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp_nf; \
    friend class CiscoConfig;\
    friend class JunosConfig;\
@@ -146,7 +146,7 @@ public:
 
 class regexp_symbol : public regexp {
 REGEXP_FRIENDS
-friend ostream& operator<<(ostream& os, regexp_symbol& r);
+friend std::ostream& operator<<(std::ostream& os, regexp_symbol& r);
 public:
    static int MIN_AS;
    static int MAX_AS;

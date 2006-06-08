@@ -89,6 +89,12 @@ RPType *RPType::newRPType(char *name) {
       return new RPTypeIPv4Prefix;
    if (!strcasecmp(name, "address_prefix_range"))
       return new RPTypeIPv4PrefixRange;
+   if (!strcasecmp(name, "ipv6_address"))
+      return new RPTypeIPv6Address;
+   if (!strcasecmp(name, "ipv6_address_prefix"))
+      return new RPTypeIPv6Prefix;
+   if (!strcasecmp(name, "ipv6_address_prefix_range"))
+      return new RPTypeIPv6PrefixRange;
    if (!strcasecmp(name, "connection"))
       return new RPTypeConnection;
    if (!strcasecmp(name, "dns_name"))
@@ -410,6 +416,32 @@ Item *RPTypeIPv4PrefixRange::typeCast(const Item *item) const {
 	 (new PrefixRange(*((ItemPRFXV4 *) item)->prfxv4));
    return NULL;
 }
+
+////////////////////////////// RPTypeIPv6Address ////////////////////
+
+bool RPTypeIPv6Address::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemIPV6));
+}
+
+////////////////////////////// RPTypeIPv6Prefix ////////////////////
+
+bool RPTypeIPv6Prefix::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV6));
+}
+
+////////////////////////////// RPTypeIPv6PrefixRange ////////////////////
+
+bool RPTypeIPv6PrefixRange::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV6Range));
+}
+
+Item *RPTypeIPv6PrefixRange::typeCast(const Item *item) const {
+   if (typeid(*item) == typeid(ItemPRFXV6))
+      return new ItemPRFXV6Range
+         (new IPv6PrefixRange(*((ItemPRFXV6 *) item)->prfxv6));
+   return NULL;
+}
+
 
 ////////////////////////////// RPTypeConnection ////////////////////
 

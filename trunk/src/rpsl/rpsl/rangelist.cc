@@ -53,6 +53,9 @@
 
 #include "config.h"
 #include "rangelist.hh"
+#include <ostream>
+
+using namespace std;
 
 #ifndef MAX
 #define MAX(x,y) ((x) > (y) ? (x) : (y))

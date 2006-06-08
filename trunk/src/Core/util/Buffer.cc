@@ -29,13 +29,16 @@
 #include <config.h>
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
 #include <cassert>
-#include <iomanip.h>
-#include <ctype.h>
+#include <iomanip>
+#include <cctype>
+#include <ostream>
+
+using namespace std;
 
 #ifdef NEED_COMPRESSION
 #include <zlib.h>
@@ -207,7 +210,7 @@ void Buffer::append(Buffer &buf) {
    size += buf.size;
 }
 
-void Buffer::insert(Buffer &buf, unsigned long atOffset = 0) {
+void Buffer::insert(Buffer &buf, unsigned long atOffset) {
    if (size + buf.size > capacity)
       extend(buf.size);
    memmove(contents + atOffset + buf.size, 

@@ -55,7 +55,7 @@
 #define RANGELIST_HH
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "util/List.hh"
 
 #define RANGE_TOP 65535
@@ -161,6 +161,6 @@ public:
       return ! (*this == b);
    }
 
-   friend ostream& operator<<(ostream&, const RangeList &no);
+   friend std::ostream& operator<<(std::ostream&, const RangeList &no);
 };
 #endif   // RANGELIST_HH

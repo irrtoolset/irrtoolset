@@ -70,6 +70,7 @@ extern "C" {
 #include <unistd.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <strings.h>
 }
 
 #include <cctype>
@@ -139,7 +140,7 @@ extern int send   (...);
 }
 
 
-#include <iostream.h>
+#include <iostream>
 #include "Error.hh"
 
 #ifndef MAXPACKETLEN

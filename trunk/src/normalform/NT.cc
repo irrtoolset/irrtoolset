@@ -52,9 +52,11 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "NT.hh"
 #include "util/debug.hh"
+
+using namespace std;
 
 CLASS_DEBUG_MEMORY_CC(NormalTerm);
 

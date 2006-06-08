@@ -74,7 +74,8 @@ public:
       re = new regexp_nf(new regexp_empty_set);
    };
    ~FilterOfASPath() {
-      delete re;
+      if (re)
+        delete re;
    }
    FilterOfASPath(const FilterOfASPath& other) { 
       re = other.re->dup_nf(); 
@@ -144,7 +145,7 @@ public:
       *this = (FilterOfASPath&) b;
    }
 
-   virtual void do_print (ostream& stream);
+   virtual void do_print (std::ostream& stream);
 
    CLASS_DEBUG_MEMORY_HH(FilterOfASPath);
 

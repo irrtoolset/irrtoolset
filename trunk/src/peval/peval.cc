@@ -53,14 +53,15 @@
 
 #include "config.h"
 #include <cstdlib>
+#include <cstring>
 
 extern "C" {
 #if HAVE_UNISTD_H
 #   include <unistd.h>
 #endif
 }
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 
 #include <cstdio>
 
@@ -83,6 +84,8 @@ extern void add_history (char *);
 #include "normalform/NE.hh"
 #include "re2dfa/regexp_nf.hh"
 
+using namespace std;
+
 #define EXPAND_ASSets         0x000001
 #define EXPAND_RSSets         0x000002
 #define EXPAND_AS             0x000004
@@ -98,32 +101,71 @@ int  opt_symbolic                = 0;
 
 const int SIZE = 8*1024;
 char base[SIZE] = "peval: ";
+char temp[SIZE];
+char safe_base[SIZE];
 char *filter;
+char *cut;
 
 void evaluate() {
    if (opt_expand & EXPAND_ASSets)
       regexp_nf::expandASSets();
 
    strcat(filter, "\n\n");
+   // Was: safe_base = base;
+   memcpy(safe_base, base, SIZE);
+
+   cut = strstr(filter, "afi");
+   if (cut && isspace(*(cut+3))) {
+     strcat (temp, "mp-");
+     strcat (temp, base);
+     // Was: base = temp;
+     memcpy(base, temp, SIZE);
+     // Was: bzero(temp, SIZE);
+     memset(temp, '\0', SIZE);
+   }
 
    Object *o = new Object;
    o->scan(base, strlen(base));
    if (o->has_error) {
       delete o;
+      // Was: base = safe_base;
+      memcpy(base, safe_base, SIZE);
       return;
    }
 
+   if (strcmp(o->type->getName(), "mp-peval") == 0) {
+
+     AttrIterator<AttrMPPeval> itr(o, "mp-peval");
+
+     NormalExpression *ne = 
+        NormalExpression::evaluate(itr()->filter, ~0, opt_expand);
+
+     if (ne)
+        cout << *ne << endl;
+     else
+        cerr << "Error: Internal error." << endl;
+	
+     delete ne;
+     delete o;
+
+   } else {
+ 
    AttrIterator<AttrFilter> itr(o, "peval");
 
    NormalExpression *ne = 
       NormalExpression::evaluate(itr()->filter, ~0, opt_expand);
+
    if (ne)
       cout << *ne << endl;
    else
       cerr << "Error: Internal error." << endl;
-			
+  
    delete ne;
    delete o;
+
+   }
+   // Was: base = safe_base;
+   memcpy(base, safe_base, SIZE);
 }
 
 int start_tracing(char *dst, char *key, char *nextArg) {

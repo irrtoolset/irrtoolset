@@ -53,15 +53,18 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 */
 
-/* definitions */
+/* Definitions */
 %x USEFUL_LINE
 %x USELESS_LINE
 
 DNAME          [[:alnum:]_-]+
+QUAD           [0-9A-F]{1,4}
+IPV6           {QUAD}(:{QUAD}){7}
+IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 
 %{
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "RtConfig.hh"
 #include "command.y.hh"
 #include "irr/irr.hh"
@@ -90,6 +93,7 @@ static KeyWord keywords[] = {
 "configureRouter",         KW_CONFIGURE_ROUTER,
 "static2bgp",              KW_STATIC2BGP,
 "networks",                KW_NETWORKS,
+"v6networks",              KW_V6NETWORKS,
 "pkt_filter",              KW_PKT_FILTER,
 "outbound_pkt_filter",     KW_OUTBOUND_PKT_FILTER,
 "set",                     KW_SET,
@@ -129,6 +133,39 @@ int yywrap () {
 }
 }
 
+
+#if 0
+/* The use of YY_INPUT() seems to tickle a bug in the
+ * lexer.  Sometmes it drops the initial character.
+ * [GDT. Red Hat Linux Fedora Core 1, flex-2.5.4a-30]
+ */
+/* Redefine end of line as CR, CR LF or LF so that Unix, Mac, Windows,
+ * MS-DOS files can be used as input.  CP/M and old MS-DOS files might
+ * have 1 to 128 trailing Ctrl+Z -- we don't cope with those :-)
+ */
+#define YY_INPUT(BUFFER,RESULT,MAX_SIZE) \
+{ \
+    int ch; \
+    int next_ch; \
+ \
+    ch = getc(yyin); \
+    if (ch == EOF) { \
+        RESULT = YY_NULL; \
+    } \
+    else { \
+        if (ch == '\r') { \
+            ch = '\n'; \
+            next_ch = fgetc(yyin); \
+            if (next_ch != EOF && next_ch != '\n') { \
+                (void)ungetc(next_ch, yyin); \
+            } \
+        } \
+        BUFFER[0] = ch; \
+        RESULT = 1; \
+    } \
+}
+#endif
+
 %}
 
 %%
@@ -167,13 +204,24 @@ int yywrap () {
    LEXER_RETURN((int) *yytext);
 }
 
+
 <USEFUL_LINE>[Aa][Ss][0-9]+ {
    yylval.as = atoi(yytext+2);
    LEXER_RETURN(TKN_ASNUM);
 }
 
 <USEFUL_LINE>[0-9]+(\.[0-9]+){3,3} {
-   yylval.ip = new IPAddr(yytext);
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6} {
+   yylval.ip = new MPPrefix(yytext);
+   LEXER_RETURN(TKN_IP);
+}
+
+<USEFUL_LINE>{IPV6DC} {
+   yylval.ip = new MPPrefix(yytext);
    LEXER_RETURN(TKN_IP);
 }
 
@@ -228,11 +276,3 @@ int yywrap () {
 %%
 
 /* User Code if any */
-
-
-
-
-
-
-
-

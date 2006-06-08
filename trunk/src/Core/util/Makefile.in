@@ -50,10 +50,12 @@ default: all
 
 .c.o:
 	@echo Compiling: `basename $<`
+	@echo $(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
 	@$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
 
 .cc.o:
 	@echo Compiling: `basename $<`
+	@echo $(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
 	@$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
 
 .SUFFIXES: .cc

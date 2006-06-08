@@ -53,7 +53,7 @@
 //	       Katie Petrusha <katie@ripe.net>
 
 #include <config.h>
-#include <istream.h>
+#include <iostream>
 #include "rpsl/object.hh"
 #include "util/rusage.hh"
 #include "util/debug.hh"
@@ -64,6 +64,8 @@
 #include "irr/rawhoisc.hh"
 #include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
+
+using namespace std;
 
 Rusage ru;
 bool opt_stats                   = false;

@@ -55,7 +55,7 @@
 #define TRACE_H
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 
 #define TR_MAX                   (sizeof(long int) * 8 -1)
 
@@ -64,7 +64,7 @@
 #define TR_WHOIS_RESPONSE        2
 #define TR_INPUT                 3
 
-#define Trace(level) if (trace.enabledp(level)) clog
+#define Trace(level) if (trace.enabledp(level)) std::clog
 
 class Tracer {
 private:
