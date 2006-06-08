@@ -1,0 +1,161 @@
+# This is a shell archive.  Save it in a file, remove anything before
+# this line, and then unpack it by entering "sh file".  Note, it may
+# create directories; files and directories will be owned by you and
+# have default permissions.
+#
+# This archive contains:
+#
+#	Makefile
+#	rtconfig-macros.m4
+#	shorten-regexp.pl
+#
+echo x - Makefile
+sed 's/^X//' >Makefile << 'END-of-Makefile'
+X# Makefile used to generate Cisco configuration files using RtConfig.
+X# A P Barrett <apb@iafrica.com>, March 1996
+X# Public domain.  No Warranty.
+X
+X#------------------------------
+X# Customise this.
+X
+X# Names of the routers.
+X# For each router, input is <routername>.conf,
+X# and outputs are <routername>.out-routemap and <routername>.out-noroutemap.
+XROUTERS= rtr0 rtr1 rtr2
+X
+X# Where to install the outputs.
+X# For each router, the <routername>.$(WHICHOUTPUT) file is
+X# copied to $(INSTPREFIX)<routername>$(INSTSUFFIX)
+XWHICHOUTPUT= out-routemap
+XINSTPREFIX= /tftpboot/
+XINSTSUFFIX= -confg
+X
+X# End of customisation.
+X#------------------------------
+X
+XINPUTS= $(ROUTERS:%=%.conf)
+XOUTPUTS= $(ROUTERS:%=%.out-routemap) $(ROUTERS:%=%.out-noroutemap)
+X
+Xall: $(OUTPUTS)
+X
+X.SUFFIXES: .conf  .out-routemap .out-noroutemap
+X
+X.conf.out-noroutemap:
+X	m4 <$< | RtConfig | ./shorten-regexp.pl >$@
+X
+X.conf.out-routemap:
+X	m4 <$< | RtConfig -always_use_route_maps | ./shorten-regexp.pl >$@
+X
+Xinstall: all
+X	for i in $(ROUTERS); do \
+X	  cp $$i.$(WHICHOUTPUT) $(INSTPREFIX)$$i$(INSTSUFFIX); \
+X	  done
+X
+Xclean:
+X	rm -f $(OUTPUTS)
+END-of-Makefile
+echo x - rtconfig-macros.m4
+sed 's/^X//' >rtconfig-macros.m4 << 'END-of-rtconfig-macros.m4'
+Xdnl! rtconfig-macros.m4
+Xdnl! m4 stuff to assist in using RtConfig to generate Cisco configuration files.
+Xdnl! A P Barrett <apb@iafrica.com>, March 1996
+Xdnl! Public Domain.  No Warranty.
+Xdnl!
+Xdnl! Example m4 input:
+Xdnl!     include(`rtconfig-macros.m4')dnl
+Xdnl!     define(`my_AS',`1234')dnl
+Xdnl!     define(`my_loopback_ip',`10.0.2.1')dnl
+Xdnl!     bgp_neighbor(my_AS,10.7.26.130,CUST1,9905,10.7.26.129,,)dnl
+Xdnl!     bgp_neighbor(my_AS,10.28.43.18,PEER1,9901,10.28.43.17,,)dnl
+Xdnl!     bgp_neighbor(my_AS,my_loopback_ip,PEER2,9961,10.70.2.1,loopback0,1)dnl
+Xdnl!
+Xdnl! Corresponding m4 output (to be used as RtConfig input):
+Xdnl!     @RtConfig set sources = "TEST,RADB,MCI,RIPE,ANS,CANET"
+Xdnl!     @RtConfig set cisco_access_list_no = 100
+Xdnl!     router bgp 1234
+Xdnl!     neighbor 10.7.26.129 remote-as 9905
+Xdnl!     neighbor 10.7.26.129 version 4
+Xdnl!     neighbor 10.7.26.129 ebgp-multihop 
+Xdnl!     @RtConfig set cisco_map_name = "CUST1-bgp-in"
+Xdnl!     @RtConfig import AS1234 10.7.26.130/32 AS9905 10.7.26.129/32
+Xdnl!     @RtConfig set cisco_map_name = "CUST1-bgp-out"
+Xdnl!     @RtConfig export AS1234 10.7.26.130/32 AS9905 10.7.26.129/32
+Xdnl!     router bgp 1234
+Xdnl!     neighbor 10.28.43.17 remote-as 9901
+Xdnl!     neighbor 10.28.43.17 version 4
+Xdnl!     neighbor 10.28.43.17 ebgp-multihop 
+Xdnl!     @RtConfig set cisco_map_name = "PEER1-bgp-in"
+Xdnl!     @RtConfig import AS1234 10.28.43.18/32 AS9901 10.28.43.17/32
+Xdnl!     @RtConfig set cisco_map_name = "PEER1-bgp-out"
+Xdnl!     @RtConfig export AS1234 10.28.43.18/32 AS9901 10.28.43.17/32
+Xdnl!     router bgp 1234
+Xdnl!     neighbor 10.70.2.1 remote-as 9961
+Xdnl!     neighbor 10.70.2.1 version 4
+Xdnl!     neighbor 10.70.2.1 ebgp-multihop 1
+Xdnl!     neighbor 10.70.2.1 update-source loopback0
+Xdnl!     @RtConfig set cisco_map_name = "PEER2-bgp-in"
+Xdnl!     @RtConfig import AS1234 10.0.2.1/32 AS9961 10.70.2.1/32
+Xdnl!     @RtConfig set cisco_map_name = "PEER2-bgp-out"
+Xdnl!     @RtConfig export AS1234 10.0.2.1/32 AS9961 10.70.2.1/32
+Xdnl
+Xdnl --------------------------
+Xdnl *** You probably want to customise the following two lines
+X@RtConfig set sources = "TEST,RADB,MCI,RIPE,ANS,CANET"
+X@RtConfig set cisco_access_list_no = 100
+Xdnl --------------------------
+Xdnl bgp_neighbor([1]my_AS,[2]my_ip_addr,
+Xdnl              [3]their_name,[4]their_AS,[5]their_ip_addr,
+Xdnl              [6]my_update_source,[7]multihop_count)
+Xdefine(`bgp_neighbor',
+X`router bgp $1
+Xneighbor $5 remote-as $4
+Xneighbor $5 version 4
+Xifelse($7,`0',`',$7,`',`',
+X`neighbor $5 ebgp-multihop $7
+X')dnl
+Xifelse($6,`',`',
+X`neighbor $5 update-source $6
+X')dnl
+X@RtConfig set cisco_map_name = "$3-bgp-in"
+X@RtConfig import AS`'$1 $2/32 AS`'$4 $5/32
+X@RtConfig set cisco_map_name = "$3-bgp-out"
+X@RtConfig export AS`'$1 $2/32 AS`'$4 $5/32
+X')dnl
+END-of-rtconfig-macros.m4
+echo x - shorten-regexp.pl
+sed 's/^X//' >shorten-regexp.pl << 'END-of-shorten-regexp.pl'
+X#!/usr/bin/perl
+X# shorten-regexp.pl
+X# postprocesses RtConfig output to shorten very long Cisco as-path regexps.
+X# A P Barrett <apb@iafrica.com>, March 1996
+X# Public Domain.  No Warranty.
+X
+Xwhile (<>) {
+X    chop;
+X    # If there's an as-path regexp that contains a subexpression that
+X    # OR-s more than three simple AS-number components,
+X    # then convert it into several separate lines, each containing
+X    # only one of the OR-ed components.  For example,
+X    #     ip as-path access-list 100 permit ^((_1)|(_2)|(_3)|(_4))_$
+X    # becomes
+X    #     ip as-path access-list 100 permit ^(_1)_$
+X    #     ip as-path access-list 100 permit ^(_2)_$
+X    #     ip as-path access-list 100 permit ^(_3)_$
+X    #     ip as-path access-list 100 permit ^(_4)_$
+X    $PAREN_AS = '\\(\\_\\d+\\)'; # regexp for parenthesised AS, like "(_123)"
+X    if (/ip as-path access-list/ &&  /\(($PAREN_AS\|){3,}$PAREN_AS\)/o) {
+X	($mid) = /\((($PAREN_AS\|){3,}$PAREN_AS)\)/o;
+X	$before = $`; $after = $';
+X	#warn "before = `$before'\n";
+X	#warn "mid = `$mid'\n";
+X	#warn "after = `$after'\n";
+X	@mid = split(/\|/, $mid);
+X	foreach $mid (@mid) {
+X	    print $before, $mid, $after, "\n";
+X	}
+X    } else {
+X	print $_, "\n";
+X    }
+X}
+END-of-shorten-regexp.pl
+exit
