@@ -52,7 +52,11 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
+#include <ostream>
 #include "rusage.hh"
+#include <iomanip>
+
+using namespace std;
 
 #if RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL && HAVE_GETTIMEOFDAY
 
@@ -71,10 +75,14 @@ extern "C" {
 #endif
 
 #include <sys/resource.h>
-extern int getrusage(...);
-extern int getpagesize(...);
-extern int gettimeofday(...);
+//extern int getrusage(...);
+//extern int gettimeofday(...);
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+//extern int getpagesize(...);
+#endif
 }
+
 
 double tv2f(timeval &tv)
 /* Converts a timeval into a double giving the time in seconds. */
@@ -106,22 +114,37 @@ ostream& operator<<(ostream& stream, Rusage& ru) {
     stime = tv2f(self.ru_stime) - ru.last_stime;
     rtime = tv2f(end_time)      - ru.last_rtime;
 
-    stream.form("  Resource Usage: \n");
-    stream.form("     times:    %1.2fu %1.2fs %1.2fr\n", utime, stime, rtime);
-    stream.form("     i/o:      %d %d\n", self.ru_inblock, self.ru_oublock);
-    stream.form("     faults:   %d %d\n", self.ru_minflt, self.ru_majflt);
-    stream.form("     swaps:    %d\n", self.ru_nswap);
-    stream.form("     max size: %d * %d\n", self.ru_maxrss, getpagesize());
-    stream.form("     ws size:  %d\n", self.ru_idrss);
-    stream.form("     signals:  %d\n", self.ru_nsignals);
-    stream.form("     vo/nv cs: %d %d\n", self.ru_nvcsw, self.ru_nivcsw);
-
+    stream << fixed << setprecision(2);
+    stream <<  "     times:    "
+           << utime << " "
+           << stime << " "
+           << rtime << endl;
+    stream << "     i/o:      "
+           << self.ru_inblock << " "
+           << self.ru_oublock << endl;
+    stream << "     faults:   "
+           << self.ru_minflt << " "
+           << self.ru_majflt << endl;
+    stream << "     swaps:    "
+           << self.ru_nswap << endl;
+    stream << "     max size: "
+           << self.ru_maxrss << " "
+           << getpagesize() << endl;
+    stream << "     ws size:  "
+           << self.ru_idrss << endl;
+    stream << "     signals:  "
+           << self.ru_nsignals << endl;
+    stream << "     vo/nv cs: "
+           << self.ru_nvcsw << " "
+           << self.ru_nivcsw << endl;
+    stream << scientific << setprecision(0);
     return stream;
 }
 
 #else // RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL
 
 void Rusage::start() {
+    return;
 }
 
 ostream& operator<<(ostream& stream, Rusage& ru) {

@@ -55,10 +55,12 @@
 
 #include <cassert>
 #include <cstdio>
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 
 #include "RadixSet.hh"
+
+using namespace std;
 
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x) : (y))
@@ -187,7 +189,6 @@ bool RadixSet::SortedIterator::next(u_int &_addr, u_int &_leng, u_int64_t &_rngs
 }
 
 bool RadixSet::PrefixIterator::first(u_int &_addr, u_int &_leng) {
-
    for (current = itr.first(); 
 	current && !current->rngs; 
 	current = itr.next(current)) ;
@@ -198,7 +199,8 @@ bool RadixSet::PrefixIterator::first(u_int &_addr, u_int &_leng) {
    addr = current->addr;
    leng = current->leng;
    rngs = current->rngs;
-   for (cleng = leng; cleng <= 32 && ! (bits[cleng] & rngs); cleng++) ;
+
+   for (cleng = leng; cleng <= 32 && ! (bits[cleng] & rngs); cleng++);
    number = 0;
 	 
    _addr = addr;
@@ -401,6 +403,7 @@ RadixTree::Direction RadixTree::direction(u_int addr, u_int leng,
 void RadixTree::commonAnscestor(u_int _addr,  u_int _leng, 
 				u_int addr,   u_int leng,
 				u_int &paddr, u_int &pleng) const {
+
    pleng = MIN(leng, _leng);
    while (pleng && (addr & masks[pleng]) != (_addr & masks[pleng]))
       pleng--;
@@ -413,7 +416,7 @@ RadixTree *RadixTree::insert(u_int _addr, u_int _leng, u_int64_t _rngs) {
    if (! _rngs) // nothing to insert
       return this;
 
-   if (!this)
+   if (!this) 
       return new RadixTree(_addr, _leng, _rngs);
 
    int pStackPos = pStack.getPosition();
@@ -867,29 +870,26 @@ ostream& operator<<(ostream& o, const RadixSet &set) {
    o << "{";
    if (set.root) {
       if (RadixSet::compressedPrint) {
-	 RadixSet::PrefixRangeIterator itr(&set);
-	 for (bool flag = itr.first(addr, leng, n, m); 
-	      flag;
-	      flag = itr.next(addr, leng, n, m)) {
-	    if (need_comma)
-	       o << ", ";
-	    else
-	       need_comma = true;
-	    o << int2quad(buffer, addr) << "/" << leng << "^" << n << "-" << m;
-	 }
-      } else {
-	 RadixSet::PrefixIterator itr(&set);
-	 for (bool flag = itr.first(addr, leng); 
-	      flag;
-	      flag = itr.next(addr, leng)) {
-	    if (need_comma)
-	       o << ", ";
-	    else
-	       need_comma = true;
-	    o << int2quad(buffer, addr) << "/" << leng;
-	 }
-      }
-   }
+      	 RadixSet::PrefixRangeIterator itr(&set);
+      	 for (bool flag = itr.first(addr, leng, n, m); flag; flag = itr.next(addr, leng, n, m)) {
+      	    if (need_comma)
+       	       o << ", ";
+      	    else
+      	       need_comma = true;
+      	    o << int2quad(buffer, addr) << "/" << leng << "^" << n << "-" << m;
+      	 } // end of for loop
+      } else { // not a compressed point
+       	 RadixSet::PrefixIterator itr(&set);
+	       for (bool flag = itr.first(addr, leng); flag; flag = itr.next(addr, leng)) {
+           if (need_comma)
+	            o << ", ";
+    	     else
+    	        need_comma = true;
+        	  o << int2quad(buffer, addr) << "/" << leng;
+       	 } // end of foor loop
+      } // end of else statement
+   } // end of if statement
+
    o << "}";
    return o;
 }
@@ -947,14 +947,6 @@ RadixTree *RadixTree::makeMoreSpecific(int code, int n, int m) {
    return this;
 }
 
-#ifdef MAIN
-
-char* int2quad(char *buffer, unsigned int i) {
-   sprintf(buffer, "%d.%d.%d.%d", 
-	   (i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8)  & 0xFF, i & 0xFF);
-   return buffer;
-}
-
 void RadixTree::print() const {
    if (!this)
       return;
@@ -973,6 +965,13 @@ void RadixTree::print() const {
 }
 
 
+#ifdef MAIN
+
+char* int2quad(char *buffer, unsigned int i) {
+   sprintf(buffer, "%d.%d.%d.%d", 
+     (i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8)  & 0xFF, i & 0xFF);
+   return buffer;
+}
 
 RadixTree *insert(RadixTree *root, char *prfx) {
    unsigned int i, rngs;
@@ -1098,4 +1097,5 @@ main() {
       }
    }
 }
+
 #endif

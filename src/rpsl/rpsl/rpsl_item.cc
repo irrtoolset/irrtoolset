@@ -52,11 +52,13 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include <iostream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <iomanip>
 #include "rpsl_item.hh"
 #include "rpsl_filter.hh"
 #include "util/Buffer.hh"
+
+using namespace std;
 
 //// printing ////////////////////////////////////////////////////////
 
@@ -69,7 +71,7 @@ ostream &ItemASNO::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemASNO::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemASNO::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->appendf("as%d", asno);
@@ -94,7 +96,7 @@ ostream &ItemMSItem::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemMSItem::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemMSItem::bufferize(Buffer *buf, bool lcase) const {
    buf = item->bufferize(buf, lcase);
    switch (code) {
    case 0:
@@ -117,7 +119,7 @@ ostream &ItemFilter::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemFilter::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemFilter::bufferize(Buffer *buf, bool lcase) const {
    cerr << "Error: I dont know how to canonicalize filters" << endl;
    if (!buf)
       buf = new Buffer;
@@ -129,7 +131,7 @@ ostream &ItemINT::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemINT::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemINT::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->appendf("%d", i);
@@ -139,13 +141,26 @@ Buffer *ItemINT::bufferize(Buffer *buf = NULL, bool lcase = false) const {
 ostream &ItemTimeStamp::print(ostream &out) const {
    tm *ts;
    ts = gmtime(&stamp);
-   out.form("%04d%02d%02d %02d:%02d:%02d +00:00", 
-	    ts->tm_year + 1900, ts->tm_mon+1, ts->tm_mday, 
-	    ts->tm_hour, ts->tm_min, ts->tm_sec);
+
+   // YYYYMMDD HH:MM:SS +HH:MM
+   char prevfill = out.fill('0');
+   streamsize prevwidth = out.width(4);
+
+   out << ts->tm_year + 1900;
+   out.width(2);
+   out << ts->tm_mon+1;
+   out << ts->tm_mday << " ";
+   out << ts->tm_hour << ":";
+   out << ts->tm_min << ":";
+   out << ts->tm_sec << " +00:00";
+
+   out.fill(prevfill);
+   out.width(prevwidth);
+   
    return out;
 }
 
-Buffer *ItemTimeStamp::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemTimeStamp::bufferize(Buffer *buf, bool lcase) const {
    tm *ts;
    ts = gmtime(&stamp);
    if (!buf)
@@ -161,7 +176,7 @@ ostream &ItemREAL::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemREAL::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemREAL::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->appendf("%f", real);
@@ -173,7 +188,7 @@ ostream &ItemSTRING::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemSTRING::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemSTRING::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(string);
@@ -187,7 +202,7 @@ ostream &ItemBLOB::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemBLOB::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemBLOB::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(blob);
@@ -196,12 +211,16 @@ Buffer *ItemBLOB::bufferize(Buffer *buf = NULL, bool lcase = false) const {
    return buf;
 }
 
+// Print contents of buffer.
+// The contents are the first buffer->size characters of buffer->contents.
 ostream &ItemBUFFER::print(ostream &out) const {
-   out.form("%.*s", buffer->size, buffer->contents);
-   return out;
+    string s(buffer->contents, 0, buffer->size);
+    out << s;
+    return out;
 }
 
-Buffer *ItemBUFFER::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+
+Buffer *ItemBUFFER::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer(*buffer);
    else
@@ -216,7 +235,7 @@ ostream &ItemIPV4::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemIPV4::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemIPV4::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(ipv4->get_text());
@@ -228,7 +247,7 @@ ostream &ItemPRFXV4::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemPRFXV4::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemPRFXV4::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(prfxv4->get_text());
@@ -240,11 +259,59 @@ ostream &ItemPRFXV4Range::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemPRFXV4Range::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemPRFXV4Range::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(prfxv4->get_text());
    return buf;
+}
+
+ostream &ItemIPV6::print(ostream &out) const {
+   out << *ipv6;
+   return out;
+}
+
+Buffer *ItemIPV6::bufferize(Buffer *buf, bool lcase) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(ipv6->get_text());
+   return buf;
+}
+
+ostream &ItemPRFXV6::print(ostream &out) const {
+   out << *prfxv6;
+   return out;
+}
+
+Buffer *ItemPRFXV6::bufferize(Buffer *buf, bool lcase) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(prfxv6->get_text());
+   return buf;
+}
+
+ostream &ItemPRFXV6Range::print(ostream &out) const {
+   out << *prfxv6;
+   return out;
+}
+
+Buffer *ItemPRFXV6Range::bufferize(Buffer *buf, bool lcase) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append(prfxv6->get_text());
+   return buf;
+}
+
+Buffer *ItemAFI::bufferize(Buffer *buf, bool lcase) const {
+   if (!buf)
+      buf = new Buffer;
+   buf->append( ((AddressFamily *) this)->name());
+   return buf;
+}
+
+ostream &ItemAFI::print(ostream &out) const {
+   out << (AddressFamily &) *this;
+   return out;
 }
 
 ostream &ItemConnection::print(ostream &out) const {
@@ -257,7 +324,7 @@ ostream &ItemConnection::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemConnection::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemConnection::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    if (ip)
@@ -276,7 +343,7 @@ ostream &ItemSID::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemSID::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemSID::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(name);
@@ -290,7 +357,7 @@ ostream &ItemBOOLEAN::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemBOOLEAN::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemBOOLEAN::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append((i ? "true" : "false"));
@@ -302,7 +369,7 @@ ostream &ItemWORD::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemWORD::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemWORD::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(word);
@@ -316,7 +383,7 @@ ostream &ItemEMAIL::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemEMAIL::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemEMAIL::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(email);
@@ -330,7 +397,7 @@ ostream &ItemRange::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemRange::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemRange::bufferize(Buffer *buf, bool lcase) const {
    buf = begin->bufferize(buf, false);
    buf->append("-");
    end->bufferize(buf, false);
@@ -345,7 +412,7 @@ ostream &ItemFREETEXT::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemFREETEXT::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemFREETEXT::bufferize(Buffer *buf, bool lcase) const {
    if (!buf)
       buf = new Buffer;
    buf->append(text, length);
@@ -367,11 +434,64 @@ ostream &ItemList::print(ostream &out, char *delim) const {
    return out;
 }
 
-Buffer *ItemList::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemList::bufferize(Buffer *buf, bool lcase) const {
    cerr << "Error: I dont know how to canonicalize lists" << endl;
    if (!buf)
       buf = new Buffer;
    return buf;
+}
+
+ItemList *ItemList::expand() {
+  ItemList *list = new ItemList;
+  ItemList *list2 = new ItemList;
+
+  // do the mapping
+  for (Item *item = this->head();
+       item;
+       item = this->next(item)) 
+  {
+    if (strcasecmp (((ItemAFI *) item)->afi, "any") == 0) 
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "any.unicast") == 0) 
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "any.multicast") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "ipv4") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv4.unicast")));
+      list->append (new ItemAFI(strdup("ipv4.multicast")));
+    }
+    else if (strcasecmp (((ItemAFI *) item)->afi, "ipv6") == 0)
+    {
+      list->append (new ItemAFI(strdup("ipv6.unicast")));
+      list->append (new ItemAFI(strdup("ipv6.multicast")));
+    }
+    else {
+      list->append (item->dup());
+    }
+  }
+  // remove duplicates
+  for (Item *item = list->head();
+       item;
+       item = list->next(item)) 
+  {
+    if (! list2->contains(item))
+      list2->append(item->dup());
+  }
+  
+  delete list;
+  return list2;
 }
 
 ostream &ItemSequence::print(ostream &out) const {
@@ -387,7 +507,7 @@ ostream &ItemSequence::print(ostream &out) const {
    return out;
 }
 
-Buffer *ItemSequence::bufferize(Buffer *buf = NULL, bool lcase = false) const {
+Buffer *ItemSequence::bufferize(Buffer *buf, bool lcase) const {
    cerr << "Error: I dont know how to canonicalize sequences" << endl;
    if (!buf)
       buf = new Buffer;

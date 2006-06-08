@@ -61,6 +61,7 @@
 #define POLICY_HH
 
 #include "config.h"
+#include <sstream>  // For class ostream
 #include <cassert>
 extern "C" {
 #ifdef HAVE_MALLOC_H
@@ -79,14 +80,13 @@ extern "C" {
 
 typedef unsigned int ASt;
 
-class ostream;
 class AttrRPAttr;
 class AttrMethod;
 
 class Policy {
 public:
    virtual ~Policy() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy* dup() const = 0;
 
 #ifdef DEBUG
@@ -97,7 +97,7 @@ public:
 #endif // DEBUG
 };
 
-inline ostream &operator<<(ostream &out, const Policy &p) {
+inline std::ostream &operator<<(std::ostream &out, const Policy &p) {
    return p.print(out);
 }
 
@@ -128,7 +128,7 @@ public:
 	 delete localRtrs;
    }
    
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyPeering(*this);
    }
@@ -136,7 +136,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyPeering";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       // For peerASSet
       INDENT(indent); 
    }
@@ -160,7 +160,7 @@ public:
    virtual ~PolicyAction() {
       delete args;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyAction(*this);
    }
@@ -168,7 +168,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyAction";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       // For rp_attr
       INDENT(indent); os << "rp_attr" << endl;
       INDENT(indent); os << "  _name = \"" << "\"" << endl;
@@ -191,7 +191,7 @@ public:
    virtual ~PolicyActionList() {
       List<PolicyAction>::clear();
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyActionList(*this);
    }
@@ -199,7 +199,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyActionList";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       for (PolicyAction *node = head(); node; node = next(node)) 
 	 node->printClass(os, indent);
    }
@@ -212,7 +212,8 @@ public:
    PolicyActionList  *action;
 public:
    PolicyPeeringAction(PolicyPeering *p, PolicyActionList *a) : 
-      peering(p), action(a) {}
+      peering(p), action(a) {
+   }
    PolicyPeeringAction(const PolicyPeeringAction &b) {
       peering = new PolicyPeering(*b.peering);
       action  = new PolicyActionList(*b.action);
@@ -221,7 +222,7 @@ public:
       delete peering;
       delete action;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyPeeringAction(*this);
    }
@@ -229,7 +230,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyPeeringAction";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "peering (PolicyPeering *)" << endl;
       peering->printClass(os, indent + 2);
       INDENT(indent); os << "action (PolicyActionList *)" << endl;
@@ -254,7 +255,7 @@ public:
       delete peeringActionList;
       delete filter;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyFactor(*this);
    }
@@ -262,7 +263,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyFactor";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       // Action
       INDENT(indent); os << "peeringActionList" << endl;
       for (PolicyPeeringAction *pc = peeringActionList->head(); 
@@ -287,7 +288,7 @@ public:
    virtual ~PolicyTerm() {
       List<PolicyFactor>::clear();
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyTerm(*this);
    }
@@ -295,7 +296,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyTerm";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       for (PolicyFactor *pf = head(); pf; pf = next(pf)) {
 	 pf->printClass(os, indent);
       }
@@ -317,7 +318,7 @@ public:
       delete left;
       delete right;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyRefine(*this);
    }
@@ -325,7 +326,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyRefine";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "left" << endl;
       left->printClass(os, indent + 2);
       INDENT(indent); os << "right" << endl;
@@ -348,7 +349,7 @@ public:
       delete left;
       delete right;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Policy *dup() const {
       return new PolicyExcept(*this);
    }
@@ -356,7 +357,7 @@ public:
    virtual const char *className(void) const {
       return "PolicyExcept";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "left" << endl;
       left->printClass(os, indent + 2);
       INDENT(indent); os << "right" << endl;

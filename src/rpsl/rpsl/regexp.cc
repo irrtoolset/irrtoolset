@@ -56,6 +56,9 @@
 #include "regexp.hh"
 #include <cstring>
 #include "symbols.hh"
+#include <ostream>
+
+using namespace std;
 
 // Static members
 int regexp_symbol::MIN_AS = 0;

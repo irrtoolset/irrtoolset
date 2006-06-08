@@ -52,10 +52,13 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
+#include <ostream>
 #include <cstdio>
 #include "rpsl_filter.hh"
 #include "rpsl_attr.hh"
 #include "regexp.hh"
+
+using namespace std;
 
 //// printing ////////////////////////////////////////////////////////
 
@@ -154,6 +157,94 @@ ostream &FilterPRFXList::print(ostream &out) const {
    return out;
 }
 
+ostream &FilterMPPRFXList::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+
+   p = begin();
+   if (p != end()) {
+     out << *p;
+     ++p;
+     for (p; p != end(); ++p) {
+       out << ", ";
+       out << *p ;
+     }
+   }
+
+   out << "}";
+
+   return out;
+}
+
+FilterPRFXList* FilterMPPRFXList::get_v4() {
+
+   MPPrefixRanges::const_iterator p;
+   FilterPRFXList *list_v4 = new FilterPRFXList;
+
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv4)
+       list_v4->add_high(*(p->ipv4));
+   }
+   if (list_v4->isEmpty())
+     return NULL;
+   else 
+     return list_v4;
+}
+
+
+FilterMPPRFXList* FilterMPPRFXList::get_v6() {
+   MPPrefixRanges::const_iterator p;
+   FilterMPPRFXList *list_v6 = new FilterMPPRFXList;
+
+   for (p = begin(); p != end(); ++p) {
+     if (p->ipv6) 
+       list_v6->push_back(*p);
+   }
+   if (list_v6->begin() == list_v6->end())
+     return NULL;
+   else 
+     return list_v6;
+}
+
+ostream &FilterV6EXCLUDE::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+
+   for (p = prfxs->begin(); p != prfxs->end(); ++p) {
+     out << *p ;
+     out << ',';
+   }
+
+   out << "}";
+
+   return out;
+}
+
+ostream &FilterAFI::print(ostream &out) const {
+   //out << (AddressFamily &) *afi_item;
+   for (Item *item = afi_list->head(); item; item = afi_list->next(item))
+     out << (AddressFamily &) ((ItemAFI &) *item);
+     
+   out << " ";
+   out << *f;
+
+   return out;
+}
+
+ostream &FilterV6HAVE_COMPONENTS::print(ostream &out) const {
+   MPPrefixRanges::const_iterator p;
+   out << "{";
+
+   for (p = prfxs->begin(); p != prfxs->end(); ++p) {
+     out << *p ;
+     out << ',';
+   }
+
+   out << "}";
+
+   return out;
+}
+
 ostream &FilterRPAttribute::print(ostream &out) const {
    out << rp_attr->name;
    if (rp_method->isOperator)
@@ -175,9 +266,8 @@ ostream &FilterEXCLUDE::print(ostream &out) const {
 }
 
 ostream &FilterRouter::print(ostream &out) const {
-   char buffer[128];
 
-   out << int2quad(buffer, ip->get_ipaddr());
+   out << ip->get_ip_text();
 
    return out;
 }

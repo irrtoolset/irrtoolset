@@ -50,9 +50,10 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             Katie Petrusha <katie@ripe.net>
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "NE.hh"
 #include "util/debug.hh"
 #include "irr/irr.hh"
@@ -60,6 +61,8 @@
 #include "rpsl/schema.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "gnu/prefixranges.hh"
+
+using namespace std;
 
 #define DBG_REDUCE 3
 #define DBG_REDUCE_DETAIL 4
@@ -190,23 +193,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       ne = new NormalExpression;
 
       if (expand & EXPAND_AS) {
-	 const PrefixRanges *s 
-	    = irr->expandAS(((FilterASNO *) ptree)->asno);
-	 if (!s || s->isEmpty())
-	    return ne;
-
-	 nt = new NormalTerm;
-	 nt->prfx_set = * (PrefixRanges *) s;        // radix tree copied here
-	 nt->make_universal(NormalTerm::PRFX);       // this makes it universal
-	 ne->singleton_flag = NormalTerm::PRFX;
-      } else {
-	 nt = new NormalTerm;
-	 nt->symbols.add(((FilterASNO *) ptree)->asno);   
-	 nt->make_universal(NormalTerm::SYMBOLS);    // this makes it universal
-	 ne->singleton_flag = NormalTerm::SYMBOLS;
+	      const MPPrefixRanges *s = irr->expandAS(((FilterASNO *) ptree)->asno);
+      	if (!s || s->empty())
+	        return ne;
+        FilterMPPRFXList *list = new FilterMPPRFXList(*s);
+        ne = evaluate((FilterMPPRFXList *) list, peerAS, expand);
+        } else {
+      	nt = new NormalTerm;
+	      nt->symbols.add(((FilterASNO *) ptree)->asno);   
+	      nt->make_universal(NormalTerm::SYMBOLS);    // this makes it universal
+	      ne->singleton_flag = NormalTerm::SYMBOLS;
+        *ne += nt;
       }
 
-      *ne += nt;
       return ne;
    }
 
@@ -214,69 +213,68 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       ne = new NormalExpression;
 
       if (expand & EXPAND_AS) {
-	 const PrefixRanges *s 
-	    = irr->expandAS(peerAS);
-	 if (!s || s->isEmpty())
-	    return ne;
-
-	 nt = new NormalTerm;
-	 nt->prfx_set = * (PrefixRanges *) s;        // radix tree copied here
-	 nt->make_universal(NormalTerm::PRFX);       // this makes it universal
-	 ne->singleton_flag = NormalTerm::PRFX;
+	      const MPPrefixRanges *s = irr->expandAS(peerAS);
+	      if (!s || s->empty())
+	        return ne;
+        FilterMPPRFXList *list = new FilterMPPRFXList(*s);
+        ne = evaluate((FilterMPPRFXList *) list, peerAS, expand);
       } else {
-	 nt = new NormalTerm;
-	 nt->symbols.add(peerAS);   
-	 nt->make_universal(NormalTerm::SYMBOLS);    // this makes it universal
-	 ne->singleton_flag = NormalTerm::SYMBOLS;
+	      nt = new NormalTerm;
+	      nt->symbols.add(peerAS);   
+	      nt->make_universal(NormalTerm::SYMBOLS);    // this makes it universal
+	      ne->singleton_flag = NormalTerm::SYMBOLS;
+        *ne += nt;
       }
 
-      *ne += nt;
       return ne;
    }
 
    if (typeid(*ptree) == typeid(FilterASNAME)) {
       ne = new NormalExpression;
 
-      SymID name = symbols.resolvePeerAS(((FilterASNAME *) ptree)->
-					 asname, peerAS);
+      SymID name = symbols.resolvePeerAS(((FilterASNAME *) ptree)->asname, peerAS);
 
       if (expand & EXPAND_AS_MACROS) {
-	 const SetOfUInt *s = irr->expandASSet(name);
-	 if (!s || s->isEmpty())
-	    return ne;
+	      const SetOfUInt *s = irr->expandASSet(name);
+	      if (!s || s->isEmpty()) {
+	         return ne;
+        }
 
-	 if (expand & EXPAND_AS) {
-	    nt = new NormalTerm;
+	      if (expand & EXPAND_AS) {
+          MPPrefixRanges *full = new MPPrefixRanges;
 
-	    const PrefixRanges *sr;
-	    for (Pix p = s->first(); p; s->next(p)) {
-	       sr = irr->expandAS((*s)(p));
-	       if (sr)
-		  nt->prfx_set |= *sr;
-	    }
+	        for (Pix p = s->first(); p; s->next(p)) {
+	          const MPPrefixRanges *sr;
+	          sr = irr->expandAS((*s)(p));
+	          if (sr)
+              full->append_list(sr);
+	        }
 
-	    if (nt->prfx_set.isEmpty()) {
-	       delete nt;
-	       return ne;
-	    }
+	        if (full->empty()) {
+	          return ne;
+	        }
 
-	    nt->make_universal(NormalTerm::PRFX);    // this makes it universal
-	    ne->singleton_flag = NormalTerm::PRFX;
-	 } else {
-	    // set assignment makes a copy
-	    nt = new NormalTerm;
-	    nt->symbols = * s;
-	    nt->make_universal(NormalTerm::SYMBOLS); // this makes it universal
-	    ne->singleton_flag = NormalTerm::SYMBOLS;
-	 }
-      } else {
-	 nt = new NormalTerm;
-	 nt->symbols.add(name);
-	 nt->make_universal(NormalTerm::SYMBOLS);  // this makes it universal
-	 ne->singleton_flag = NormalTerm::SYMBOLS;
+          FilterMPPRFXList *list = new FilterMPPRFXList(*full);
+          ne = evaluate((FilterMPPRFXList *) list, peerAS, expand);
+
+	      } 
+        else {
+	        // set assignment makes a copy
+	        nt = new NormalTerm;
+	        nt->symbols = *s;
+	        nt->make_universal(NormalTerm::SYMBOLS); // this makes it universal
+	        ne->singleton_flag = NormalTerm::SYMBOLS;
+          *ne += nt;
+	      }
+      } 
+      else {
+	      nt = new NormalTerm;
+	      nt->symbols.add(name);
+	      nt->make_universal(NormalTerm::SYMBOLS);  // this makes it universal
+	      ne->singleton_flag = NormalTerm::SYMBOLS;
+        *ne += nt;
       }
       
-      *ne += nt;
       return ne;
    }
 
@@ -287,22 +285,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 					 peerAS);
 
       if (expand & EXPAND_COMMUNITIES) {
-	 const PrefixRanges *s = irr->expandRSSet(name);
-	 if (!s || s->isEmpty())
-	    return ne;
-	 // set assignment makes a copy
-	 nt = new NormalTerm;
-	 nt->prfx_set = * (PrefixRanges *) s;
-	 nt->make_universal(NormalTerm::PRFX);
-	 ne->singleton_flag = NormalTerm::PRFX;
+	      const MPPrefixRanges *s = irr->expandRSSet(name);
+     	  if (!s || s->empty())
+	        return ne;
+        FilterMPPRFXList *list = new FilterMPPRFXList(*s);
+        ne = evaluate((FilterMPPRFXList *) list, peerAS, expand);
       } else {
-	 nt = new NormalTerm;
-	 nt->symbols.add(name);
-	 nt->make_universal(NormalTerm::SYMBOLS); // this makes it universal
-	 ne->singleton_flag = NormalTerm::SYMBOLS;
+      	nt = new NormalTerm;
+	      nt->symbols.add(name);
+	      nt->make_universal(NormalTerm::SYMBOLS); // this makes it universal
+	      ne->singleton_flag = NormalTerm::SYMBOLS;
+        *ne += nt;
       }
 
-      *ne += nt;
       return ne;
    }
 
@@ -313,14 +308,16 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    }
 
    if (typeid(*ptree) == typeid(FilterFLTRNAME)) {
-      SymID name = symbols.resolvePeerAS(((FilterFLTRNAME *) ptree)->fltrname,
-					 peerAS);
+      SymID name = symbols.resolvePeerAS(((FilterFLTRNAME *) ptree)->fltrname, peerAS);
       const FilterSet *fset = irr->getFilterSet(name);
       if (fset) {
-	 AttrIterator<AttrFilter> itr(fset, "filter");
-	 
-	 if (itr)
-	    return evaluate(itr()->filter, peerAS, expand);
+      	 AttrIterator<AttrFilter> itr(fset, "filter");
+	       if (itr) {
+	         return evaluate(itr()->filter, peerAS, expand);
+         }
+         AttrIterator<AttrFilter> itr1(fset, "mp-filter"); 
+         if (itr1)
+           return evaluate(itr1()->filter, peerAS, expand);
       }
 
       ne = new NormalExpression;
@@ -343,7 +340,7 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       ne = new NormalExpression;
       nt = new NormalTerm;
 
-      nt->prfx_set |= * (FilterPRFXList *) ptree;
+      nt->prfx_set |= * (FilterPRFXList *) ptree; //RadixSet created here
       nt->make_universal(NormalTerm::PRFX);	     // this makes it universal
       ne->singleton_flag = NormalTerm::PRFX;
 
@@ -353,6 +350,41 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
    if (typeid(*ptree) == typeid(FilterRPAttribute))
       return evaluate((FilterRPAttribute *) ptree, peerAS, expand);
+
+
+   if (typeid(*ptree) == typeid(FilterAFI)) {
+   
+      ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
+      ne->restrict((FilterAFI *) ptree);
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
+      return ne;
+
+   }
+
+   if (typeid(*ptree) == typeid(FilterMPPRFXList)) {
+
+      // mixed v4/v6 prefix lists
+      FilterPRFXList *list_v4 = ((FilterMPPRFXList *) ptree)->get_v4();
+      FilterMPPRFXList *list_v6 = ((FilterMPPRFXList *) ptree)->get_v6();
+
+      ne = new NormalExpression;
+      if (list_v4) {
+        nt = new NormalTerm;
+        nt->prfx_set |= * (FilterPRFXList *) list_v4; // radix set created here
+        nt->make_universal(NormalTerm::PRFX);      // this makes it universal
+        ne->singleton_flag = NormalTerm::PRFX;
+        *ne += nt;
+      }
+      if (list_v6) {
+        nt = new NormalTerm;
+        nt->ipv6_prfx_set |= * (FilterMPPRFXList *) list_v6; // radix set created here
+        nt->make_universal(NormalTerm::IPV6_PRFX);      // this makes it universal
+        ne->singleton_flag = NormalTerm::IPV6_PRFX;
+        *ne += nt;
+      }
+      return ne;
+   }
 
    assert(0);
 }
@@ -551,6 +583,37 @@ void NormalExpression::do_and(NormalExpression &other) {
    terms.join(result.terms);
    if (!terms.empty())
       reduce();   // get rid of duplicate terms
+}
+
+void NormalExpression::restrict(FilterAFI *af) {
+
+   NormalTerm *term = new NormalTerm;
+   NormalExpression *ne = new NormalExpression (*this);
+   become_empty();
+
+   // check the singleton_flag!
+   // save & return if no prfx, prfxv6
+   if ((ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
+     for (term = ne->first(); term ; term = ne->next())
+       *this += term;
+     return;
+   }
+
+   for (term = ne->first(); term ; term = ne->next()) {
+     if (term->prfx_set.universal()) { // v6
+       term->ipv6_prfx_set.restrict(af->afi_list);   
+       if (! term->ipv6_prfx_set.isEmpty()) {
+         *this += term;
+         this->singleton_flag = NormalTerm::IPV6_PRFX;
+       }
+     } else if (term->ipv6_prfx_set.universal()) {
+       term->prfx_set.restrict(af->afi_list);   
+       if (! term->prfx_set.isEmpty()) {
+         *this += term;
+         this->singleton_flag = NormalTerm::PRFX;
+       }
+     }
+   }
 }
 
 void NormalExpression::do_not() {

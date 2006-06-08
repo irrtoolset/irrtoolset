@@ -55,6 +55,9 @@
 #include "util/debug.hh"
 #include "FilterOfASPath.hh"
 #include <cstdio>
+#include <ostream>
+
+using namespace std;
 
 CLASS_DEBUG_MEMORY_CC(FilterOfASPath);
 

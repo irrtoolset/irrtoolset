@@ -61,11 +61,13 @@
 #define ITEM_HH
 
 #include "config.h"
+#include <sstream>
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-#include <time.h>
-#include <iomanip.h>
+#include <ctime>
+#include <iomanip>
+#include <string>
 extern "C" {
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
@@ -75,6 +77,7 @@ extern "C" {
 #include "util/Buffer.hh"
 #include "symbols.hh"
 #include "prefix.hh"
+#include "afi.hh"
 
 // Added by wlee@isi.edu
 #ifdef DEBUG
@@ -83,14 +86,13 @@ extern "C" {
 
 typedef unsigned int ASt;
 
-class ostream;
 class Filter;
 class Buffer;
 
 class Item : public ListNode {
 public:
    virtual ~Item() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const = 0;
    virtual bool operator <=(Item &b) {
       return false;
@@ -104,7 +106,7 @@ public:
 #endif // DEBUG
 };
 
-inline ostream &operator<<(ostream &out, const Item &item) {
+inline std::ostream &operator<<(std::ostream &out, const Item &item) {
    return item.print(out);
 }
 
@@ -116,7 +118,7 @@ public:
       asno = asn;
    }
    virtual ~ItemASNO() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item *dup() const {
       return new ItemASNO(*this);
    }
@@ -157,7 +159,7 @@ public:
       if (item)
 	 delete item;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item *dup() const {
       return new ItemMSItem(*this);
    }
@@ -177,7 +179,7 @@ public:
       filter = _filter;
    }
    virtual ~ItemFilter();
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item *dup() const {
       return new ItemFilter(*this);
    }
@@ -198,7 +200,7 @@ public:
 public:
    ItemINT(const long long int _i) : i(_i) {}
    virtual ~ItemINT() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemINT(*this);
    } 
@@ -227,7 +229,7 @@ public:
    }
    virtual ~ItemTimeStamp() {
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemTimeStamp(*this);
    } 
@@ -248,7 +250,7 @@ public:
 public:
    ItemREAL(const double r) : real(r) {}
    virtual ~ItemREAL() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemREAL(*this);
    } 
@@ -280,7 +282,7 @@ public:
    virtual ~ItemSTRING() {
       free(string);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemSTRING(*this);
    } 
@@ -311,7 +313,7 @@ public:
    virtual ~ItemBLOB() {
       free(blob);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemBLOB(*this);
    } 
@@ -342,7 +344,7 @@ public:
    virtual ~ItemBUFFER() {
       delete buffer;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemBUFFER(*this);
    } 
@@ -375,7 +377,7 @@ public:
    virtual ~ItemIPV4() {
       delete ipv4;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemIPV4(*this);
    } 
@@ -388,7 +390,7 @@ public:
    virtual const char *className(void) const {
       return "ItemIPV4";
    }
-   virtual void printClass(ostream &os, int indent) const {
+   virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "ipv4 = \"" << *ipv4 << "\"" << endl;
    }
 #endif // DEBUG
@@ -408,7 +410,7 @@ public:
    ItemPRFXV4(const ItemPRFXV4 &pt) {
       prfxv4 = new Prefix(*pt.prfxv4);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemPRFXV4(*this);
    } 
@@ -442,7 +444,7 @@ public:
    ItemPRFXV4Range(const ItemPRFXV4Range &pt) {
       prfxv4 = new PrefixRange(*pt.prfxv4);
    }
-   virtual ostream& print(ostream &out) const;
+    virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemPRFXV4Range(*this);
    } 
@@ -462,6 +464,148 @@ public:
       INDENT(indent); os << "prfxv4 = \"" << *prfxv4 << "\"" << endl;
    }
 #endif // DEBUG
+};
+
+class ItemIPV6 : public Item {
+public:
+   IPv6Addr *ipv6;
+public:
+   ItemIPV6(IPv6Addr *ip) {
+      ipv6 = ip;
+   }
+   ItemIPV6(const ItemIPV6 &pt) {
+      ipv6 = new IPv6Addr(*pt.ipv6);
+   }
+   virtual ~ItemIPV6() {
+      delete ipv6;
+   }
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Item* dup() const {
+      return new ItemIPV6(*this);
+   } 
+   virtual bool operator <=(Item &b) {
+        return typeid(b) == typeid(ItemIPV6&) &&
+        ipv6 <= ((ItemIPV6&) b).ipv6;
+   }
+
+   virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "ItemIPV6";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "ipv6 = \"" << *ipv6 << "\"" << endl;
+   }
+#endif // DEBUG
+};
+
+class ItemPRFXV6 : public Item {
+public:
+   IPv6Prefix *prfxv6;
+public:
+   ItemPRFXV6(IPv6Prefix *prfx) {
+      prfxv6 = prfx;
+   }
+   virtual ~ItemPRFXV6() {
+      delete prfxv6;
+   }
+   // Added by wlee@isi.edu
+   ItemPRFXV6(const ItemPRFXV6 &pt) {
+      prfxv6 = new IPv6Prefix(*pt.prfxv6);
+   }
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Item* dup() const {
+      return new ItemPRFXV6(*this);
+   } 
+   virtual bool operator <=(Item &b) {
+      return typeid(b) == typeid(ItemPRFXV6&) 
+         && prfxv6 <= ((ItemPRFXV6&) b).prfxv6;
+   }
+   virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "ItemPRFXV6";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "prfxv6 = \"" << *prfxv6 << "\"" << endl;
+   }
+#endif // DEBUG
+};
+
+class ItemPRFXV6Range : public Item {
+public:
+   IPv6PrefixRange *prfxv6;
+public:
+   ItemPRFXV6Range(IPv6PrefixRange *prfx) {
+      prfxv6 = prfx;
+   }
+   virtual ~ItemPRFXV6Range() {
+      delete prfxv6;
+   }
+   // Added by wlee@isi.edu
+   ItemPRFXV6Range(const ItemPRFXV6Range &pt) {
+      prfxv6 = new IPv6PrefixRange(*pt.prfxv6);
+   }
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Item* dup() const {
+      return new ItemPRFXV6Range(*this);
+   } 
+   virtual bool operator <=(Item &b) {
+      return typeid(b) == typeid(ItemPRFXV6Range&) 
+      && prfxv6->get_ipaddr() <= ((ItemPRFXV6Range&) b).prfxv6->get_ipaddr()
+      && prfxv6->get_n()      == ((ItemPRFXV6Range&) b).prfxv6->get_n()
+      && prfxv6->get_m()      == ((ItemPRFXV6Range&) b).prfxv6->get_m()
+      && prfxv6->get_length() == ((ItemPRFXV6Range&) b).prfxv6->get_length();
+
+   }
+   virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "ItemPRFXV6Range";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "prfxrangev6 = \"" << *prfxv6 << "\"" << endl;
+   }
+#endif // DEBUG
+};
+
+class ItemAFI : public Item , public AddressFamily {
+
+// char *afi inherited from 2nd parent
+
+public:
+   ItemAFI() {
+   }
+   ItemAFI(AddressFamily *af) {
+      afi = af->afi;
+   }
+   ItemAFI(char *af_text) {
+      afi = af_text;
+   }
+   ItemAFI(const ItemAFI &pt) {
+      afi = strdup(pt.afi);
+   }
+   virtual ~ItemAFI() {
+   }
+   virtual std::ostream& print(std::ostream &out) const;
+   virtual Item* dup() const {
+      return new ItemAFI(*this);
+   } 
+   virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
+#ifdef DEBUG
+   virtual const char *className(void) const {
+      return "ItemAFI";
+   }
+   virtual void printClass(ostream &os, int indent) const {
+      INDENT(indent); os << "afi = \"" << *afi << "\"" << endl;
+   }
+#endif // DEBUG
+   int operator==(ItemAFI &af) {
+      return ((AddressFamily &) af == (AddressFamily &) *this);
+   }
+   int operator!=(ItemAFI &af) {
+      return ! ((AddressFamily &) af == (AddressFamily &) *this);
+   }
 };
 
 class ItemConnection : public Item {
@@ -489,7 +633,7 @@ public:
       if (ip)
 	 delete ip;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemConnection(*this);
    } 
@@ -514,7 +658,7 @@ public:
       name = sid;
    }
    virtual ~ItemSID() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemSID(*this);
    } 
@@ -565,7 +709,7 @@ public:
 public:
    ItemBOOLEAN(int _i) : i(_i) {}
    virtual ~ItemBOOLEAN() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemBOOLEAN(*this);
    } 
@@ -593,13 +737,17 @@ public:
    virtual ~ItemWORD() {
       free(word);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemWORD(*this);
    } 
    virtual bool operator <=(Item &b) {
       return typeid(b) == typeid(ItemWORD&) 
 	 && strcasecmp(word, ((ItemWORD&) b).word) < 0;
+   }
+   virtual bool operator ==(Item &b) {
+      return typeid(b) == typeid(ItemWORD&)
+   && strcasecmp(word, ((ItemWORD&) b).word) == 0;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
@@ -625,7 +773,7 @@ public:
    virtual ~ItemEMAIL() {
       free(email);
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemEMAIL(*this);
    } 
@@ -648,7 +796,7 @@ public:
    ItemFREETEXT(char *txt, int len) : text(txt), length(len) {
    }
    virtual ~ItemFREETEXT() {}
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemFREETEXT(*this);
    } 
@@ -691,18 +839,63 @@ public:
    virtual ~ItemList() {
       List<Item>::clear();
    }
-   virtual ostream& print(ostream &out) const {
+   virtual std::ostream& print(std::ostream &out) const {
       return print(out, ", ");
    }
-   ostream& print(ostream &out, char *delim) const;
+   std::ostream& print(std::ostream &out, char *delim) const;
    virtual Item *dup() const {
       return new ItemList(*this);
    }
    ItemList &operator+=(const ItemList &pt) {
       for (Item *item = pt.head(); item; item = pt.next(item))
-	 append(item->dup());
+         append(item->dup());
       return *this;
    }
+   // for afi
+   bool contains(Item *t) {
+     for (Item *item = head(); item; item = next(item))
+       if ((typeid(*item) == typeid(*t)) && ( typeid(*t) == typeid(ItemAFI)))
+         if (((ItemAFI &) *item) == ((ItemAFI &) *t))
+           return true;
+     return false;
+   }
+   // merge for afi
+   void merge(ItemList &list) {
+     for (Item *item = list.head(); item; item = list.next(item))
+       if (! contains((ItemAFI *) item))
+          append((ItemAFI *) item->dup());
+   }
+
+   void _and(ItemList &list) {
+     ItemList *result = new ItemList;
+     for (Item *item = head(); item; item = next(item))
+       if (list.contains((ItemAFI *) item))
+         result->append((ItemAFI *) item->dup());
+     clear();
+     merge(*result);
+     delete result;
+   }
+
+   void _or(ItemList &list) {
+     merge(list);
+   }
+  
+   void _not() {
+     // create complete afi list
+     ItemList *full = new ItemList;
+     full->append(new ItemAFI("any"));
+     full = full->expand();
+     ItemList *result = new ItemList;
+     for (Item *item = full->head(); item; item = full->next(item))
+       if (! contains ((ItemAFI *) item))
+         result->append((ItemAFI *) item->dup());
+     clear();
+     merge(*result);
+     delete full;
+     delete result;
+   }
+
+   virtual ItemList *expand();
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
 #ifdef DEBUG
@@ -733,7 +926,7 @@ public:
       delete begin;
       delete end;
    }
-   virtual ostream& print(ostream &out) const;
+   virtual std::ostream& print(std::ostream &out) const;
    virtual Item* dup() const {
       return new ItemRange(*this);
    } 
@@ -760,7 +953,7 @@ public:
    virtual ~ItemSequence() {
       List<Item>::clear();
    }
-   ostream& print(ostream &out) const;
+   std::ostream& print(std::ostream &out) const;
    virtual Item *dup() const {
       return new ItemSequence(*this);
    }

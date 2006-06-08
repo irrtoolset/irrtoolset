@@ -57,10 +57,11 @@
 #include "config.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 extern "C" {
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif // HAVE_MALLOC_H
+//#ifdef HAVE_MALLOC_H
+//#include <malloc.h>
+//#endif // HAVE_MALLOC_H
 #include <sys/types.h>
 }
 
@@ -73,6 +74,8 @@ private:
 
    void get_more_memory() {
       void *p = malloc(size * count + sizeof(void *));
+
+      assert(p);
 
       * (void **) ((char *) p + size * count) = root;
       root = p;
@@ -103,9 +106,12 @@ public:
    void *allocate() {
       if (!free_ptr)
 	 get_more_memory();
+      assert(free_ptr);
 
       void *p = free_ptr;
       free_ptr = * (void **) free_ptr;
+      char buf[1024];
+      sprintf (buf,"%p", free_ptr); // to workaround library/code problem on solaris
       return p;
    }
 
