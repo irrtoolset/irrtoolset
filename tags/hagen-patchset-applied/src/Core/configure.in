@@ -1,0 +1,294 @@
+dnl Process this file with autoconf to produce a configure script.
+
+#      `AC_INIT(FILE)'
+#      checks for programs
+#      checks for libraries
+#      checks for header files
+#      checks for typedefs
+#      checks for structures
+#      checks for compiler characteristics
+#      checks for library functions
+#      checks for system services
+#      `AC_OUTPUT([FILE...])'
+
+AC_INIT(sys/File.cc)
+auxdir=$srcdir/.aux
+AC_CONFIG_AUX_DIR($auxdir)
+AC_CONFIG_HEADER(config.h:config.h.in)
+
+# sets host, host_alias, host_cpu, host_vendor, host_os
+AC_CANONICAL_HOST
+
+AC_ARG_ENABLE(debug,        [  --enable-debug              turn on debugging],
+if eval "test x$enable_debug = xyes"; then
+  OPTFLAG="-gstabs+ -DDEBUG -fno-inline"
+else
+  OPTFLAG="-O3 -gstabs+"
+fi
+,
+OPTFLAG="-O3 -gstabs+"
+)
+: ${CXXFLAGS=$OPTFLAG}
+: ${CFLAGS=$OPTFLAG}
+
+dnl Enable features
+AC_ARG_ENABLE(tracing,      [  --disable-tracing           compile out the trace module],
+if eval "test x$enable_tracing = xyes"; then
+   AC_DEFINE(HAVE_TRACING)
+fi
+,
+AC_DEFINE(HAVE_TRACING)
+)
+
+dnl Check if we want network compiled
+AC_ARG_ENABLE(network,      [  --enable-network            compile in the network], 
+if eval "test x$enable_network = xyes"; then
+   compile_network=true
+else
+   compile_network=false
+fi
+,
+dnl we compile it by default:
+compile_network=false
+)
+if $compile_network; then
+   extra_obj='$(NETOBJECTS)'
+   extra_dirs=network
+else
+   extra_dirs=
+   extra_obj=
+fi
+AC_SUBST(extra_obj)
+AC_SUBST(extra_dirs)
+AC_SUBST(compile_network)
+
+dnl Check for host type
+case "${host_os}" in
+      solaris* )
+              EXTRA_INCLUDE_DIRS="-I/opt/sfw/${ac_cv_host}/include"
+              EXTRA_LIBS="-lsocket -lnsl -ldl"
+	      AC_DEFINE(HOST_OS_IS_SOLARIS)
+      ;;
+      bsdi* )
+dnl Commented out by wlee
+dnl           EXTRA_INCLUDE_DIRS="-I/usr/include/g++ -I/usr/include/g++/stdc++"
+              EXTRA_LIBS="-lipc"
+      ;;
+      freebsd* )
+	      EXTRA_INCLUDE_DIRS="-I/usr/local/lib/g++-include"
+	      AC_DEFINE(HOST_OS_IS_FREEBSD)
+      ;;
+esac
+
+AC_SUBST(EXTRA_INCLUDE_DIRS)
+AC_SUBST(EXTRA_LIBS)
+AC_DEFINE_UNQUOTED(EXTRA_INCLUDE_DIRS, ${EXTRA_INCLUDE_DIRS})
+AC_DEFINE_UNQUOTED(EXTRA_LIBS, ${EXTRA_LIBS})
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_CXX
+: ${LD=$CXX}
+AC_SUBST(CXX)
+AC_SUBST(LD)
+: ${LDFLAGS=""}
+AC_SUBST(LDFLAGS)
+AC_SUBST(CXXFLAGS)
+AC_SUBST(OPTFLAG)
+AC_SUBST(CFLAGS)
+AC_PROG_CXXCPP
+#AC_PROG_INSTALL
+AC_PROG_MAKE_SET(MAKE=make)
+AC_ARG_PROGRAM
+AC_PROG_LN_S
+AC_PROG_RANLIB
+
+
+dnl ******************** things that need to be compiled with c++
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+tmp_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -Werror"
+
+dnl Check if accept uses socklen_t is defined
+AC_MSG_CHECKING(for whether accept uses type (socklen_t *) as parameter)
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/socket.h>
+], [
+	int sock;
+    	struct sockaddr socknew;	
+	int addrlen = 5;
+	int newsock = accept (sock, &socknew, (socklen_t *) &addrlen);
+], [AC_DEFINE(ACCEPT_USES_SOCKLEN_T) 
+AC_MSG_RESULT(yes)], AC_MSG_RESULT(no)) 	
+
+dnl Check if accept uses size_t is defined
+AC_MSG_CHECKING(for whether accept uses type (size_t *) as parameter)
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/socket.h>
+], [
+	int sock;
+    	struct sockaddr socknew;	
+	int addrlen = 5;
+	int newsock = accept (sock, &socknew, (size_t *) &addrlen);
+], [AC_DEFINE(ACCEPT_USES_SIZE_T) 
+AC_MSG_RESULT(yes)], AC_MSG_RESULT(no)) 	
+
+CXXFLAGS="$tmp_CXXFLAGS"
+
+########################## htons ##################################
+AC_MSG_CHECKING(if a declaration for htons is needed)
+htons=notneeded
+AC_TRY_COMPILE([
+extern "C" {
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+}
+], [
+   int   port = 5;
+   struct sockaddr_in server_sockaddr;
+   server_sockaddr.sin_port = htons((u_short) port);
+], [AC_MSG_RESULT(no)], [htons=needed])
+if test $htons = needed; then
+AC_TRY_COMPILE([
+extern "C" {
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+extern u_short htons(...);
+}
+], [
+   int   port = 5;
+   struct sockaddr_in server_sockaddr;
+   server_sockaddr.sin_port = htons((u_short) port);
+], [AC_DEFINE(DEFINE_HTONS_WITH_ELLIPSIS) AC_MSG_RESULT(with ellipsis)], [
+AC_DEFINE(DEFINE_HTONS_WITH_USHORT)  AC_MSG_RESULT(with ushort)])
+fi
+
+############################# rusage ###############################
+AC_MSG_CHECKING(for struct timeval)
+AC_TRY_COMPILE([#ifdef TIME_WITH_SYS_TIME
+#include <sys/time.h>
+#include <time.h>
+#else
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#else
+#include <time.h>
+#endif
+#endif], [static struct timeval x; x.tv_sec = x.tv_usec;],
+  [AC_MSG_RESULT(yes)
+   AC_DEFINE(HAVE_TIMEVAL)],
+  AC_MSG_RESULT(no))
+
+AC_MSG_CHECKING(for whether rusage uses timeval)
+AC_EGREP_CPP([timeval[[ \t]]*ru_utime],
+[#include <sys/resource.h>
+#if HAVE_SYS_RUSAGE_H
+#include <sys/rusage.h>
+#endif
+], [AC_MSG_RESULT(yes) 
+AC_DEFINE(RUSAGE_USES_TIMEVAL)], AC_MSG_RESULT(no)) 
+
+AC_MSG_CHECKING(for memalign definition)
+AC_EGREP_HEADER(memalign, malloc.h, [AC_DEFINE(HAVE_MEMALIGN_DEFINITION)
+AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
+AC_EGREP_HEADER(getpagesize,  unistd.h,     AC_DEFINE(HAVE_DECL_GETPAGESIZE))
+
+########################## Signal type ############################
+kernel_has_signal_type=none
+AC_CHECK_FUNCS(sigaction, kernel_has_signal_type=posix)
+if test $kernel_has_signal_type = none; then
+   AC_CHECK_FUNCS(sigvec, kernel_has_signal_type=bsd)
+fi
+if test $kernel_has_signal_type = none; then
+   AC_CHECK_FUNCS(sigset, , [AC_WARN(unknown kernel signal interface)])
+fi
+
+AC_LANG_RESTORE
+dnl ******************** things that need to be compiled with c++
+
+dnl Checks for libraries
+AC_CHECK_LIB(m, exp, , [AC_MSG_WARN(math library not found)])
+
+pcaplib=false
+if $compile_network; then
+    AC_CHECK_LIB(pcap, pcap_read, [pcaplib=true])
+fi
+AC_CHECK_LIB(z, deflate, , [AC_MSG_WARN(zlib not found)])
+AC_SUBST(LIBS)
+
+dnl Checks for header files.
+AC_CHECK_HEADERS(strings.h fcntl.h sys/time.h syslog.h unistd.h memory.h limits.h malloc.h)
+if $pcaplib; then
+   CPPFLAGS="-I/usr/include/pcap $CPPFLAGS"
+   AC_CHECK_HEADERS(pcap.h, , [AC_MSG_WARN(Compiling without PCAP)]; pcaplib=false)
+fi
+if $pcaplib; then
+   extra_net_obj='$(PCAP_OBJ)'
+else
+   extra_net_obj=
+fi
+AC_SUBST(extra_net_obj)
+AC_SUBST(CPPFLAGS)
+
+dnl Check for regex.h
+AC_CHECK_HEADERS(regex.h, needregex=false, needregex=true)
+if $needregex; then
+   extra_reg_obj='$(REGEX_OBJ)'
+   extra_reg_src='$(REGEX_SRC)'
+   extra_reg_hea='$(REGEX_HEA)'
+else
+   extra_reg_obj=
+   extra_reg_src=
+   extra_reg_hea=
+fi
+AC_SUBST(extra_reg_obj)
+AC_SUBST(extra_reg_src)
+AC_SUBST(extra_reg_hea)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_C_BIGENDIAN
+AC_HEADER_TIME
+AC_STRUCT_TM
+
+dnl Checks for C library functions
+AC_HEADER_STDC
+AC_PROG_GCC_TRADITIONAL
+AC_FUNC_ALLOCA
+AC_FUNC_SETPGRP
+AC_CHECK_FUNCS(gettimeofday select socket strerror flock lockf vsnprintf)
+
+dnl Checks for library functions.
+
+############################# extract objects ######################
+AC_CHECK_PROG(perl_found, perl, yes, no)
+case "$perl_found" in
+    yes* )
+	AC_SUBST(all_OBJECTS)
+	all_OBJECTS=`perl $auxdir/config.objects`
+	AC_SUBST(all_LIBRARIES)
+	all_LIBRARIES=`perl $auxdir/config.libs`
+    ;;
+    no*  )
+	AC_MSG_WARN(couldn't find perl in your path)
+    ;;
+esac
+
+makefiles="Makefile gnu/Makefile sched/Makefile sys/Makefile util/Makefile"
+if $compile_network; then
+	 makefiles="$makefiles network/Makefile"
+fi
+#echo $makefiles
+## Finish up
+AC_OUTPUT( $makefiles )
