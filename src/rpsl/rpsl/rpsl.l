@@ -519,7 +519,10 @@ extern void atollRA(...);
      if (   (type1 != NULL) 
          && (type1->validate(new ItemWORD(yytext))) ) {
           yylval.afi = new AddressFamily(yytext);
-          LEXER_RETURN(TKN_AFI);
+          if (strcasecmp(yytext, "any") == 0)
+             LEXER_RETURN(KEYW_ANY);
+          else
+             LEXER_RETURN(TKN_AFI);
      }  
 
      LEXER_RETURN(TKN_WORD);
@@ -540,22 +543,27 @@ extern void atollRA(...);
      }
 
      // in case of afi containing "."
-     RPType *type1 = schema.searchTypedef("address_family");
-     RPType *type2 = schema.searchTypedef("address_sub_family");
-	   char *p = strchr(yytext, '.');
-     char *a = (char *) calloc(sizeof(yytext),1);
-     strncpy (a, yytext, (p-yytext)); 
-     
-     if (   (type1 != NULL) 
-         && (type2 != NULL)
-         && (type1->validate(new ItemWORD(a))) 
-         && (type2->validate(new ItemWORD(p+1))) ) {
-          free (a);
-            yylval.afi = new AddressFamily(yytext);
-          LEXER_RETURN(TKN_AFI);
-     }  
+     char *p = strchr(yytext, '.');
+     if (p != NULL) {
+       int a_len = p - yytext + 1;
+       if (a_len > 1) {
+         char *a = (char *) malloc(a_len);
+         memcpy(a, yytext, (a_len - 1));
+         a[a_len-1] = '\0';
 
-     free(a);
+         RPType *type1 = schema.searchTypedef("address_family");
+         RPType *type2 = schema.searchTypedef("address_sub_family");
+         if ((type1 != NULL) && (type2 != NULL) && 
+             (type1->validate(new ItemWORD(a))) && 
+             (type2->validate(new ItemWORD(p+1))) ) {
+           free (a);
+           yylval.afi = new AddressFamily(yytext);
+           LEXER_RETURN(TKN_AFI);
+         }
+         free(a);
+       }
+     }
+
      yylval.sid = symbols.symID(yytext);
      LEXER_RETURN(TKN_DNS);
   }

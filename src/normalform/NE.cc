@@ -355,7 +355,11 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    if (typeid(*ptree) == typeid(FilterAFI)) {
    
       ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
-      ne->restrict((FilterAFI *) ptree);
+      if (ne->is_any() == NEITHER &&
+          ((ne->singleton_flag == NormalTerm::PRFX) || (ne->singleton_flag == NormalTerm::IPV6_PRFX) ||
+           (ne->singleton_flag == -1))) {
+        ne->restrict((FilterAFI *) ptree);
+      }
       Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
       Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
       return ne;
@@ -371,16 +375,16 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       ne = new NormalExpression;
       if (list_v4) {
         nt = new NormalTerm;
-        nt->prfx_set |= * (FilterPRFXList *) list_v4; // radix set created here
-        nt->make_universal(NormalTerm::PRFX);      // this makes it universal
-        ne->singleton_flag = NormalTerm::PRFX;
+        nt->prfx_set |= * (FilterPRFXList *) list_v4; // radix set filled here with ipv4 prefixes
+        nt->make_universal(NormalTerm::PRFX);         // make all other filter types universal
+        if (!list_v6) ne->singleton_flag = NormalTerm::PRFX;
         *ne += nt;
       }
       if (list_v6) {
         nt = new NormalTerm;
-        nt->ipv6_prfx_set |= * (FilterMPPRFXList *) list_v6; // radix set created here
-        nt->make_universal(NormalTerm::IPV6_PRFX);      // this makes it universal
-        ne->singleton_flag = NormalTerm::IPV6_PRFX;
+        nt->ipv6_prfx_set |= * (FilterMPPRFXList *) list_v6; // radix set filled here with ipv6 prefixes
+        nt->make_universal(NormalTerm::IPV6_PRFX);           // make all other filter types universal
+        if (!list_v4) ne->singleton_flag = NormalTerm::IPV6_PRFX;
         *ne += nt;
       }
       return ne;
@@ -590,14 +594,6 @@ void NormalExpression::restrict(FilterAFI *af) {
    NormalTerm *term = new NormalTerm;
    NormalExpression *ne = new NormalExpression (*this);
    become_empty();
-
-   // check the singleton_flag!
-   // save & return if no prfx, prfxv6
-   if ((ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
-     for (term = ne->first(); term ; term = ne->next())
-       *this += term;
-     return;
-   }
 
    for (term = ne->first(); term ; term = ne->next()) {
      if (term->prfx_set.universal()) { // v6

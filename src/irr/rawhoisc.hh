@@ -110,6 +110,7 @@ public:
       error.immediate(1);
       error.ignore(ignore_errors);
       _is_open = 0;
+      version = 0;
       current_sources = NULL;
    };
    ~RAWhoisClient() {

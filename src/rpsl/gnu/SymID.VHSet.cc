@@ -174,7 +174,7 @@ Pix SymIDVHSet::first() const
 void SymIDVHSet::next(Pix& i) const
 {
   if (i == 0) return;
-  unsigned int pos = ((unsigned)i - (unsigned)tab) / sizeof(SymID) + 1;
+  unsigned int pos = ((SymID *)i - tab) + 1;
   for (; pos < size; ++pos)
     if (status[pos] == VALIDCELL)
     {

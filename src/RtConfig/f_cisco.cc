@@ -1879,7 +1879,7 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
      sprintf(mapName, mapNameFormat, asno, mapCount++);
      for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
        ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), ~0);
-       last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);;
+       last = print(ne, fa->action, EXPORT, (ItemAFI *) afi);;
        delete ne;
      }
    }
