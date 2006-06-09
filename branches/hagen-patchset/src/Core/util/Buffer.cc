@@ -181,9 +181,9 @@ void Buffer::extend(unsigned long minExtend) {
 void 
 Buffer::append(const char *buf, unsigned long sz)
 {
-   if (size + sz > capacity)
+   if (size + sz + 1 > capacity)
       extend(sz);
-   memcpy(contents + size, buf, sz);
+   strcat(contents, buf);
    size += sz;
 }
 

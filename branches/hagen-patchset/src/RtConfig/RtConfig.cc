@@ -111,8 +111,8 @@ typedef struct {
 } config_format_type;
 
 CiscoConfig ciscoConfig;
-/*
 JunosConfig junosConfig;
+/*
 GatedConfig gatedConfig;
 RSdConfig   rsdConfig;
 BccConfig bccConfig;
@@ -122,7 +122,7 @@ config_format_type config_formats[] = {
 //   { "rsd",         &rsdConfig },
 //   { "gated",       &gatedConfig },
    { "cisco",       &ciscoConfig },
-//   { "junos",       &junosConfig },
+   { "junos",       &junosConfig },
 //   { "bcc",       &bccConfig },
    //   { "rsd",         rsd_process_line },
    { "", 0 }
@@ -214,11 +214,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-cisco_empty_lists", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::emptyLists,
       "Generate access lists for ANY and NOT ANY prefix filters.\n\t\t\t\tCisco only."},
-     
-/*     {"-junos_no_compress_acls", ARGV_BOOL, 
+     {"-junos_no_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &JunosConfig::compressAcls,
       "Do not combine multiple route-filter lines into a single line whenever possible.\n\t\t\t\tJunos only."},
-*/
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
    };
@@ -338,20 +336,53 @@ void RtConfig::printPrefixes(char *filter, char *fmt) {
        ne = NormalExpression::evaluate(itr()->filter, ~0);
      }
        
-     if (ne && ne->is_any() != NEITHER)
-       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-     else {
-       if (ne && (ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
-         cerr << "Error: badly formed prefix filter" << endl;
+     if (ne) {
+       if (ne->is_any() != NEITHER) {
+         cerr << "Warning: filter \"" << filter << "\" matches ANY/NOT ANY" << endl;
+         if (ciscoConfig.emptyLists) {
+           // print "any/not any" prefix list
+           char *ptr = strstr(filter, "afi ");
+           if (ptr != NULL) {
+             ptr += 4;
+             while (isspace(*ptr)) {
+               ptr++;
+             }
+             if (strncmp(ptr, "ipv4", 4) == 0) {
+               // ipv4 prefix list
+               SetOfPrefix *nets = new SetOfPrefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printPrefixes_(*nets, fmt);
+             } else if (strncmp(ptr, "ipv6", 4) == 0) {
+               // ipv6 prefix list
+               SetOfIPv6Prefix *nets = new SetOfIPv6Prefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printPrefixes_(*nets, fmt);
+             } else {
+               cerr << "WARNING: unknown afi value! Can't print prefixes for filter \"" << filter << "\"" << endl;
+             }
+           } else {
+             // ipv4 prefix list
+             SetOfPrefix *nets = new SetOfPrefix;
+             if (ne->is_any() == ANY)
+                nets->not_ = true;
+             printPrefixes_(*nets, fmt);
+           }
+         }
        } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
+           if (nt->prfx_set.is_universal() && nt->ipv6_prfx_set.is_universal())
+             cerr << "Error: badly formed prefix filter \"" << filter << "\"\n";
          for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
            printPrefixes_(nt->prfx_set, fmt);
            printPrefixes_(nt->ipv6_prfx_set, fmt);
          }
        }
+       delete ne;
      }
-     delete ne;
-
+   } else {
+     cerr << "Warning: creation of filter object for \"" << filter << "\" revealed error!\n";
    }
    delete o;
 }
@@ -379,20 +410,53 @@ void RtConfig::printPrefixRanges(char *filter, char *fmt) {
        ne = NormalExpression::evaluate(itr()->filter, ~0);
      }
 
-     if (ne && ne->is_any() != NEITHER)
-       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-     else {
-       if (ne && ne->singleton_flag != NormalTerm::PRFX && ne->singleton_flag != NormalTerm::IPV6_PRFX) {
-         cerr << "Error: badly formed prefix filter" << endl;
+     if (ne) {
+       if (ne->is_any() != NEITHER) {
+         cerr << "Warning: filter \"" << filter << "\" matches ANY/NOT ANY" << endl;
+         if (ciscoConfig.emptyLists) {
+           // print "any/not any" prefix list
+           char *ptr = strstr(filter, "afi ");
+           if (ptr != NULL) {
+             ptr += 4;
+             while (isspace(*ptr)) {
+               ptr++;
+             }
+             if (strncmp(ptr, "ipv4", 4) == 0) {
+               // ipv4 prefix list
+               SetOfPrefix *nets = new SetOfPrefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printPrefixRanges_(*nets, fmt);
+             } else if (strncmp(ptr, "ipv6", 4) == 0) {
+               // ipv6 prefix list
+               SetOfIPv6Prefix *nets = new SetOfIPv6Prefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printPrefixRanges_(*nets, fmt);
+             } else {
+               cerr << "WARNING: unknown afi value! Can't print prefix ranges for filter \"" << filter << "\"" << endl;
+             }
+           } else {
+             // ipv4 prefix list
+             SetOfPrefix *nets = new SetOfPrefix;
+             if (ne->is_any() == ANY)
+                nets->not_ = true;
+             printPrefixRanges_(*nets, fmt);
+           }
+         }
        } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
+           if (nt->prfx_set.is_universal() && nt->ipv6_prfx_set.is_universal())
+             cerr << "Error: badly formed prefix filter \"" << filter << "\"\n";
          for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
            printPrefixRanges_(nt->prfx_set, fmt);
            printPrefixRanges_(nt->ipv6_prfx_set, fmt);
          }
        }
+       delete ne;
      }
-     delete ne;
-
+   } else {
+     cerr << "Warning: creation of filter object for \"" << filter << "\" revealed error!\n";
    }
    delete o;
 }
@@ -419,20 +483,53 @@ void RtConfig::printSuperPrefixRanges(char *filter, char *fmt) {
        ne = NormalExpression::evaluate(itr()->filter, ~0);
      }
 
-     if (ne && ne->is_any() != NEITHER)
-       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-     else {
-       if (ne && ne->singleton_flag != NormalTerm::PRFX && ne->singleton_flag != NormalTerm::IPV6_PRFX) {
-         cerr << "Error: badly formed prefix filter" << endl;
+     if (ne) {
+       if (ne->is_any() != NEITHER) {
+         cerr << "Warning: filter \"" << filter << "\" matches ANY/NOT ANY" << endl;
+         if (ciscoConfig.emptyLists) {
+           // print "any/not any" prefix list
+           char *ptr = strstr(filter, "afi ");
+           if (ptr != NULL) {
+             ptr += 4;
+             while (isspace(*ptr)) {
+               ptr++;
+             }
+             if (strncmp(ptr, "ipv4", 4) == 0) {
+               // ipv4 prefix list
+               SetOfPrefix *nets = new SetOfPrefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printSuperPrefixRanges_(*nets, fmt);
+             } else if (strncmp(ptr, "ipv6", 4) == 0) {
+               // ipv6 prefix list
+               SetOfIPv6Prefix *nets = new SetOfIPv6Prefix;
+               if (ne->is_any() == ANY)
+                  nets->not_ = true;
+               printSuperPrefixRanges_(*nets, fmt);
+             } else {
+               cerr << "WARNING: unknown afi value! Can't print super prefix ranges for filter \"" << filter << "\"" << endl;
+             }
+           } else {
+             // ipv4 prefix list
+             SetOfPrefix *nets = new SetOfPrefix;
+             if (ne->is_any() == ANY)
+                nets->not_ = true;
+             printSuperPrefixRanges_(*nets, fmt);
+           }
+         }
        } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
+           if (nt->prfx_set.is_universal() && nt->ipv6_prfx_set.is_universal())
+             cerr << "Error: badly formed prefix filter \"" << filter << "\"\n";
          for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
            printSuperPrefixRanges_(nt->prfx_set, fmt);
            printSuperPrefixRanges_(nt->ipv6_prfx_set, fmt);
          }
        }
+       delete ne;
      }
-     delete ne;
-
+   } else {
+     cerr << "Warning: creation of filter object for \"" << filter << "\" revealed error!\n";
    }
    delete o;
 }
@@ -835,21 +932,54 @@ void RtConfig::accessList(char *filter) {
        ne = NormalExpression::evaluate(itr()->filter, ~0);
      }
 
-     if (ne && ne->is_any() != NEITHER)
-       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
-     else {
-       if (ne && (ne->singleton_flag != NormalTerm::PRFX) && (ne->singleton_flag != NormalTerm::IPV6_PRFX)) {
-         cerr << "Error: badly formed prefix filter" << endl;
+     if (ne) {
+       if (ne->is_any() != NEITHER) {
+         cerr << "Warning: filter \"" << filter << "\" matches ANY/NOT ANY" << endl;
+         if (ciscoConfig.emptyLists) {
+           // print "any/not any" prefix list
+           char *ptr = strstr(filter, "afi ");
+           if (ptr != NULL) {
+             ptr += 4;
+             while (isspace(*ptr)) {
+               ptr++;
+             }
+             if (strncmp(ptr, "ipv4", 4) == 0) {
+               // ipv4 prefix list
+               SetOfPrefix *nets = new SetOfPrefix;
+               if (ne->is_any() == ANY)
+                 nets->not_ = true;
+               printAccessList(*nets);
+             } else if (strncmp(ptr, "ipv6", 4) == 0) {
+               // ipv6 prefix list
+               SetOfIPv6Prefix *nets = new SetOfIPv6Prefix;
+               if (ne->is_any() == ANY)
+                 nets->not_ = true;
+               printAccessList(*nets);
+             } else {
+               cerr << "WARNING: unknown afi value! Can't print configuration for filter \"" << filter << "\"" << endl;
+             }
+           } else {
+             // ipv4 prefix list
+             SetOfPrefix *nets = new SetOfPrefix;
+             if (ne->is_any() == ANY)
+                nets->not_ = true;
+             printAccessList(*nets);
+           }
+         }
        } else {
+         for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
+           if (nt->prfx_set.is_universal() && nt->ipv6_prfx_set.is_universal())
+             cerr << "Error: badly formed prefix filter \"" << filter << "\"\n";
          for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
            printAccessList(nt->prfx_set);
            printAccessList(nt->ipv6_prfx_set);
          }
        }
+       delete ne;
      }
-     delete ne;
+   } else {
+     cerr << "Warning: creation of filter object for \"" << filter << "\" revealed error!\n";
    }
-   
    delete o;
 }
 
