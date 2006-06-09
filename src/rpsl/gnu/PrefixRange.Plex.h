@@ -288,7 +288,7 @@ inline  PrefixRange* PrefixRangeIChunk:: pointer_to(int i) const
 
 inline  int  PrefixRangeIChunk:: index_of(const PrefixRange* p) const
 {
-  return ((int)p - (int)data) / sizeof(PrefixRange) + base;
+  return (p - data) + base;
 }
 
 inline  int  PrefixRangeIChunk:: possible_index(int i) const

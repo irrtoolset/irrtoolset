@@ -300,7 +300,9 @@ void IRR::initCache(const char *fname) {
 	    }      
 	 } else
 	    delete o;
-  }
+      } else
+        cerr << "WARNING: could not identify cache object found in cache-file \""
+             << fname << "\"\n" << objectText << endl;
    }
 }
 

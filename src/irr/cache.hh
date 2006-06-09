@@ -77,13 +77,13 @@ public:
    Cache(void) : CacheKeyCacheValueAVLMap(cDefaultValue) {}
    // Add stuff into cache 
    bool add(K aKey, V aValue) {
-      (*this)[(CacheKey)aKey] = CacheValue(aValue);
+      (*this)[(CacheKey)(intptr_t)aKey] = CacheValue(aValue);
       return true;
    }
    ~Cache(void) { clear(); }
    // Retrieve stuff from cache
    bool query(K aKey, V &arValue) {
-      CacheValue *pcValue = &(*this)[(CacheKey)aKey];
+      CacheValue *pcValue = &(*this)[(CacheKey)(intptr_t)aKey];
       // if not found, it always return default value: cDefaultValue
       // we never increase count of default value, so, it's safe to determine
       // cache miss by just checking the reference count to see if it's 0
@@ -97,7 +97,7 @@ public:
 	 return false;
    }
    void nullify(K aKey) {
-      CacheValue *pcValue = &(*this)[(CacheKey)aKey];
+      CacheValue *pcValue = &(*this)[(CacheKey)(intptr_t)aKey];
       pcValue->pvData = NULL;
    }
    // Override the function on the base class

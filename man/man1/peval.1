@@ -105,6 +105,13 @@ Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
 peval uses the definition first encountered in <source-list>
 from left to right.
+.IP "\-f <file-name>" 
+IRR cache file. You can have any RPSL object in this file, except route
+objects. 
+They will override these objects in IRR.
+This option is intended for private objects, or to test new public objects 
+before publishing. You can specify more than one cache file by specifying this
+option repeatedly.
 .IP \-rusage
 Print resource usage upon completion.
 .IP "\-prompt <string>"
