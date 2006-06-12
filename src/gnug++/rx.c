@@ -30,6 +30,10 @@ write to the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 #define	_GNU_SOURCE
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 
 char rx_version_string[] = "GNU Rx version 0.07.2";
 

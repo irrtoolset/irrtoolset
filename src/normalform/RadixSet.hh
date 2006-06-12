@@ -76,7 +76,7 @@ extern FixedSizeAllocator RadixTreeAllocator;
 
 class RadixTree {
 public:
-   friend class Iterator {
+   class Iterator {
    private:
       const RadixTree* last;
       const RadixTree* root;
@@ -155,7 +155,7 @@ class RadixSet {
 public:
    static bool compressedPrint;
 
-   friend class Iterator {
+   class Iterator {
    private:
       RadixTree::Iterator itr;
       const RadixTree *now;     // points to current node during iteration
@@ -166,7 +166,7 @@ public:
       bool next(u_int &_addr, u_int &_leng, u_int64_t &rngs);
    };
 
-   friend class SortedIterator {
+   class SortedIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
@@ -189,7 +189,7 @@ public:
       bool next(u_int &_addr, u_int &_leng, u_int64_t &_rngs);
    };
 
-   friend class PrefixIterator {
+   class PrefixIterator {
    private:
       RadixTree::Iterator itr;
       const RadixTree *current;
@@ -206,7 +206,7 @@ public:
       bool next(u_int &_addr, u_int &_leng);
    };
 
-   friend class SortedPrefixIterator {
+   class SortedPrefixIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
@@ -228,7 +228,7 @@ public:
       bool next(u_int &_addr, u_int &_leng);
    };
 
-   friend class PrefixRangeIterator {
+   class PrefixRangeIterator {
    private:
       RadixTree::Iterator itr;
       const RadixTree *current;
@@ -259,7 +259,7 @@ public:
       }
    };
 
-   friend class SortedPrefixRangeIterator {
+   class SortedPrefixRangeIterator {
    private:
       class PrefixLNode : public ListNode {
       public:
