@@ -1,3 +1,122 @@
+4.8.3
+
+A set of patches collected by Hagen Boehm was applied:
+
+* whois.apnic.net server problem
+  APNIC's whois server (RIPE NCC software with RPSS functions
+  disabled) has changed syntax of some embedded comments in a way that
+  violates the protocol assumptions in IRRToolSet 4.8.2
+  (required/allowed "empty lines" ~ "\n\n" in the context of "%"
+  comment lines. This problem seems to be around since APNIC switched
+  to a database version supporting IPv6/RPSLng).
+  Thanks to Hagen Boehm.
+
+* ASnnn embedded in AS-Set AS-xxxx doesn't resolve properly (prefix
+  loss)
+  We are seeing cases where resolving to route-sets (a) an ASnnn and
+  (b) an AS-set AS-xxxx which includes ASnnn as a member lists some
+  prefixes as members of ASnnn but NOT as members of AS-xxxx (Which
+  turns something like "125.16.0.0/14^14-24" into some thousand
+  separately listed 125.16.x.y/n^n-n or 125.16.x.y/n^m-m that don't
+  combine into any 125.16.x.y/n^m-l unless m=l).
+  Thanks to Hagen Boehm.
+
+* multi protocol filter problem 
+  prefix filter consisting of ipv4 and ipv6 prefixes get not resolved
+  properly.  Either only prefixes of a single protocol get resolved
+  (e.g. only ipv4) or the route-set contains ANY. The first case was
+  observed when resolving an "ASxxxx" filter, the latter case when
+  resolving an "ASxxxx ASyyyy" filter, where both ASxxxx and ASyyyy
+  contained ipv4 and ipv6 prefixes.
+  Thanks to Hagen Boehm.
+
+* due to an uninitialized integer the irrd client showed erroneous
+  behavior when processing responses to "selected source" queries
+  (!s-lc).  This bug led to the closing of the session before an
+  object query could be sent out.
+  Thanks to Hagen Boehm.
+
+* flex scanner token interpretation error.
+  Due to missing tests on uninitialised values, missing
+  NULL-termination on strings and bad memory allocation the flex
+  scanner didn't work correctly and sometimes returned a wrong
+  interpretation when reading a dotted "afi" value, e.g.
+  "ipv6.unicast". Such values were interpreted as a DNS Token
+  (TKN_DNS) instead of an afi Token (TKN_AFI). The incorrect
+  interpretations irritated the bison parser and led to a system
+  crash. 
+  Thanks to Hagen Boehm.
+
+* After patching IRRTS 4.8.2 with the C&W patches repairing the
+  missing JunOS route-set filter support, the tool-set didn't compile
+  correctly anymore.
+  Thanks to Hagen Boehm.
+
+* IRRToolSet 4.8.2 doesn't support functionality of the
+  -cisco_empty_lists flag anymore. Setting the -cisco_empty_lists flag
+  hence has no effect. The patch restores the functionality.
+  Thanks to Hagen Boehm.
+
+* JunOS route filters aren't generated as compact as it is
+  the case for Cisco IOS. Furthermore the JunOS route filter
+  generation triggered by setting the -cisco_empty_lists flag doesn't
+  create correct route filters. The patch makes JunOS route filters as
+  compact as Cisco IOS route filters and repairs the JunOS route
+  filters that are generated only when setting the -cisco_empty_lists
+  flag.
+  Thanks to Hagen Boehm.
+
+* With RPSLng key-word "ANY" now can have different
+  semantic interpretations: It can be the value of an Address Family
+  (afi value) or it can be an rpsl_word. In some cases the lex scanner
+  misinterprets "ANY" as afi value and returns TKN_AFI although the
+  bison parser rules expect an rpsl_word (eg. TKN_WORD or KEYW_ANY).
+  Thanks to Hagen Boehm.
+
+* The man pages of RtConfig and peval do not obviously
+  document that the "-f" option, used for specifying a cache file, can
+  be used repeatedly to specify more than one cache file. In the peval
+  man page this option is not even mentioned!
+  Furthermore the cache file parsing process does not alert when a
+  cache object can't be identified.
+  The patch adds documentation to the respective man pages and
+  augments the code dealing with cache object handling.
+  Thanks to Hagen Boehm.
+
+* any "more specific operator" (i.e. ^+, ^-, ^N and ^N-M) does not
+  work or does not work correctly when being applied on an IPv6
+  route-set expression.
+  Thanks to Hagen Boehm.
+
+* A collection of patches from NetBSD.
+  Thanks to Petra Zeidler.
+
+* A few changes were made to allow the code to compile with the
+  lastest version of g++.
+
+Version 4.8.1:
+
+This release contains prototypes of RPSLng-aware tools from
+IRRToolSet: peval, rpslcheck and now RtConfig is added.
+
+* RPSLng dictionary implemented according to the latest RPSLng draft:
+  http://www.ietf.org/internet-drafts/draft-blunk-rpslng-01.txt
+
+* Tools have been tested to work with RIPE whois software. They will
+  work also with irrd in most of the cases, as soon as irrd is updated
+  to handle RPSLng-related objects. Separated patch for this may be
+  necessary and will be available later.
+
+* peval now accepts both RPSL and RPSLng filters (extended to support
+  ipv6) for peval, the syntax for evaluation of mp-filter is:
+  afi <afi_list> <mp-filter>
+  results will be restricted to address familiy(ies) from <afi_list>.
+
+* RtConfig has got a new command: '@RtConfig v6networks', which works
+  symmetrically with '@RtConfig networks'. Other RtConfig commands
+  have been modified to handle RPSLng.
+
+
 4.8.2
 
 * GCC-3.x compatible (tested with 3.3.2, 3.2.1 and 3.2) 
