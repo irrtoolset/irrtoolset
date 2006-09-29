@@ -1,25 +1,19 @@
-This is the README file for IRRToolSet
+This is the README file for the IRRToolSet
 
 MAILING LIST
-	irrtoolset@ripe.net
-	To subscribe to the mailing list, please send mail to
-	majordomo@ripe.net with body (not the subject) of the message
-	containing "subscribe irrtoolset".
+	irrtoolset@isc.org
 
-        Old mailing list ratoolset@isi.edu is now migrated to 
-	irrtoolset@ripe.net
+	To subscribe to the mailing list, visit this page:
+
+	http://www.isc.org/index.pl?/sw/IRRToolSet/
+
+	And use the form in the section called "Manage subscription".
 
 FTP and WWW SITES
-	RIPE NCC site:
-        ftp://ftp.ripe.net/tools/IRRToolSet
-        http://www.ripe.net/ripencc/pub-services/db/irrtoolset/index.html
 
-        ISI.EDU site:
-	ftp.isi.edu:pub/ra/RAToolSet
-	http://www.isi.edu/ra/RAToolSet
+        ftp://ftp.isc.org/isc/IRRToolSet
 
-	ftp site may contain binaries. I will try to make binaries
-	available upon request.
+        http://www.isc.org/index.pl?/sw/IRRToolSet/
 
 INSTALLATION
         0. To install you need an ISO C++ compiler (such as g++ from
