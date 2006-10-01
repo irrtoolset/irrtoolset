@@ -56,7 +56,11 @@
 
 #include "config.h"
 
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
@@ -174,7 +178,7 @@ input_line: import_line
 | pkt_filter_line
 | outbound_pkt_filter_line
 | cisco_map_name_line
-//| junos_policy_name_line
+| junos_policy_name_line
 | cisco_map_inc_line
 | cisco_map_start_line
 | cisco_access_list_no_line
@@ -333,14 +337,12 @@ cisco_map_name_line: KW_SET KW_CISCO_MAP_NAME '=' TKN_STR {
 		   << CiscoConfig::mapNameFormat << "'" << std::endl;
 }
 ;
-/*
 junos_policy_name_line: KW_SET KW_JUNOS_POLICY_NAME '=' TKN_STR {
    strcpy(JunosConfig::mapNameFormat, $4);
    Trace(TR_INPUT) << "RtConfig: junos_policy_name '"
-		   << JunosConfig::mapNameFormat << "'" << endl;
+		   << JunosConfig::mapNameFormat << "'" << std::endl;
 }
 ;
-*/
 cisco_map_inc_line: KW_SET KW_CISCO_MAP_INC '=' TKN_INT {
    CiscoConfig::mapIncrements = $4;
    Trace(TR_INPUT) << "RtConfig: cisco_map_increment_by '" 

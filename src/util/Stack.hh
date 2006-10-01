@@ -100,9 +100,9 @@ class BoundedStack : BoundedQueue<TYPE> {
 public:
    BoundedStack(int size) : BoundedQueue<TYPE>(size) {}
    void push(TYPE elt) { enq(elt); }
-   TYPE pop() { return q[--last]; }
-   int getPosition() { return last; }
-   void setPosition(int pos) { last = pos; }
+   TYPE pop() { return this->q[--(this->last)]; }
+   int getPosition() { return this->last; }
+   void setPosition(int pos) { this->last = pos; }
    void clear() {
       BoundedQueue<TYPE>::clear();
    }

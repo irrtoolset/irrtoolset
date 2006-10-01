@@ -1235,12 +1235,25 @@ bool MPPrefixRanges::contains(IPv6Addr ip) const {
 }
 
 bool MPPrefixRanges::contains(MPPrefix ip) const {
+   // method rewritten by Hagen Boehm
    MPPrefixRanges::const_iterator p;
    for (p = begin(); p != end(); ++p) {
-     if (p->ipv6 && ip.ipv6 && (*(p->ipv6->get_ipaddr()) == ip.get_ipaddr()) )
-       return true;
-     if (p->ipv4 && ip.ipv4 && (p->ipv4->get_ipaddr() == ip.ipv4->get_ipaddr()))
-       return true;
+     if (p->ipv6) {
+       if (ip.ipv6 && (p->ipv6->get_ipaddr() == ip.ipv6->get_ipaddr())
+                   && (p->ipv6->get_length() == ip.ipv6->get_length())
+                   && (p->ipv6->get_n() == ip.ipv6->get_n())
+                  && (p->ipv6->get_m() == ip.ipv6->get_m())) {
+         return true;
+       }
+     }
+     if (p->ipv4) {
+       if (ip.ipv4 && (p->ipv4->get_ipaddr() == ip.ipv4->get_ipaddr())
+                   && (p->ipv4->get_length() == ip.ipv4->get_length())
+                   && (p->ipv4->get_n() == ip.ipv4->get_n())
+                  && (p->ipv4->get_m() == ip.ipv4->get_m())) {
+         return true;
+       }
+     }
    }
    return false;
 }
