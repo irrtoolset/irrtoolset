@@ -66,6 +66,8 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 #define INVALID_AS    ~0
 
 class Peering : public ListNode {
@@ -348,7 +350,7 @@ public:
       peerAS(_peerAS) {
 	// Has to be called here again in order to get things right!
 	// It's not perfect but it works
-	first();	
+	this->first();	
    }
 };
 

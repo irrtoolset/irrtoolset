@@ -288,7 +288,7 @@ inline  unsigned* unsignedIChunk:: pointer_to(int i) const
 
 inline  int  unsignedIChunk:: index_of(const unsigned* p) const
 {
-  return ((int)p - (int)data) / sizeof(unsigned) + base;
+  return (p - data) + base;
 }
 
 inline  int  unsignedIChunk:: possible_index(int i) const

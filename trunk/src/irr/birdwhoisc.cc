@@ -98,34 +98,34 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
 
 // remove RIPE-style comments
 static void stripRipeComments(Buffer &buf) {
-   bool removedLines = false;
+/* method rewritten by Hagen Boehm */
+/* as long as we find lines starting with % or \n we clear them */ 
    char *cont = buf.contents;
-   size_t size = buf.size;
+   size_t rest_size = buf.size;
+   size_t jump = 0;
 
-   while (size >= 2 && *cont == '%') {
-      while (size >= 2 && *cont == '%') {
-	 // cengiz changed below to size - 1 
-	 // to make sure we received enough to check the stripped comment
-	 // is followed by  either another comment or by a blank line
-	 // if not we are in trouble...
-	 char *eol = (char *)memchr(cont, '\n', size-1);
-	 if (eol == NULL)
-	    // no EOL, no comment to strip (yet)
-	    goto out;
-	 assert(*(eol+1) == '\n' || *(eol+1) == '%');
-	 size -= (eol-cont)+1;
-	 cont = eol + 1;
-	 removedLines = true;
-      }
-      if (*cont == '\n') {
-	 size--;
-	 cont++;
-      }
+   if (*cont == '%' || *cont == '\n') {
+
+     while ((*cont == '%' || *cont == '\n') && rest_size > 0) {
+       // skip one line
+       if (*cont == '\n') {
+         jump = 1;
+       } else {
+         char *eol = (char *)memchr(cont, '\n', rest_size);
+         if (eol == NULL) {
+           jump = rest_size;
+         } else {
+           jump = eol - cont +1;
+         }
+       }
+       rest_size -= jump;
+       if (rest_size != 0) {
+         cont += jump;
+       }
+     }
+
+     buf.flush(buf.size - rest_size);
    }
-
- out:
-   if (removedLines)
-      buf.flush(buf.size - size);
 }
 
 bool BirdWhoisClient::getResponse(char *&text, int &len) {
@@ -166,29 +166,20 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
    } while (!found);
 
    Buffer *result = response;
-   if (endOfQuery+2 == response->size)
+   if (endOfQuery+2 == response->size) {
       response = NULL;
-   else { // there is stuff after the response
+   } else { // there is stuff after the response
       int fullSize = response->size;
       result->size = endOfQuery+2;
       response = new Buffer(fullSize - result->size);
       response->append(result->contents+result->size, response->capacity);
    }
-
    stripRipeComments(*result);
-   if (result->size == 2) { // we got 2 \n's
-      assert(*result->contents == '\n');
-      assert(*(result->contents+1) == '\n');
-      delete response;
-      response=NULL;
-      return false;
-   }
-   if (result->size == 1) { // we got 1 \n's, 
-      // the other \n is removed by stripRIPEComments
-      assert(*result->contents == '\n');
-      delete response;
-      response=NULL;
-      return false;
+   if (result->size == 0) {
+     delete response;
+     response=NULL;
+     Trace(TR_WHOIS_RESPONSE) << "TROPOS WARNING: query response was empty!\n" << flush;
+     return false;
    }
 
    Trace(TR_WHOIS_RESPONSE)
