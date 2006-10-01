@@ -1,0 +1,246 @@
+;; -*- Prcs -*-
+(Created-By-Prcs-Version 1 2 16)
+(Project-Description "")
+(Project-Version LibCore 0 107)
+(Parent-Version LibCore 0 105)
+(Version-Log "")
+(New-Version-Log "")
+(Checkin-Time "Mon, 12 Mar 2001 16:29:14 -0800")
+(Checkin-Login cengiz)
+(Populate-Ignore (
+                  ; dont save backup files
+                  "~$" "\\.bak$"
+                  ; dont save objects/executables/cores
+                  "src/bird$" "\\.o$" "\\.a$" "a.out$" "core$"
+                  ; latex/tex generated files
+                  "\\.dvi$" "\\.aux$" "\\.log$"
+                  ; we use configure, dont save makefiles
+                  "Makefile$" "makedep$" "eddep$" "\\.deps"
+                  ; prcs may creat this directory
+                  "obsolete" ".conflicting$"
+                  ; yacc/bison generated files
+                  "\\.y\\.cc$" "\\.y\\.hh$" "\\.y\\.c$" "\\.y\\.h$"
+                  "y.tab.c" "y.tab.h" "xx_parser.cc$" "xx_parser.h$"
+                  "ro_parser.cc$" "ro_parser.h$"
+                  ; flex generated file
+                  "\\.l\\.cc$" "\\.l\\.hh$" "\\.l\\.c$" "\\.l\\.h$"
+                  "lex\\..*\\.c" "xx_lexer.cc$" "ro_lexer.cc$"
+                  "bgp_lexer.cc$" "bgp_dump.cc$"
+                  ; dont save program generated files
+                  "\\.gdb_" "TAGS$"
+                  ; configure stuff
+                  "config.status$" "config.cache$" "^config.h$" "/config.h$"
+                  ; nfs caches
+                  "\\.nfs"
+                  ; binary files
+                  "peval$" "pmatch$" "prpath$" "RtConfig$" "CIDRAdvisor$"
+                  "prcheck$" "irrstat$" "roe$" "aoe$" "relayd$"
+                  "prtraceroute$" "cidrasst$" "rpslcheck$"
+                  ; Files generated from Tk
+		  "\\.tk\\.cc$"
+                  "update_irr.cc$" "layout.cc$" "fileselect.cc$" "utils.cc$"
+                  ; Version file
+                  "version.cc$"
+                  ))
+(Project-Keywords)
+(Files
+;; This is a comment.  Fill in files here.
+;; For example:  (prcs/checkout.cc ())
+
+;; Files added by populate at Tue, 15 Jun 1999 08:37:42 -0700,
+;; to version 0.0(w), by govindan:
+
+  (network/Pcap.hh (LibCore/0_Pcap.hh 1.6 644))
+  (network/Pcap.cc (LibCore/1_Pcap.cc 1.10 644))
+  (network/Headers.cc (LibCore/4_Headers.cc 1.1 644))
+  (network/Headers.hh (LibCore/5_Headers.hh 1.8 600))
+  (network/Ping.cc (LibCore/6_Ping.cc 1.4 644))
+  (network/Makefile.in (LibCore/7_Makefile.i 1.3 644))
+  (network/TProbe.hh (LibCore/8_TProbe.hh 1.3 644))
+  (network/TProbe.cc (LibCore/9_TProbe.cc 1.3 644))
+  (network/Ping.hh (LibCore/10_Ping.hh 1.4 644))
+  (network/Mtrace.cc (LibCore/11_Mtrace.cc 1.5 644))
+  (network/Network.hh (LibCore/12_Network.hh 1.7 600))
+  (network/Network.cc (LibCore/13_Network.cc 1.8 600))
+  (network/Prefix.cc (LibCore/14_Prefix.cc 1.2.1.1 644))
+  (network/Prefix.hh (LibCore/15_Prefix.hh 1.1.1.1 644))
+  (network/Mtrace.hh (LibCore/16_Mtrace.hh 1.6 644))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  (util/bird (LibCore/30_bird 1.1 644))
+  (util/BufferIterator.hh (LibCore/31_BufferIter 1.1 644))
+  (util/strtol.c (LibCore/32_strtol.c 1.2 644))
+  (util/atoll.c (LibCore/33_atoll.c 1.1 644))
+  (util/Allocator.hh (LibCore/34_Allocator. 1.1 644))
+  (util/debug.hh (LibCore/35_debug.hh 1.1 644))
+  (util/xstring.h (LibCore/36_xstring.h 1.1 644))
+  (util/strupr.c (LibCore/37_strupr.c 1.1 644))
+  (util/Handler.hh (LibCore/38_Handler.hh 1.4 644))
+  (util/Types.hh (LibCore/39_Types.hh 1.4 644))
+  (util/Trail.cc (LibCore/40_Trail.cc 1.5 644))
+  (util/Trail.hh (LibCore/41_Trail.hh 1.8 644))
+  (util/Makefile.in (LibCore/42_Makefile.i 1.3 644))
+  (util/NoTrail.hh (LibCore/43_NoTrail.hh 1.2 644))
+  (util/rusage.hh (LibCore/44_rusage.hh 1.2 644))
+  (util/rusage.cc (LibCore/45_rusage.cc 1.2 644))
+  (util/Buffer.hh (LibCore/46_Buffer.hh 1.13 644))
+  (util/List.hh (LibCore/47_List.hh 1.5.9.16 600))
+  (util/FixedSizeAllocator.hh (LibCore/48_FixedSizeA 1.2 644))
+  
+  (util/Buffer.cc (LibCore/50_Buffer.cc 1.9 644))
+  (sys/Pipe.cc (LibCore/b/1_Pipe.cc 1.5.1.3 600))
+  (sys/Pipe.hh (LibCore/b/2_Pipe.hh 1.5 644))
+  (sys/Signal.cc (LibCore/b/3_Signal.cc 1.6 644))
+  (sys/Signal.hh (LibCore/b/4_Signal.hh 1.4 644))
+  (sys/Time.cc (LibCore/b/5_Time.cc 1.4 644))
+  (sys/FileSet.cc (LibCore/b/6_FileSet.cc 1.3 644))
+  (sys/Address.cc (LibCore/b/7_Address.cc 1.3.1.4 644))
+  (sys/Time.hh (LibCore/b/8_Time.hh 1.6 644))
+  (sys/FileSet.hh (LibCore/b/9_FileSet.hh 1.2 644))
+  (sys/File.cc (LibCore/b/10_File.cc 1.12 644))
+  (sys/Address.hh (LibCore/b/11_Address.hh 1.8 644))
+  (sys/File.hh (LibCore/b/12_File.hh 1.6 644))
+  (sys/Makefile.in (LibCore/b/13_Makefile.i 1.1 644))
+  (sys/Listener.hh (LibCore/b/14_Listener.h 1.2 644))
+  (sys/Listener.cc (LibCore/b/15_Listener.c 1.1 644))
+  (gnu/malloc.h (LibCore/b/18_malloc.h 1.1 644))
+  (gnu/malloc.c (LibCore/b/19_malloc.c 1.1 644))
+  (gnu/regex.c (LibCore/b/20_regex.c 1.2 644))
+  (gnu/regex.h (LibCore/b/21_regex.h 1.2 644))
+  (gnu/error.cc (LibCore/b/22_error.cc 1.1 444))
+  
+  
+  
+  
+  
+  
+  
+  (gnu/Pix.h (LibCore/b/30_Pix.h 1.1 644))
+  (gnu/hash.cc (LibCore/b/32_hash.cc 1.1 444))
+  (gnu/std.h (LibCore/b/33_std.h 1.2 644))
+  (gnu/builtin.h (LibCore/b/34_builtin.h 1.1 644))
+  (gnu/MLCG.cc (LibCore/b/35_MLCG.cc 1.1 644))
+  (gnu/MLCG.h (LibCore/b/36_MLCG.h 1.1 644))
+  (gnu/RNG.cc (LibCore/b/37_RNG.cc 1.1 644))
+  (gnu/RNG.h (LibCore/b/38_RNG.h 1.1 644))
+  (gnu/GetOpt.cc (LibCore/b/39_GetOpt.cc 1.1 644))
+  (gnu/GetOpt.h (LibCore/b/40_GetOpt.h 1.1 644))
+  (gnu/Makefile.in (LibCore/b/41_Makefile.i 1.3 644))
+  (gnu/Random.cc (LibCore/b/42_Random.cc 1.1 644))
+  (gnu/Random.h (LibCore/b/43_Random.h 1.1 644))
+  (gnu/RndInt.cc (LibCore/b/44_RndInt.cc 1.1 644))
+  (gnu/RndInt.h (LibCore/b/45_RndInt.h 1.1 644))
+  (gnu/Uniform.cc (LibCore/b/46_Uniform.cc 1.1 644))
+  (gnu/Uniform.h (LibCore/b/47_Uniform.h 1.1 644))
+  (gnu/ACG.cc (LibCore/b/48_ACG.cc 1.1 644))
+  (gnu/ACG.h (LibCore/b/49_ACG.h 1.1 644))
+  (sched/Dispatcher.cc (LibCore/c/0_Dispatcher 1.9 644))
+  (sched/Job.cc (LibCore/c/1_Job.cc 1.4 644))
+  (sched/Timer.cc (LibCore/c/2_Timer.cc 1.5 644))
+  (sched/Dispatcher.hh (LibCore/c/3_Dispatcher 1.7 644))
+  (sched/Job.hh (LibCore/c/4_Job.hh 1.4 644))
+  (sched/Timer.hh (LibCore/c/5_Timer.hh 1.5 644))
+  (sched/Makefile.in (LibCore/c/6_Makefile.i 1.1 644))
+  (Makefile.in (LibCore/c/7_Makefile.i 1.12 644))
+  
+
+;; Files added by populate at Tue, 15 Jun 1999 08:41:37 -0700,
+;; to version 0.1(w), by govindan:
+
+  
+
+;; Files added by populate at Tue, 15 Jun 1999 08:41:58 -0700,
+;; to version 0.1(w), by govindan:
+
+  
+
+;; Files deleted by depopulate at Tue, 15 Jun 1999 11:33:09 -0700,
+;; from version 0.3(w), by govindan:
+
+  ; (config.status ())
+  ; (config.cache ())
+  ; (acconfig.h ())
+  ; (.aux/install-sh ())
+  ; (.aux/mkinstalldirs ())
+  ; (.aux/config.guess ())
+  ; (.aux/config.sub ())
+  ; (.aux/config.libs ())
+  ; (.aux/config.objects ())
+  ; (configure.in ())
+  ; (configure ())
+  ; (config.h.in ())
+
+;; Files deleted by depopulate at Tue, 15 Jun 1999 11:34:10 -0700,
+;; from version 0.3(w), by govindan:
+
+  ; (VERSION ())
+
+;; Files deleted by depopulate at Mon, 12 Jul 1999 16:56:04 -0700,
+;; from version 0.16(w), by govindan:
+
+  ; (util/Error.hh ())
+
+;; Files added by populate at Tue, 20 Jul 1999 11:46:07 -0700,
+;; to version 0.23(w), by cengiz:
+
+  (util/strlwr.c (LibCore/c/11_strlwr.c 1.1 644))
+  (util/strerror.c (LibCore/c/12_strerror.c 1.1 644))
+  (util/strchr.cc (LibCore/c/13_strchr.cc 1.1 644))
+
+;; Files deleted by populate at Tue, 20 Jul 1999 11:46:07 -0700,
+;; from version 0.23(w), by cengiz:
+
+  ; (gnu/SymID.defs.h ())
+  ; (gnu/SymID.VHSet.h ())
+  ; (gnu/SymID.Set.h ())
+  ; (gnu/SymID.VHSet.cc ())
+  ; (gnu/SymID.Set.cc ())
+  ; (gnu/prefixranges.hh ())
+  ; (gnu/SetOfSymID.hh ())
+  ; (util/DList.hh () :symlink)
+
+;; Files added by populate at Wed, 04 Aug 1999 10:37:20 -0700,
+;; to version 0.34(w), by cengiz:
+
+  (network/ICMProbe.cc (LibCore/c/14_ICMProbe.c 1.5 644))
+  (network/ICMProbe.hh (LibCore/c/15_ICMProbe.h 1.3 644))
+
+
+  (acconfig.h (LibCore/c/16_acconfig.h 1.8 644))
+  (configure.in (LibCore/c/17_configure. 1.17 644))
+;; Files added by populate at Wed, 11 Aug 1999 13:04:10 -0700,
+;; to version 0.37(w), by cengiz:
+
+  (.aux/install-sh (LibCore/c/25_install-sh 1.1 644))
+
+
+  (config.h.in (LibCore/c/23_config.h.i 1.10 644))
+  (.aux/mkinstalldirs (LibCore/c/24_mkinstalld 1.1 644))
+  (.aux/config.sub (LibCore/c/26_config.sub 1.1 755))
+  (.aux/config.objects (LibCore/c/27_config.obj 1.1 755))
+  (.aux/config.libs (LibCore/c/28_config.lib 1.1 755))
+  (.aux/config.incdirs (LibCore/c/29_config.inc 1.1 755))
+  (.aux/config.guess (LibCore/c/30_config.gue 1.1 755))
+
+  (configure (LibCore/c/31_configure 1.15 755))
+;; Files added by populate at Wed, 16 Feb 2000 13:03:48 -0800,
+;; to version 0.88(w), by cengiz:
+
+  (network/RouterMap.cc (LibCore/c/32_RouterMap. 1.4 644))
+  (network/RouterMap.hh (LibCore/c/33_RouterMap. 1.4.1.1 644))
+)
+(Merge-Parents
+  (0.106 complete
+    (sys/Address.hh sys/Address.hh sys/Address.hh m) 
+  )
+)
+(New-Merge-Parents)
