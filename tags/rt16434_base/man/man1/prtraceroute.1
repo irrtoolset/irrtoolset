@@ -1,0 +1,562 @@
+.\"
+.\"// Copyright (c) 2001,2002                        RIPE NCC
+.\"//
+.\"// All Rights Reserved
+.\"//
+.\"// Permission to use, copy, modify, and distribute this software and its
+.\"// documentation for any purpose and without fee is hereby granted,
+.\"// provided that the above copyright notice appear in all copies and that
+.\"// both that copyright notice and this permission notice appear in
+.\"// supporting documentation, and that the name of the author not be
+.\"// used in advertising or publicity pertaining to distribution of the
+.\"// software without specific, written prior permission.
+.\"//
+.\"// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+.\"// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+.\"// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+.\"// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\"// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\" 
+.\" Copyright (c) 1988 The Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms are permitted
+.\" provided that the above copyright notice and this paragraph are
+.\" duplicated in all such forms and that any documentation,
+.\" advertising materials, and other materials related to such
+.\" distribution and use acknowledge that the software was developed
+.\" by the University of California, Berkeley.  The name of the
+.\" University may not be used to endorse or promote products derived
+.\" from this software without specific prior written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+.\" WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.\"
+.\"  $Id$
+.\"
+.TH PRTRACEROUTE 8 "April 29, 1996"
+.UC 6
+.SH NAME
+prtraceroute \- print the route and policy information packets take to
+a network host.
+
+.SH SYNOPSIS
+.B prtraceroute
+[
+.B \-m
+max_tll
+] [
+.B \-n
+] [
+.B \-n
+] [
+.B \-p
+port
+] [
+.B \-q
+nqueries
+] [
+.B \-r
+] [
+.B \-s
+src_addr
+] [
+.B \-t
+tos
+] [
+.B \-v
+] [
+.B \-w
+waittime
+]
+.I host
+[
+.I packetsize
+]
+.SH DESCRIPTION
+Prtraceroute works just as the original traceroute with
+the addition of 
+.I routing policy
+analysis as provided by the Internet Routing Registery (IRR).  
+Prtraceroute will record the series of gateways traversed by packets
+from the originating host to the destination host, including policy
+analysis for each hop.
+.PP
+Routing in the Internet is a
+two level hiearchy.  The highest level of routing is performed
+between Autonomous Systems (AS), typically using the Border Gateway
+Protocol (BGP).  The second level of routing occurs within each AS and
+is administered independently by each AS.  The routing policies, as
+registered in the IRR indicate the policies that each AS uses to
+communicate with all of it's 
+.I peer 
+ASs.  
+.I Prtraceroute 
+will display the route actually taken and how that route compares with
+the information maintained in the IRR.
+.PP
+prtraceroute ignores error and warning messages due to communication to the
+database server or parsing policy objects.
+Please see \-ignore_errors and \-report_errors options below.
+.PP
+.SH IRRToolSet COMMON OPTIONS
+.IP -help
+Print summary of command-line options and abort.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> 
+(if compiled with DEBUG defined).
+.IP "\-version"
+Print the version number and quit.
+.IP "\-h <host-name>"
+Establish a whois connection to host <host-name>.
+The default is whois.radb.net.
+.IP "\-p <port-no>"
+Establish a whois connection to port <port-no>.
+The default is 43.
+.IP \-rusage
+Print resource usage upon completion.
+.IP "\-ignore_errors"
+Do not print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-report_errors"
+Print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-protocol <protocol>"
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd), ripe(bird), and ripe_perl. The default is irrd. The ripe_perl option should be used with the old ripe server.
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>.
+If an object is defined in multiple sources in <source-list>,
+pmatch uses the definition first encountered in <source-list>
+from left to right.
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the IRR host to connect.
+.IP IRR_PORT
+Specifies the IRR port number to connect.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH OTHER OPTIONS
+.RS
+.TP 5 5
+.BI \-m\  n
+Set the max time-to-live (max number of hops) used in outgoing probe
+packets.  The default is 30 hops (the same default used for TCP
+connections).
+.TP
+.B \-n
+Print hop addresses numerically rather than symbolically and numerically
+(saves a nameserver address-to-name lookup for each gateway found on the
+path).
+.TP
+.BI \-p\  n
+Set the base UDP port number used in probes (default is 33434).
+.I Traceroute 
+hopes that nothing is listening on UDP ports
+.I base
+to
+.I base+nhops-1
+at the destination host (so an ICMP PORT_UNREACHABLE message will
+be returned to terminate the route tracing).  If something is
+listening on a port in the default range, this option can be used
+to pick an unused port range.
+.TP
+.B \-r
+Bypass the normal routing tables and send directly to a host on an attached
+network.
+If the host is not on a directly-attached network,
+an error is returned.
+This option can be used to ping a local host through an interface
+that has no route through it (e.g., after the interface was dropped by
+.IR routed (8C)).
+.TP
+.BI \-s\  addr
+Use 
+.I addr
+as the IP address (which must be given as an IP number,
+not a hostname) as the source address in outgoing probe packets.
+On hosts with more than one IP address, this option can be used to
+force the source address to be something other than the IP address
+of the interface the probe packet is sent on.
+If the IP address is not one of this machine's interface addresses,
+an error is returned and nothing is sent.
+.TP 8 8
+.BI \-s\  addr
+Use
+.I addr
+as the IP address (which must be given as an IP number,
+not a hostname) as the source address in outgoing probe packets.
+On hosts with more than one IP address, this option can be used to
+force the source address to be something other than the IP address
+of the interface the probe packet is sent on.
+If the IP address is not one of this machine's interface addresses,
+an error is returned and nothing is sent.
+.TP 8 8
+.BI \-g\  addr
+Enable the IP LSRR (Loose Source Record Route) option in addition to the
+TTL tests.
+This is useful for asking how somebody else, at IP address
+.IR addr ,
+reaches a particular target.
+.TP 8 8
+.BI \-t\  tos
+Set the
+.I type-of-service
+in probe packets to the following value (default zero).
+The value must be a decimal integer in the range 0 to 255.
+This option can be used to see if different types-of-service result
+in different paths.
+(If you are not running 4.4bsd, this may be academic since the normal network
+services like telnet and ftp don't let you control the TOS).
+Not all values of TOS are legal or meaningful \- see the IP spec
+for definitions.
+Useful values are probably `\-t 16' (low delay) and `\-t 8' (high throughput).
+.TP 5 5
+.B \-v
+Verbose output.
+Received ICMP packets other than TIME_EXCEEDED and UNREACHABLEs are listed.
+.TP 5 5
+.BI \-w\  n
+Set the time to wait for a response to a probe to
+.I n
+seconds (default 3 sec.).
+.PP
+This program attempts to trace the route an IP packet would follow to some
+internet host by launching UDP probe packets with a small ttl (time to live)
+then listening for an ICMP "time exceeded" reply from a gateway.
+We start our probes with a ttl of one and increase by one until we get an
+ICMP "port unreachable" (which means we got to "host") or hit a max (which
+defaults to 30 hops & can be changed with the
+.B \-m
+flag).
+Three probes (change with
+.B \-q
+flag) are sent at each ttl setting and a line is printed showing the ttl,
+address of the gateway and round trip time of each probe.
+If the probe answers come from different gateways,
+the address of each responding system will be printed.
+If there is no response within a 3 sec. timeout interval (changed with the
+.B \-w
+flag), a "*" is printed for that probe.
+.PP
+We don't want the destination host to process the UDP probe packets
+so the destination port is set to an unlikely value (if some clod on
+the destination is using that value, it can be changed with the
+.B \-p
+flag).
+.PP
+A sample use and output might be:
+.PP
+.RS
+.nf
+[yak 71]% traceroute nis.nsf.net.
+traceroute to nis.nsf.net (35.1.1.48), 30 hops max, 56 byte packet
+ 1  helios.ee.lbl.gov (128.3.112.1)  19 ms  19 ms  0 ms
+ 2  lilac-dmc.Berkeley.EDU (128.32.216.1)  39 ms  39 ms  19 ms
+ 3  lilac-dmc.Berkeley.EDU (128.32.216.1)  39 ms  39 ms  19 ms
+ 4  ccngw-ner-cc.Berkeley.EDU (128.32.136.23)  39 ms  40 ms  39 ms
+ 5  ccn-nerif22.Berkeley.EDU (128.32.168.22)  39 ms  39 ms  39 ms
+ 6  128.32.197.4 (128.32.197.4)  40 ms  59 ms  59 ms
+ 7  131.119.2.5 (131.119.2.5)  59 ms  59 ms  59 ms
+ 8  129.140.70.13 (129.140.70.13)  99 ms  99 ms  80 ms
+ 9  129.140.71.6 (129.140.71.6)  139 ms  239 ms  319 ms
+10  129.140.81.7 (129.140.81.7)  220 ms  199 ms  199 ms
+11  nic.merit.edu (35.1.1.48)  239 ms  239 ms  239 ms
+.fi
+.RE
+.PP
+Note that lines 2 & 3 are the same.  This is due to a buggy
+kernel on the 2nd hop system \- lbl-csam.arpa \- that forwards
+packets with a zero ttl (a bug in the distributed version of 4.3BSD).
+.PP
+A more interesting example is:
+.PP
+.RS
+.nf
+[yak 72]% traceroute allspice.lcs.mit.edu.
+traceroute to allspice.lcs.mit.edu (18.26.0.115), 30 hops max
+ 1  helios.ee.lbl.gov (128.3.112.1)  0 ms  0 ms  0 ms
+ 2  lilac-dmc.Berkeley.EDU (128.32.216.1)  19 ms  19 ms  19 ms
+ 3  lilac-dmc.Berkeley.EDU (128.32.216.1)  39 ms  19 ms  19 ms
+ 4  ccngw-ner-cc.Berkeley.EDU (128.32.136.23)  19 ms  39 ms  39 ms
+ 5  ccn-nerif22.Berkeley.EDU (128.32.168.22)  20 ms  39 ms  39 ms
+ 6  128.32.197.4 (128.32.197.4)  59 ms  119 ms  39 ms
+ 7  131.119.2.5 (131.119.2.5)  59 ms  59 ms  39 ms
+ 8  129.140.70.13 (129.140.70.13)  80 ms  79 ms  99 ms
+ 9  129.140.71.6 (129.140.71.6)  139 ms  139 ms  159 ms
+10  129.140.81.7 (129.140.81.7)  199 ms  180 ms  300 ms
+11  129.140.72.17 (129.140.72.17)  300 ms  239 ms  239 ms
+12  * * *
+13  128.121.54.72 (128.121.54.72)  259 ms  499 ms  279 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  ALLSPICE.LCS.MIT.EDU (18.26.0.115)  339 ms  279 ms  279 ms
+.fi
+.RE
+.PP
+Note that the gateways 12, 14, 15, 16 & 17 hops away
+either don't send ICMP "time exceeded" messages or send them
+with a ttl too small to reach us.
+14 \- 17 are running the MIT C Gateway code that doesn't
+send "time exceeded"s.
+God only knows what's going on with 12.
+.PP
+The silent gateway 12 in the above may be the result of a bug in
+the 4.[23]BSD network code (and its derivatives):  4.x (x <= 3)
+sends an unreachable message using whatever ttl remains in the
+original datagram.
+Since, for gateways, the remaining ttl is zero, the ICMP "time exceeded"
+is guaranteed to not make it back to us.
+The behavior of this bug is slightly more interesting when it
+appears on the destination system:
+.PP
+.RS
+.nf
+ 1  helios.ee.lbl.gov (128.3.112.1)  0 ms  0 ms  0 ms
+ 2  lilac-dmc.Berkeley.EDU (128.32.216.1)  39 ms  19 ms  39 ms
+ 3  lilac-dmc.Berkeley.EDU (128.32.216.1)  19 ms  39 ms  19 ms
+ 4  ccngw-ner-cc.Berkeley.EDU (128.32.136.23)  39 ms  40 ms  19 ms
+ 5  ccn-nerif35.Berkeley.EDU (128.32.168.35)  39 ms  39 ms  39 ms
+ 6  csgw.Berkeley.EDU (128.32.133.254)  39 ms  59 ms  39 ms
+ 7  * * *
+ 8  * * *
+ 9  * * *
+10  * * *
+11  * * *
+12  * * *
+13  rip.Berkeley.EDU (128.32.131.22)  59 ms !  39 ms !  39 ms !
+.fi
+.RE
+.PP
+Notice that there are 12 "gateways" (13 is the final
+destination) and exactly the last half of them are "missing".
+What's really happening is that rip (a Sun-3 running Sun OS3.5)
+is using the ttl from our arriving datagram as the ttl in its ICMP reply.
+So, the reply will time out on the return path (with no notice sent
+to anyone since ICMP's aren't sent for ICMP's)
+until we probe with a ttl that's at least twice the path length.
+I.e., rip is really only 7 hops away.
+A reply that returns with a ttl of 1 is a clue this problem exists.
+.I Traceroute
+prints a "!" after the time if the ttl is <= 1.
+Since vendors ship a lot of obsolete (DEC's Ultrix, Sun 3.x) or
+non-standard (HPUX) software, expect to see this problem
+frequently and/or take care picking the target host of your probes.
+.PP
+Other possible annotations after the time are
+.BR !H ,
+.BR !N ,
+.B !P
+(got a host, network or protocol unreachable, respectively),
+.br
+.B !S
+or
+.B !F
+(source route failed or fragmentation needed \- neither of these should
+ever occur and the associated gateway is busted if you see one).
+If almost all the probes result in some kind of unreachable,
+.I traceroute
+will give up and exit.
+.PP
+.RS
+traceroute \-g 10.3.0.5 128.182.0.0
+.RE
+.PP
+will show the path from the Cambridge Mailbridge to PSC while
+.PP
+.RS
+traceroute \-g 192.5.146.4 \-g 10.3.0.5 35.0.0.0
+.RE
+.PP
+shows how the Cambridge Mailbrige reaches Merit,
+by using PSC to reach the Mailbridge.
+.PP
+This program is intended for use in network testing, measurement
+and management.
+It should be used primarily for manual fault isolation.
+Because of the load it could impose on the network, it is unwise to use
+.I traceroute
+during normal operations or from automated scripts.
+
+.SH POLICY EXAMPLE
+An example run could produce the following output.
+.RS
+.nf
+[1335] kit.isi.edu > prtraceroute ftp.ripe.net
+prtraceroute to ftp.ripe.net (193.0.0.195), 30 hops max, 12 byte packets 
+ 1  [AS226] cisco2-160.isi.edu (128.9.160.2)  9.531 ms  9.755 ms  8.841 ms
+ 2  [AS226] ln-gw32.isi.edu (128.9.32.1)  124.38 ms  15.269 ms  17.034 ms
+ 3  [AS226] 130.152.168.1 (130.152.168.1)  16.77 ms  10.429 ms  10.187 ms
+ 4  [AS2150] SWRL-ISI-GW.LN.NET (204.102.78.2)  63.025 ms  193.177 ms  17.107 ms
+ 5  [AS3561] border1-hssi1-0.Bloomington.mci.net (204.70.48.5)  16.474 ms  15.876 ms  15.211 ms
+ 6  [AS3561] core1-fddi-0.Bloomington.mci.net (204.70.2.129)  53.068 ms  215.841 ms  40.662 ms
+ 7  [AS3561] core1.Washington.mci.net (204.70.4.129)  79.217 ms  84.029 ms  82.851 ms
+ 8  [AS3561] core1-hssi-3.NewYork.mci.net (204.70.1.6)  85.65 ms  85.414 ms  84.62 ms
+ 9  [AS3561] 204.70.2.30 (204.70.2.30)  84.562 ms  85.313 ms  85.524 ms
+10  [AS3561] surfnet.NewYork.mci.net (204.189.136.154)  186.696 ms  194.363 ms  184.965 ms
+11  [AS1103] Amsterdam2.router.surfnet.nl (145.41.6.66)  195.545 ms  195.767 ms  187.228 ms
+12  [AS1200] Amsterdam.ripe.net (193.148.15.68)  193.955 ms  196.1 ms  182.065 ms
+13  [AS3333] info.ripe.net (193.0.0.195)  211.185 ms  265.305 ms  278.876 ms
+
+Path taken: AS226 AS2150 AS3561 AS1103 AS1200 AS3333 
+
+ 13   AS3333 info.ripe.net                     destination -> !as-out 
+ 12   AS1200 Amsterdam.ripe.net                     !as-in -> as-out 
+ 11   AS1103 Amsterdam2.router.surfnet.nl           !as-in -> as-out 
+ 10   AS3561 surfnet.NewYork.mci.net              as-in: 1 -> internal 
+  9   AS3561 204.70.2.30                          internal -> internal 
+  8   AS3561 core1-hssi-3.NewYork.mci.net         internal -> internal 
+  7   AS3561 core1.Washington.mci.net             internal -> internal 
+  6   AS3561 core1-fddi-0.Bloomington.mci.net     internal -> internal 
+  5   AS3561 border1-hssi1-0.Bloomington.mci.net  internal -> as-out 
+  4   AS2150 SWRL-ISI-GW.LN.NET                     !as-in -> !as-out 
+  3    AS226 130.152.168.1                          !as-in -> internal 
+  2    AS226 ln-gw32.isi.edu                      internal -> internal 
+  1    AS226 cisco2-160.isi.edu                   internal -> internal 
+  0    AS226 kit.isi.edu                          internal -> source 
+
+.fi
+.RE
+
+The first group of lines (1-13) are similiar to the output of
+traceroute with one addition, the AS number is included in square
+brackets, for example cisco2-160.isi.edu is in AS226.  
+
+The second part of the output:
+.RS
+.nf
+
+Path taken: AS226 AS2150 AS3561 AS1103 AS1200 AS3333 
+
+.fi
+.RE
+
+simply lists the ASs traversed by this route.  
+
+.PP
+The third part of the output provides the policy analysis as
+registered in  the IRR.   Notice that 
+the output is provided in reverse order, or destination first until
+the source.  This reflects the manner in which routes are advertised
+and propagated in the Internet.  In other words, AS3333 announces the
+prefix "193.0.0.0/24" which "info.ripe.net (193.0.0.195)" belongs.
+AS1200, accepts the prefix and in turn announces it according to it's
+as-out policies and so on.  As an example, the first three fields are
+
+ 10  AS3561 surfnet.NewYork.mci.net   as-in: 1 -> internal
+
+The TTL, AS and Gateway fields are the same as we have seen.  
+The 'as-in: 1 - internal' part of the above output describes the
+routing policy registered in the IRR.  The first field 'as-in: 1' is
+the 
+.I import 
+field and the 'internal' is the 
+.I export
+field.  In this example, 'as-in: 1' in the import field means that
+the prefix was accepted via an as-in policy and the 1 indicates that
+it was the highest preference (a 2 would indicate the second most
+prefered, etc.)  The  
+.I export 
+field contains 'internal', meaning the next hop is in the same AS as 
+the current hop.  Following is a list of possible values that can be
+present in the 
+.I import
+field:
+
+.TP
+.B Destination 
+Current hop is the destination host.
+.TP
+.B Internal
+The current hop and next hop (TTL+1) belong to the same AS.
+.TP
+.B as-in: 1 
+The prefix announcement from the next hop AS (TTL+1) was the first
+preferred hop from the current AS to the destination prefix.  A value
+of 2 would indicate that the next hop was the second preferred route
+according to the current hop, and so on. 
+.TP
+.B default: 1 
+TTL+1 was the first preferred default route.  A value of 2 would
+indicate that the next hop was the second prefeered default, etc. 
+.TP
+.B !as-in
+The current AS has no registered 
+.I as-in 
+or 
+.I default 
+policy to accept prefixes being exported from the next hop (TTL+1). 
+
+
+.PP
+The following list describes the possible values that can be provided
+in the 
+.I export
+field of the analysis portion of the output.
+.TP
+.B Source
+This host is the source of the execution
+.TP
+.B Internel
+The current hop is the same AS as previous hop (TTL-1).
+.TP
+.B as-out
+This indicates that the current AS announces the
+prefix to the previous AS.
+.TP
+.B !as-out
+This indicates that the current AS has no policy to
+announce the prefix to the previous hop.
+.PP
+From our example above,
+.RS
+.nf
+
+ 13   AS3333 info.ripe.net                       destination - !as-out 
+ 12   AS1200 Amsterdam.ripe.net                      !as-in - as-out 
+ 11   AS1103 Amsterdam2.router.surfnet.nl            !as-in - as-out 
+ 10   AS3561 surfnet.NewYork.mci.net               as-in: 1 - internal 
+  9   AS3561 204.70.2.30                           internal - internal 
+.fi
+.RE
+.PP
+we can conclude: That info.ripe.net was the destination host and is
+part of AS3333.  AS3333 provides no as-out policy announcing prefix
+193.0.0.0/24 to AS1200 and AS1200 provides no as-in policy accepting
+prefix 193.0.0.0/24 from AS3333.  This flags a two way policy
+inconsistency between AS3333 and AS1200.  AS1200 announces to AS1103
+and AS1103 has no policy to accept the prefix from AS1200.  This
+indicates incomplete policy information for AS1103 on behalf of
+AS1200.  AS1103 announces to AS3561 and that AS3561 uses AS1103 as
+it's most preferred route for the prefix in question.  This is the
+only policy that is complete by both ASs in this example.  Finally the
+hop between surfnet.NewYork.mci.net and 204.70.2.30 is internel since
+both gateways belong to AS361.            
+.SH AUTHOR
+The original 
+.I traceroute
+was implemented by Van Jacobson from a suggestion by Steve Deering.
+Debugged by a cast of thousands with particularly cogent suggestions
+or fixes from C. Philip Wood, Tim Seaver and Ken Adelman.  The code
+was then mangled into C++ and the Routing Policy support was added for
+this version of prtraceroute.
+.SH SEE ALSO
+.IR netstat (1),
+.IR ping (8),
+.IR prpath (1)
+.IR peval (1)
+
+
+ 
+

@@ -1,0 +1,14 @@
+id: 012
+summary: FilterSet names not resolved in prpath 
+owner: katie
+status: closed
+priority: high
+program: prpath
+module(s)e: bgp 
+reported: unknown
+closed: unknown
+
+detail:
+
+fixed in bgproute.cc
+
