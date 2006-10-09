@@ -183,7 +183,8 @@ Buffer::append(const char *buf, unsigned long sz)
 {
    if (size + sz + 1 > capacity)
       extend(sz);
-   strcat(contents, buf);
+   
+   memmove(contents+size, buf, sz+1);
    size += sz;
 }
 
@@ -226,7 +227,7 @@ void Buffer::flush(unsigned long sz, unsigned long atOffset) {
 
    assert(atOffset + sz <= size);
 
-   memcpy(contents + atOffset, contents + atOffset + sz, size - atOffset - sz);
+   memmove(contents + atOffset, contents + atOffset + sz, size - atOffset - sz);
 
    size -= sz;
    if (offset >= atOffset)

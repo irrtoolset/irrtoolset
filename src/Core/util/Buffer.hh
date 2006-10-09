@@ -80,6 +80,7 @@ class Buffer : public ListNode {
     // Initiated a callee allocated buffer
     Buffer(unsigned long sz) : ListNode() {
         contents = (char *) malloc(sz);
+	contents[0] = '\0';
         capacity = sz;
         size = 0;
         offset = 0;

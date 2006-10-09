@@ -166,7 +166,7 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
    } while (!found);
 
    Buffer *result = response;
-   if (endOfQuery+2 == response->size) {
+   if (endOfQuery+2 >= response->size) {
       response = NULL;
    } else { // there is stuff after the response
       int fullSize = response->size;
@@ -188,6 +188,9 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
       << "]"
       << endl;
 
+
+   text = result->contents;
+   len = result->size;
    return true;
 }
 

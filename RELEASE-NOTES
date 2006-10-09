@@ -1,6 +1,16 @@
 Release Notes for IRRToolSet
 ****************************
 
+Version 4.8.4:
+
+A couple of crash bugs reported by Hagen Boehm were fixed.
+
+Hagen has also reported a bug in the handling of more-specific
+specifiers for IPv6 prefixes. He has submitted a patch, but under
+certain circumstances this causes applications to use a huge amount of
+memory and CPU, so it has not been included in this release. A full
+fix will be integrated later.
+
 Version 4.8.3:
 
 A set of patches collected by Hagen Boehm was applied.
