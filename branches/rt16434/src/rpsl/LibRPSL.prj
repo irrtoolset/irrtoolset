@@ -1,0 +1,109 @@
+;; -*- Prcs -*-
+(Created-By-Prcs-Version 1 2 16)
+(Project-Description "RPSL Library")
+(Project-Version LibRPSL 0 48)
+(Parent-Version LibRPSL 0 47)
+(Version-Log "")
+(New-Version-Log "")
+(Checkin-Time "Thu, 06 Sep 2001 08:44:12 -0700")
+(Checkin-Login cengiz)
+(Populate-Ignore (
+                  ; dont save backup files
+                  "~$" "\\.bak$"
+                  ; dont save objects/executables/cores
+                  "src/bird$" "\\.o$" "\\.a$" "a.out$" "core$"
+                  ; latex/tex generated files
+                  "\\.dvi$" "\\.aux$" "\\.log$"
+                  ; we use configure, dont save makefiles
+                  "Makefile$" "makedep$" "eddep$" "\\.deps"
+                  ; prcs may creat this directory
+                  "obsolete" ".conflicting$"
+                  ; yacc/bison generated files
+                  "\\.y\\.cc$" "\\.y\\.hh$" "\\.y\\.c$" "\\.y\\.h$"
+                  "y.tab.c" "y.tab.h" "xx_parser.cc$" "xx_parser.h$"
+                  "ro_parser.cc$" "ro_parser.h$"
+                  ; flex generated file
+                  "\\.l\\.cc$" "\\.l\\.hh$" "\\.l\\.c$" "\\.l\\.h$"
+                  "lex\\..*\\.c" "xx_lexer.cc$" "ro_lexer.cc$"
+                  "bgp_lexer.cc$" "bgp_dump.cc$"
+                  ; dont save program generated files
+                  "\\.gdb_" "TAGS$"
+                  ; configure stuff
+                  "config.status$" "config.cache$" "^config.h$" "/config.h$"
+                  ; nfs caches
+                  "\\.nfs"
+                  ; binary files
+                  "peval$" "pmatch$" "prpath$" "RtConfig$" "CIDRAdvisor$"
+                  "prcheck$" "irrstat$" "roe$" "aoe$" "relayd$"
+                  "prtraceroute$" "cidrasst$" "rpslcheck$"
+                  ; Files generated from Tk
+		  "\\.tk\\.cc$"
+                  "update_irr.cc$" "layout.cc$" "fileselect.cc$" "utils.cc$"
+                  ; Version file
+                  "version.cc$"
+                  ))
+(Project-Keywords)
+(Files
+;; This is a comment.  Fill in files here.
+;; For example:  (prcs/checkout.cc ())
+
+;; Files added by populate at Tue, 20 Jul 1999 11:51:20 -0700,
+;; to version 0.0(w), by cengiz:
+
+  (Makefile.in (LibRPSL/0_Makefile.i 1.1 644))
+  (gnu/builtin.h (LibRPSL/1_builtin.h 1.1 644))
+  (gnu/std.h (LibRPSL/2_std.h 1.1 644))
+  (gnu/Pix.h (LibRPSL/3_Pix.h 1.1 644))
+  (gnu/prefixranges.hh (LibRPSL/4_prefixrang 1.1 644))
+  (gnu/PrefixRange.defs.h (LibRPSL/5_PrefixRang 1.1 644))
+  (gnu/PrefixRange.XPlex.h (LibRPSL/6_PrefixRang 1.1 644))
+  (gnu/PrefixRange.XPlex.cc (LibRPSL/7_PrefixRang 1.1 644))
+  (gnu/PrefixRange.Plex.h (LibRPSL/8_PrefixRang 1.1 644))
+  (gnu/PrefixRange.Plex.cc (LibRPSL/9_PrefixRang 1.1 644))
+  (gnu/SymID.defs.h (LibRPSL/10_SymID.defs 1.1 644))
+  (gnu/SymID.VHSet.h (LibRPSL/11_SymID.VHSe 1.1 644))
+  (gnu/SymID.VHSet.cc (LibRPSL/12_SymID.VHSe 1.1 644))
+  (gnu/Makefile.in (LibRPSL/13_Makefile.i 1.2 644))
+  (gnu/SymID.Set.h (LibRPSL/14_SymID.Set. 1.1 644))
+  (gnu/SymID.Set.cc (LibRPSL/15_SymID.Set. 1.1 644))
+  (gnu/SetOfSymID.hh (LibRPSL/16_SetOfSymID 1.1 644))
+  (rpsl/symbols.hh (LibRPSL/17_symbols.hh 1.1 644))
+  (rpsl/symbols.cc (LibRPSL/18_symbols.cc 1.1 644))
+  (rpsl/schema_rpsl.cc (LibRPSL/19_schema_rps 1.15 644))
+  (rpsl/schema.hh (LibRPSL/20_schema.hh 1.2 644))
+  (rpsl/schema.cc (LibRPSL/21_schema.cc 1.3 644))
+  (rpsl/rptype.hh (LibRPSL/22_rptype.hh 1.5 644))
+  (rpsl/rptype.cc (LibRPSL/23_rptype.cc 1.4 644))
+  (rpsl/rpsl_policy.hh (LibRPSL/24_rpsl_polic 1.1 644))
+  (rpsl/rpsl_policy.cc (LibRPSL/25_rpsl_polic 1.1 644))
+  (rpsl/rpsl_item.hh (LibRPSL/26_rpsl_item. 1.3 644))
+  (rpsl/rpsl_item.cc (LibRPSL/27_rpsl_item. 1.5 644))
+  (rpsl/rpsl_filter.hh (LibRPSL/28_rpsl_filte 1.1 644))
+  (rpsl/rpsl_filter.cc (LibRPSL/29_rpsl_filte 1.1 644))
+  (rpsl/rpsl_attr.hh (LibRPSL/30_rpsl_attr. 1.8 644))
+  (rpsl/rpsl_attr.cc (LibRPSL/31_rpsl_attr. 1.4 644))
+  (rpsl/rpsl.y (LibRPSL/32_rpsl.y 1.9 644))
+  (rpsl/rpsl.l (LibRPSL/33_rpsl.l 1.16 644))
+  (rpsl/rpsl.hh (LibRPSL/34_rpsl.hh 1.1 644))
+  (rpsl/regexp.hh (LibRPSL/35_regexp.hh 1.4 644))
+  (rpsl/regexp.cc (LibRPSL/36_regexp.cc 1.6 644))
+  (rpsl/rangelist.hh (LibRPSL/37_rangelist. 1.3 644))
+  (rpsl/rangelist.cc (LibRPSL/38_rangelist. 1.3 644))
+  (rpsl/prefix.hh (LibRPSL/39_prefix.hh 1.1 644))
+  (rpsl/prefix.cc (LibRPSL/40_prefix.cc 1.1.1.2 644))
+  (rpsl/object_log.l (LibRPSL/41_object_log 1.1 644))
+  (rpsl/object_log.hh (LibRPSL/42_object_log 1.1 644))
+  (rpsl/object.hh (LibRPSL/43_object.hh 1.3 644))
+  (rpsl/object.cc (LibRPSL/44_object.cc 1.3 644))
+  (rpsl/Makefile.in (LibRPSL/45_Makefile.i 1.4 644))
+
+
+  (config.guess (LibRPSL/46_config.gue 1.2 755))
+  (config.sub (LibRPSL/47_config.sub 1.1 755))
+  (install-sh (LibRPSL/48_install-sh 1.1 755))
+  (config.h.in (LibRPSL/49_config.h.i 1.5 644))
+  (configure (LibRPSL/50_configure 1.7 755))
+  (acconfig.h (LibRPSL/51_acconfig.h 1.3 644))
+  (configure.in (LibRPSL/b/0_configure. 1.7 644)))
+(Merge-Parents)
+(New-Merge-Parents)
