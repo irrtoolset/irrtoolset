@@ -743,7 +743,6 @@ void CiscoConfig::printRE(ostream &s,
    if (!CiscoConfig::printRE_(out, r)) // true if the expression was missing $
       out << "_";
    out << "\n";
-   out << ends;
 
    //int lineLen = strlen(out.str());
    int lineLen = out.str().length();
