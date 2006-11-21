@@ -108,7 +108,7 @@ void Abort() {
 }
 
 void copy_constructor(char *p) {
-   cerr << "Copy constructor called for " << p << "\n";
+   std::cerr << "Copy constructor called for " << p << std::endl;
 }
 
 #endif /* DEBUG */
