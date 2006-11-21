@@ -83,7 +83,6 @@ extern "C" {
 #endif
 }
 
-
 double tv2f(timeval &tv)
 /* Converts a timeval into a double giving the time in seconds. */
 {
@@ -114,7 +113,7 @@ ostream& operator<<(ostream& stream, Rusage& ru) {
     stime = tv2f(self.ru_stime) - ru.last_stime;
     rtime = tv2f(end_time)      - ru.last_rtime;
 
-    stream << fixed << setprecision(2);
+    stream << setiosflags(ostream::fixed) << setprecision(2);
     stream <<  "     times:    "
            << utime << " "
            << stime << " "
@@ -137,7 +136,7 @@ ostream& operator<<(ostream& stream, Rusage& ru) {
     stream << "     vo/nv cs: "
            << self.ru_nvcsw << " "
            << self.ru_nivcsw << endl;
-    stream << scientific << setprecision(0);
+    stream << setiosflags(ostream::scientific) << setprecision(0);
     return stream;
 }
 
