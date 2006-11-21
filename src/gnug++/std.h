@@ -19,7 +19,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #ifndef _std_h
 #define _std_h 1
 
-#include <_G_config.h>
+#include <config.h>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -28,8 +28,10 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #include <cerrno>
 #include <fcntl.h>
 
+#ifndef HAVE_STRINGS_H
 extern "C" {
-int strcasecmp _G_ARGS((const char*, const char*));
+int strcasecmp __P((const char*, const char*));
 }
+#endif
 
 #endif 
