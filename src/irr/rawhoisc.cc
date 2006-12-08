@@ -298,9 +298,11 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
    if (is_rpslng()) {
-      response = strdup("");
-      char *prev;
+      response = new char[1];
+      response[0] = '\0';
+      char *prev = NULL;
       do {
+      	free(prev);
         prev = strdup(buffer);
         Trace(TR_WHOIS_RESPONSE) << "Whois: Response <<\n" << buffer <<">>"<< endl;
         if (strstr (buffer, "route") || strstr(buffer, "route6")) {
@@ -315,18 +317,20 @@ int RAWhoisClient::Response(char *&response) {
           // save response
           tmp = strdup (response);
           // allocate new string
+          delete [] response;
           response = new char [strlen(tmp) + strlen(end_prefix) + 2];
-          memset(response, 0, strlen(response));
           // copy old and new response
-          strncat (response, tmp, strlen(tmp));
-          strncat (response, " ", 1);
-          strncat (response, end_prefix, strlen(end_prefix));
+          strcpy(response, tmp, strlen(tmp));
+          strcat(response, " ");
+          strcat(response, end_prefix);
           free(tmp);
         }
       } while (fgets(buffer, sizeof(buffer), in) && 
       // this condition should work with irrd version >= 2.2b19
       // until then, ripe-style queries won't work with persistent connections
                !((*prev == '\n') && (*buffer == '\n')));
+
+      free(prev);
 
       // The WHOIS protocol and RPSL give no indication of
       // end of a protocol data unit, so we need to keep
