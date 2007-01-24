@@ -1,0 +1,24 @@
+! execute
+!       RtConfig -h rpsl.merit.edu < eg:cisco
+! and see the below @RtConfig line replaced by filters
+!
+version 10.3
+!
+interface Ethernet0/0
+ ip address 198.32.4.1 255.255.255.0
+!
+! other usual cisco command should be put around here
+!
+router bgp 3561
+ neighbor 198.32.4.25 remote-as 4551
+!
+@RtConfig set cisco_map_name = "mymap"
+@RtConfig set cisco_access_list_no = 500
+@RtConfig import AS3561 1.1.1.1 AS114 1.1.1.2
+! 
+!
+@RtConfig set cisco_map_name = "mymapout"
+@RtConfig export AS3561 1.1.1.1 AS3 1.1.1.2
+!
+! other usual cisco command should be put around here
+end
