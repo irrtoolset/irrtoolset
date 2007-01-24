@@ -139,7 +139,7 @@ public:
    RadixTree *makeMoreSpecific(int code, int n, int m);
 
 public:
-   void RadixTree::print() const;
+   void print() const;
 
 protected:
    RadixTree();

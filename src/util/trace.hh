@@ -71,12 +71,12 @@ private:
    Tracer(Tracer& a) {} // private so no temporaries for Tracer
 public:
    Tracer();
-   void Tracer::enable(int level);
-   void Tracer::disable(int level);
-   int  Tracer::enabledp(int level);
-   void Tracer::enable(char *tracename);
-   void Tracer::disable(char *tracename);
-   int  Tracer::enabledp(char *tracename);
+   void enable(int level);
+   void disable(int level);
+   int  enabledp(int level);
+   void enable(char *tracename);
+   void disable(char *tracename);
+   int  enabledp(char *tracename);
 
 private:
    long int enabled;
