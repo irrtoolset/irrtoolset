@@ -187,7 +187,7 @@ void RAWhoisClient::CheckConnection() {
 }
 
 void RAWhoisClient::GetVersion() {
-   char *buffer = (char *) calloc (80,1);
+   char *buffer;
    char *start;
 
    if (! _is_open)
@@ -199,7 +199,7 @@ void RAWhoisClient::GetVersion() {
    start = start + 8; //jump
    version = atoi(start)*10 + atoi(start+2); // x.x... format  
    Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
-   free(buffer);
+   delete [] buffer;
 }
 
 void RAWhoisClient::SetSources(const char *_sources) {
