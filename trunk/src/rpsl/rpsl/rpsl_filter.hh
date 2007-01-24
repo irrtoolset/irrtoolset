@@ -509,7 +509,7 @@ public:
    virtual ~FilterAFI() {}
 
    virtual std::ostream& print(std::ostream &out) const;
-   virtual Filter* FilterAFI::dup() const {
+   virtual Filter* dup() const {
       return new FilterAFI(*this);
    }
 #ifdef DEBUG
