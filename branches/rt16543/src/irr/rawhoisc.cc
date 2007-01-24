@@ -298,39 +298,46 @@ int RAWhoisClient::Response(char *&response) {
       return 0;
    }
    if (is_rpslng()) {
+      int wasnl = 0;
       response = new char[1];
       response[0] = '\0';
-      char *prev = NULL;
-      do {
-      	free(prev);
-        prev = strdup(buffer);
-        Trace(TR_WHOIS_RESPONSE) << "Whois: Response <<\n" << buffer <<">>"<< endl;
-        if (strstr (buffer, "route") || strstr(buffer, "route6")) {
-          char *prefix;
-          char end_prefix[18];
-          char *tmp;
-          prefix = strstr(buffer, ":");
-          do {
-            prefix++;
-          } while (isspace (*prefix));
-          sscanf (prefix, "%s\n", &end_prefix);
-          // save response
-          tmp = strdup (response);
-          // allocate new string
-          delete [] response;
-          response = new char [strlen(tmp) + strlen(end_prefix) + 2];
-          // copy old and new response
-          strcpy(response, tmp, strlen(tmp));
-          strcat(response, " ");
-          strcat(response, end_prefix);
-          free(tmp);
-        }
-      } while (fgets(buffer, sizeof(buffer), in) && 
-      // this condition should work with irrd version >= 2.2b19
-      // until then, ripe-style queries won't work with persistent connections
-               !((*prev == '\n') && (*buffer == '\n')));
 
-      free(prev);
+      do {
+        wasnl = (*buffer == '\n');
+        Trace(TR_WHOIS_RESPONSE) << "Whois: Response <<\n" << buffer
+                                 << ">>" << endl;
+        if (strstr (buffer, "route") || strstr(buffer, "route6")) {
+          char *p = strstr(buffer, ":");
+          do {
+            p++;
+          } while (isspace (*p));
+
+          // strip trailing newline
+          int len = strlen (p);
+          if(len > 0) {
+            char *q = p + len - 1;
+            if(*q == '\n')
+                *q = '\0';
+            len--;
+          }
+
+          // save current response
+          len += strlen (response) + 2;
+          char *copy = strdup (response);
+
+          // reallocate response with more space
+          delete [] response;
+          response = new char [len];
+
+          // append new repsonse onto old one
+          snprintf (response, len, "%s %s", copy, p);
+          free (copy);
+        }
+      } while (fgets(buffer, sizeof(buffer), in) &&
+      // this condition should work with irrd version >= 2.2b19
+      // until then, ripe-style queries won't work with persistent
+      // connections
+               !(wasnl && (*buffer == '\n')));
 
       // The WHOIS protocol and RPSL give no indication of
       // end of a protocol data unit, so we need to keep
