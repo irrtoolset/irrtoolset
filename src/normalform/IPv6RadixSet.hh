@@ -129,7 +129,7 @@ public:
    IPv6RadixTree *or_(const IPv6RadixTree *b);       // this becomes this or       b
    IPv6RadixTree *setminus(const IPv6RadixTree *b); // this becomes this setminus b
 
-   void IPv6RadixTree::print() const;
+   void print() const;
    void *operator new(size_t s) {
       return IPv6RadixTreeAllocator.allocate();
    }

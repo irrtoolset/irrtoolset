@@ -376,8 +376,8 @@ public:
 class MPPrefixRanges : public std::vector<MPPrefix>
 {
 public:
-  MPPrefixRanges::MPPrefixRanges() {};
-  MPPrefixRanges::MPPrefixRanges(void *t) {
+  MPPrefixRanges() {};
+  MPPrefixRanges(void *t) {
     this->append_list((MPPrefixRanges *) t);
   }
 
