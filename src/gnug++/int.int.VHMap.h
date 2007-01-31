@@ -78,7 +78,7 @@ inline int& intintVHMap::key(Pix i)
 inline int& intintVHMap::contents(Pix i)
 {
   if (i == 0) error("null Pix");
-  return cont[((unsigned)(i) - (unsigned)(tab)) / sizeof(int)];
+  return cont[((addr_t)(i) - (addr_t)(tab)) / sizeof(addr_t)];
 }
 
 #endif
