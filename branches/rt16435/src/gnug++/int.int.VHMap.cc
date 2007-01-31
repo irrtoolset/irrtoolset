@@ -184,7 +184,7 @@ Pix intintVHMap::first()
 void intintVHMap::next(Pix& i)
 {
   if (i == 0) return;
-  unsigned int pos = ((unsigned)i - (unsigned)tab) / sizeof(int) + 1;
+  unsigned int pos = ((addr_t)i - (addr_t)tab) / sizeof(addr_t) + 1;
   for (; pos < size; ++pos)
     if (status[pos] == VALIDCELL)
     {

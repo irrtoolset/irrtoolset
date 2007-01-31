@@ -226,7 +226,7 @@ int ParseArgv(int *argcPtr, char **argv, ArgvInfo *argTable, int flags)
 		*((bool *) infoPtr->dst) = ! *((bool *) infoPtr->dst);
 		break;
 	    case ARGV_CONSTANT:
-		*((int *) infoPtr->dst) = (int) infoPtr->src;
+		*((char **) infoPtr->dst) = infoPtr->src;
 		break;
 	    case ARGV_INT:
 		if (argc == 0) {
