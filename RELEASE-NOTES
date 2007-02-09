@@ -3,6 +3,8 @@ Release Notes for IRRToolSet
 
 Version 4.8.5:
 
+Improved support for compilation on 64-bit environments.
+
 Integrated a number of fixes from the NetBSD port as proposed by
 Havard Eidnes. These include:
 
@@ -10,7 +12,6 @@ Havard Eidnes. These include:
 * JunOS support enabled & fixed
 * Portability to Dragonfly BSD (treat as FreeBSD)
 * Bugfix for Cisco export
-
 
 Version 4.8.4:
 

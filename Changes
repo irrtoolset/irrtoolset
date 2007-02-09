@@ -1,5 +1,7 @@
 4.8.5
 
+Better support for 64-bit compilation.
+
 Integrated a number of fixes from the NetBSD port as proposed by 
 Havard Eidnes.
 
