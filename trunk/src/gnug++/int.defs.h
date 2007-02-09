@@ -16,6 +16,7 @@ License along with this library; if not, write to the Free Software
 Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <stdint.h>
 
 #ifndef _intdefs_h
 #define _intdefs_h 1
@@ -53,5 +54,12 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 // This is so if available space is less than 1/8.
 
 #define HASHTABLE_TOO_CROWDED(COUNT, SIZE) ((SIZE) - ((SIZE) >> 3) <= (COUNT))
+
+// Allow portable address arithmetic
+#if __WORDSIZE == 64
+typedef uint64_t addr_t;
+#else
+typedef uint32_t addr_t;
+#endif
 
 #endif
