@@ -1,6 +1,17 @@
 Release Notes for IRRToolSet
 ****************************
 
+Version 4.8.5:
+
+Integrated a number of fixes from the NetBSD port as proposed by
+Havard Eidnes. These include:
+
+* Numerous compiler fixes
+* JunOS support enabled & fixed
+* Portability to Dragonfly BSD (treat as FreeBSD)
+* Bugfix for Cisco export
+
+
 Version 4.8.4:
 
 A couple of crash bugs reported by Hagen Boehm were fixed.
