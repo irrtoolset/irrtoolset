@@ -336,7 +336,7 @@ protected:
 	  }
 	else
 	  {
-	  cerr << "Internal Error!" << endl;
+	  std::cerr << "Internal Error!" << std::endl;
 	  abort();
 	  }
     return false;
