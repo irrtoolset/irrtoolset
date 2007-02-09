@@ -1,3 +1,27 @@
+4.8.5
+
+Integrated a number of fixes from the NetBSD port as proposed by 
+Havard Eidnes.
+
+* Numerous compiler fixes:
+  o src/config.h.in is amended to conditionally define __P(x).  Use
+    __P() instead of _G_ARGS() in various places.
+  o Many, many files are patched to replace occurrances of _G_uint32_t
+    with uint32_t. The former is in the host compiler implementation's
+    name space, and as far as I know, a library writer has no business
+    assuming anything about the types defined in that name space
+    (names starting with a single underscore character).
+  o Instead of including <_G_config.h>, use <config.h>, and add
+    includes of e.g. <sys/types.h> where needed.
+  o A few troublesome casts removed which newer C++ compilers balk at.
+
+* JunOS support enabled & fixed
+
+* Portability to Dragonfly BSD (treat as FreeBSD)
+
+* Bugfix for Cisco export
+
+
 4.8.4
 
 * A number of runtime problems which caused crashes were reported, and
