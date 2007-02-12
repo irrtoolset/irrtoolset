@@ -150,7 +150,6 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
 	       sizeof(server_sockaddr)) < 0)
       error.Die("Error: connect() failed.\n");
 
-
    in  = fdopen(sock, "r");
    out = fdopen(sock, "w");
    _is_open = 1;
@@ -297,7 +296,17 @@ int RAWhoisClient::Response(char *&response) {
       error.Die("Warning: no byte count error for query %s.\n", last_query);
       return 0;
    }
-   if (is_rpslng()) {
+   /*
+    * If we sent an RIPE-style query (as we do for *some* RPSLng queries), 
+    * then we want to parse it using RIPE-style handling.
+    *
+    * But we will attempt to detect use of IRRd queries. We assume that 
+    * RIPE-style queries start with either an error (meaning the first 
+    * character is '%') or they start with an attribute name (meaning 
+    * there is a ':' somewhere in the buffer).
+    */
+   if (is_rpslng() && 
+       ((buffer[0] == '%') || (strchr(buffer, ':') != NULL))) {
       int wasnl = 0;
       response = new char[1];
       response[0] = '\0';
