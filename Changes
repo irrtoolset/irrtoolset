@@ -1,5 +1,7 @@
 4.8.5
 
+Bug fix for RPSLng queries on IRRd servers.
+
 Better support for 64-bit compilation.
 
 Integrated a number of fixes from the NetBSD port as proposed by 
@@ -22,7 +24,6 @@ Havard Eidnes.
 * Portability to Dragonfly BSD (treat as FreeBSD)
 
 * Bugfix for Cisco export
-
 
 4.8.4
 
