@@ -76,7 +76,7 @@ extern "C" {
 
 #include "rawhoisc.hh"
 #include "route.hh"
-#include "util/trace.hh"
+#include "irrutil/trace.hh"
 #include "rpsl/object_log.hh"
 
 extern "C" {

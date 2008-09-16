@@ -6,7 +6,7 @@ OBJS   = CIDRAdvisor.o  radix.o aggchk.o proxyagg.o
 SRCS   = CIDRAdvisor.cc radix.cc aggchk.cc proxyagg.cc
 HFILES = CIDRAdvisor.hh radix.hh
 
-REQUIRES = bgp normalform irr re2dfa rpsl Core gnug++ util
+REQUIRES = bgp normalform irr re2dfa rpsl Core gnug++ irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 

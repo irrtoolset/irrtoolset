@@ -57,9 +57,9 @@
 #include "autnum.hh"
 #include "classes.hh"
 #include "rpsl/symbols.hh"   // For symbols.symID()
-#include "util/version.hh"
+#include "irrutil/version.hh"
 #include "gnug++/Regex.h"
-#include "util/trace.hh"
+#include "irrutil/trace.hh"
 
 #define NO_OF_TRIAL_TRY		3
 
@@ -644,7 +644,7 @@ ASt RipeWhoisClient::getOrigin(char *format, ...)
 
 #ifdef DEBUG_RIPEWHOISC
 
-#include <iostream.h>
+#include <iostream>
 #include "autnum.hh"
 #include "route.hh"
 

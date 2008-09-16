@@ -54,7 +54,7 @@
 
 #include "config.h"
 
-#include <iostream.h>
+#include <iostream>
 #include <cstring>
 #include <cstdlib>
 #include <cctype>

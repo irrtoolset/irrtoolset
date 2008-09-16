@@ -100,7 +100,7 @@ config-clean:
 	prpath/Makefile prtraceroute/Makefile re2dfa/Makefile \
 	rpsl/Makefile rpsl/config.h rpsl/config.log rpsl/config.status \
 	rpsl/gnu/Makefile \
-	rpslcheck/Makefile RtConfig/Makefile util/Makefile 
+	rpslcheck/Makefile RtConfig/Makefile irrutil/Makefile 
 
 release_tag: 
 	cvs tag ${RELEASE_TAG}

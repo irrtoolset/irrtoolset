@@ -64,7 +64,7 @@
 #include <cstring>
 
 
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 //#include "dbase.hh"
 //#include "whois.hh"

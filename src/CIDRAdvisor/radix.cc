@@ -59,7 +59,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstdlib>
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 
 #include "irr/irr.hh"
