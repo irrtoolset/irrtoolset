@@ -278,7 +278,7 @@ bool PrefixRange::makeMoreSpecific(int code, int _n, int _m) {
    default: // ^n-m
       if (_m < n || _m < n)
 	 return false;
-      n = (_n >? n);
+      n = (_n > n) ? _n : n;
       m = _m;
    }
 
@@ -705,7 +705,7 @@ bool IPv6PrefixRange::makeMoreSpecific(int code, int _n, int _m) {
    default: // ^n-m
       if (_m < n || _m < n)
          return false;
-      n = (_n >? n);
+      n = (_n > n) ? _n : n;
       m = _m;
    }
 

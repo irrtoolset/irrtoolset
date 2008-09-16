@@ -1,3 +1,6 @@
+* Build fix for gcc 4.2 (default on Debian and Ubuntu these days).
+* Explicit check for flex and bison in configure.
+
 4.8.5
 
 Bug fix for RPSLng queries on IRRd servers.

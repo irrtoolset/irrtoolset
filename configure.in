@@ -65,9 +65,15 @@ AC_C_BIGENDIAN
 
 : ${LD=$CXX}
 AC_SUBST(LD)
-: ${LEX="flex"}
+AC_PROG_LEX
+if test "$LEX" != flex; then
+  AC_MSG_ERROR("flex required to build")
+fi
 AC_SUBST(LEX)
-: ${YACC="bison -y"}
+AC_PROG_YACC
+if test "$YACC" != "bison -y"; then
+   AC_MSG_ERROR("bison required to build")
+fi
 AC_SUBST(YACC)
 
 AC_PROG_RANLIB
