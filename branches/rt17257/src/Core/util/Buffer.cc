@@ -174,11 +174,7 @@ Buffer::uncompress()
 
 void Buffer::extend(unsigned long minExtend) {
    assert(!callerAllocated);	// !!!
-   if (capacity + BufferExtendIncrement > size + minExtend) {
-      capacity = capacity + BufferExtendIncrement;
-   } else {
-      capacity = size + minExtend;
-   }
+   capacity = (capacity + BufferExtendIncrement) >? (size + minExtend);
    contents = (char *)realloc(contents, capacity);
 }
 

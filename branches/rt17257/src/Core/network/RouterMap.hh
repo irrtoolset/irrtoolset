@@ -56,7 +56,7 @@
 
 #include <cstdio>      // For NULL definition
 #include <assert.h>
-#include <iostream.h>
+#include <iostream>
 #include "util/List.hh"
 #include "sys/Address.hh"
 #include "TProbe.hh"

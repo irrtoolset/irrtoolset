@@ -84,10 +84,10 @@
 #include "config.h"
 #include "prtraceroute.hh"
 
-#include "util/Argv.hh"
-#include "util/debug.hh"
-#include "util/trace.hh"
-#include "util/version.hh"
+#include "irrutil/Argv.hh"
+#include "irrutil/debug.hh"
+#include "irrutil/trace.hh"
+#include "irrutil/version.hh"
 
 #include "rpsl/schema.hh"
 

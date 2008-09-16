@@ -13,7 +13,7 @@ HFILES = RtConfig.hh command.y.hh command.l.hh f_cisco.hh f_junos.hh
 
 OTHERS = command.l command.y
 
-REQUIRES = normalform irr re2dfa rpsl Core gnug++ util
+REQUIRES = normalform irr re2dfa rpsl Core gnug++ irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 

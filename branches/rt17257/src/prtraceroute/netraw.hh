@@ -58,7 +58,7 @@
 #define __NETRAW_HH__
 
 #include "config.h"
-#include "util/net.hh"
+#include "irrutil/net.hh"
 
 #ifndef MAX_IPOPTLEN
 #define MAX_IPOPTLEN    40

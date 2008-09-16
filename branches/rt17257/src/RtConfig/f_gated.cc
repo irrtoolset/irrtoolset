@@ -54,7 +54,7 @@
 
 #include "config.h"
 #include <cstring>
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 #include <cctype>
 #include "normalform/NE.hh"

@@ -1,4 +1,5 @@
-/* src/config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* src/config.h.in.  Generated from configure.in by autoheader.  */
+/*  $Id$
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -18,7 +19,6 @@
 // AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
-/*  $Id$
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
@@ -56,21 +56,13 @@
 #define CONFIG_H
 
 
-/* Define to empty if the keyword does not work.  */
-#undef const
+/* Define if you have the gnu readline and history libraries.  */
+#undef HAVE_LIBREADLINE
+#undef HAVE_LIBHISTORY
+#undef HAVE_LIBTERMCAP
 
-/* Define to `unsigned' if <sys/types.h> doesn't define.  */
-#undef size_t
-
-/* Define if you have the ANSI C header files.  */
-#undef STDC_HEADERS
-
-/* Define if you can safely include both <sys/time.h> and <time.h>.  */
-#undef TIME_WITH_SYS_TIME
-
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#undef WORDS_BIGENDIAN
+/* Define if you have the timestruc_t defined in sys/time.h.  */
+#undef HAVE_TIMESTRUC_T
 
 /* Define if you have the timeval defined in sys/time.h.  */
 #undef HAVE_TIMEVAL
@@ -82,6 +74,9 @@
 /* Define if accept in your system uses (socklen_t *) as the last parameter, 
    as opposed to (int *) */
 #undef ACCEPT_USES_SOCKLEN_T
+
+/* Define if rusage type uses timestruc_t to define ru_utime.  */
+#undef RUSAGE_USES_TIMESTRUC_T
 
 /* Define if rusage type uses timeval to define ru_utime.  */
 #undef RUSAGE_USES_TIMEVAL
@@ -166,69 +161,109 @@
 /* Define if sys/socket.h declares sendto */
 #undef HAVE_DECL_SENDTO
 
-/* Define if you have the gettimeofday function.  */
+
+/* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
-/* Define if you have the memcpy function.  */
-#undef HAVE_MEMCPY
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
 
-/* Define if you have the socket function.  */
-#undef HAVE_SOCKET
-
-/* Define if you have the strstr function.  */
-#undef HAVE_STRSTR
-
-/* Define if you have the timegm function.  */
-#undef HAVE_TIMEGM
-
-/* Define if you have the vsnprintf function.  */
-#undef HAVE_VSNPRINTF
-
-/* Define if you have the <limits.h> header file.  */
-#undef HAVE_LIMITS_H
-
-/* Define if you have the <malloc.h> header file.  */
-#undef HAVE_MALLOC_H
-
-/* Define if you have the <memory.h> header file.  */
-#undef HAVE_MEMORY_H
-
-/* Define if you have the <regex.h> header file.  */
-#undef HAVE_REGEX_H
-
-/* Define if you have the <string.h> header file.  */
-#undef HAVE_STRING_H
-
-/* Define if you have the <strings.h> header file.  */
-#undef HAVE_STRINGS_H
-
-/* Define if you have the <sys/sockio.h> header file.  */
-#undef HAVE_SYS_SOCKIO_H
-
-/* Define if you have the <sys/time.h> header file.  */
-#undef HAVE_SYS_TIME_H
-
-/* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
-
-/* Define if you have the history library (-lhistory).  */
+/* Define to 1 if you have the `history' library (-lhistory). */
 #undef HAVE_LIBHISTORY
 
-/* Define if you have the readline library (-lreadline).  */
+/* Define to 1 if you have the `readline' library (-lreadline). */
 #undef HAVE_LIBREADLINE
 
-/* Define if you have the termcap library (-ltermcap).  */
+/* Define to 1 if you have the `termcap' library (-ltermcap). */
 #undef HAVE_LIBTERMCAP
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <malloc.h> header file. */
+#undef HAVE_MALLOC_H
+
+/* Define to 1 if you have the `memcpy' function. */
+#undef HAVE_MEMCPY
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <regex.h> header file. */
+#undef HAVE_REGEX_H
+
+/* Define to 1 if you have the `socket' function. */
+#undef HAVE_SOCKET
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strstr' function. */
+#undef HAVE_STRSTR
+
+/* Define to 1 if you have the <sys/sockio.h> header file. */
+#undef HAVE_SYS_SOCKIO_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `vsnprintf' function. */
+#undef HAVE_VSNPRINTF
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
+#undef TIME_WITH_SYS_TIME
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
+/* Define to `unsigned long' if <sys/types.h> does not define. */
+#undef in_addr_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
 
 #ifdef __cplusplus
 #include <typeinfo>
 #endif /* __cplusplus */
 
-#ifndef __P
-# if defined __cplusplus || defined __STDC__
-#  define __P(args) args
-# else
-#  define __P(args) ()
-# endif
-#endif
 #endif   /* CONFIG_H */

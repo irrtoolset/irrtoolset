@@ -62,7 +62,7 @@
 %{
 
 #include "config.h"
-#include <iostream.h>
+#include <iostream>
 #include "roe.y.hh"
 // Added by wlee@isi.edu
 #include <cstring>

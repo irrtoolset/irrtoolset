@@ -9,7 +9,7 @@ SRCS   = ../bgp/bgproute.cc ../bgp/actiondictionary.cc \
 HFILES = ../bgp/bgproute.hh ../bgp/actiondictionary.hh \
          prtraceroute.hh netraw.hh ifaddrlist.h
 
-REQUIRES = bgp irr rpsl Core util gnug++ re2dfa normalform
+REQUIRES = bgp irr rpsl Core irrutil gnug++ re2dfa normalform
 
 LIBS     = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 
