@@ -1,3 +1,5 @@
+* Cache file support when "irrd" protocol is used. Thanks to
+  Hagen Boehm for the implementation.
 * Build fixes for OS X.
 * Build fix for gcc 4.2 (default on Debian and Ubuntu these days).
 * Explicit check for flex and bison in configure.
