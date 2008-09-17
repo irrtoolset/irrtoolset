@@ -61,7 +61,7 @@
 
 #include "irr.hh"
 #include "birdwhoisc.hh"
-#include "util/Error.hh"
+#include "irrutil/Error.hh"
 
 class RAWhoisClient : public IRR { 
 // Whois Client that talks to RAWhoisd server

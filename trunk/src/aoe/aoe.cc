@@ -71,11 +71,11 @@ static char ident[] =
 #include "aoe.hh"
 #include "aoe.xbm"
 #include "TclVar.hh"
-#include "util/Argv.hh"
-#include "util/version.hh"
-#include "util/trace.hh"
-#include "util/rusage.hh"
-#include "util/net.hh"       // for class ipAddr
+#include "irrutil/Argv.hh"
+#include "irrutil/version.hh"
+#include "irrutil/trace.hh"
+#include "irrutil/rusage.hh"
+#include "irrutil/net.hh"       // for class ipAddr
 #include "irr/rawhoisc.hh"
 #include "irr/ripewhoisc.hh"
 #include "irr/birdwhoisc.hh"

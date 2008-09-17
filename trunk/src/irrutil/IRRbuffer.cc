@@ -51,7 +51,7 @@
 //
 //  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
-#include "buffer.hh"
+#include "IRRbuffer.hh"
 
 StringBuffer &StringBuffer::append(char *pzcText, unsigned int uiLen)
 {

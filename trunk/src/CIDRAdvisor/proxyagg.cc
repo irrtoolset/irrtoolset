@@ -51,7 +51,7 @@
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 #include <stdlib.h>
 //#include "dbase.hh"

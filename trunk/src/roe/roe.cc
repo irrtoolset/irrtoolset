@@ -61,16 +61,16 @@ extern "C" {
 #include <tcl.h>
 #include <tk.h>
 }
-#include <iostream.h>
+#include <iostream>
 #include <cstring>
 #include <cctype>
 
-#include "util/net.hh"      // for class ipAddr
-#include "util/debug.hh"
-#include "util/trace.hh"
+#include "irrutil/net.hh"      // for class ipAddr
+#include "irrutil/debug.hh"
+#include "irrutil/trace.hh"
 #include "util/rusage.hh"
-#include "util/version.hh"
-#include "util/Argv.hh"
+#include "irrutil/version.hh"
+#include "irrutil/Argv.hh"
 #include "irr/irr.hh"
 #include "roe_tcl.hh"
 #include "route-list.hh"

@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include "config.h"
 #include <cstdlib>
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 
 #include "irr/irr.hh"

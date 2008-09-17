@@ -7809,7 +7809,7 @@ test "${exec_prefix}" != NONE &&
 
 ############################ OUTPUT ################################
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/util/Makefile src/util/version.cc src/re2dfa/Makefile src/gnug++/Makefile src/irr/Makefile src/normalform/Makefile src/peval/Makefile src/prpath/Makefile src/CIDRAdvisor/Makefile src/prtraceroute/Makefile src/roe/Makefile src/aoe/Makefile src/rpslcheck/Makefile src/RtConfig/Makefile src/bgp/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/irrutil/Makefile src/irrutil/version.cc src/re2dfa/Makefile src/gnug++/Makefile src/irr/Makefile src/normalform/Makefile src/peval/Makefile src/prpath/Makefile src/CIDRAdvisor/Makefile src/prtraceroute/Makefile src/roe/Makefile src/aoe/Makefile src/rpslcheck/Makefile src/RtConfig/Makefile src/bgp/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -8367,8 +8367,8 @@ do
     "src/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
-    "src/util/Makefile") CONFIG_FILES="$CONFIG_FILES src/util/Makefile" ;;
-    "src/util/version.cc") CONFIG_FILES="$CONFIG_FILES src/util/version.cc" ;;
+    "src/irrutil/Makefile") CONFIG_FILES="$CONFIG_FILES src/irrutil/Makefile" ;;
+    "src/irrutil/version.cc") CONFIG_FILES="$CONFIG_FILES src/irrutil/version.cc" ;;
     "src/re2dfa/Makefile") CONFIG_FILES="$CONFIG_FILES src/re2dfa/Makefile" ;;
     "src/gnug++/Makefile") CONFIG_FILES="$CONFIG_FILES src/gnug++/Makefile" ;;
     "src/irr/Makefile") CONFIG_FILES="$CONFIG_FILES src/irr/Makefile" ;;

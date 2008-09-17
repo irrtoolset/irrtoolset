@@ -57,8 +57,8 @@
 
 #include "config.h"
 #include "irr/irr.hh"
-#include "util/net.hh"
-#include "util/buffer.hh"
+#include "irrutil/net.hh"
+#include "irrutil/IRRbuffer.hh"
 #include "gnug++/SetOfUInt.hh"
 #include <cassert>
 

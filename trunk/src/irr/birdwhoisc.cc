@@ -5,8 +5,8 @@
 #include "classes.hh"
 #include "autnum.hh"
 #include "route.hh"
-#include "util/trace.hh"
-#include "util/version.hh"
+#include "irrutil/trace.hh"
+#include "irrutil/version.hh"
 #include "rpsl/object_log.hh"
 #include <memory.h>
 #include <stdlib.h>

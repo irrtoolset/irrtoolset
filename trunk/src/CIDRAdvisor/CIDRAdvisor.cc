@@ -60,16 +60,16 @@ extern "C" {
 #   include <unistd.h>
 #endif
 }
-#include <iostream.h>
+#include <iostream>
 #include <iomanip.h>
 #include <stdlib.h>
 
-#include "util/Argv.hh"
-#include "util/net.hh"
+#include "irrutil/Argv.hh"
+#include "irrutil/net.hh"
 #include "util/rusage.hh"
-#include "util/debug.hh"
-#include "util/trace.hh"
-#include "util/version.hh"
+#include "irrutil/debug.hh"
+#include "irrutil/trace.hh"
+#include "irrutil/version.hh"
 
 #include "irr/irr.hh"
 
