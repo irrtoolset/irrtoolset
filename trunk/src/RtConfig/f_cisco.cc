@@ -734,7 +734,7 @@ void CiscoConfig::printRE(ostream &s,
 			  int aclID, 
 			  bool permit){
    ostringstream out;
-    out << "ip as-path access-list "
+   out << "ip as-path access-list "
        << aclID 
        << (permit ? " permit " : " deny ");
    reSplittable = true;
@@ -744,39 +744,38 @@ void CiscoConfig::printRE(ostream &s,
       out << "_";
    out << endl;
 
-   //int lineLen = strlen(out.str());
    int lineLen = out.str().length();
+   const char *p = out.str().c_str();
+
    if (lineLen < 240 && ! hasTilda) {
-      const char *p = out.str().c_str();
       for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
-	 *q = '(';
-      s << out.str();
+         *q = '(';
+      s << p;
    } else { // need to split into multiple lines
       if (hasTilda) {
-	 const char *p = out.str().c_str();
-	 for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
-	    *q = '(';
-	 for (char *q = strchr(p, '&'); q; q = strchr(q, '&'))
-	    *q = '@';
+         for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
+            *q = '(';
+         for (char *q = strchr(p, '&'); q; q = strchr(q, '&'))
+            *q = '@';
       }
 
-      char *p = strdup(out.str().c_str());
-      char *q, *r2;
+      char *q, *q2;
       char *r = NULL;
       int size = 0;
-      for (p = strchr(p, '@'); p; p = strchr(p, '@')) {
-	 q = strchr(p, ')');
-	 if (q - p > size) {
-	    r = p;
-	    size = q - p;
-	 }
-	 *p = '(';
-	 p = q;
+      for (q = strchr(p, '@'); q; q = strchr(q, '@')) {
+         q2 = strchr(q, ')');
+         if (q2 - q > size) {
+            r = q;
+            size = q2 - q;
+         }
+         *q = '(';
+         q = q2;
       }
       if (!r) {
-	 s << out.str();
-	 cerr << "Warning: ip as-path access-list is too long for cisco to handle" << endl;
+         s << out.str();
+         cerr << "Warning: ip as-path access-list is too long for cisco to handle" << endl;
       } else {
+         char *r2;
 	 int inc;
 	 if (hasTilda) {
 	     inc = 1;
@@ -787,7 +786,6 @@ void CiscoConfig::printRE(ostream &s,
 	         inc = 5;
 	     }
 	 }
-	 p = strdup(out.str().c_str());
 	 q = strchr(r, ')') + 1;
 	 *r = 0;
 	 r++;
