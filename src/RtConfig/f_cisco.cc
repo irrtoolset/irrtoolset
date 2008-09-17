@@ -1255,8 +1255,28 @@ bool CiscoConfig::printNeighbor(int import,
      cout << " neighbor "   << neighbor << " remote-as " << peerAS << "\n";
 
    if (afi_activate && !peerGroup) {
-     cout << " address-family " << (AddressFamily &) *filter_afi << endl;
-     cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     if (strcmp(filter_afi->name(),"ipv6") == 0) {
+       cout << " address-family " << "ipv4" << endl;
+       cout << indent <<" no neighbor " << neighbor << " activate\n"; 
+       cout << " address-family " << "ipv6 unicast" << endl;
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
+       cout << " address-family " << "ipv6 multicast" << endl;
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     } else if (strcmp(filter_afi->name(),"ipv6.unicast") == 0) {
+       cout << " address-family " << "ipv4" << endl;
+       cout << indent <<" no neighbor " << neighbor << " activate\n"; 
+       cout << " address-family " << "ipv6 unicast" << endl;
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     } else if (strcmp(filter_afi->name(),"ipv4.multicast") == 0) {
+       cout << " address-family " << "ipv4 multicast" << endl;
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     } else if (strcmp(filter_afi->name(),"ipv6.multicast") == 0) {
+       cout << " address-family " << "ipv4" << endl;
+       cout << indent <<" no neighbor " << neighbor << " activate\n"; 
+       cout << " address-family " << "ipv6 multicast" << endl;
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     }
+     // ought to handle afi any too, but that's not just done by naming it here
    }
 
    if (routeMapGenerated) 
