@@ -1,10 +1,12 @@
-* Fix for core dump on Solaris. Thanks to Matthew Moyle-Croft for
-  the report and to S.P.Zeidler for the fix.
+* Compile fix for Solaris 9 and other systems that do not have
+  stdint.h defined. Thanks to Hagen Boehm for reporting the problem.
+* Fix for core dump on Solaris. Thanks to Matthew Moyle-Croft for the
+  report and to S.P.Zeidler for the fix.
 * Fix for invalid RtConfig output on Cisco when specifying family.
-  Thanks to Daryl Collins for the report and to S.P.Zeidler for 
-  the fix.
-* Cache file support when "irrd" protocol is used. Thanks to
-  Hagen Boehm for the implementation.
+  Thanks to Daryl Collins for the report and to S.P.Zeidler for the
+  fix.
+* Cache file support when "irrd" protocol is used. Thanks to Hagen
+  Boehm for the implementation.
 * Build fixes for OS X.
 * Build fix for gcc 4.2 (default on Debian and Ubuntu these days).
 * Explicit check for flex and bison in configure.
