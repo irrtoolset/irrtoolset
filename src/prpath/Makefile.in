@@ -6,7 +6,7 @@ OBJS   = prpath.o
 SRCS   = prpath.cc 
 HFILES = prpath.hh
 
-REQUIRES = bgp normalform irr re2dfa rpsl Core gnug++ util
+REQUIRES = bgp normalform irr re2dfa rpsl Core gnug++ irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 

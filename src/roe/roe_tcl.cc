@@ -60,7 +60,7 @@ extern "C" {
 #   include <unistd.h>
 #endif
 }
-#include <iostream.h>
+#include <iostream>
 extern "C" {
 #include <tcl.h>
 #include <tk.h>

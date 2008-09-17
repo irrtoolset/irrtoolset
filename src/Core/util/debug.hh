@@ -75,7 +75,7 @@
 
 #include "config.h"
 #ifdef DEBUG
-#include <iostream.h>
+#include <iostream>
 
 #define DBG_ERR             1
 #define DBG_INFO            2 

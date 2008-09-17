@@ -178,7 +178,7 @@ AC_EGREP_HEADER(in_addr_t, netinet/in.h, ,
 dnl Checks for library functions.
 AC_CHECK_FUNCS(gettimeofday socket strstr memcpy vsnprintf)
 
-dnl Check for function declerations (util/net.hh barfs if defined)
+dnl Check for function declerations (irrutil/net.hh barfs if defined)
 AC_EGREP_HEADER(gettimeofday, sys/time.h,   AC_DEFINE(HAVE_DECL_GETTIMEOFDAY))
 AC_EGREP_HEADER(bzero,        string.h,     AC_DEFINE(HAVE_DECL_BZERO))
 AC_EGREP_HEADER(bcopy,        string.h,     AC_DEFINE(HAVE_DECL_BCOPY))
@@ -350,8 +350,8 @@ changequote([, ])dnl
 
 AC_OUTPUT(Makefile
 	src/Makefile
-	src/util/Makefile
-	src/util/version.cc
+	src/irrutil/Makefile
+	src/irrutil/version.cc
 	src/re2dfa/Makefile
 	src/gnug++/Makefile
 	src/irr/Makefile

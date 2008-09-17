@@ -52,7 +52,7 @@
 #include "config.h"
 #include <cstdio>
 #include <sys/types.h>
-#include "util/Stack.hh"
+#include "irrutil/Stack.hh"
 #include "util/List.hh"
 #include "rpsl/prefix.hh"
 

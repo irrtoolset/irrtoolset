@@ -51,8 +51,8 @@
 //
 //  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
-#ifndef STRINGBUFFER_HH
-#define STRINGBUFFER_HH
+#ifndef IRRBUFFER_HH
+#define IRRBUFFER_HH
 
 #include <iostream>
 #include <cstdio>
@@ -154,4 +154,4 @@ class StringBuffer
 };
 
 
-#endif // STRINGBUFFER_HH
+#endif // IRRBUFFER_HH
