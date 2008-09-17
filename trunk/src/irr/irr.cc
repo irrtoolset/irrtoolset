@@ -210,6 +210,10 @@ Cache<ASt,   MPPrefixRanges *> expandASCache;
 Cache<SymID, MPPrefixRanges *> expandRSSetCache;
 Cache<SymID, MPPrefixRanges *> expandRtrSetCache;
 
+bool IRR::queryCache(SymID setID, Set *&set) {
+  return (SetCache.query(setID, set));
+}
+
 void IRR::initCache(char *objectText, int objectLength, char *clss) {
    Buffer b(objectText, objectLength);
    Set *o = new Set(b);

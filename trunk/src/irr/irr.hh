@@ -192,6 +192,10 @@ protected:
    bool         isIndirectMember(Object *o, 
 			   AttrGenericIterator<ItemWORD> &mbrs_by_ref);
 
+  // next method is used by RAWhoisClient to query the SetCache
+  bool queryCache(SymID setID, Set *&set);
+
+
 private:
    static void initCache(char *objectText, int objectLength, char *clss);
 };
