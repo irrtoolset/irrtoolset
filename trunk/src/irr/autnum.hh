@@ -395,9 +395,11 @@ public:
                afi_list->merge(*tmp_afi_list);
                delete list;
                delete tmp_afi_list;
+               tmp_afi_list = new ItemList;
             }
          }
       }
+      delete tmp_afi_list;
    }
 
    FilterAction *first() {
