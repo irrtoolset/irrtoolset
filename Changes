@@ -1,3 +1,5 @@
+* Fix for core dump on Solaris. Thanks to Matthew Moyle-Croft for
+  the report and to S.P.Zeidler for the fix.
 * Fix for invalid RtConfig output on Cisco when specifying family.
   Thanks to Daryl Collins for the report and to S.P.Zeidler for 
   the fix.
