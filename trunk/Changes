@@ -1,3 +1,5 @@
+* @RtConfig fix for IPv6. Thanks to Nick Hilliard for the report and
+  to Timo Koehler for the patch.
 * Fix when an IOS as-path list from an RPSL as-set contains more
   than one AS number. Thanks to Hagen Boehm for the patch.
 * Compile fix for Solaris 9 and other systems that do not have
