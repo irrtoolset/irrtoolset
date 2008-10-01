@@ -236,7 +236,9 @@ public:
 
 extern AccessListManager<regexp_nf>         aspathMgr;
 extern AccessListManager<SetOfPrefix>       prefixMgr;
+extern AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr;
 extern AccessListManager<SetOfPrefix>       pktFilterMgr;
+extern AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr;
 extern AccessListManager<FilterOfCommunity> communityMgr;
 
 #endif   // F_CISCO_H

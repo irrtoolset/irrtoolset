@@ -66,7 +66,7 @@
 #include "f_bcc.hh" 
 #include "f_junos.hh" 
 #include "irr/irr.hh"
-#include "util/trace.hh"
+#include "irrutil/trace.hh"
 #include "rpsl/rpsl.hh"
 
 extern "C" {
@@ -383,6 +383,8 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
       pktFilterMgr.setNextID($4);
       aspathMgr.setNextID($4);
       prefixMgr.setNextID($4);
+      ipv6prefixMgr.setNextID($4);
+      ipv6pktFilterMgr.setNextID($4);
    }
    Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
 		   << $4 << "'" << std::endl;
