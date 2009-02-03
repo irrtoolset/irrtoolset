@@ -1,3 +1,4 @@
+* Makefile now honors DESTDIR. Thanks to Kaj Niemi for the patch.
 * @RtConfig fix for IPv6. Thanks to Nick Hilliard for the report and
   to Timo Koehler for the patch.
 * Fix when an IOS as-path list from an RPSL as-set contains more
