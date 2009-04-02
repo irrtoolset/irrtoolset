@@ -58,6 +58,7 @@
 #include "util/Allocator.hh"
 #include "gnu/SetOfSymID.hh"
 #include "util/xstring.h"
+#include "rpsl/rpsl_asnum.hh"
 #include <cstdio>
 
 typedef unsigned int ASt;
@@ -114,7 +115,7 @@ public:
    }
 
    SymID resolvePeerAS(SymID sid, ASt peerAS) {
-      char *buffer = (char *) malloc(strlen(sid) * 2);
+      char *buffer = (char *) malloc(strlen(sid) * 3);
       char *head, *tail, *ptr;
       int  written;
       ptr = buffer;
@@ -123,7 +124,7 @@ public:
 	   tail = head + 6, head++, head = strstr(head, "PEERAS")) {
 	 strncpy(ptr, tail, head - tail);
 	 ptr += (head - tail);
-	 sprintf(ptr, "AS%d", peerAS);
+	 asnum_string(ptr, peerAS);
 	 written = strlen(ptr);
 	 ptr += written;
       }

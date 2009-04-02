@@ -128,6 +128,9 @@ In older Cisco IOS versions,
 in-bound route maps did not support ip access-list matches.
 Use of this option causes RtConfig to use distribute-lists to overcome
 this limitation.
+.IP \-asdot
+Print AS numbers as asdot, i.e. in "X.Y" format;
+the default is to use RFC-5396 recommended "asplain" format.
 .IP \-disable_access_list_cache
 RtConfig caches the access-lists (and in the future ip as-path
 access-lists and route-maps) that it generates so that the same

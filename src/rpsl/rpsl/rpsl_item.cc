@@ -67,14 +67,18 @@ ostream &Item::print(ostream &out) const {
 }
 
 ostream &ItemASNO::print(ostream &out) const {
-   out << "AS" << asno;
+   char buffer[64];
+   asnum_string(buffer, asno);
+   out << buffer;
    return out;
 }
 
 Buffer *ItemASNO::bufferize(Buffer *buf, bool lcase) const {
+   char buffer[64];
+   asnum_string(buffer, asno);
    if (!buf)
       buf = new Buffer;
-   buf->appendf("as%d", asno);
+   buf->appendf(buffer);
    return buf;
 }
 

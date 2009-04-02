@@ -72,6 +72,7 @@ bool opt_stats                   = false;
 bool opt_rusage                  = false;
 char *opt_prompt                 = "rpslcheck> ";
 bool opt_echo                    = false;
+bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
 #ifdef DEBUG
 bool opt_debug_rpsl              = false;
@@ -105,6 +106,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Show version"},
      
      IRR_COMMAND_LINE_OPTIONS,
+
+     {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+      "print AS numbers in asdot format."},
 
      {"-rusage", ARGV_BOOL, (char *) NULL,           (char *) &opt_rusage,
       "On termination print resource usage"},
@@ -163,7 +167,11 @@ main(int argc, char **argv, char **envp) {
    
    while (opt_my_as || cin ) {
        if (opt_my_as) {
-	  myAS = atoi(opt_my_as + 2);
+          const char *dot = strchr(opt_my_as,'.');
+          if (dot)
+             myAS = atoi(opt_my_as + 2)<<16 | atoi(dot+1);
+          else
+	     myAS = atoi(opt_my_as + 2);
 	  const AutNum *autnum = irr->getAutNum(myAS);
           if (!autnum)	{
           	std::cerr << "Error: no object for AS " << myAS << std::endl;

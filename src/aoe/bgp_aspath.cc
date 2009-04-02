@@ -110,11 +110,15 @@ void BgpASPath::print(void)
 	pcFirstAndLastAS; 
 	pcFirstAndLastAS = cFirstAndLastASes.next(pcFirstAndLastAS))
       {
-      printf("AS%d --", pcFirstAndLastAS->getFirst());
+      char buf[64];
+	  asnum_string(buf, pcFirstAndLastAS->getFirst());
+	  printf("%s --", buf);
       for (int i = pcFirstAndLastAS->getLast().first(); 
 	   i >= 0; 
-	   i = pcFirstAndLastAS->getLast().next(i))
-	 printf(" AS%d", i); 
+	   i = pcFirstAndLastAS->getLast().next(i)) {
+	     asnum_string(buf, i);
+		 printf(" %s", buf);
+       }
       printf("\n");
       }
 }

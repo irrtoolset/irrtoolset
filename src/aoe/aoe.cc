@@ -106,6 +106,7 @@ Rusage ru(clog, &opt_rusage);
 char *opt_my_as  = NULL;
 char *opt_rcfile = NULL;
 char *display    = NULL;
+bool opt_asdot   = false;
 ASt myAS         = 0;
 
 
@@ -152,6 +153,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "On termination print resource usage"},
 
       IRR_COMMAND_LINE_OPTIONS,
+
+      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+       "print AS numbers in asdot format."},
 
       // aoe specific arguments
       {"-as",  ARGV_STRING,     (char *)NULL, (char *) &opt_my_as,
@@ -275,7 +279,7 @@ TclList &operator<<(TclList &tl, List<ASPeer> &lh)
 	pcASPeer;
 	pcASPeer = lh.next(pcASPeer))
       {
-      sprintf(pzcASPeerNo, "AS%d", pcASPeer->getNo());
+      asnum_string(pzcASPeerNo, pcASPeer->getNo());
       switch (pcASPeer->getType())
 	 {
 	 case dASPeerFromIRR:
@@ -662,8 +666,8 @@ int ListPeer::command(int argc, char *argv[])
    ASt tPeerAS      = pcApp->getASPeerNo(iPeerASIndex);
    
    char pzcMyAS[16], pzcPeerAS[16];
-   sprintf(pzcMyAS, "AS%d", tMyAS);
-   sprintf(pzcPeerAS, "AS%d", tPeerAS);
+   asnum_string(pzcMyAS, tMyAS);
+   asnum_string(pzcPeerAS, tPeerAS);
 
    // Setup $PeerAS properly
    if (!pcApp->evalf("set PeerAS %s", pzcPeerAS)) return TCL_ERROR;
@@ -1093,7 +1097,7 @@ AoeApplication::AoeApplication(char *pzcAppName,
    pcPolicyShowButton(NULL),
    pcStatusLine(NULL)
 {
-  sprintf(pzcASNo, "AS%d", tASNo);
+  asnum_string(pzcASNo, tASNo);
   if (!(pcIrr = IRR::newClient()))
     {
     usage();

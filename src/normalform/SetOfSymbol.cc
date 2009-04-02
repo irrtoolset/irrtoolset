@@ -271,7 +271,7 @@ void SetOfSymbol::operator =  (const SetOfUInt& b) { // assignment
 
 void SetOfSymbol::add(ASt as) {
    char buffer[64];
-   sprintf(buffer, "AS%d", as);
+   asnum_string(buffer, as);
    add(symbols.symID(buffer));
 }
 

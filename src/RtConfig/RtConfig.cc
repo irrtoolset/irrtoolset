@@ -85,6 +85,7 @@ bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
 char *opt_prompt                 = "RtConfig> ";
+bool opt_asdot                   = false;
 
 bool         RtConfig::supressMartians          = false;
 int          RtConfig::preferenceCeiling        = 1000;
@@ -181,6 +182,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Prompt"},
      
      IRR_COMMAND_LINE_OPTIONS,
+
+     {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+      "print AS numbers in asdot format."},
 
      {"-config", ARGV_FUNC, (char *) &select_config_format, (char *) NULL, 
       "Configuration format (junos, cisco, bcc, gated or rsd)"},
