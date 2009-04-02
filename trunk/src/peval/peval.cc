@@ -98,6 +98,7 @@ Rusage ru(clog, &opt_rusage);
 char *opt_prompt                 = "peval> ";
 int  opt_expand                  = EXPAND_ALL;
 int  opt_symbolic                = 0;
+bool opt_asdot                   = false;
 
 const int SIZE = 8*1024;
 char base[SIZE] = "peval: ";
@@ -227,6 +228,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "Prompt"},
 
       IRR_COMMAND_LINE_OPTIONS,
+
+      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+       "print AS numbers in asdot format."},
 
       // peval specific arguments
       {"-symbolic",  ARGV_CONSTANT, (char *)1, (char *)&opt_symbolic, 

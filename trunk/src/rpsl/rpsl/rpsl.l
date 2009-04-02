@@ -74,7 +74,7 @@ INT            [[:digit:]]+
 SINT           [+-]?{INT}
 REAL           [+-]?{INT}?\.{INT}({WS}*E{WS}*[+-]?{INT})?
 NAME           [[:alpha:]]([[:alnum:]_-]*[[:alnum:]])?
-ASNO           AS{INT}
+ASNO           [Aa][Ss]({INT}|{INT}\.{INT})
 ASNAME         AS-[[:alnum:]_-]*[[:alnum:]]
 RSNAME         RS-[[:alnum:]_-]*[[:alnum:]]
 RTRSNAME       RTRS-[[:alnum:]_-]*[[:alnum:]]
@@ -455,7 +455,11 @@ extern void atollRA(...);
 
   /* The order of these rules are important */
   {ASNO} {
-     yylval.i = atoi(yytext+2);
+     const char *dot = strchr(yytext,'.');
+	 if (dot)
+	   yylval.i = atoi(yytext+2)<<16 | atoi(dot+1);
+	 else
+	   yylval.i = atoi(yytext+2);
      LEXER_RETURN(TKN_ASNO);
   }
 
@@ -751,7 +755,7 @@ void yy_scan_object(Object *o) {
 
    if (rpsl_buffer)
       yy_delete_buffer(rpsl_buffer);
-   rpsl_buffer = yy_scan_bytes(o->contents, o->size);
+   rpsl_buffer = yy_scan_bytes(o->contents, (yy_size_t)o->size);
    BEGIN(INITIAL);
 }
 

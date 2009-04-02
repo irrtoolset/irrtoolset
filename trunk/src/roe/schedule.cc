@@ -177,7 +177,8 @@ void Schedule::add_selected(char *selection) {
    for (char *s = strtok(selection, " \t"); s; s = strtok(NULL, " \t")) {
       r = routelist(atoi(s));
 
-      tcl_Eval("set AS AS%d", routelist.as);
+	  asnum_string(buffer, routelist.as);
+	  tcl_Eval("set AS %s", buffer);
       tcl_Eval("set ROUTE %s", r->route.get_text(buffer));
       tcl_Eval("set DATE %s", configure.date);
       tcl_Eval("subst \"%s\"", configure.add_template);
@@ -190,6 +191,7 @@ void Schedule::del_selected(char *selection) {
    RouteList::Route *r;
    RouteList::Route::db_as *p;
    Route *route = NULL;
+   char buffer[64];
 
    for (char *s = strtok(selection, " \t"); s; s = strtok(NULL, " \t")) {
       r = routelist(atoi(s));
@@ -213,7 +215,8 @@ void Schedule::del_selected(char *selection) {
          // Modified by wlee@isi.edu
 	 //	 if (code)
 	 if (route) {
-	    tcl_Eval("set AS AS%d", routelist.as);
+		asnum_string(buffer, routelist.as);
+	    tcl_Eval("set AS %s", buffer);
 	    tcl_Eval("set ROUTE %s", r->route.get_text());
 	    tcl_Eval("set DATE %s", configure.date);
 	    tcl_Eval("subst \"%.*s%s\"", 
@@ -231,6 +234,7 @@ void Schedule::del_selected_matching_source(char *selection, char *dbase) {
    RouteList::Route *r;
    RouteList::Route::db_as *p;
    Route *route = NULL;
+   char buffer[64];
 
    for (char *s = strtok(selection, " \t"); s; s = strtok(NULL, " \t")) {
       r = routelist(atoi(s));
@@ -254,7 +258,8 @@ void Schedule::del_selected_matching_source(char *selection, char *dbase) {
 
 	    // Modified by wlee@isi.edu
 	    if (route) {
-	       tcl_Eval("set AS AS%d", routelist.as);
+		   asnum_string(buffer, routelist.as);
+	       tcl_Eval("set AS %s", buffer);
 	       tcl_Eval("set ROUTE %s", r->route.get_text());
 	       tcl_Eval("set DATE %s", configure.date);
 	       tcl_Eval("subst \"%.*s%s\"", 

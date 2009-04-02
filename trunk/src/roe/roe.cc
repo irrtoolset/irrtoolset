@@ -99,6 +99,7 @@ char *opt_rcfile       = ".roerc";
 char opt_default_rcfile[256] = "";
 char *display  = NULL;
 char *geometry = NULL;
+bool opt_asdot = false;
 ASt myAS;
 
 
@@ -137,6 +138,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "On termination print resource usage"},
 
       IRR_COMMAND_LINE_OPTIONS,
+
+      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+       "print AS numbers in asdot format."},
 
       // roe specific arguments
       {"-as",  ARGV_STRING,    (char *) NULL,    (char *) &opt_my_as,

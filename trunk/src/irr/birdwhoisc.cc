@@ -429,7 +429,11 @@ int BirdWhoisClient::getSourceOrigin(char *&buffer)
 	AttrGenericIterator<ItemASNO> itrOrigin(itrObject, "origin");
 	AttrGenericIterator<ItemWORD> itrSource(itrObject, "source");
 	if (itrOrigin && itrSource)
-	  cBuffer.append("%s AS%d\n", itrSource()->word, itrOrigin()->asno);
+	  {
+	  char buf[64];
+	  asnum_string_dot(buf, itrOrigin()->asno);
+	  cBuffer.append("%s %s\n", itrSource()->word, buf);
+	  }
 	}
     }
   if (cBuffer.empty()) 

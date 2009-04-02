@@ -67,6 +67,7 @@ extern IRR *RLWhois;
 
 char *RouteList::format(RouteList::Route *vr) {
    static char line[256];
+   char buf[64];
    char *c;
 
    for (c = line; c < line + vr->indentation; ++c)
@@ -108,8 +109,10 @@ char *RouteList::format(RouteList::Route *vr) {
    strcat(line, "    ");
 
    RouteList::Route::db_as* p;
-   for (p = vr->db_as_l.head(); p; p = vr->db_as_l.next(p))
-      sprintf(line + strlen(line), "  %s:AS%d", p->db, p->as);
+   for (p = vr->db_as_l.head(); p; p = vr->db_as_l.next(p)) {
+      asnum_string(buf, p->as);
+      sprintf(line + strlen(line), "  %s:%s", p->db, buf);
+   }
 
    return line;
 }
@@ -497,13 +500,17 @@ void RouteList::load(ASt _as) {
    const PrefixRanges *registered_routes = whois->expandAS(as);
 
    if (!registered_routes) 	{
-	tcl_Eval("showWarning { No object for AS%d}", as);
+	char buf[64];
+	asnum_string(buf, as);
+	tcl_Eval("showWarning { No object for %s}", buf);
         return;
    }
 	
    // Added by wlee
    if (registered_routes->isEmpty()) {
-     tcl_Eval("showWarning { No route for AS%d}", as);
+     char buf[64];
+     asnum_string(buf, as);
+     tcl_Eval("showWarning { No route for %s}", buf);
      return;
    }
 

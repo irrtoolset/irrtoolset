@@ -755,7 +755,7 @@ tkn_word: TKN_WORD {
 }
 | TKN_ASNO {
    char buffer[64];
-   sprintf(buffer, "AS%d", $1);
+   asnum_string(buffer, $1);
    $$ = strdup(buffer);
 }
 | TKN_ASNAME {

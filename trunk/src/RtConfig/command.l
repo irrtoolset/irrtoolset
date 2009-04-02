@@ -205,8 +205,12 @@ int yywrap () {
 }
 
 
-<USEFUL_LINE>[Aa][Ss][0-9]+ {
-   yylval.as = atoi(yytext+2);
+<USEFUL_LINE>[Aa][Ss]([0-9]+|[0-9]+\.[0-9]+) {
+   const char *dot = strchr(yytext,'.');
+   if (dot)
+      yylval.as = atoi(yytext+2)<<16 | atoi(dot+1);
+   else
+      yylval.as = atoi(yytext+2);
    LEXER_RETURN(TKN_ASNUM);
 }
 

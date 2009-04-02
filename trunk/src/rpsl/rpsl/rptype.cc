@@ -254,7 +254,7 @@ Item *RPTypeWord::typeCast(const Item  *item) const {
 	 return new ItemWORD(strdup("false"));
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
-      sprintf(buffer, "AS%d", ((ItemASNO *) item)->asno);
+      asnum_string(buffer, ((ItemASNO *) item)->asno);
       return new ItemWORD(strdup(buffer));
    }
 
@@ -285,7 +285,7 @@ Item *RPTypeBlob::typeCast(const Item  *item) const {
 	 return new ItemBLOB(strdup("false"));
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
-      sprintf(buffer, "AS%d", ((ItemASNO *) item)->asno);
+      asnum_string(buffer, ((ItemASNO *) item)->asno);
       return new ItemWORD(strdup(buffer));
    }
 
@@ -367,7 +367,7 @@ Item *RPTypeEnum::typeCast(const Item  *item) const {
 	 w = new ItemWORD(strdup("false"));
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
-      sprintf(buffer, "AS%d", ((ItemASNO *) item)->asno);
+      asnum_string(buffer, ((ItemASNO *) item)->asno);
       w = new ItemWORD(strdup(buffer));
    }
 
@@ -388,8 +388,7 @@ bool RPTypeBoolean::validate(const Item *item) const {
 ////////////////////////////// RPTypeASNumber ////////////////////
 
 bool RPTypeASNumber::validate(const Item *item) const {
-   return ((typeid(*item) == typeid(ItemASNO))
-	   && ((ItemASNO *) item)->asno <= 65535);
+   return ((typeid(*item) == typeid(ItemASNO)));
 }
 
 ////////////////////////////// RPTypeIPv4Address ////////////////////

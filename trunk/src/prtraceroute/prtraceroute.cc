@@ -103,6 +103,7 @@
 extern IRR * irr;  // defined in irr.cc
 
 int  opt_rusage         = 0;
+int  opt_asdot          = false;
 
 int policy_flag = 1;
 int nflag = 0;
@@ -171,6 +172,7 @@ main (int argc, char **argv, char **envp) {
   ICMPProbeReply reply;		    // wait for incoming icmp's
   Timer t1, t2;
   int ttl, got_there = 0, unreachable = 0;
+  char buf[64];
 
   printf ("prtraceroute to %s (%s), %d hops max, %d byte packets\n",
           dst, dstip->getIpaddr(), max_ttl, datalen);
@@ -192,7 +194,8 @@ main (int argc, char **argv, char **envp) {
             ipAddr *ipaddr = new ipAddr (newaddr);
             if (policy_flag) {
               path.addHop(ipaddr, ttl);
-              printf (" [AS%d]", path.getHopAS(ttl));
+              asnum_string(buf, path.getHopAS(ttl));
+			  printf (" [%s]", buf);
             }
             if (!nflag) {
               printf (" %s (%s)", ipaddr->getName(),
@@ -400,6 +403,9 @@ init_and_set_options (int argc, char **argv, char **envp) {
  //      "Prompt"},
 
       IRR_COMMAND_LINE_OPTIONS,
+
+      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
+       "print AS numbers in asdot format."},
 
       // prtraceroute specific arguments
       {"-g", ARGV_FUNC, (char *)gFlag, (char *)NULL,
@@ -690,6 +696,7 @@ Path::process_policies()  {
   const AutNum * autnum;
   
   char test[80];
+  char buf[64];
   
   actiondictionary = new ActionDictionary;
 
@@ -796,7 +803,8 @@ Path::process_policies()  {
   for (i = last_ttl; i >= 0; i--) {
     if (hops[i] != NULL) {
       //cout << i << "   AS" << getHopAS(i) << " ";
-      printf ("%3d  AS%d", i, getHopAS(i));
+      asnum_string(buf, getHopAS(i));
+	  printf ("%3d  %s", i, buf);
       if (nflag)		// XXX, this is a global, and is bad!!!
         //cout << hops[i]->ipaddr->getIpaddr();
         printf (" %-35s", hops[i]->ipaddr->getIpaddr());

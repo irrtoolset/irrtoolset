@@ -197,7 +197,7 @@ int yywrap () {
    LEXER_RETURN((int) *yytext); 
 }
 
-<USEFUL_LINE>AS[0-9]+ {
+<USEFUL_LINE>[Aa][Ss]([0-9]+|[0-9]+\.[0-9]+) {
    LEXER_RETURN(TKN_ASNUM);
 }
 
