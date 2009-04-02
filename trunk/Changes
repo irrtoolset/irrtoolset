@@ -1,3 +1,5 @@
+* fix f_junos.cc to make export and import token names consistent. Thanks to
+  Stan Barber.
 * Support for 4 byte ASNs. Many thanks to S.P.Zeidler for this.
 * Makefile now honors DESTDIR. Thanks to Kaj Niemi for the patch.
 * @RtConfig fix for IPv6. Thanks to Nick Hilliard for the report and
