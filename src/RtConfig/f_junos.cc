@@ -811,6 +811,9 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 
    Debug(Channel(DBG_JUNOS) << "# ne: " << *ne << "\n");
 
+   if (ne->is_any() != NEITHER)
+      cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+
    if (ne->isEmpty()) 
       return last;
 
@@ -1019,7 +1022,6 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
       return;
     }
 
-   int preAclID = prefixMgr.lastID();
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
 				  NULL, peerAS, peer_addr, addr);
@@ -1074,7 +1076,7 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 
    ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
 
-   printNeighbor(IMPORT, asno, peerAS, peer_addr->get_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi_list);
+   printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi_list);
 }
 
 void JunosConfig::static2bgp(ASt asno, MPPrefix *addr) {
