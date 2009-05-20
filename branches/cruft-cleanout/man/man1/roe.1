@@ -1,0 +1,453 @@
+.\"// $Id$
+.\"// Copyright (c) 2001,2002                        RIPE NCC
+.\"//
+.\"// All Rights Reserved
+.\"//
+.\"// Permission to use, copy, modify, and distribute this software and its
+.\"// documentation for any purpose and without fee is hereby granted,
+.\"// provided that the above copyright notice appear in all copies and that
+.\"// both that copyright notice and this permission notice appear in
+.\"// supporting documentation, and that the name of the author not be
+.\"// used in advertising or publicity pertaining to distribution of the
+.\"// software without specific, written prior permission.
+.\"//
+.\"// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+.\"// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+.\"// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+.\"// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\"// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"// 
+.\"//  Copyright (c) 1994 by the University of Southern California
+.\"//  and/or the International Business Machines Corporation.
+.\"//  All rights reserved.
+.\"//
+.\"//  Permission to use, copy, modify, and distribute this software and
+.\"//  its documentation in source and binary forms for lawful
+.\"//  non-commercial purposes and without fee is hereby granted, provided
+.\"//  that the above copyright notice appear in all copies and that both
+.\"//  the copyright notice and this permission notice appear in supporting
+.\"//  documentation, and that any documentation, advertising materials,
+.\"//  and other materials related to such distribution and use acknowledge
+.\"//  that the software was developed by the University of Southern
+.\"//  California, Information Sciences Institute and/or the International
+.\"//  Business Machines Corporation.  The name of the USC or IBM may not
+.\"//  be used to endorse or promote products derived from this software
+.\"//  without specific prior written permission.
+.\"//
+.\"//  NEITHER THE UNIVERSITY OF SOUTHERN CALIFORNIA NOR INTERNATIONAL
+.\"//  BUSINESS MACHINES CORPORATION MAKES ANY REPRESENTATIONS ABOUT
+.\"//  THE SUITABILITY OF THIS SOFTWARE FOR ANY PURPOSE.  THIS SOFTWARE IS
+.\"//  PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+.\"//  INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\"//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND 
+.\"//  NON-INFRINGEMENT.
+.\"//
+.\"//  IN NO EVENT SHALL USC, IBM, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+.\"//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT,
+.\"//  TORT, OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH,
+.\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"//  Questions concerning this software should be directed to 
+.\"//  info-ra@isi.edu.
+.\"//
+.\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"
+.\"
+.TH roe 1 local
+.SH NAME
+roe (Route Object Editor)
+.SH SYNOPSIS
+.B roe
+.RI [ flags ]\ [<as-no>]
+.SH DESCRIPTION
+.PP
+roe is a C++/Tcl/Tk program that lists the routes registered by <as-no>.
+roe can be used to find discrepancies between the registered routes 
+and the routes that are actually being routed.
+roe can be used to find all the holes that are punched in the AS's routes,
+or all the holes the AS punches in other routes.
+roe can be used to easily add, delete and update route objects in any IRR
+registry (hence the name editor).
+For example,
+one can register all the routes which are routed but not registered in
+couple of mouse clicks.
+If <as-no> is not specified it is deduced for your
+system from the IP address of your host and IRR. 
+.SH IRRToolSet COMMON OPTIONS
+.RS
+.IP -help
+Print summary of command-line options and abort.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> 
+(if compiled with DEBUG defined).
+.IP "\-version"
+Print the version number and quit.
+.IP "\-h <host-name>"
+Establish a whois connection to host <host-name>.
+The default is whois.radb.net.
+This means that roe obtains its data only from
+<host-name>. If it displays routes from other
+registries, those are the mirror copies of those routes
+in <host-name>. However, roe can update any registry,
+not just <host-name>.
+.IP "\-p <port-no>"
+Establish a whois connection to port <port-no>.
+The default is 43.
+.IP "\-protocol <protocol>"
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd), ripe(bird), and ripe_perl. The default is irrd. The ripe_perl option should be used with the old ripe server.
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>.
+For example, -s RADB,MCI,CANET,ANS,RIPE
+.IP \-rusage
+Print resource usage upon completion.
+.IP "\-ignore_errors"
+Do not print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-report_errors"
+Print error and warning messages due to communication to the
+database server or parsing policy objects.
+.RE
+.SH OTHER OPTIONS
+.RS
+.IP "\-as <as-no>"
+Lists routes of <as-no>. 
+.IP \-asdot
+Print AS numbers as asdot, i.e. in "X.Y" format;
+the default is to use RFC-5396 recommended "asplain" format.
+.IP "-rcfile <resource filename>"
+.IP "\-display <X Windows Display Specification>"
+.IP "\-geometry <X Windows Geometry Specification>"
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the IRR host to connect.
+.IP IRR_PORT
+Specifies the IRR port number to connect.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH USAGE
+.PP
+Invoke roe using your AS number,
+.nf
+	% roe AS226
+.fi
+roe will acquire and display the set of address prefixes that are
+registered with your AS as the origin.
+Afterwards, 
+in the background,
+next to each address prefix it will display a set of IRR registry and AS number
+pairs.
+This information signifies that
+a route object for this prefix is registered in the IRR registry by the
+origin displayed.
+In addition,
+next to each route some of the followed words may be displayed:
+.RS
+.IP NotReg 
+to signify that the route is not registered,
+.IP NotRtd 
+to signify that the route is not routed (according to a BGP dump),
+.IP OtrHmd 
+to signify that the route is homed to an AS other than yours,
+.IP MltHmd 
+to signify that the route is homed to more than one AS
+and one of which is your AS,
+.IP MHmOtr 
+to signify that the route is homed to more than one AS
+and none of which is your AS,
+.IP --- 
+to signify that the route's status is not yet determined.
+
+.RE
+If you select an address prefix by clicking left mouse button on it,
+a set of buttons will be displayed,
+each corresponding to the registry and AS number pairs
+of the selected address prefix.
+Clicking on these buttons will display the object's definition in the
+lower left window.
+To delete (update or add) an object, 
+press the delete (update or add) button,
+followed by the schedule button.
+In the lower right window,
+all the scheduled transactions are listed.
+You can select any of them to display the object which is scheduled.
+The selected transaction can be unscheduled by clicking on the cancel
+button.
+Transactions are carried out to update the IRR when the Update IRR button
+is pressed.
+.PP
+If you click on the Update IRR button,
+a set of windows will pop-up,
+one for each registry and maintainer pair.
+In this window make sure that the program to pipe is correct, and in the body
+of the message add any authorization words that may be necessary (such as
+passwords).
+Then, click either on the Update button or on the Cancel button to
+commit your scheduled transactions, or to skip them forever.
+The affect of your updates are not immediately shown on the display,
+since IRR currently may take up to a day to propagate all the changes
+back to the server that roe connected to.
+.PP
+It is possible to select more than one address prefixes. 
+Selecting more than one address prefixes is useful for the commands in
+the menu bar.
+To select more than one address prefix which are not contiguous, 
+click the left
+mouse button while holding the control key down.
+This toggles the selection status of the address prefix under the pointer.
+For more options,
+please refer to 
+the default bindings section for the extended listboxes
+in Tk listbox man page.
+.SH MENUS
+.PP
+.RS
+.IP "File/Compare with BGP dump"
+A file name will be prompted. 
+This file should contain the set of address prefixes that your AS
+originates.
+The file format is the following. 
+Each line contains a classless address prefix (e.g. 128.8.0.0/15)
+or a classfull address (e.g. 128.9.0.0) followed by any other data which
+is skipped.
+A line that does not have either a classless or classfull address that starts
+in the first five columns is skipped.
+The BGP dump generated by the command "show ip BGP regexp ^$" meets the
+requirements of this file.
+If you have a BGP dump in another format,
+you should convert it to a file 
+which lists the address prefixes (classless or classfull), 
+one at a line.
+.IP "File/Quit"
+This item causes roe to exit.
+.PP
+.IP "Show"
+roe displays address prefixes that match a display criteria.
+By default all address prefixes match the display criteria.
+Show menu changes the current display criteria.
+It consist of 4 parts.
+All parts are explained below in detail.
+The last three parts control the three main criteria,
+registration criterion,
+routed criterion,
+homed criterion.
+Each criterion can have several values.
+For a route to be shown on display
+it has to match one of the selected values of all three criteria.
+A common mistake is to select a value for one of the criterion
+and select no value for the other two criteria.
+This will not display any routes
+since no routes will match the other two criteria.
+Often what is meant can be achieved
+by selecting one value in one criterion 
+and all values in the other criteria.
+.PP
+.IP "Show/Show None"
+This menu item
+makes no address prefix match the display criteria.
+.IP "Show/Show All"
+This menu item
+makes all address prefixes match the display criteria.
+.IP "Show/Show Again"
+Whether an address prefix matches the display criteria can change in time 
+since certain criteria can only be determined after roe
+acquired the registration information from IRR,
+which it does in the background.
+This menu item redisplays the list of address prefixes
+using the information currently acquired.
+.IP "Show/Not Registered"
+Match the set of address prefixes 
+that are not registered in IRR.
+These address prefixes are most likely introduced 
+by a compare with BGP dump operation.
+.IP "Show/Singly Registered"
+Match the set of address prefixes 
+that are registered by only one route object.
+.IP "Show/Multi Registered"
+Match the set of address prefixes 
+that are registered by more than one route object.
+.IP "Show/Undetermined"
+Match the set of address prefixes 
+for which neither of the above is determined yet.
+.IP "Show/Routed"
+Match the set of address prefixes 
+that are routed according to the BGP dumps compared.
+.IP "Show/Not Routed"
+Match the set of address prefixes 
+that are not routed according to the BGP dumps compared.
+.IP "Show/Undetermined"
+Match the set of address prefixes 
+for which neither of the above is determined yet.
+.IP "Show/Single Homed to Your AS"
+Match the set of address prefixes 
+that are registered by only your AS.
+.IP "Show/Single Homed to Other AS"
+Match the set of address prefixes 
+that are registered by only one AS other than your AS.
+.IP "Show/Multi Homed"
+Match the set of address prefixes 
+that are registered by more than one AS.
+.IP "Show/Undetermined"
+Match the set of address prefixes 
+for which neither of the above is determined yet.
+.PP
+.IP "Selection/Select All"
+Select all routes currently being displayed.
+.IP "Selection/UnSelect All"
+Unselect all routes currently being displayed.
+.IP "Selection/Add Selected Routes"
+Add a route object for all the selected address prefixes
+using the add template in the Configure/Templates menu.
+.IP "Selection/Delete Selected Routes"
+Delete all route objects for the selected address prefixes
+from any registry that they are registered in,
+using the delete template in the Configure/Templates menu.
+.IP "Selection/Delete Selected Routes from"
+Delete all route objects for  the selected address prefixes
+from the registry that you will be prompted for,
+using the delete template in the Configure/Templates menu.
+.IP "Selection/Get More Specifics"
+List any address prefix registered in IRR 
+which is a more specific of the selected routes.
+This option takes around a minute or two when it is invoked for the first
+time.
+.IP "Selection/Get Less Specifics"
+List any address prefix registered in IRR
+which is a less specific of the selected routes.
+This option takes around a minute or two when it is invoked for the first
+time.
+.PP
+If you are interested for the more specifics and less specifics of all
+your routes, do the following: (1) select all routes, (2) get more
+specifics, (3) select all routes, (4) get less specifics. If you change
+the order and get the less specifics first, you will display all the
+routes registered in IRR,
+since 0.0.0.0/0 is registered. 
+Doing this requires significant amount of memory.
+.PP
+.IP "Configure/Templates"
+There are add, delete and update templates.
+The add template is used to create new route objects.
+It should contain all the attributes that you include in your route objects.
+You can (and should) refer to $ROUTE, $AS, and
+$DATE macros anywhere in your templates. 
+These will be substituted by the
+actual address prefix, the as number and the current day correspondingly.
+.PP
+The update template is used when an object definition is updated.
+It should at least contain a changed attribute
+and may contain other attributes.
+The delete template is used when an object is going to be deleted.
+It should contain only the delete attribute,
+and no other attribute 
+(if you put other attributes, 
+the object will not be deleted
+since an exact match except for the delete attribute is required for deletion).
+.IP "Configure/IRR Update Commands"
+A window displaying the IRR registries and the update commands will pop-up.
+Roe will pipe the data to the update command 
+to update the corresponding registry.
+.IP "Configure/Revert to Factory Settings"
+Change above configuration options to factory settings.
+.IP "Configure/Save Options"
+Save the configuration options to file ~/.roerc.
+.IP "Configure/Reload Options"
+Reload the configuration options from file ~/.roerc.
+.RE
+.PP
+.SH EXAMPLE USES
+Following uses may be of interest.
+Prepare a BGP dump of your routes.
+Invoke roe. 
+Do a "File/Compare with BGP dump".
+Wait till pending replies reaches 0.
+.PP
+1. Show "Not Registered" and "Routed" routes.
+Register all of these routes.
+You can use "Selection/Select All" followed by "Selection/Add Selected Routes".
+.PP
+2. Select "Not Routed", "Singly Registered", "Multi Registered"
+and "Single Homed to Your AS" routes.
+Unregister all of these routes.
+You can use "Selection/Select All" followed by 
+"Selection/Delete Selected Routes".
+.PP
+3. Select "Not Routed", "Singly Registered", "Multi Registered"
+and "Multi Homed with Your AS" routes.
+Unregister only your own registrations.
+You need to do this one by one.
+.PP
+4. Select "Multi Registered", "Routed",
+and "Single Homed to Your AS" routes.
+You only need one copy of these routes in IRR.
+Pick one registry in IRR as your primary registry.
+Unregister the extra copies from the non-primary registries.
+You can use "Selection/Select All" followed by 
+"Selection/Delete Selected Routes from".
+.PP
+.SH FILES
+roe creates a ~/.roerc file which stores the templates and the update
+commands. This file is not meant for hand editing.
+.PP
+.SH SUGGESTION
+Joachim Schmitz points out that it is not necessarily the best
+choice to use a "show ip bgp regex ^$" within the home AS 
+(which is IBGP routes) to study consistency of route objects in
+the IRRs and the actual routes.  He advises to get an EBGP table 
+from an external peer using "show ip bgp regex ^<as-no>"
+.PP
+.SH ERROR AND WARNING MESSAGES
+AS number should start with "AS"
+.RS
+.PP
+Syntax error in AS number, which should be AS<integer>.
+.PP
+.RE
+Error: while parsing <yyline>
+.RS
+.PP
+Yacc parser error on BGP dump file. This may be caused by wrong BGP dump format (see above). 
+.PP
+.RE
+Unknown protocol!
+.RS
+.PP
+The connection to IRR failed. This can be caused by various reasons, see Errors manpage, IRR Communication errors.
+.PP
+.RE
+No <asno> on IRR!
+.RS
+.PP
+Originating aut-num is not found on IRR. You might mistype the source, hostname or as-number, or the object is truly non-existent.
+.PP
+.RE
+No route for <as_no>
+.RS
+.PP
+No route objects are originated from <as_no> (from IRR). This can be a typing mistake for the AS-number, or also truly error.
+.PP
+.RE
+No object for <as_no>
+.RS 
+.PP
+No aut-num object is found on IRR for <as_no>
+.RS
+.PP
+See above.
+.PP
+.RE
+.PP
+For more error descriptions, please see 
+.B Error manual page.
+.SH AUTHORS
+Cengiz Alaettinoglu <cengiz@isi.edu>
+
+Katie Petrusha <katie@ripe.net>

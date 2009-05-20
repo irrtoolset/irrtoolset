@@ -1,0 +1,104 @@
+# $Id$
+
+# Objects and sources files
+SOURCES		= Address.cc \
+		  File.cc \
+		  FileSet.cc \
+		  Time.cc \
+		  Signal.cc
+
+OBJECTS		= Address.o \
+		  File.o \
+		  FileSet.o \
+	          Time.o \
+		  Signal.o
+
+HEADERS		= Address.hh \
+		  File.hh \
+		  FileSet.hh \
+		  Time.hh \
+		  Signal.hh
+
+#------------------------------------------------------------------
+# Paths
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+prefix      	= @prefix@
+exec_prefix 	= @exec_prefix@
+bindir      	= @bindir@
+mandir      	= @mandir@
+man1dir     	= $(mandir)/man1
+man8dir     	= $(mandir)/man8
+
+# programs
+@SET_MAKE@
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @LD@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# Other variables
+DEFINES  	= @DEFS@
+CFLAGS   	= @CFLAGS@
+CPPFLAGS 	= @CPPFLAGS@
+LDFLAGS  	= @LDFLAGS@
+CXXFLAGS 	= @CXXFLAGS@
+INCDIRS 	= -I.. -I. -I$(top_srcdir) @EXTRA_INCLUDE_DIRS@
+DISTFILES	= Makefile.in $(SOURCES) $(HEADERS)
+
+default: all
+
+# Implicit rules
+.y.o:
+
+.c.o:
+	@echo Compiling: `basename $<`
+	@$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	@echo Compiling: `basename $<`
+	@$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.SUFFIXES: .cc
+
+# Building the distribution
+distdir: 
+	@for file in `cd $(srcdir) && echo $(DISTFILES)`; do \
+	  test -f $(distdir)/$$file \
+	  || ln $(srcdir)/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $(srcdir)/$$file $(distdir)/$$file; \
+	done
+
+# other explicit rules
+all: $(OBJECTS)
+
+clean:
+	rm -f core *.o *~
+
+mostlyclean:
+	rm -f core *.o *~
+
+depend: $(SOURCES)
+	@echo Making dependencies for $(SOURCES)
+	@$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) ${SOURCES}>makedep
+	@echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
+	@echo '$$r makedep' >>eddep
+	@echo 'w' >>eddep
+	@cp Makefile Makefile.bak
+	@ed - Makefile < eddep
+	@rm eddep makedep
+	@echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
+	@echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
+	@echo '# see make depend above' >> Makefile
+
+# DO NOT DELETE THIS LINE
+# DEPENDENCIES MUST END AT END OF FILE
+# IF YOU PUT STUFF HERE IT WILL GO AWAY
+# see make depend above

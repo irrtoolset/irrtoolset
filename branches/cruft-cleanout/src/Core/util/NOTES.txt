@@ -1,0 +1,37 @@
+Allocator.hh
+	referenced for memory allocation only in src/rpsl/rpsl/symbols.hh. 
+	Should be simple enough to replace with C stdlib or C++ lib memory
+	allocator.
+
+Buffer.cc
+Buffer.hh
+	Referenced ubiquitously
+
+BufferIterator.hh
+	removed
+
+FixedSizeAllocator.hh
+	referenced in "normalform" library
+
+Handler.hh
+List.hh
+	Referenced ubiquitously
+
+debug.hh
+	referenced in RtConfig.cc, peval.cc and rpslcheck.cc
+
+strchr.cc
+	unreferenced, removed
+
+strerror.c
+strtol.c
+	contained in libiberty, removed
+
+strlwr.c
+	duplicate of code in strupr. removed
+
+strupr.c
+xstring.h
+	strlwr used in rpsl/rpsl/rpsl_attr.hh.  strupr used widely
+	elsewhere. Should be replaced with toupper() and tolower() and these
+	files removed.
