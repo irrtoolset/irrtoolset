@@ -58,12 +58,6 @@ enum FileMode {
     FileModeReadWrite
 };
 
-enum RawSocketType {
-    RawSocketICMP = IPPROTO_ICMP,
-    RawSocketIGMP = IPPROTO_IGMP,
-    RawSocketRAW = IPPROTO_RAW
-};
-
 class File : public DListNode {
     
   public:
@@ -115,93 +109,6 @@ public:
 	int setopt(int level, int optname, const void *optval, size_t optlen);
 };
 
-class DatagramSocket : public Socket {
-  public:
-    // Create a new UDP socket
-    DatagramSocket(const Handler&,	// In: read handler
-                   const Handler&);	// In: write handler
-
-    // Delete the UDP socket
-    ~DatagramSocket();
-
-    // Receive data on a unconnected socket
-    int
-    recvFrom(char*,			// In: pointer to buffer
-             int,			// In: size of buffer
-             Address&,			// Out: address of sender
-             Port*);			// Out: port number of sender
-
-    // Send data on unconnected socket
-    int
-    sendTo(char*,			// In: pointer to data to send
-           int,				// In: size of buffer
-           Address&,			// In: destination address
-           Port);			// In: destination port
-
-    static int
-    defaultInterface(Address& localAddress, const Address &dst); // ret local address for sending to dst 
-};
-
-class RawSocket : public Socket {
-  public:
-    // Create a new UDP socket
-    RawSocket(Handler&,		// In: read handler
-              Handler&,		// In: write handler
-              RawSocketType);	// In: type of raw socket
-
-    // Delete the UDP socket
-    ~RawSocket();
-
-    // Receive data on a unconnected socket
-    // Buffer must be large enough to include IP header
-    int
-    recvFrom(char*,			// In: pointer to buffer
-             int,			// In: size of buffer
-             Address&,			// Out: address of sender
-             Port*);			// Out: port number of sender
-
-    // Send data on unconnected socket
-    // Data must include IP header!
-    int
-    sendTo(char*,			// In: pointer to data to send
-           int,				// In: size of buffer
-           Address&,			// In: destination address
-           Port) const;			// In: destination port
-
-    // Join a multicast group address
-    int
-    join(const Address&);		// In: group address to join
-
-};
-
-class MulticastSocket : public DatagramSocket {
-  public:
-    // Create a new multicast socket
-    MulticastSocket(const Address&,	// In: group address to join on
-                    Port,		// In: local port number
-                    const Handler&,	// In: read handler
-                    const Handler&);	// In: write handler
-
-    // Delete the multicast socket
-    ~MulticastSocket();
-
-    // Get default multicast interface address
-    int
-    defaultInterface(Address&);
-    
-    // Set a TTL value for the multicast group
-    int
-    setTTL(int ttl);			// In: ttl value
-
-    int
-    sendTo(char* buf, int sz) {
-	return DatagramSocket::sendTo(buf, sz, group, port);
-    }
-
-    Address	group;
-    Port	port;
-};
-
 class StreamSocket : public Socket {
   public:
     // Create a new socket
@@ -236,34 +143,6 @@ class ListenSocket : public Socket {
            Port*,			// Out: remote port
            Handler&,			// In: read handler for connection
            Handler&);			// In: write handler for connection
-};
-
-class DiskFile : public File {
-  public:
-    // Create a new disk file, possibly in read-only mode
-    DiskFile(char*,			// In: name of file
-             Boolean,			// In: true if read only
-             Handler&,			// In: read handler
-             Handler&);			// In: write handler
-
-    // Close a disk file
-    ~DiskFile();
-    
-    // Seek to a particular offset within file
-    int
-    seekTo(u_long);			// In: offset to seek to
-
-    // Seek to end of file
-    int
-    seekEnd();
-
-    // Set an advisory lock on a file
-    int
-    lock();
-
-    // Truncate a file
-    int
-    truncate(u_int);			// In: size to truncate file to
 };
 
 // Sundry externs

@@ -1,0 +1,26 @@
+ACG.hh
+ACG.cc
+	previously used only in network/Prefix.cc
+	removed
+
+There is a slightly complicated inderdependency of files in this directory.
+
+class MLCG referenced by:
+	Core/util/List.hh
+	Core/sys/Time.cc
+
+class Uniform referenced by:
+	Core/util/List.hh
+	Core/sys/Time.cc
+
+class RNG referenced by:
+	class MLCG
+	class Uniform
+
+class Random referenced by
+	class RNG
+	class Uniform
+
+So, by removing MLCG and Uniform from Core/util/List.hh and
+Core/sys/Time.cc, it will be possible to remove classes MLCG, Uniform, RNG
+and Random.

@@ -357,12 +357,6 @@ AC_OUTPUT(Makefile
 	src/irr/Makefile
 	src/normalform/Makefile
 	src/peval/Makefile
-	src/prpath/Makefile
-	src/CIDRAdvisor/Makefile
-	src/prtraceroute/Makefile
-	src/roe/Makefile
-	src/aoe/Makefile
 	src/rpslcheck/Makefile
 	src/RtConfig/Makefile
-	src/bgp/Makefile
 )

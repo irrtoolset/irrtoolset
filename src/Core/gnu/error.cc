@@ -19,15 +19,8 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include <builtin.h>
-
-void default_one_arg_error_handler(const char* msg)
-{
-  fputs("Error: ", stderr);
-  fputs(msg, stderr);
-  fputs("\n", stderr);
-  abort();
-}
-
+#include <stdlib.h>
+#include <stdio.h> 
 
 void default_two_arg_error_handler(const char* kind, const char* msg)
 {

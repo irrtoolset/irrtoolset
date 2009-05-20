@@ -63,7 +63,6 @@
 #include <cstdarg>
 #include "RtConfig.hh"
 #include "f_cisco.hh"
-#include "f_bcc.hh" 
 #include "f_junos.hh" 
 #include "irr/irr.hh"
 #include "irrutil/trace.hh"

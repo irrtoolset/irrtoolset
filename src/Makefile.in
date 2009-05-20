@@ -14,9 +14,8 @@ top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@
 INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@
 
-LIBDIRS =  irrutil gnug++ irr re2dfa normalform bgp Core rpsl
-#TOOLDIRS = rpslcheck peval RtConfig roe prpath prtraceroute CIDRAdvisor aoe
-TOOLDIRS = rpslcheck peval RtConfig #roe prpath prtraceroute CIDRAdvisor aoe
+LIBDIRS =  irrutil gnug++ irr re2dfa normalform Core rpsl
+TOOLDIRS = rpslcheck peval RtConfig
 SUBDIRS = $(LIBDIRS) $(TOOLDIRS)
 
 # programs

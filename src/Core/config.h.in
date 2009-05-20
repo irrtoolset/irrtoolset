@@ -145,9 +145,6 @@
 /* Define if we accept/recvfrom/... uses socklen_t instead of size_t as arg */
 #undef ACCEPT_USES_SIZE_T
 
-/* Define if malloc.h has memalign definition */
-#undef HAVE_MEMALIGN_DEFINITION
-
 /* Define if you have the flock function.  */
 #undef HAVE_FLOCK
 

@@ -1,11 +1,11 @@
 # $Id$
 
 # Objects and sources files
-SOURCES		= Buffer.cc  atoll.c    strchr.cc   strlwr.c  strupr.c \
-		  Trail.cc   rusage.cc  strerror.c  strtol.c
-OBJECTS		= Buffer.o   atoll.o    strchr.o    strlwr.o  strupr.o \
-		  Trail.o    rusage.o   strerror.o  strtol.o
-HEADERS		= Allocator.hh Buffer.hh BufferIterator.hh \
+SOURCES		= Buffer.cc  atoll.c  strupr.c \
+		  Trail.cc   rusage.cc
+OBJECTS		= Buffer.o   atoll.o  strupr.o \
+		  Trail.o    rusage.o
+HEADERS		= Allocator.hh Buffer.hh \
                   FixedSizeAllocator.hh Handler.hh List.hh NoTrail.hh \
                   Trail.hh Types.hh debug.hh rusage.hh xstring.h
 

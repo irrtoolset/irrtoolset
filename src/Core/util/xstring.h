@@ -62,7 +62,6 @@ extern "C" {
 
 extern char *strlwr(char *c);
 extern char *strupr(char *c);
-extern char *strerror(int e);
 
 #ifdef __cplusplus
 }

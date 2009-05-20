@@ -1,24 +1,14 @@
 # $Id$
 
 # Objects and source files
-REGEX_OBJ	= regex.o
-REGEX_SRC	= regex.c
-REGEX_HEA	= regex.h
-EXTRA_REG_OBJ	= @extra_reg_obj@
-EXTRA_REG_SRC	= @extra_reg_src@
-EXTRA_REG_HEA	= @extra_reg_hea@
+SOURCES		= GetOpt.cc MLCG.cc RNG.cc Random.cc Uniform.cc hash.cc \
+		  error.cc $(EXTRA_REG_SRC)
 
-SOURCES		= ACG.cc GetOpt.cc MLCG.cc RNG.cc Random.cc RndInt.cc \
-	          Uniform.cc hash.cc \
-		  error.cc malloc.c $(EXTRA_REG_SRC)
+OBJECTS		= GetOpt.o MLCG.o RNG.o Random.o Uniform.o hash.o \
+		  error.o $(EXTRA_REG_OBJ)
 
-OBJECTS		= ACG.o GetOpt.o MLCG.o RNG.o Random.o RndInt.o \
-	          Uniform.o hash.o \
-		  error.o  malloc.o $(EXTRA_REG_OBJ)
-
-HEADERS         = ACG.h GetOpt.h MLCG.h RNG.h Random.h RndInt.h \
-                  Uniform.h std.h builtin.h \
-		  Pix.h malloc.h $(EXTRA_REG_HEA)
+HEADERS         = GetOpt.h MLCG.h RNG.h Random.h Uniform.h std.h builtin.h \
+		  Pix.h $(EXTRA_REG_HEA)
 
 #-------------------------------------------------------------------
 # Paths

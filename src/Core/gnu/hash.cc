@@ -36,20 +36,3 @@ unsigned int hashpjw(const char* x) // From Dragon book, p436
   }
   return h;
 }
-
-unsigned int multiplicativehash(int x)
-{
-  // uses a const close to golden ratio * pow(2,32)
-  return ((unsigned)x) * 2654435767u;
-}
-
-
-unsigned int foldhash(double x)
-{
-  union { unsigned int i[2]; double d; } u;
-  u.d = x;
-  unsigned int u0 = u.i[0];
-  unsigned int u1 = u.i[1]; 
-  return u0 ^ u1;
-}
-

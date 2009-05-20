@@ -10,22 +10,15 @@ SRCDIRS		= gnu		\
 SUBDIRS		= $(SRCDIRS)
 
 
-PCAP_OBJ	= network/Pcap.o
 REGEX_OBJ	= gnu/regex.o
-EXTRA_NET_OBJ	= @extra_net_obj@
-NETOBJECTS	= network/Network.o network/Mtrace.o network/Ping.o \
-		  network/TProbe.o network/Prefix.o network/ICMProbe.o \
-		  network/RouterMap.o \
-		  $(EXTRA_NET_OBJ)
 EXTRA_OBJ	= @extra_obj@
 EXTRA_REG_OBJ	= @extra_reg_obj@
 OBJECTS 	= gnu/ACG.o gnu/GetOpt.o gnu/MLCG.o gnu/RNG.o gnu/Random.o gnu/RndInt.o \
 		  gnu/Uniform.o gnu/hash.o gnu/error.o \
 		  sched/Timer.o sched/Job.o sched/Dispatcher.o \
 		  sys/Address.o sys/File.o sys/FileSet.o \
-		  sys/Listener.o sys/Pipe.o sys/Time.o sys/Signal.o \
+		  sys/Time.o sys/Signal.o \
 		  util/Trail.o util/rusage.o util/Buffer.o util/strupr.o util/atoll.o \
-		  util/strtol.o util/strchr.o util/strlwr.o util/strerror.o \
 		  $(EXTRA_OBJ) $(EXTRA_REG_OBJ)
 
 #-------------------------------------------------------------------

@@ -5,29 +5,24 @@ GOAL   = libgnug++.a
 OBJS   = SymbolConjunctPtr.Bag.o  SymbolConjunctPtr.SplayBag.o \
 	SymbolConjunctPtr.SplayNode.o \
 	NormalTermPtr.DLList.o \
-	int.int.Map.o  int.int.VHMap.o \
 	unsigned.OXPSet.o unsigned.Plex.o unsigned.Set.o unsigned.XPlex.o \
 	CacheKey.CacheValue.AVLMap.o CacheKey.CacheValue.Map.o \
-	Regex.o rx.o  \
-	BitSet.o AllocRing.o builtin.o gcd.o fmtq.o
+	Regex.o rx.o
 
 SRCS   = SymbolConjunctPtr.Bag.cc SymbolConjunctPtr.SplayBag.cc \
 	SymbolConjunctPtr.SplayNode.cc \
 	NormalTermPtr.DLList.cc \
-	int.int.Map.cc  int.int.VHMap.cc \
 	unsigned.OXPSet.cc unsigned.Plex.cc unsigned.Set.cc unsigned.XPlex.cc \
 	CacheKey.CacheValue.AVLMap.cc CacheKey.CacheValue.Map.cc \
-	Regex.cc rx.c \
-	BitSet.cc AllocRing.cc builtin.cc gcd.cc fmtq.cc
+	Regex.cc rx.c
 
 HFILES = SymbolConjunctPtr.Bag.h  SymbolConjunctPtr.SplayBag.h \
 	SymbolConjunctPtr.SplayNode.h  SymbolConjunctPtr.defs.h \
 	NormalTermPtr.DLList.h NormalTermPtr.defs.h \
-	int.int.Map.h  int.int.VHMap.h int.defs.h \
 	unsigned.OXPSet.h unsigned.Plex.h unsigned.Set.h unsigned.XPlex.h \
 	unsigned.defs.h	\
 	CacheKey.CacheValue.Map.h CacheKey.CacheValue.AVLMap.h CacheKey.defs.h \
-	SetBit.h bitprims.h Regex.h BitSet.h AllocRing.h builtin.h rx.h
+	Regex.h builtin.h rx.h
 
 LIBS   =
 

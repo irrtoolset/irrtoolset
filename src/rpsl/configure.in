@@ -94,16 +94,9 @@ AC_EGREP_CPP([timeval[[ \t]]*ru_utime],
    AC_DEFINE(RUSAGE_USES_TIMEVAL)],
   AC_MSG_RESULT(no)) 
 
-AC_MSG_CHECKING(for memalign definition)
-AC_EGREP_HEADER(memalign, malloc.h, [AC_DEFINE(HAVE_MEMALIGN_DEFINITION)
-AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
-
 AC_MSG_CHECKING(for strcasecmp definition)
 AC_EGREP_HEADER(strcasecmp, string.h, [AC_DEFINE(HAVE_STRCASECMP_DEFINITION)
 AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
-
-
-
 
 dnl Check if socklen_t is defined
 AC_MSG_CHECKING(for whether accept uses type (socklen_t *) as parameter)

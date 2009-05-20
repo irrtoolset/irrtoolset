@@ -73,9 +73,6 @@ extern "C" {
 #include "re2dfa/regexp_nf.hh"
 #include "f_cisco.hh"
 #include "f_junos.hh"
-#include "f_bcc.hh"
-#include "f_gated.hh"
-#include "f_rsd.hh"
 #include "rpsl/schema.hh"
 #include "irr/classes.hh"
 
@@ -113,19 +110,10 @@ typedef struct {
 
 CiscoConfig ciscoConfig;
 JunosConfig junosConfig;
-/*
-GatedConfig gatedConfig;
-RSdConfig   rsdConfig;
-BccConfig bccConfig;
-*/
 
 config_format_type config_formats[] = {
-//   { "rsd",         &rsdConfig },
-//   { "gated",       &gatedConfig },
    { "cisco",       &ciscoConfig },
    { "junos",       &junosConfig },
-//   { "bcc",       &bccConfig },
-   //   { "rsd",         rsd_process_line },
    { "", 0 }
 };
 
@@ -187,7 +175,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "print AS numbers in asdot format."},
 
      {"-config", ARGV_FUNC, (char *) &select_config_format, (char *) NULL, 
-      "Configuration format (junos, cisco, bcc, gated or rsd)"},
+      "Configuration format (junos, cisco)"},
      {"-no_match_ip_inbound", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::forcedInboundMatchIP,
       "Produce a match ip clause for inbound maps.\n\t\t\t\tCisco only."},

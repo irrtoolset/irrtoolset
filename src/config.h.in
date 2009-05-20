@@ -127,9 +127,6 @@
 /* Define if you have the Tk_CreateMainWindow function */
 #undef in_addr_t
 
-/* Define if malloc.h has memalign definition */
-#undef HAVE_MEMALIGN_DEFINITION
-
 /* Define if sys/time.h declares gettimeofday */
 #undef HAVE_DECL_GETTIMEOFDAY
 /* Define if string.h declares bzero */

@@ -58,9 +58,6 @@ struct TrailConfig {
 };
 
 
-// Classes defined elsewhere
-//class DiskFile;
-
 // A Trail object encapsulates the interface to the system
 // tracing and logging facilities. There is exactly one such
 // object in the system.

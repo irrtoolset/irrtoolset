@@ -4,24 +4,18 @@
 SOURCES		= Address.cc \
 		  File.cc \
 		  FileSet.cc \
-		  Listener.cc \
-		  Pipe.cc \
 		  Time.cc \
 		  Signal.cc
 
 OBJECTS		= Address.o \
 		  File.o \
 		  FileSet.o \
-		  Listener.o \
-		  Pipe.o \
 	          Time.o \
 		  Signal.o
 
 HEADERS		= Address.hh \
 		  File.hh \
 		  FileSet.hh \
-		  Listener.hh \
-		  Pipe.hh \
 		  Time.hh \
 		  Signal.hh
 

@@ -198,9 +198,6 @@ AC_EGREP_CPP([timeval[[ \t]]*ru_utime],
 ], [AC_MSG_RESULT(yes) 
 AC_DEFINE(RUSAGE_USES_TIMEVAL)], AC_MSG_RESULT(no)) 
 
-AC_MSG_CHECKING(for memalign definition)
-AC_EGREP_HEADER(memalign, malloc.h, [AC_DEFINE(HAVE_MEMALIGN_DEFINITION)
-AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
 AC_EGREP_HEADER(getpagesize,  unistd.h,     AC_DEFINE(HAVE_DECL_GETPAGESIZE))
 
 ########################## Signal type ############################
@@ -219,25 +216,11 @@ dnl ******************** things that need to be compiled with c++
 dnl Checks for libraries
 AC_CHECK_LIB(m, exp, , [AC_MSG_WARN(math library not found)])
 
-pcaplib=false
-if $compile_network; then
-    AC_CHECK_LIB(pcap, pcap_read, [pcaplib=true])
-fi
 AC_CHECK_LIB(z, deflate, , [AC_MSG_WARN(zlib not found)])
 AC_SUBST(LIBS)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(strings.h fcntl.h sys/time.h syslog.h unistd.h memory.h limits.h malloc.h)
-if $pcaplib; then
-   CPPFLAGS="-I/usr/include/pcap $CPPFLAGS"
-   AC_CHECK_HEADERS(pcap.h, , [AC_MSG_WARN(Compiling without PCAP)]; pcaplib=false)
-fi
-if $pcaplib; then
-   extra_net_obj='$(PCAP_OBJ)'
-else
-   extra_net_obj=
-fi
-AC_SUBST(extra_net_obj)
 AC_SUBST(CPPFLAGS)
 
 dnl Check for regex.h

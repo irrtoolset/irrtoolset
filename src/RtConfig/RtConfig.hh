@@ -57,6 +57,7 @@
 #include "config.h"
 #include <iostream>
 #include "rpsl/rpsl.hh"
+#include "normalform/NE.hh"
 
 class AttrRPAttr;
 class AttrMethod;

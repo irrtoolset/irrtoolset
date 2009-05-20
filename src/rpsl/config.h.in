@@ -89,9 +89,6 @@
    ip_hl or ip_vhl */
 #undef STRUCT_IP_USES_VHL
 
-/* Define if malloc.h has memalign definition */
-#undef HAVE_MEMALIGN_DEFINITION
-
 /* Define if string.h has strcasecmp definition */
 #undef HAVE_STRCASECMP_DEFINITION
 
