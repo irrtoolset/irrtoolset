@@ -77,6 +77,8 @@ extern "C" {
 #endif
 }
 
+#define yylineno commandlineno
+
 extern int yyerror(char *);
 extern int yylex();
 extern int yylineno;

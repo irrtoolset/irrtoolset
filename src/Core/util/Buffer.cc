@@ -73,105 +73,6 @@ ostream &operator<<(ostream &os, const Buffer &b)
   return os;
 }
 
-Buffer*
-Buffer::compress()
-{
-#ifdef NEED_COMPRESSION
-    z_stream                    cp;
-    int                         err;
-    Buffer*			nbuf;
-
-    // Need at most 1.1 * length for the decompressed buffer
-    nbuf = new Buffer((unsigned long) ((1.1 * size) + 12));
-
-    // Compress the incoming data
-    cp.zalloc = (alloc_func) mymalloc;
-    cp.zfree = (free_func) myfree;
-    cp.opaque = (voidpf) 0;
-
-    err = deflateInit(&cp, Z_BEST_COMPRESSION);
-    if (err != Z_OK) {
-        ERROR("zlib error %d while initializing stream\n", err);
-        delete nbuf;
-        return NULL;
-    }
-
-    cp.next_in = (unsigned char*) contents;
-    cp.avail_in = size;
-    cp.next_out = (unsigned char*) nbuf->contents;
-    cp.avail_out = nbuf->capacity;
-    
-    err = deflate(&cp, Z_FINISH);
-    if (err != Z_STREAM_END) {
-        ERROR("zlib error %d when compressing data\n", err);
-        delete nbuf;
-        return NULL;
-    }
-
-    err = deflateEnd(&cp);
-    if (err != Z_OK) {
-        ERROR("zlib error %d when closing compression stream\n", err);
-        delete nbuf;
-        return NULL;
-    }
-
-    nbuf->size = cp.total_out;
-    return nbuf;
-#else
-    return new Buffer(*this);
-#endif
-}
-
-Buffer*
-Buffer::uncompress()
-{
-#ifdef NEED_COMPRESSION
-    z_stream		decompress;
-    int			error;
-    Buffer*		nbuf;
-    unsigned int	guess;
-
-    guess = size;
-    while (1) {
-        guess <<= 2;
-        nbuf = new Buffer(guess);
-
-        decompress.zalloc = (alloc_func) mymalloc;
-        decompress.zfree = (free_func) myfree;
-        decompress.opaque = (voidpf) 0;
-        decompress.next_in = (unsigned char*) contents;
-        decompress.avail_in = size;
-        decompress.next_out = (unsigned char*) nbuf->contents;
-        decompress.avail_out = nbuf->capacity;
-        
-	error = inflateInit(&decompress);
-        if (error != Z_OK) {
-            ERROR("error number %d while initializing decompression stream\n",
-                  error);
-            delete nbuf;
-            return NULL;
-        }
-
-       error = inflate(&decompress, Z_FINISH);
-        if (error == Z_STREAM_END) {
-            error = inflateEnd(&decompress);
-            if (error != Z_OK) {
-                ERROR("error number %d while closing decompression stream\n",
-                      error);
-                delete nbuf;
-                return NULL;
-            }
-            nbuf->size = decompress.total_out;
-            return nbuf;
-        }
-        delete nbuf;
-    }
-    // Not Reached
-#else
-    return new Buffer(*this);
-#endif
-}
-
 void Buffer::extend(unsigned long minExtend) {
    assert(!callerAllocated);	// !!!
    if (capacity + BufferExtendIncrement > size + minExtend) {
@@ -238,13 +139,6 @@ void Buffer::flush(unsigned long sz, unsigned long atOffset) {
       offset = (offset >= atOffset + sz) ? offset-sz : atOffset;
 }
 
-char *Buffer::makeString() const {
-   char *str = (char *) malloc(size + 1);
-   strncpy(str, contents, size);
-   *(str + size) = 0;
-   return str;
-}
-
 bool Buffer::contains(const char *needle) { // search for needle in buffer
    if (capacity > size) {
       *(contents + size) = 0;
@@ -283,11 +177,6 @@ void Buffer::toLowerCase() {
    for (char *p = contents; p < contents + size; ++p)
       if (isascii(*p) && isupper(*p))
          *p = tolower(*p);
-}
-
-void Buffer::zeroFill() {
-   bzero(contents, capacity);
-   size = capacity;
 }
 
 // 

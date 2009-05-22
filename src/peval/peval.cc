@@ -74,7 +74,6 @@ extern void add_history (char *);
 
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "irr/ripewhoisc.hh"
 #include "irrutil/debug.hh"
 #include "irrutil/trace.hh"
 #include "util/rusage.hh"

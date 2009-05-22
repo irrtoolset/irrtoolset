@@ -21,6 +21,7 @@ HEADERS		= afi.hh rpsl_attr.hh rpsl_filter.hh rpsl_item.hh rpsl_policy.hh \
 OTHERS		= rpsl.l rpsl.y object_log.l
 
 # Paths
+datarootdir	= @datarootdir@
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@

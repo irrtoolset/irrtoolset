@@ -87,10 +87,6 @@ private:
    // Response allocates enough space to hold the result
    int  Response(char *&response);
 
-   // do a Query and Response, returning the AXX and CXX lines
-   // in addition to the the response.
-   int TotalResponse (char *&response);
-
    // do a Query and Response
    int  QueryResponse(char *&response, const char *format, ...);
 
@@ -136,10 +132,6 @@ public:
 
    void SetSources(const char *_sources = dflt_sources);
 
-   // Modified by wlee@isi.edu
-   //   char *GetSources(void);
-   const char *GetSources(void);
-
    void GetVersion();
 
    // PendingData() returns true if there is data available for reading
@@ -155,13 +147,6 @@ public:
    virtual bool expandRSSet(SymID rsset,     MPPrefixRanges *result);
    virtual bool expandRtrSet(SymID rsset,    MPPrefixRanges *result);
 
-   // Added by wlee@isi.edu for roe basically
-   void setFullObjectFlag(bool onoff) {
-     if (onoff)
-       QueryKillResponse("!ufo=1");
-     else
-       QueryKillResponse("!ufo=0");
-   }
    void setFastResponseFlag(bool onoff) {
      if (onoff)
        QueryKillResponse("!uF=1");

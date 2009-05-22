@@ -77,11 +77,9 @@ public:
 
 // indexing conversion
 
-  int            possible_index(int i) const; // i between base and top
   int            actual_index(int i) const;   // i between low and fence
   inline virtual int    valid_index(int i) const;    // i not deleted (mainly for mchunks)
 
-  int            possible_pointer(const PrefixRange* p) const; // same for ptr
   int            actual_pointer(const PrefixRange* p) const; 
   inline virtual int    valid_pointer(const PrefixRange* p) const; 
 
@@ -242,8 +240,6 @@ public:
   int               empty () const;        // is the plex empty?
   virtual int       full() const = 0;      // it it full?
 
-  int               chunk_size() const;    // report chunk size;
-
   virtual int       OK() const = 0;        // representation invariant
 
   void		    error(const char* msg) const;
@@ -289,16 +285,6 @@ inline  PrefixRange* PrefixRangeIChunk:: pointer_to(int i) const
 inline  int  PrefixRangeIChunk:: index_of(const PrefixRange* p) const
 {
   return (p - data) + base;
-}
-
-inline  int  PrefixRangeIChunk:: possible_index(int i) const
-{
-  return i >= base && i < top;
-}
-
-inline  int  PrefixRangeIChunk:: possible_pointer(const PrefixRange* p) const
-{
-  return p >= data && p < &(data[top-base]);
 }
 
 inline  int  PrefixRangeIChunk:: actual_index(int i) const
@@ -454,11 +440,6 @@ inline PrefixRange* PrefixRangeIChunk::pred(PrefixRange* p) const
 // generic Plex operations
 
 inline PrefixRangePlex::PrefixRangePlex() {}
-
-inline int PrefixRangePlex::chunk_size() const
-{
-  return csize;
-}
 
 inline  int PrefixRangePlex::ecnef () const
 {

@@ -470,54 +470,6 @@ void Schema::initializeBase() {
    dictionary = initializeFromString(base_text, "dictionary");
 }
 
-List<Object> *Schema::initializeFromFile(char *filename) {
-   Object *o;
-   const AttrAttr *attr;
-   char *class_name;
-   bool code = true;
-   List<Object> *result = new List<Object>;
-   AttrClass *clss = NULL;
-
-   initializeBase();
-
-   ifstream in(filename);
-   if (!in)
-      return result;
-
-   while (in) {
-      o = new Object;
-      code = o->read(in);
-      if (! code) {
-	 delete o;
-	 continue;
-      }
-
-      code = o->scan();
-      if (o->has_error)
-	 delete o;
-      else {
-	 if (! strcasecmp(o->type->name, "class")) {
-	    Object *o2 = new Object(*o);
-	    AttrGenericIterator<ItemWORD> cname(o2, "class");
-	    AttrIterator<AttrAttr>  attrItr(o2, "attr");
-	    char *name = cname.first()->word;
-
-	    addClass(clss = new AttrClass(strdup(name)));
-	    clss->object = o2;
-	    //cerr << "Reading "<< name << " class definition..." << endl;
-	    
-	    for (attr = attrItr.first(); attr; attr = attrItr.next())
-	       clss->addAttr((AttrAttr *) attr);
-
-	 } 
-
-         result->append(o);
-      }
-   }
-
-   return result;
-}
-
 Object *Schema::initializeFromString(char *class_text, char *lookFor) {
    Object *o;
    const AttrAttr *attr;

@@ -32,8 +32,4 @@ extern void default_two_arg_error_handler(const char*, const char*) __attribute_
 
 extern two_arg_error_handler_t lib_error_handler;
 
-extern two_arg_error_handler_t 
-       set_lib_error_handler(two_arg_error_handler_t f);
-
-
 #endif

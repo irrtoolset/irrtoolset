@@ -261,23 +261,6 @@ public:
    }   
 };
 
-class RPTypeBlob : public RPType {
-   friend class Schema;
-public:
-   RPTypeBlob() {}
-   virtual ~RPTypeBlob() {}
-   virtual bool validate(const Item *item) const;
-   virtual Item *typeCast(const Item  *item) const;
-   virtual RPType *dup() const {
-      return new RPTypeBlob(*this);
-   }
-   virtual const char *name() {
-      if (! _name)
-	 _name = strdup("blob");
-      return _name;
-   }   
-};
-
 class RPTypeASName : public RPType {
    friend class Schema;
 public:

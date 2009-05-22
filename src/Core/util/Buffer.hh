@@ -94,14 +94,6 @@ class Buffer : public ListNode {
         }
     }
     
-    // Compress a buffer 
-    Buffer*				// Out: new, compressed buffer
-    compress();
-
-    // Decompress a compressed buffer
-    Buffer*				// Out: uncompressed buffer
-    uncompress();
-
     // increase capacity of Buffer, by at least minExtend
     void extend(unsigned long minExtend = BufferExtendIncrement);
     void append(const char *buf, unsigned long sz);
@@ -160,12 +152,8 @@ class Buffer : public ListNode {
    unsigned long getSize(void) const {
      return size;
    }
-   void zeroFill(); 
    void toLowerCase();
 
-   // creates a string (by appending null terminated) from the contents
-   // this allocates memory for the string, i.e. like strdup
-   char *makeString() const;
 public:
     char*		contents;
     unsigned long	capacity;

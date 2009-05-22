@@ -65,8 +65,9 @@ AC_C_BIGENDIAN
 
 : ${LD=$CXX}
 AC_SUBST(LD)
+: ${LEX="flex -l"}
 AC_PROG_LEX
-if test "$LEX" != flex; then
+if test "$LEX" != "flex -l"; then
   AC_MSG_ERROR("flex required to build")
 fi
 AC_SUBST(LEX)
@@ -286,49 +287,6 @@ AC_SUBST(LD_SWITCH_X_SITE)
 AC_SUBST(C_SWITCH_X_SITE)
 AC_DEFINE_UNQUOTED(LD_SWITCH_X_SITE, ${LD_SWITCH_X_SITE})
 AC_DEFINE_UNQUOTED(C_SWITCH_X_SITE,  ${C_SWITCH_X_SITE})
-
-dnl Use tcl/tk include path for testing (!)
-dnl Save the original value
-TMP_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="${CPPFLAGS} ${C_SWITCH_X_SITE}"
-
-dnl Checks for tcl/Tk
-AC_CHECK_HEADER(tk.h, , [
-if test -n "${TCL_TK_LIBRARY_DIR}"; then
-  TMP=-L`echo ${TCL_TK_LIBRARY_DIR} | sed -e "s/:/ -L/g"`
-  LD_SWITCH_X_SITE="${LD_SWITCH_X_SITE} ${TMP}"
-fi
-if test -n "${TCL_TK_INCLUDE_DIR}"; then
-  TMP=-I`echo ${TCL_TK_INCLUDE_DIR} | sed -e "s/:/ -I/g"`
-  C_SWITCH_X_SITE="${C_SWITCH_X_SITE} ${TMP}"
-fi
-])
-CPPFLAGS="${TMP_CPPFLAGS}"
-
-AC_SUBST(LD_TCL_TK_LIBS)
-if test -z "${LD_TCL_TK_LIBS}"; then
-  LD_TCL_TK_LIBS=" -ltk -ltcl"
-fi
-LD_TCL_TK_LIBS="${LD_TCL_TK_LIBS} ${TCL_NEEDS_DL}"
-
-dnl Check if tk.h contains Tk_CreateMainWindow()
-dnl
-dnl Save the original value
-TMP_CPPFLAGS="$CPPFLAGS"
-dnl Assign new value
-CPPFLAGS="$CPPFLAGS ${C_SWITCH_X_SITE}"
-AC_MSG_CHECKING(for Tk_CreateMainWindow)
-AC_EGREP_HEADER(Tk_CreateMainWindow, tk.h,
-	[AC_DEFINE(HAVE_TK_CREATEMAINWINDOW)
-	 AC_MSG_RESULT(yes)],
-	[AC_MSG_RESULT(no)]
-)
-dnl Restore the original value
-CPPFLAGS="$TMP_CPPFLAGS"
-
-AC_MSG_CHECKING(for memalign definition)
-AC_EGREP_HEADER(memalign, malloc.h, [AC_DEFINE(HAVE_MEMALIGN_DEFINITION)
-AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
 
 AC_CHECK_HEADERS(malloc.h)
 

@@ -103,11 +103,6 @@ public:
      strcpy(sources, _sources);
    }
 
-   // Added by wlee@isi.edu
-   virtual const char *GetSources(void) { 
-     return sources;
-   }
-
    // get objects
    const AutNum     *getAutNum(ASt as);
    const Set        *getSet(SymID asset, char *clss);
@@ -155,7 +150,6 @@ public:
    // Added by wlee@isi.edu 
    // For compatibility reasons, mostly for roe
 public:
-   virtual void setFullObjectFlag(bool onoff) {}
    virtual void setFastResponseFlag(bool onoff) {}
    virtual int getSourceOrigin(char *&buffer, const char *rt) = 0;
    virtual int getSourceOrigin(char *&buffer) = 0;

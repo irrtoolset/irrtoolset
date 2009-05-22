@@ -79,8 +79,6 @@ RPType *RPType::newRPType(char *name) {
       return new RPTypeReal;
    if (!strcasecmp(name, "rpsl_word"))
       return new RPTypeWord;
-   //   if (!strcasecmp(name, "blob"))
-   //      return new RPTypeBlob;
    if (!strcasecmp(name, "as_number"))
       return new RPTypeASNumber;
    if (!strcasecmp(name, "ipv4_address"))
@@ -252,37 +250,6 @@ Item *RPTypeWord::typeCast(const Item  *item) const {
 	 return new ItemWORD(strdup("true"));
       else
 	 return new ItemWORD(strdup("false"));
-   if (typeid(*item) == typeid(ItemASNO)) {
-      char buffer[64];
-      asnum_string(buffer, ((ItemASNO *) item)->asno);
-      return new ItemWORD(strdup(buffer));
-   }
-
-   return NULL;
-}
-
-////////////////////////////// RPTypeBlob ////////////////////
-
-bool RPTypeBlob::validate(const Item *item) const {
-   return (typeid(*item) == typeid(ItemBLOB));
-}
-
-Item *RPTypeBlob::typeCast(const Item  *item) const {
-   if (typeid(*item) == typeid(ItemASNAME))
-      return new ItemBLOB(strdup(((ItemASNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemRSNAME))
-      return new ItemBLOB(strdup(((ItemRSNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemRTRSNAME))
-      return new ItemBLOB(strdup(((ItemRTRSNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemPRNGNAME))
-      return new ItemBLOB(strdup(((ItemPRNGNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemFLTRNAME))
-      return new ItemBLOB(strdup(((ItemFLTRNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemBOOLEAN))
-      if (((ItemBOOLEAN *) item)->i)
-	 return new ItemBLOB(strdup("true"));
-      else
-	 return new ItemBLOB(strdup("false"));
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
       asnum_string(buffer, ((ItemASNO *) item)->asno);

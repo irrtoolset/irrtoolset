@@ -68,7 +68,6 @@ using namespace std;
 IRR *irr;
 ProtocolName protocolName[] = {
   { IRR::rawhoisd, "rawhoisd" },
-  { IRR::ripe,     "ripe_perl" },
   { IRR::bird,     "ripe" },
   { IRR::bird,     "bird" },
   { IRR::unknown,  "unknown" }
@@ -104,9 +103,6 @@ void IRR::SetDefaultProtocol(const char *_protocol) {
     if (strcasecmp(_protocol, "irrd") == 0)
       dflt_protocol = rawhoisd;
     else
-      if (strcasecmp(_protocol, "ripe_perl") == 0)
-	dflt_protocol = ripe;
-      else
 	 if (strcasecmp(_protocol, "ripe") == 0)
 	    dflt_protocol = bird;
 	 else
@@ -115,7 +111,7 @@ void IRR::SetDefaultProtocol(const char *_protocol) {
 	    else {
 	       cerr << "Error: unknown irr protocol " << _protocol 
 		    << ", using irrd" << endl;
-	       cerr << "Error: known protocols: irrd(rawhoisd), ripe(bird), ripe_perl" << endl;
+	       cerr << "Error: known protocols: irrd(rawhoisd), ripe(bird)" << endl;
 	       dflt_protocol =  rawhoisd;
 	    }
 }
@@ -626,15 +622,12 @@ void collectPrefix(void *result, const Object *o) {
 //////////////////////////////////////////////////////////////////////
 
 #include "rawhoisc.hh"
-#include "ripewhoisc.hh"
 #include "birdwhoisc.hh"
 
 IRR *IRR::newClient() {
    switch (dflt_protocol) {
    case rawhoisd:
       return new RAWhoisClient;
-   case ripe:
-      return NULL; //new RipeWhoisClient;
    case bird:
       return new BirdWhoisClient;
    default:

@@ -202,7 +202,6 @@ class Timer {
 	tv.tv_usec = t.tv_usec;
     }
 
-    struct timeval *tval() { return &tv; }
     void gettimeofday () { ::gettimeofday(&tv, &tz); }
 
     double delta (Timer &tt) {
@@ -342,7 +341,6 @@ class Socket {
     u_long get_dstInaddr () { return sockdst.sin_addr.s_addr; } 
 
     void setPort   (u_int port)    { sockdst.sin_port = htons(port); }
-    void setLocalPort (u_short port) { socksrc.sin_port = htons (port); }
     int setsockopt (int, int, char *, int);
     // Changed by wlee@isi.edu
     //    int setSendflags (int flags) { send_flags = flags; }
@@ -435,7 +433,6 @@ class Socket {
     
     int write (char *buf, int len);
     int read  (char *buf, int len);
-    int wait_for_reply (char *buffer, int size, int timeout);
 
     struct sockaddr_in *get_socknew () {
 	return (struct sockaddr_in *) &socknew;
@@ -613,55 +610,5 @@ class Socket {
     }
     Error error;
 };
-
-////////////////////////////////////////////////////////////////////////
-class TCP : public Socket {
-    ipAddr *ipaddr;
-    struct servent *service;
-    int port;
-    int init_tcp (char *hostname, int p);
-    int init_server (int);
-
-  public:
-    TCP () : Socket (PF_INET, SOCK_STREAM, IPPROTO_TCP) {
-	ipaddr = NULL;
-	service = NULL;
-	port = 0;
-    }
-    TCP (int p);
-    TCP (char *hostname, int p);
-    TCP (char *hostname, char *proto);
-
-    // Modified by wlee@isi.edu
-    // int operator() (int port) { init_server(port); }
-    int operator() (int port) { return init_server(port); }
-};
-
-
-////////////////////////////////////////////////////////////////////////
-class UDP : public Socket {
-    ipAddr *ipaddr;
-    struct servent *service;
-    int port;
-
-  public:
-    UDP (char *hostname, int p);
-    UDP (char *hostname, char *proto);
-
-
-  private:
-    // Modified by wlee@isi.edu
-    //    int init_udp (char *hostname, int p) {
-    void init_udp (char *hostname, int p) {
-	ipaddr->setAddress (hostname);
-	set_dstInaddr (ipaddr->getInaddr()); // better way ???
-	setPort   (p);
-	error = connect ();
-	if (error())
-	    error.fatal ("connect");
-	port = p;
-    }
-};
-
 
 #endif  // __NET_H__

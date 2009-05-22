@@ -77,8 +77,6 @@ typedef struct _KeyWord {
    int num;
 } KeyWord;
 
-int yylineno = 1;
-
 static KeyWord keywords[] = {
 "import",                  KW_IMPORT,
 "export",                  KW_EXPORT,

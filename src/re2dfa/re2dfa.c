@@ -1107,43 +1107,6 @@ rd_ntod(rd_fm* nfa)
 
 
 /*
- * rd_complete_dfa completes all the arcs in a DFA. This is needed
- * where the traditional ntod->minimize route is not taken.
- */
-
-void
-rd_complete_dfa(rd_fm *dfa)
-{
-    rd_state	*rs;		/* Current state in loop */
-    rd_arc	*ra;		/* Reject state arc */
-    rd_state	*rej;		/* Reject state */
-    int		rjc;		/* Count of arcs pointing to rej */
-
-    RD_ALLOC_DFA_STATE(rej);
-    rjc = 0;
-
-    RDQ_LIST_START(&(dfa->rf_states), dfa, rs, rd_state) {
-	rjc += rd_complete_arcs(&(rs->rs_arcs), rej);
-    } RDQ_LIST_END(&(dfa->rf_states), dfa, rs, rd_state);
-
-    if (rjc) {
-	RD_ALLOC_ARC(ra, 0, 0);
-	ra->ra_low = 0;
-	ra->ra_high = MAX_AS;
-	ra->ra_to = rej;
-	rej->rs_flags |= RSF_REJECT;
-	RDQ_INSERT_BEFORE(&(rej->rs_arcs), &(ra->ra_arcs));
-	RDQ_INSERT_BEFORE(&(dfa->rf_states), &(rej->rs_states));
-    } else {
-	RD_FREE_STATE(rej);
-    }
-
-    return;
-}
-
-
-
-/*
  * Myhill-Nerode minimization. See Hopcroft and Ullmann for a
  * detailed description of this algorithm.
  */
@@ -1824,11 +1787,9 @@ rd_fm *rd_intersect_dfa(rd_fm *fm1, rd_fm *fm2) {
 
   RDQ_UNLINK_LIST_FREE_ELMS(&(rd_intersect_map.dll), &rd_intersect_map);
 
- /*  rd_reachable_dfa(fm3); */
-/*   rd_complete_dfa(fm3); */
-  rd_init();
-     rd_dton(fm3);
-     fm3 = rd_ntod(fm3);
+   rd_init();
+   rd_dton(fm3);
+   fm3 = rd_ntod(fm3);
    rd_minimize(fm3);
 
    return fm3;
@@ -1844,57 +1805,6 @@ typedef struct _rd_single {
     (s) = (rd_single *) malloc(sizeof (rd_single));		\
     bzero((caddr_t) (s), sizeof (rd_single));			\
     RDQ_INIT(&((s)->dll), (s));			   	        \
-}
-
-void rd_reachable_dfa(rd_fm *fm) {
-   rd_state *stt, *stt2;
-   rd_arc *arc;
-
-   rd_single reachable;
-   rd_single *rd_s, *rd_s2;
-
-   RDQ_INIT(&(reachable.dll), &reachable);
-   RD_ALLOC_SINGLE(rd_s);
-   rd_s->first = fm->rf_start;
-   /* mark start state */
-   fm->rf_start->rs_flags |= RSF_MARKED;
-
-   RDQ_INSERT_BEFORE(&(reachable.dll), &(rd_s->dll));
-
-   for (rd_s = reachable.dll.rq_forw->rq_self; 
-	rd_s != &reachable; 
-	rd_s = rd_s->dll.rq_forw->rq_self) {
-      stt = rd_s->first; /* stt is a reachable states */
-
-      /* travers the arcs of stt, a reachable states
-	 and add more reachable states if arcs go to unmarked states */
-      RDQ_LIST_START(&(stt->rs_arcs), stt, arc, rd_arc) {
-	 
-	 if (! (arc->ra_to->rs_flags & RSF_MARKED)) {
-	    arc->ra_to->rs_flags |= RSF_MARKED;
-	    RD_ALLOC_SINGLE(rd_s2);
-	    rd_s2->first = arc->ra_to;
-	    RDQ_INSERT_BEFORE(&(reachable.dll), &(rd_s2->dll));
-	 }
-
-      } RDQ_LIST_END(&(stt->rs_arcs), stt, arc, rd_arc)
-   }
-
-   /* delete unreachable states, i.e. not marked */
-   for (stt = fm->rf_states.rq_forw->rq_self; stt != (rd_state *) fm; )
-      if (! (stt->rs_flags & RSF_MARKED)) {
-	 stt2 = stt;
-	 stt = stt->rs_states.rq_forw->rq_self;
-	 RDQ_UNLINK(&(stt2->rs_states));
-	 if (RD_IS_FINAL(stt2))
-	    RDQ_UNLINK(&(stt2->rs_final));
-	 RDQ_UNLINK_LIST_FREE_ELMS(&(stt2->rs_arcs), stt2);
-	 RD_FREE_STATE(stt2);
-      } else
-	 stt = stt->rs_states.rq_forw->rq_self;
-
-   RDQ_UNLINK_LIST_FREE_ELMS(&(reachable.dll), &reachable);
-
 }
 
 int rd_equal_dfa(rd_fm *fm1, rd_fm *fm2) {

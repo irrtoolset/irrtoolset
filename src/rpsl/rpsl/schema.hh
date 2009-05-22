@@ -104,7 +104,6 @@ public:
    }
    ~Schema();
    void initialize();
-   List<Object> *initializeFromFile(char *filename);
    Object *initializeFromString(char *class_text, char *lookFor=(char *) NULL);
 
    // following searches return NULL/0 on failure

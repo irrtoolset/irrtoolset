@@ -44,8 +44,6 @@ extern "C" {
 #include <memory.h>
 #endif // NEED_MEMORY_H
 
-   //extern void* memalign(...);
-
 #ifndef STDC_HEADERS
 // extern int bzero(...);
 // extern int bcopy(...);
