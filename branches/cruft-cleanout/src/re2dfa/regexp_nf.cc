@@ -700,32 +700,3 @@ regexp* regexp_nf::buildQuestion(regexp *l) const {
    regexp_question* re = new regexp_question(l);
    return re;
 }
-
-inline rd_state *rd_next_state(rd_fm *fm, rd_state *rs, ASt as) {
-   rd_arc	*ra;		/* Current arc we're at */
-
-   RDQ_LIST_START(&(rs->rs_arcs), rs, ra, rd_arc) {
-      if (ra->ra_low <= as && as <= ra->ra_high)
-	 return ra->ra_to;
-      if (ra->ra_low > as) // note that the list is sorted
-	 return NULL;
-   } RDQ_LIST_END(&(rs->rs_arcs), rs, ra, rd_arc);
-
-   return NULL;
-}
-
-bool regexp_nf::match(List<ItemASNO> & path) {
-   rd_state	* rs;		// Current state 
-   dfa();
-
-   rs = m->rf_start;
-   for (ItemASNO * asln = path.head(); asln;
-                    asln = path.next(asln)) {    
-     rs = rd_next_state(m, rs, asln->asno);
-     if (!rs || (rs->rs_flags & RSF_REJECT)) {
-       return false;
-     }
-   }
-  return true;
-}
-

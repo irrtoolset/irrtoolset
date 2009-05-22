@@ -11,6 +11,7 @@ OBJECTS 	= rpsl/object.o rpsl/rpsl_attr.o rpsl/schema.o rpsl/rpsl_item.o rpsl/pr
 
 #-------------------------------------------------------------------
 # Paths
+datarootdir	= @datarootdir@
 srcdir	    	= @srcdir@
 top_srcdir  	= @top_srcdir@
 prefix      	= @prefix@

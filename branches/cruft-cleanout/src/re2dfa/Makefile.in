@@ -9,6 +9,7 @@ HFILES = re2dfa.h regexp_nf.hh
 LIBS   =
 
 # directories
+datarootdir	= @datarootdir@
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@

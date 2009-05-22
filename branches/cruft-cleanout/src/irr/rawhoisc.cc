@@ -228,12 +228,6 @@ void RAWhoisClient::SetSources(const char *_sources) {
       error.error("Error: current source setting is %s.\n", current_sources);
 }
 
-const char *RAWhoisClient::GetSources(void) {
-   if (! _is_open)
-      Open();
-   return current_sources;
-}
-
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -384,64 +378,6 @@ int RAWhoisClient::Response(char *&response) {
    }
 
    return count;
-}
-
-// rusty - this function was added to read an irrserver response, 
-// including the initial 'A' and following 'C' lines.  used by relayd
-// to cache responses from the the server.
-int RAWhoisClient::TotalResponse(char *&response) { 
-   if (!_is_open)
-      Open();
-   if (error())
-       return 0;
-
-   char buffer[1024]; 
-
-   // Read the "A<byte-count>" line
-   if (!fgets(buffer, sizeof(buffer), in)) {
-       error ("fgets() failed.");
-       return 0;
-   }
-
-   if (*buffer == 'D') { // key not found error
-       response = new char[strlen(buffer)];
-       strcpy (response, buffer);
-   } else if (*buffer == 'C') { // returned success
-       response = new char[strlen (buffer) + 1];
-       strcpy (response, buffer);
-   } else if (*buffer != 'A') { // we are expecting a byte-count line
-       response = new char[strlen (buffer) + 1];
-       strcpy (response, buffer);
-   }
-
-   if (*buffer != 'A')
-       return (strlen (response));
-
-   // AXXX + body + return_code & extra, if any
-   int len = strlen (buffer);
-   int count = atoi(buffer + 1);
-   response = new char[len + count + 80];
-
-   strcpy (response, buffer);
-   if (fread((char *) &response[len], 1, count, in) != count) {
-       error ("fread() failed.");
-       return 0;
-   }
-
-   len += count;
-   response[len] = '\0';
-
-   // Read the return code line
-   if (!fgets(buffer, sizeof(buffer), in)) {
-      error ("fgets() failed.");
-      return 0; 
-   }
-
-   strcpy ((char *) &response[len], buffer);
-   len += strlen (buffer);
-   response[len] = '\0';
-
-   return (error()) ? 0 : len;	// rusty: 0 or count
 }
 
 void RAWhoisClient::WriteQuery(const char *format, va_list ap) {

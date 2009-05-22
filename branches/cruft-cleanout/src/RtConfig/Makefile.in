@@ -18,6 +18,7 @@ REQUIRES = normalform irr re2dfa rpsl Core gnug++ irrutil
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 
 # directories
+datarootdir	= @datarootdir@
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@

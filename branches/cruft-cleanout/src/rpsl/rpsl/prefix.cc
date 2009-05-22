@@ -136,15 +136,6 @@ char* int2quad(char *buffer, unsigned int i) {
    return buffer;
 }
 
-unsigned int quad2int(char *quad) {
-   unsigned int i;
-   unsigned int i1, i2, i3, i4;
-
-   sscanf(quad, "%u.%u.%u.%u", &i1, &i2, &i3, &i4);
-   i = i4 + (i3 << 8) + (i2 << 16) + (i1 << 24);
-   return i;
-}
-
 std::ostream& operator<<(std::ostream& stream, const PrefixRange& p) {
    stream << p.get_text();
    return stream;

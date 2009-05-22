@@ -116,8 +116,6 @@ public:
    }
 
    void gatherPeerings();
-   // Added by wlee@isi.edu
-   void removePeer(ASt peerAS);
    ASt asno(void) const;
 };
 

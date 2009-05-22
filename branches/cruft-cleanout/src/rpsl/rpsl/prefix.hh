@@ -111,7 +111,6 @@ class ipv6_addr_t {
 #define IPV6_LENGTH 40
 
 char* int2quad(char *buffer, unsigned int i);
-unsigned int quad2int(char *quad);
 char* ipv62hex(ipv6_addr_t *ip, char *buffer);
 ipv6_addr_t* hex2ipv6(char *hex);
 char *compact(ipv6_addr_t *ip, char *buffer);

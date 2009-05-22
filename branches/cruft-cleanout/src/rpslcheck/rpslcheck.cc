@@ -62,7 +62,6 @@
 #include "irrutil/version.hh"
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
 
 using namespace std;

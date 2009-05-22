@@ -32,11 +32,3 @@ void default_two_arg_error_handler(const char* kind, const char* msg)
 }
 
 two_arg_error_handler_t lib_error_handler = default_two_arg_error_handler;
-
-two_arg_error_handler_t set_lib_error_handler(two_arg_error_handler_t f)
-{
-  two_arg_error_handler_t old = lib_error_handler;
-  lib_error_handler = f;
-  return old;
-}
-

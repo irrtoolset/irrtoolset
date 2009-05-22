@@ -68,62 +68,6 @@ ASt AutNum::asno(void) const
    return itr()->asno;
 }
 
-void AutNum::removePeer(ASt peerAS)
-{
-  int newOffset = 0;
-  int newLen = 0;
-  int copyingLen = 0;
-  char *newText = strdup(contents);
-  newText[0] = 0;
-  // copy the text form of the object 
-  // for import policies
-  for (AutNumImportIterator itr(this, peerAS); itr; itr++)
-    {
-    copyingLen = itr()->getOffset() - newOffset;
-    memcpy(newText + newLen, contents + newOffset, copyingLen);
-    newLen += copyingLen;
-    newOffset = itr()->getOffset() + itr()->getLen();
-    }
-  copyingLen = size - newOffset;
-  memcpy(newText + newLen, contents + newOffset, copyingLen);
-  newLen += copyingLen;
-  newText[newLen] = 0;
-  // Discard all parsed form of the object
-  attrs.clear();
-  // Rescan the object and rebuilt the parsed tree
-  free(contents);
-  contents = newText;
-  size = newLen;
-  scan();
-
-  // Same thing applys to the export policy line which means that 
-  // another reparse!
-
-  newText = strdup(contents);
-  newText[0] = 0;
-  newOffset = 0;
-  newLen = 0;
-  // for export policies
-  for (AutNumExportIterator itr(this, peerAS); itr; itr++)
-    {
-    copyingLen = itr()->getOffset() - newOffset;
-    memcpy(newText + newLen, contents + newOffset, copyingLen);
-    newLen += copyingLen;
-    newOffset = itr()->getOffset() + itr()->getLen();
-    }
-  copyingLen = size - newOffset;
-  memcpy(newText + newLen, contents + newOffset, copyingLen);
-  newLen += copyingLen;
-  newText[newLen] = 0;
-  // Discard all parsed form of the object
-  attrs.clear();
-  // Rescan the object and rebuilt the parsed tree
-  free(contents);
-  contents = newText;
-  size = newLen;
-  scan();
-}
-
 void AutNum::gatherPeerings() {
    if (peerings)
       return;

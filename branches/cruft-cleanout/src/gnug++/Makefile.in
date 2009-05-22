@@ -6,27 +6,25 @@ OBJS   = SymbolConjunctPtr.Bag.o  SymbolConjunctPtr.SplayBag.o \
 	SymbolConjunctPtr.SplayNode.o \
 	NormalTermPtr.DLList.o \
 	unsigned.OXPSet.o unsigned.Plex.o unsigned.Set.o unsigned.XPlex.o \
-	CacheKey.CacheValue.AVLMap.o CacheKey.CacheValue.Map.o \
-	Regex.o rx.o
+	CacheKey.CacheValue.AVLMap.o CacheKey.CacheValue.Map.o
 
 SRCS   = SymbolConjunctPtr.Bag.cc SymbolConjunctPtr.SplayBag.cc \
 	SymbolConjunctPtr.SplayNode.cc \
 	NormalTermPtr.DLList.cc \
 	unsigned.OXPSet.cc unsigned.Plex.cc unsigned.Set.cc unsigned.XPlex.cc \
-	CacheKey.CacheValue.AVLMap.cc CacheKey.CacheValue.Map.cc \
-	Regex.cc rx.c
+	CacheKey.CacheValue.AVLMap.cc CacheKey.CacheValue.Map.cc
 
 HFILES = SymbolConjunctPtr.Bag.h  SymbolConjunctPtr.SplayBag.h \
 	SymbolConjunctPtr.SplayNode.h  SymbolConjunctPtr.defs.h \
 	NormalTermPtr.DLList.h NormalTermPtr.defs.h \
 	unsigned.OXPSet.h unsigned.Plex.h unsigned.Set.h unsigned.XPlex.h \
 	unsigned.defs.h	\
-	CacheKey.CacheValue.Map.h CacheKey.CacheValue.AVLMap.h CacheKey.defs.h \
-	Regex.h builtin.h rx.h
+	CacheKey.CacheValue.Map.h CacheKey.CacheValue.AVLMap.h CacheKey.defs.h
 
 LIBS   =
 
 # directories
+datarootdir	= @datarootdir@
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@
