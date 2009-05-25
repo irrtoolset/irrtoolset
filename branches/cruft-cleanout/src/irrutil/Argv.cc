@@ -356,9 +356,10 @@ PrintUsage(ArgvInfo *argTable, int flags)
 {
     register ArgvInfo *infoPtr;
     int width, i, numSpaces;
-#define NUM_SPACES 20
     static char spaces[] = "                    ";
-    char tmp[30];
+    unsigned spacesLen;
+    
+    spacesLen = sizeof(spaces) - 1;
 
     /*
      * First, compute the width of the widest option key, so that we
@@ -396,12 +397,12 @@ PrintUsage(ArgvInfo *argTable, int flags)
 //	    cerr << "\n " << infoPtr->key << ":";
 	    numSpaces = width + 1 - strlen(infoPtr->key);
 	    while (numSpaces > 0) {
-		if (numSpaces >= NUM_SPACES) {
+		if (numSpaces >= spacesLen) {
 		   cerr << spaces;
 		} else {
-		   cerr << spaces+NUM_SPACES-numSpaces;
+		   cerr << spaces+spacesLen-numSpaces;
 		}
-		numSpaces -= NUM_SPACES;
+		numSpaces -= spacesLen;
 	    }
 	    cerr << infoPtr->help;
 	    switch (infoPtr->type) {
