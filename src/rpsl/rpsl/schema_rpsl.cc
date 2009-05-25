@@ -473,7 +473,6 @@ void Schema::initializeBase() {
 Object *Schema::initializeFromString(char *class_text, char *lookFor) {
    Object *o;
    const AttrAttr *attr;
-   char *class_name;
    Object *result = (Object *) NULL;
    AttrClass *clss = NULL;
    int count = 0;

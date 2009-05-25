@@ -896,7 +896,6 @@ ostream& operator<<(ostream& o, const RadixSet &set) {
 
 // make tree include any more specifics, i.e. ^+, ^-, ^n-m, ^n (i.e. ^n-n)
 RadixTree *RadixTree::makeMoreSpecific(int code, int n, int m) {
-   u_int64_t _rngs;
    int i;
 
    if (!this)

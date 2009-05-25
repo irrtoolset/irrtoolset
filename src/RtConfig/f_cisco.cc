@@ -130,8 +130,8 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
    cout << "!\nno ipv6 access-list " << ipv6_acl << aclID << "\n";
 
    // print martians - any in ipv6?
+   /*
    char *martians[] = { 
-      /*
       "host 0.0.0.0 any",
       "127.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
       "10.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
@@ -146,9 +146,9 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
       "169.254.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
       //      "any 255.255.255.128 0.0.0.127",
       NULL
-      */
    };
-
+   */
+	
    /*if (supressMartians && !nets.isEmpty())
       for (int i = 0; martians[i]; ++i)
          cout << "ipv6 access-list " << aclID 
@@ -337,8 +337,9 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfIPv6Prefix& nets) {
    cout << "!\nno ipv6 prefix-list " << ipv6_pl << aclID << "\n";
 
    // print martians
-   char *martians[] = { 
- /*     "0.0.0.0/0 ge 32",
+   /*
+	char *martians[] = { 
+      "0.0.0.0/0 ge 32",
       "127.0.0.0/8 le 32",
       "10.0.0.0/8 le 32",
       "172.16.0.0/12 le 32",
@@ -350,8 +351,9 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfIPv6Prefix& nets) {
       "223.255.255.0/24 le 32",
       "224.0.0.0/3 le 32",
       "169.254.0.0/16 le 32",
-      NULL */
+      NULL
    };
+   */
 
    /*
    if (supressMartians && !nets.isEmpty())
@@ -594,7 +596,7 @@ ListOf2Ints *CiscoConfig::printCommunities(FilterOfCommunity& cm) {
 }
 
 void CiscoConfig::printREASno(ostream& out, const RangeList &no) {
-   RangeList::Range *pi, *qi;
+   RangeList::Range *pi;
    int first = 1;
    int put_par = 0;
 
@@ -1310,8 +1312,6 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
       return;
     }
 
-   int preAclID = prefixMgr.lastID();
-
    // get matching export & mp-export attributes
    AutNumSelector<AttrExport> itr(autnum, "export", 
                                   NULL, peerAS, peer_addr, addr);
@@ -1362,8 +1362,6 @@ void CiscoConfig::exportP(ASt asno, MPPrefix *addr,
        delete ne;
      }
 
-     int postAclID = prefixMgr.lastID();
-
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
      ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
      printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
@@ -1384,8 +1382,6 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
       return;
     }
 
-   int preAclID = prefixMgr.lastID();
-   
    // get matching import & mp-import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
 				  NULL, peerAS, peer_addr, addr);
@@ -1435,8 +1431,6 @@ void CiscoConfig::importP(ASt asno, MPPrefix *addr,
 
        delete ne;
      }
-
-     int postAclID = prefixMgr.lastID();
 
      // peer_afi should be afi of peer IPs, filter_afi is the one specified in filter
      ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
@@ -1542,15 +1536,12 @@ void CiscoConfig::deflt(ASt asno, ASt peerAS) {
 
    NormalExpression *ne;
    int last = 0;
-   char buffer[128];
    for (; deflt && !last; deflt = itr.next()) {
       ne = NormalExpression::evaluate(deflt->filter, peerAS);
 
       if (ne->is_universal()) {
          cout << "ip default-network 0.0.0.0\n";
       } else {
-         NormalTerm *nt = ne->first();
-
          RadixSet::SortedPrefixIterator itr(&(ne->first()->prfx_set.members));
          u_int addr;
          u_int leng;
@@ -1561,8 +1552,6 @@ void CiscoConfig::deflt(ASt asno, ASt peerAS) {
               ok = itr.next(addr, leng)) {
             cout << "ip default-network " 
                  << int2quad(buffer, addr)
-              //   << " mask " 
-              //   << int2quad(buffer, masks[leng]) 
                  << "\n";
          }
       }
@@ -1613,7 +1602,6 @@ int CiscoConfig::printPacketFilter(SetOfPrefix &set) {
    RadixSet::SortedPrefixIterator itr(&set.members);
    u_int addr;
    u_int leng;
-   u_int64_t rngs;
    char buffer[64];
    bool allow_flag = ! set.negated();
    ListOf2Ints *result;

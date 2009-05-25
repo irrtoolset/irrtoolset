@@ -142,7 +142,6 @@ void Object::parse() {
       if (isDeleted || schema.isVeryForgiving()) {
 	      if (has_error) {
    	      has_error = false;
-	        Attr *n_attr;
 
    	      for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
 	          if (! attr->errors.empty() 

@@ -51,6 +51,8 @@
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
 
+#include <ctype.h>
+
 // Convert a string to a long long int
 void atollRA(const char *text, long long int *result)
 {

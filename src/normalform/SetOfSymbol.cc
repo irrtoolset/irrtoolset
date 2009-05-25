@@ -68,7 +68,7 @@ SetOfSymbol::SetOfSymbol(SetOfSymbol &a) {
 }
 
 ostream& operator<<(ostream& stream, SetOfSymbol& set) {
-   Pix i, k;
+   Pix i;
    SymbolConjunctPtr conjunct;
 
    for (i = set.conjuncts.first(); i;  ) {
@@ -133,9 +133,6 @@ void SetOfSymbol::reduce() {
 }
 
 void SetOfSymbol::operator &= (SetOfSymbol& b) { // intersection
-   SymbolConjunctPtr conjunct;
-   Pix i;
-
    if (empty() || b._universal)
       return;
 
@@ -208,7 +205,7 @@ void SetOfSymbol::operator |= (SetOfSymbol& b) { // union
 
 void SetOfSymbol::operator ~  () { // complement
    SymbolConjunctPtr conjunct;
-   Pix i, j;
+   Pix i;
    SetOfSymbol tmp, tmp2;
 
    if (_universal) {

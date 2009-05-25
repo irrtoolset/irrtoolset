@@ -312,7 +312,7 @@ rl_gets (char *prompt)
 }
 #endif // HAVE_READLINE
 
-main (int argc, char **argv, char **envp) {
+int main (int argc, char **argv, char **envp) {
    int newSize = strlen(base);
    filter = base + newSize;
    newSize = SIZE - newSize - 3;

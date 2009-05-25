@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <strings.h>
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -136,7 +137,7 @@ void debugging_hack() {
 void
 rd_init()
 {
-    static    	 first = 1;	/* Identifies code segments entered once */
+    static int  first = 1;	/* Identifies code segments entered once */
     int i;			/* Current loop index */
 
     for (i = 0; i < RD_MAXASPSTATES; i++) {
@@ -609,7 +610,6 @@ rd_fm *
 rd_concatenate(rd_fm *fm1,	/* To this fm.... */
 	       rd_fm *fm2)	/* ... concatenate this fm */
 {
-    rd_dq	*rq;		/* Current linked list element */
     rd_state	*rs;		/* Current state we're at */
     rd_state	*start;		/* Start state of fm2 */
     rd_arc	*ra;		/* Current arc we're at */
@@ -1536,7 +1536,6 @@ rd_print_dfa(rd_fm *fm)
 rd_fm *rd_empty_string_machine() {
     register rd_fm *rf;			/* The singleton machine */
     register rd_state *rs;		/* A state of the singleton machine */
-    register rd_range *ra;		/* Current element of range list */
 
     RD_ALLOC_FM(rf);
     
@@ -1556,7 +1555,6 @@ rd_fm *rd_empty_string_machine() {
 rd_fm *rd_empty_set_machine() {
     register rd_fm *rf;			/* The singleton machine */
     register rd_state *rs;		/* A state of the singleton machine */
-    register rd_range *ra;		/* Current element of range list */
 
     RD_ALLOC_FM(rf);
     

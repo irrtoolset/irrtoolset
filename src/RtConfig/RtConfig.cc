@@ -229,7 +229,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       opt_prompt = (char *) NULL;
 }
 
-main(int argc, char **argv, char **envp) {
+int main(int argc, char **argv, char **envp) {
    extern int commandparse();
 
    schema.initialize();

@@ -424,8 +424,6 @@ const InetRtr *IRR::getInetRtr(SymID inetRtr)
 const MPPrefixRanges *IRR::expandAS(ASt as) {
    MPPrefixRanges *result;
    MPPrefix prfx;
-   char *text;
-   int  len;
 
    if (! expandASCache.query(as, result)) {
       result = new MPPrefixRanges;

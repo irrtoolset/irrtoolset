@@ -56,7 +56,9 @@
 #include "util/List.hh"
 #include "rpsl/prefix.hh"
 
+#ifndef foreachchild
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
+#endif //foreachchild
 
 #ifndef u_int64_t
 #define u_int64_t unsigned long long int

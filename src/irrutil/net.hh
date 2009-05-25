@@ -56,7 +56,7 @@
 #ifndef __NET_H__
 #define __NET_H__
 
-#include "config.h"
+#include <config.h>
 
 extern "C" {
 #include <sys/param.h>

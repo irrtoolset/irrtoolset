@@ -67,7 +67,7 @@ void SetOfPrefix::insert(const PrefixRanges& b) {
    if (_universal)
       return;
 
-   u_int64_t rngs; int i;
+   u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
       // Replaced by wlee@isi.edu for better performance
@@ -92,7 +92,7 @@ void SetOfPrefix::remove(const PrefixRanges& b) {
       not_ = 1;
    }
 
-   u_int64_t rngs; int i;
+   u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
       // Replaced by wlee@isi.edu for better performance

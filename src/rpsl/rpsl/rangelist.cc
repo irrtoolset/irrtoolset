@@ -66,7 +66,7 @@ char *RangeList::prefix_str = "AS";
 bool  RangeList::useOrList = false;
 
 ostream& operator<<(ostream& out, const RangeList &no) {
-   RangeList::Range *pi, *qi;
+   RangeList::Range *pi;
 
    if (no.universal())
       out << ".";
