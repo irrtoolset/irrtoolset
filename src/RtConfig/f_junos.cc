@@ -888,7 +888,7 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
    if (! printRouteMap)
       return false;
 
-   if (!peerGroup && (!filter_afi->is_default() || !peer_afi->is_default()))
+   if (!peerGroup)
 		afi_activate = true;
 
    const char *direction = (import == IMPORT) ? "import" : "export";
@@ -918,9 +918,31 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
    }
 
    if (afi_activate) {
-	  cout << "            family " << (AddressFamily &) *filter_afi << " { "<< endl;
-	  cout << "                any;" << endl;
-	  cout << "            } " << endl;
+#define SMALLBUF 32
+	   char *tok = (char *)malloc(SMALLBUF+1);
+		char *sp;
+		strncpy (tok, filter_afi->name(), SMALLBUF);
+		sp = strsep(&tok, ".");
+	   cout << "            family ";
+		
+		if (strcmp(sp, "ipv4") == 0) {
+			cout << "inet";
+		} else if (strcmp(sp, "ipv6") == 0) {
+			cout << "inet6";
+		} else
+			// really, we need to check for other AFIs here.
+			cout << "any";
+		
+		cout << " { "<< endl 
+		<< "                ";
+		sp = strsep(&tok, ".");
+		if (*sp)
+			cout << sp;
+		else
+			cout << "unicast";
+	   cout << ";" << endl 
+	   << "            } " << endl;
+		free (tok);
    }
 
    cout << "         }\n"
@@ -1074,7 +1096,9 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 
    ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
 
-   printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi_list);
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+       printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+   } 
 }
 
 void JunosConfig::static2bgp(ASt asno, MPPrefix *addr) {
