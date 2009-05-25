@@ -187,7 +187,6 @@ PrefixRange::PrefixRange(char *name) :
 void PrefixRange::parse(char *name)
 {
   unsigned int i1, i2, i3, i4, uiLength = 0, uiN = 0, uiM = 0;
-  unsigned int mask;
   char ch = ' ';
 
   char *p;

@@ -147,7 +147,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
 }
 
 
-main(int argc, char **argv, char **envp) {
+int main(int argc, char **argv, char **envp) {
    schema.initialize();
    init_and_set_options(argc, argv, envp);
    schema.beHarsh();

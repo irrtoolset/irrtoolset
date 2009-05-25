@@ -290,7 +290,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
 }
 
 void JunosConfig::printREASno(ostream& out, const RangeList &no) {
-   RangeList::Range *pi, *qi;
+   RangeList::Range *pi;
    int first = 1;
    int put_par = 0;
 
@@ -441,7 +441,6 @@ ListOf2Ints* JunosConfig::printASPaths(FilterOfASPath &path) {
 
    regexp_nf::RegexpConjunct *rc;
    regexp_nf::RegexpConjunct::ReInt *ri;
-   regexp_nf::RegexpConjunct::ReInt *positive_ri = NULL;
 
    cout << "   as-path as-path-" << aclID << " \"";
 
@@ -892,7 +891,6 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
    if (!peerGroup && (!filter_afi->is_default() || !peer_afi->is_default()))
 		afi_activate = true;
 
-   const char *indent = (afi_activate) ? " " : "";
    const char *direction = (import == IMPORT) ? "import" : "export";
 
    cout << "protocols {\n"
@@ -1163,8 +1161,6 @@ void JunosConfig::networks(ASt asno) {
 }
 
 void JunosConfig::IPv6networks(ASt asno) {
-   static char buffer[128];
-   static char buffer2[128];
    const MPPrefixRanges *nets = irr->expandAS(asno);
    MPPrefixRanges::const_iterator p;
 

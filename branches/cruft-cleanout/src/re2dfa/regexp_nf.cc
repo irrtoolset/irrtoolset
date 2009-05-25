@@ -464,7 +464,7 @@ void regexp_nf::do_not() {
 
    // complement terms
    regexp_nf tmp, tmp2;
-   RegexpConjunct *rc1, *rc2, *rc3;
+   RegexpConjunct *rc1, *rc2;
    RegexpConjunct::ReInt *ri1, *ri2;
 
    tmp.become_universal();
@@ -592,8 +592,8 @@ regexp* regexp_nf::construct() const {
    // check for empty string
    if (RD_ACCEPTS_EMPTY_STRING(m))
       return buildQuestion(fmtore_map[int2(&start, &final)]);
-   else
-      return fmtore_map[int2(&start, &final)];
+
+   return fmtore_map[int2(&start, &final)];
 }
 
 regexp* regexp_nf::buildCat(regexp *l, regexp *r) const {

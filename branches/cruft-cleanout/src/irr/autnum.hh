@@ -426,7 +426,6 @@ private:
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
-         FilterAction *filterAction;
          PolicyTerm   *pt = (PolicyTerm *) policy;
          PolicyFactor *pf;
          PolicyPeeringAction *pa;

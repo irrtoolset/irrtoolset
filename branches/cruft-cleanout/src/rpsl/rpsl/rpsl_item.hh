@@ -127,9 +127,11 @@ public:
 	 && asno <= ((ItemASNO&) b).asno;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-   virtual const char *sprint(char *buf) {
-	  asnum_string(buf, asno);
+/*
+   virtual int sprint(char *buf) {
+      asnum_string(buf, asno);
    }
+ */
 #ifdef DEBUG
    virtual const char *className(void) const {
       return "ItemASNO";

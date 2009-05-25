@@ -217,7 +217,7 @@ public:
       }
    }
 
-   int operator|=(const AttrAttr& b) {
+   void operator|=(const AttrAttr& b) {
       if (!_name && b._name) 
 	 _name = strdup(b._name);
       if (b._syntax) {

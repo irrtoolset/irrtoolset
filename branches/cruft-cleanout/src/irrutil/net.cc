@@ -164,6 +164,7 @@ Socket::setsockopt (int level, int optname, char *data, int dlen)
 	break;
 #endif // IP_OPTIONS
     }
+	return 0;
 }
 
 		    

@@ -527,9 +527,6 @@ closePidFile()
 
 volatile void daemonize()
 {
-    int		t;
-    Signal*	sig;
-
     // Fork once
     switch (fork()) {
         case 0:

@@ -336,6 +336,8 @@ bool BirdWhoisClient::getIndirectMembers(char *setName,
 	 (*collect)(collectArg, o);
 
    free(response);
+
+   return true;
 }
 
 bool BirdWhoisClient::expandRSSet(SymID sname, MPPrefixRanges *result) {
@@ -415,8 +417,8 @@ int BirdWhoisClient::getSourceOrigin(char *&buffer, const char *rt)
 int BirdWhoisClient::getSourceOrigin(char *&buffer)
 {
   StringBuffer cBuffer;
-  char *pzcResult, *pzcResult2;
-  int iResultLen, iResultLen2;
+  char *pzcResult;
+  int iResultLen;
   if (getResponse(pzcResult, iResultLen)) 
     {
     // More and complete route objects are here
