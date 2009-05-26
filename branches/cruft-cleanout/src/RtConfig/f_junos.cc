@@ -1025,7 +1025,9 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
 
    ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
 
-   printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi_list);
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+       printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+   }
 }
 
 void JunosConfig::importP(ASt asno, MPPrefix *addr, 
