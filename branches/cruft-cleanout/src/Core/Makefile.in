@@ -5,21 +5,15 @@ GOAL		= libCore.a
 SRCDIRS		= gnu		\
 		  sched		\
 		  sys		\
-		  util          \
-		  @extra_dirs@  
+		  util
+
 SUBDIRS		= $(SRCDIRS)
 
-
-REGEX_OBJ	= gnu/regex.o
-EXTRA_OBJ	= @extra_obj@
-EXTRA_REG_OBJ	= @extra_reg_obj@
-OBJECTS 	= gnu/GetOpt.o gnu/MLCG.o gnu/RNG.o gnu/Random.o \
-		  gnu/Uniform.o gnu/hash.o gnu/error.o \
+OBJECTS 	= gnu/GetOpt.o gnu/hash.o gnu/error.o \
 		  sched/Timer.o sched/Job.o sched/Dispatcher.o \
 		  sys/Address.o sys/File.o sys/FileSet.o \
 		  sys/Time.o sys/Signal.o \
-		  util/Trail.o util/rusage.o util/Buffer.o util/strupr.o util/atoll.o \
-		  $(EXTRA_OBJ) $(EXTRA_REG_OBJ)
+		  util/Trail.o util/rusage.o util/Buffer.o util/strupr.o util/atoll.o
 
 #-------------------------------------------------------------------
 # Paths

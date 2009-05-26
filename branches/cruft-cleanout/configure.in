@@ -30,11 +30,6 @@ case "${host_os}" in
               EXTRA_INCLUDE_DIRS="-I/opt/sfw/${ac_cv_host}/include"
               EXTRA_LIBS="-lsocket -lnsl"
       ;;
-      bsdi* )
-dnl Commented out by wlee@isi.edu
-dnl           EXTRA_INCLUDE_DIRS="-I/usr/include/g++ -I/usr/include/g++/stdc++"
-              EXTRA_LIBS="-lipc"
-      ;;
 esac
 
 : ${CFLAGS="$OPTFLAG"}
@@ -49,7 +44,6 @@ AC_DEFINE_UNQUOTED(EXTRA_LIBS, ${EXTRA_LIBS})
 
 dnl Checks for programs.
 AC_PROG_MAKE_SET
-dnl AC_PATH_PROG(PERL_PATH,perl,/usr/local/bin/perl)
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_CXX
@@ -79,13 +73,6 @@ AC_SUBST(YACC)
 
 AC_PROG_RANLIB
 
-dnl Checks for libraries.
-AC_CHECK_LIB(dl, dlopen, [
-TCL_NEEDS_DL="-ldl"
-], [
-TCL_NEEDS_DL=""
-])
-
 READLINE_LIBS=""
 AC_ARG_ENABLE(readline, [  --enable-readline       support fancy command line editing (default: yes)],
 if eval "test x$enable_readline = xyes"; then
@@ -108,7 +95,6 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(regex.h limits.h sys/time.h unistd.h)
 AC_CHECK_HEADERS(strings.h string.h memory.h malloc.h)
-AC_CHECK_HEADERS(sys/sockio.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
@@ -179,7 +165,7 @@ AC_EGREP_HEADER(in_addr_t, netinet/in.h, ,
 dnl Checks for library functions.
 AC_CHECK_FUNCS(gettimeofday socket strstr memcpy vsnprintf)
 
-dnl Check for function declerations (irrutil/net.hh barfs if defined)
+dnl Check for function declarations (irrutil/net.hh barfs if defined)
 AC_EGREP_HEADER(gettimeofday, sys/time.h,   AC_DEFINE(HAVE_DECL_GETTIMEOFDAY))
 AC_EGREP_HEADER(bzero,        string.h,     AC_DEFINE(HAVE_DECL_BZERO))
 AC_EGREP_HEADER(bcopy,        string.h,     AC_DEFINE(HAVE_DECL_BCOPY))
@@ -201,6 +187,10 @@ case "${host_os}" in
         AC_EGREP_HEADER(bzero,        strings.h,     AC_DEFINE(HAVE_DECL_BZERO))
         AC_EGREP_HEADER(bcopy,        strings.h,     AC_DEFINE(HAVE_DECL_BCOPY))
       ;;
+      *bsd* )
+        AC_EGREP_HEADER(bzero,        strings.h,     AC_DEFINE(HAVE_DECL_BZERO))
+        AC_EGREP_HEADER(bcopy,        strings.h,     AC_DEFINE(HAVE_DECL_BCOPY))
+      ;;
 esac
 
 
@@ -215,26 +205,6 @@ AC_EGREP_CPP(sys_errlist, [
 AC_DEFINE(NEED_TO_DECLARE_SYS_ERRLIST)
 AC_MSG_RESULT(yes)
 ])
-
-AC_MSG_CHECKING(if struct ip contains ip_vhl instead of ip_v and ip_hl)
-AC_EGREP_CPP(ip_vhl, [
-extern "C" {
-#include<netinet/ip.h>
-}
-], [
-AC_DEFINE(STRUCT_IP_USES_VHL)
-AC_MSG_RESULT(yes)
-], [AC_MSG_RESULT(no)])
-
-AC_MSG_CHECKING(if struct udphdr contains uh_ulen or len)
-AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <netinet/udp.h>
-], [
-    	struct udphdr u;
-	u.uh_ulen = 1;
-], [AC_DEFINE(HAVE_BSD_STYLE_UDPHDR) 
-AC_MSG_RESULT(uh_ulen)], AC_MSG_RESULT(len)) 	
 
 ########################## htons ##################################
 
@@ -272,21 +242,6 @@ AC_DEFINE(DEFINE_HTONS_WITH_USHORT)  AC_MSG_RESULT(with ushort)])
 fi
 AC_LANG_RESTORE
 CXXFLAGS="$tmp_CXXFLAGS"
-
-########################## X11 ##################################
-
-dnl Checks for X11
-AC_PATH_X
-if test "${x_libraries}" != NONE && test -n "${x_libraries}"; then
-  LD_SWITCH_X_SITE=-L`echo ${x_libraries} | sed -e "s/:/ -L/g"`
-fi
-if test "${x_includes}" != NONE && test -n "${x_includes}"; then
-  C_SWITCH_X_SITE=-I`echo ${x_includes} | sed -e "s/:/ -I/g"`
-fi
-AC_SUBST(LD_SWITCH_X_SITE)
-AC_SUBST(C_SWITCH_X_SITE)
-AC_DEFINE_UNQUOTED(LD_SWITCH_X_SITE, ${LD_SWITCH_X_SITE})
-AC_DEFINE_UNQUOTED(C_SWITCH_X_SITE,  ${C_SWITCH_X_SITE})
 
 AC_CHECK_HEADERS(malloc.h)
 

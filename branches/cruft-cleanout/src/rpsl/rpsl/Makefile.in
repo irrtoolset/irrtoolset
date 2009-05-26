@@ -91,10 +91,10 @@ distdir:
 all: $(OBJECTS)
 
 clean:
-	rm -f core *.o *~ *.tk.cc $(GOAL)
+	rm -f core *.o *~ $(GOAL)
 
 mostlyclean:
-	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh *.tk.cc
+	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh
 
 depend: $(SOURCES)
 	@echo Making dependencies for $(SOURCES)
