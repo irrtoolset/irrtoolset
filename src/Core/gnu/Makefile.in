@@ -1,14 +1,11 @@
 # $Id$
 
 # Objects and source files
-SOURCES		= GetOpt.cc MLCG.cc RNG.cc Random.cc Uniform.cc hash.cc \
-		  error.cc $(EXTRA_REG_SRC)
+SOURCES		= GetOpt.cc hash.cc error.cc
 
-OBJECTS		= GetOpt.o MLCG.o RNG.o Random.o Uniform.o hash.o \
-		  error.o $(EXTRA_REG_OBJ)
+OBJECTS		= GetOpt.o hash.o error.o
 
-HEADERS         = GetOpt.h MLCG.h RNG.h Random.h Uniform.h std.h builtin.h \
-		  Pix.h $(EXTRA_REG_HEA)
+HEADERS         = GetOpt.h std.h builtin.h Pix.h
 
 #-------------------------------------------------------------------
 # Paths

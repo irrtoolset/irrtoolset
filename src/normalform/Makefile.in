@@ -2,20 +2,17 @@
 
 GOAL   = libnormalform.a
 
-OBJS   = NE.o  NT.o  \
-	 Filter.o  FilterOfASPath.o  \
+OBJS   = NE.o  NT.o  Filter.o  FilterOfASPath.o  \
 	 FilterOfCommunity.o  community.o  \
 	 FilterOfPrefix.o  RadixSet.o  IPv6RadixSet.o SetOfPrefix.o SetOfIPv6Prefix.o \
 	 FilterOfSymbol.o  SetOfSymbol.o  SymbolConjunct.o
 
-SRCS   = NE.cc NT.cc \
-	 Filter.cc FilterOfASPath.cc \
+SRCS   = NE.cc NT.cc Filter.cc FilterOfASPath.cc \
 	 FilterOfCommunity.cc community.cc \
 	 FilterOfPrefix.cc RadixSet.cc IPv6RadixSet.cc SetOfPrefix.cc SetOfIPv6Prefix.cc \
 	 FilterOfSymbol.cc SetOfSymbol.cc SymbolConjunct.cc
 
-HFILES = NE.hh NT.hh \
-	 Filter.hh FilterOfASPath.hh \
+HFILES = NE.hh NT.hh Filter.hh FilterOfASPath.hh \
 	 FilterOfCommunity.hh community.hh \
 	 FilterOfPrefix.hh RadixSet.hh IPv6RadixSet.hh SetOfPrefix.hh SetOfIPv6Prefix.hh \
 	 FilterOfSymbol.hh SetOfSymbol.hh SymbolConjunct.hh
