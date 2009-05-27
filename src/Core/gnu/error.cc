@@ -18,9 +18,10 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #ifdef __GNUG__
 #pragma implementation
 #endif
-#include <builtin.h>
 #include <stdlib.h>
 #include <stdio.h> 
+
+typedef void (*two_arg_error_handler_t)(const char*, const char*);
 
 void default_two_arg_error_handler(const char* kind, const char* msg)
 {

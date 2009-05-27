@@ -104,6 +104,7 @@ HHMM           [0-9][0-9]:[0-9][0-9]
 #include <cstdarg>
 #include <cstdio>
 #include <time.h>
+#include <limits.h>
 extern "C" {
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
@@ -141,9 +142,6 @@ YY_BUFFER_STATE rpsl_buffer = (YY_BUFFER_STATE) NULL;
 
 extern void handle_error(char *, ...);
 extern void handle_warning(char *, ...);
-extern "C" {
-extern void atollRA(...);
-}
 %}
 
 %%
@@ -353,10 +351,7 @@ extern void atollRA(...);
 
 <GENERICMODE,POLICYMODE>{  
   {SINT} {
-     // The following code causes problem on Solaris since long long int
-     // is not standardized yet 
-     // sscanf(yytext, "%Ld", &(yylval.i));
-     atollRA(yytext, &yylval.i);
+     yylval.i = strtoll(yytext, NULL, 10);
      LEXER_RETURN(TKN_INT);
   }
 

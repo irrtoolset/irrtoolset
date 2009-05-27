@@ -13,7 +13,7 @@ OBJECTS 	= gnu/hash.o gnu/error.o \
 		  sched/Timer.o sched/Job.o sched/Dispatcher.o \
 		  sys/Address.o sys/File.o sys/FileSet.o \
 		  sys/Time.o sys/Signal.o \
-		  util/Trail.o util/rusage.o util/Buffer.o util/strupr.o util/atoll.o
+		  util/Trail.o util/rusage.o util/Buffer.o util/strupr.o
 
 #-------------------------------------------------------------------
 # Paths

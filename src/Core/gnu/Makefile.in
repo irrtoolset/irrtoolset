@@ -5,8 +5,6 @@ SOURCES		= hash.cc error.cc
 
 OBJECTS		= hash.o error.o
 
-HEADERS         = std.h builtin.h Pix.h
-
 #-------------------------------------------------------------------
 # Paths
 datarootdir	= @datarootdir@
@@ -40,7 +38,7 @@ CPPFLAGS 	= @CPPFLAGS@
 LDFLAGS  	= @LDFLAGS@
 CXXFLAGS 	= @CXXFLAGS@
 INCDIRS 	= -I.. -I. -I$(top_srcdir) @EXTRA_INCLUDE_DIRS@
-DISTFILES	= Makefile.in $(SOURCES) $(HEADERS)
+DISTFILES	= Makefile.in $(SOURCES)
 
 default: all
 
