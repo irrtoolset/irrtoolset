@@ -95,39 +95,6 @@ AccessListManager<CommunitySet>		 communityMgr2;
 //AccessListManager<SetOfPrefix>       pktFilterMgr(100);
 
 
-void JunosConfig::printMartians() {
-   static int done = 0;
-
-   if (done || ! supressMartians)
-      return;
-
-   done = 1;
-
-   // print martians
-   char *martians =
-            "route-filter 127.0.0.0/8 orlonger reject;\n"
-            "route-filter 10.0.0.0/8 orlonger reject;\n"
-            "route-filter 172.16.0.0/12 orlonger reject;\n"
-            "route-filter 192.168.0.0/16 orlonger reject;\n"
-            "route-filter 192.0.2.0/24 orlonger reject;\n"
-            "route-filter 128.0.0.0/16 orlonger reject;\n"
-            "route-filter 191.255.0.0/16 orlonger reject;\n"
-            "route-filter 192.0.0.0/24 orlonger reject;\n"
-            "route-filter 223.255.255.0/24 orlonger reject;\n"
-            "route-filter 224.0.0.0/3 orlonger reject;\n"
-            "route-filter 169.254.0.0/16 orlonger reject;\n"
-            "route-filter 0.0.0.0/0 upto /31 next policy;\n"
-            "route-filter 0.0.0.0/0 upto /32 reject;\n"
-   ;
-   
-   cout << "   policy-statement supress-martians {\n"
-	<< "      term martians {\n"
-	<< "         from {" 
-	<<              martians
-	<< "         }\n"
-	<< "      }\n"
-	<< "   }\n\n";
-}
 
 ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 	// return the access list number if something is printed
@@ -905,8 +872,6 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
       cout << "[ ";
    if (exportStatics && import == EXPORT)
       cout << "static2bgp ";
-   if (supressMartians)
-      cout << "supress-martians ";
    cout << mapName << " ";
    if ((exportStatics && import == EXPORT) || supressMartians)
       cout << "]";
@@ -990,7 +955,6 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
    }
 
    cout << "policy-options {\n";
-   printMartians();
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1063,7 +1027,6 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
    afi_list->merge(*(itr1.get_afi_list()));
 
    cout << "policy-options {\n";
-   printMartians();
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1134,7 +1097,6 @@ void JunosConfig::static2bgp(ASt asno, MPPrefix *addr) {
    afi_list->merge(*(itr1.get_afi_list()));
 
    cout << "policy-options {\n";
-   printMartians();
 
    NormalExpression *ne;
    NormalExpression done;
@@ -1229,7 +1191,6 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
    afi_list->merge(*(itr1.get_afi_list()));
 
    cout << "policy-options {\n";
-   printMartians();
 
    NormalExpression *ne;
    int last;
@@ -1291,8 +1252,6 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
       cout << "[ ";
    if (exportStatics)
       cout << "static2bgp ";
-   if (supressMartians)
-      cout << "supress-martians ";
    cout << mapName << " ";
    if (exportStatics || supressMartians)
       cout << "]";
@@ -1341,7 +1300,6 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
    afi_list->merge(*(itr1.get_afi_list()));
 
    cout << "policy-options {\n";
-   printMartians();
 
    NormalExpression *ne;
    int last;
@@ -1397,12 +1355,7 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
    else
       cout << "1; # this will be overriden below\n";
 
-   cout << "         " << direction << " ";
-
-   if (supressMartians)
-      cout << "[ supress-martians " << mapName << " ];\n";
-   else
-      cout << mapName << ";\n";
+   cout << "         " << direction << " " << mapName << ";\n";
    
    for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)

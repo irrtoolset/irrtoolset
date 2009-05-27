@@ -141,22 +141,9 @@ However,
 if you are short on memory on your cisco box, 
 you should leave this feature enabled.
 .IP "\-supress_martian"
-This option only affects cisco configurations.
-All access lists generated will deny the following routes:
-.nf
-      host 0.0.0.0 any
-      127.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255
-      10.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255
-      172.16.0.0 0.15.255.255 255.240.0.0 0.15.255.255
-      192.168.0.0 0.0.255.255 255.255.0.0 0.0.255.255
-      192.0.2.0 0.0.0.255 255.255.255.0 0.0.0.255
-      128.0.0.0 0.0.255.255 255.255.0.0 0.0.255.255
-      191.255.0.0 0.0.255.255 255.255.0.0 0.0.255.255
-      192.0.0.0 0.0.0.255 255.255.255.0 0.0.0.255
-      223.255.255.0 0.0.0.255 255.255.255.0 0.0.0.255
-      224.0.0.0 31.255.255.255 224.0.0.0 31.255.255.255
-      any 255.255.255.128 0.0.0.127
-.fi
+Deprecated.  Properly maintained martian and bogon lists are visible in both
+the RIPE and Merit whois servers (e.g. "fltr-bogons", "fltr-unallocated" and
+"fltr-martian" objects), and can be referenced using standard RPSL.
 .IP "\-cisco_no_compress_acls"
 This option only affects cisco configurations.
 This option is used to disable combining multiple cisco access list lines

@@ -186,7 +186,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Do not print route maps, only print access lists.\n\t\t\t\tCisco only."},
      {"-supress_martian", ARGV_BOOL, 
       (char *) NULL, (char *) &RtConfig::supressMartians,
-      "Generate access lists supressing invalid routes.\n\t\t\t\tCisco only."},
+      "deprecated\n"},
      {"-cisco_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &omit,
       "Combine multiple cisco access list lines into a single line using wildcards whenever possible.\n\t\t\t\tCisco only."},
