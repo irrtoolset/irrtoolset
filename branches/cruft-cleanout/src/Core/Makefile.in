@@ -9,7 +9,7 @@ SRCDIRS		= gnu		\
 
 SUBDIRS		= $(SRCDIRS)
 
-OBJECTS 	= gnu/GetOpt.o gnu/hash.o gnu/error.o \
+OBJECTS 	= gnu/hash.o gnu/error.o \
 		  sched/Timer.o sched/Job.o sched/Dispatcher.o \
 		  sys/Address.o sys/File.o sys/FileSet.o \
 		  sys/Time.o sys/Signal.o \

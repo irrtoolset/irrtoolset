@@ -1,11 +1,11 @@
 # $Id$
 
 # Objects and source files
-SOURCES		= GetOpt.cc hash.cc error.cc
+SOURCES		= hash.cc error.cc
 
-OBJECTS		= GetOpt.o hash.o error.o
+OBJECTS		= hash.o error.o
 
-HEADERS         = GetOpt.h std.h builtin.h Pix.h
+HEADERS         = std.h builtin.h Pix.h
 
 #-------------------------------------------------------------------
 # Paths
