@@ -40,32 +40,11 @@
 
 using namespace std;
 
-#ifdef NEED_COMPRESSION
-#include <zlib.h>
-#include "util/Trail.hh"
-#endif // NEED_COMPRESSION
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif // HAVE_STRINGS_H
 
 #include "util/Buffer.hh"
-
-#ifdef NEVER
-int myallocCnt = 0;
-
-static void *mymalloc(int opaque, int n, int sz) {
-   myallocCnt++;
-   return malloc(n * sz);
-}
-static void myfree(int opaque, void *ptr) {
-printf("freeing\n");
-   myallocCnt--;
-   free(ptr);
-}
-#else
-#define mymalloc 0
-#define myfree 0
-#endif // never
 
 ostream &operator<<(ostream &os, const Buffer &b)
 {
