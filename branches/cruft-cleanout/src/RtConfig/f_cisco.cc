@@ -129,32 +129,6 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
    // clear this access list
    cout << "!\nno ipv6 access-list " << ipv6_acl << aclID << "\n";
 
-   // print martians - any in ipv6?
-   /*
-   char *martians[] = { 
-      "host 0.0.0.0 any",
-      "127.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
-      "10.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
-      "172.16.0.0 0.15.255.255 255.240.0.0 0.15.255.255",
-      "192.168.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "192.0.2.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "128.0.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "191.255.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "192.0.0.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "223.255.255.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "224.0.0.0 31.255.255.255 224.0.0.0 31.255.255.255",
-      "169.254.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      //      "any 255.255.255.128 0.0.0.127",
-      NULL
-   };
-   */
-	
-   /*if (supressMartians && !nets.isEmpty())
-      for (int i = 0; martians[i]; ++i)
-         cout << "ipv6 access-list " << aclID 
-              << " deny   ip " << martians[i] << "\n";
-   */
-
    // no compressed acls
 
 /*   if (compressAcls) {
@@ -235,29 +209,6 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfPrefix& nets) {
    // clear this access list
    cout << "!\nno access-list " << aclID << "\n";
 
-   // print martians
-   char *martians[] = { 
-      "host 0.0.0.0 any",
-      "127.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
-      "10.0.0.0 0.255.255.255 255.0.0.0 0.255.255.255",
-      "172.16.0.0 0.15.255.255 255.240.0.0 0.15.255.255",
-      "192.168.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "192.0.2.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "128.0.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "191.255.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      "192.0.0.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "223.255.255.0 0.0.0.255 255.255.255.0 0.0.0.255",
-      "224.0.0.0 31.255.255.255 224.0.0.0 31.255.255.255",
-      "169.254.0.0 0.0.255.255 255.255.0.0 0.0.255.255",
-      //      "any 255.255.255.128 0.0.0.127",
-      NULL
-   };
-
-   if (supressMartians && !nets.isEmpty())
-      for (int i = 0; martians[i]; ++i)
-         cout << "access-list " << aclID 
-              << " deny   ip " << martians[i] << "\n";
-
    if (compressAcls) {
       RadixSet::SortedPrefixRangeIterator itr(&nets.members);
       u_int addr;
@@ -336,32 +287,6 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfIPv6Prefix& nets) {
    // clear this prefix list
    cout << "!\nno ipv6 prefix-list " << ipv6_pl << aclID << "\n";
 
-   // print martians
-   /*
-	char *martians[] = { 
-      "0.0.0.0/0 ge 32",
-      "127.0.0.0/8 le 32",
-      "10.0.0.0/8 le 32",
-      "172.16.0.0/12 le 32",
-      "192.168.0.0/16 le 32",
-      "192.0.2.0/24 le 32",
-      "128.0.0.0/16 le 32",
-      "191.255.0.0/16 le 32",
-      "192.0.0.0/24 le 32",
-      "223.255.255.0/24 le 32",
-      "224.0.0.0/3 le 32",
-      "169.254.0.0/16 le 32",
-      NULL
-   };
-   */
-
-   /*
-   if (supressMartians && !nets.isEmpty())
-      for (int i = 0; martians[i]; ++i)
-         cout << "ip prefix-list pl" << aclID 
-              << " deny   " << martians[i] << "\n";
-   */
-
    IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
    ipv6_addr_t addr;
    u_int leng;
@@ -416,28 +341,6 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfPrefix& nets) {
 
    // clear this access list
    cout << "!\nno ip prefix-list pl" << aclID << "\n";
-
-   // print martians
-   char *martians[] = { 
-      "0.0.0.0/0 ge 32",
-      "127.0.0.0/8 le 32",
-      "10.0.0.0/8 le 32",
-      "172.16.0.0/12 le 32",
-      "192.168.0.0/16 le 32",
-      "192.0.2.0/24 le 32",
-      "128.0.0.0/16 le 32",
-      "191.255.0.0/16 le 32",
-      "192.0.0.0/24 le 32",
-      "223.255.255.0/24 le 32",
-      "224.0.0.0/3 le 32",
-      "169.254.0.0/16 le 32",
-      NULL
-   };
-
-   if (supressMartians && !nets.isEmpty())
-      for (int i = 0; martians[i]; ++i)
-         cout << "ip prefix-list pl" << aclID 
-              << " deny   " << martians[i] << "\n";
 
    RadixSet::SortedPrefixRangeIterator itr(&nets.members);
    u_int addr;
