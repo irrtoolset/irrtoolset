@@ -44,82 +44,17 @@ extern "C" {
 #include <memory.h>
 #endif // NEED_MEMORY_H
 
-#ifndef STDC_HEADERS
-// extern int bzero(...);
-// extern int bcopy(...);
-#endif // STDC_HEADERS
 }
-
-// Syntactic sugar
-typedef unsigned long long u_longlong;
 
 // Typedefs that explicitly encode word length
 typedef u_char U8;
 typedef u_short U16;
 typedef u_long U32;
-typedef u_longlong U64;
+typedef unsigned long long U64;
 
 // Other common typedefs; syntactic sugar
 typedef bool Boolean;
 typedef u_short Port;
-
-// A ternary type for certain tests
-enum Ternary {None, One, Two};
-
-// A 4-valued type for other tests
-enum Quad {none, one, two, three};
-
-// Generic constants
-const int Nbby = 8;		// Number of bits per byte
-
-// Format conversion macros
-#ifdef WORDS_BIGENDIAN
-
-static inline U64
-ntohll(U64& lw)
-{
-	return lw;
-}
-
-static inline U64
-htonll(U64& lw)
-{
-	return lw;
-}
-
-#else // not BIGENDIAN 
-
-static inline U64
-ntohll(U64& lw)
-{
-    char*	p;
-    char	t;
-    
-    p = (char *) &lw;
-    t = p[0]; p[0] = p[7]; p[7] = t;
-    t = p[1]; p[1] = p[6]; p[6] = t;
-    t = p[2]; p[2] = p[5]; p[5] = t;
-    t = p[3]; p[3] = p[4]; p[4] = t;
-
-    return lw;
-}
-
-static inline U64
-htonll(U64& lw)
-{
-    char*	p;
-    char	t;
-    
-    p = (char *) &lw;
-    t = p[0]; p[0] = p[7]; p[7] = t;
-    t = p[1]; p[1] = p[6]; p[6] = t;
-    t = p[2]; p[2] = p[5]; p[5] = t;
-    t = p[3]; p[3] = p[4]; p[4] = t;
-
-    return lw;
-}
-
-#endif // not BIGENDIAN
 
 // 
 //  Copyright (c) 1994 by the University of Southern California.
