@@ -128,27 +128,6 @@ Trail::trace(const char *func,
         syslog(trailConfig.logLevel | LOG_INFO, 
                "(%s) %s", code.name(), buffer);
     } else {
-        if (trailConfig.printTimeStamp) {
-	   /*	   
-	   time_t t = time(NULL);
-	   struct tm *tm = localtime(&t);
-  
-	   fprintf(stderr,
-		   "%02d/%02d/%04d %02d:%02d:%02d ", 
-		   tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900,
-		   tm->tm_hour, tm->tm_min, tm->tm_sec);
-	   */
-	   /*
-            TimeShort	diff;
-        
-            dispatcher.systemClock.sync();
-            diff = dispatcher.systemClock - start;
-            (void) fprintf(stderr,
-                           "(%u,%u) ",
-                           (u_int) diff.seconds(),
-                           (u_int) diff.fraction());
-	   */
-        }
         (void) fprintf(stderr, "(%s) ", code.name());
         (void) fprintf(stderr, "%s", buffer);
         if (trailConfig.printFuncs) {

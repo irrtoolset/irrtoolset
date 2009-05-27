@@ -63,8 +63,6 @@
 #undef _STDDEF_H_
 #endif
 #include <assert.h>
-#include <gnu/MLCG.h>
-#include <gnu/Uniform.h>
 
 // These list manipulation routines assume that each object that
 // might be on a list is derived from a ListNode.
@@ -545,66 +543,6 @@ public:
    }
    T *find(const T *t) const {
       return find(*t);
-   }
-};
-
-
-// To use Weighted Round Robin ListIterator
-// T must have the following method 
-//      double weight() -- where weight returns a value between 0 and 1
-
-template <class T>
-class WRRListIterator : public ListIterator<T> {
-protected:
-   MLCG* mlcg_;
-   Uniform* uniform_;
-
-public:
-   WRRListIterator(const List<T> &l, int seconds, int fracs) 
-      : ListIterator<T>(l) {
-      mlcg_= new MLCG(seconds, fracs);
-      uniform_= new Uniform(0, 1, mlcg_);
-   }
-
-   ~WRRListIterator() { 
-      delete mlcg_;
-      delete uniform_;
-   }
-
-   WRRListIterator& operator++ () { // prefix ++
-      ListNode *position = this->ptr_;
-
-      for (ListIterator<T>::operator++ (); 
-	   *this; 
-	   ListIterator<T>::operator++ ())
-	 if ((*uniform_)() < ((T *) this->ptr_)->weight())
-	    return *this;
-
-      // we do this twice to handle circular queue
-      for (ListIterator<T>::operator++ (); 
-	   this->ptr_ != position; 
-	   ListIterator<T>::operator++ ())
-	 if ((*uniform_)() < ((T *) this->ptr_)->weight())
-	    return *this;
-      return *this;
-   }
-
-   WRRListIterator& operator-- () { // prefix --
-      ListNode *position = this->ptr_;
-
-      for (ListIterator<T>::operator-- (); 
-	   *this; 
-	   ListIterator<T>::operator-- ())
-	 if ((*uniform_)() < ((T *) this->ptr_)->weight())
-	    return *this;
-
-      // we do this twice to handle circular queue
-      for (ListIterator<T>::operator-- (); 
-	   this->ptr_ != position; 
-	   ListIterator<T>::operator-- ())
-	 if ((*uniform_)() < ((T *) this->ptr_)->weight())
-	    return *this;
-      return *this;
    }
 };
 

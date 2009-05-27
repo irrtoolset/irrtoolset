@@ -116,10 +116,6 @@ class TimeShort : public Time<U32> {
     TimeLong
     lengthen();
     
-    // Multiply by a uniform random real number in 0..1
-    void
-    randomize();
-    
     // Extract the seconds part
     U16
     seconds();

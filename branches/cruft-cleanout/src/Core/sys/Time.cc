@@ -48,8 +48,6 @@ extern "C" {
 #include <sys/resource.h>
 }
 
-#include "gnu/MLCG.h"
-#include "gnu/Uniform.h"
 #include "util/Types.hh"
 #include "util/Trail.hh"
 
@@ -61,10 +59,6 @@ extern "C" {
 extern int gettimeofday(...);
 #endif // STDC_HEADERS
 }
-
-// File local variables
-static MLCG *mlcg = NULL;
-static Uniform *uniform = NULL;
 
 // Time is internally represented in NTP timestamp format,
 // for convenience. A bit of an overkill, perhaps. 
@@ -414,17 +408,6 @@ TimeShort::lengthen()
     t <<= 16;
     
     return TimeLong(t);
-}
-
-void
-TimeShort::randomize()
-{
-    if (uniform == NULL) {
-        mlcg = new MLCG(dispatcher.systemClock.seconds(),
-                        dispatcher.systemClock.fraction());
-        uniform = new Uniform(0, 1, mlcg);
-    }
-    time = (int) ((*uniform)() * (double) time);
 }
 
 U32

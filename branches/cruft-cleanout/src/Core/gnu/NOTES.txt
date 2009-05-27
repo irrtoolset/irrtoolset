@@ -22,5 +22,9 @@ class Random referenced by
 	class Uniform
 
 So, by removing MLCG and Uniform from Core/util/List.hh and
-Core/sys/Time.cc, it will be possible to remove classes MLCG, Uniform, RNG
+Core/sys/Time.cc, it was possible to remove classes MLCG, Uniform, RNG
 and Random.
+
+This confusing set of random number generators is used for a variety of
+purposes including generating normal random numbers, weighted round-robin
+comparison numbers, etc.
