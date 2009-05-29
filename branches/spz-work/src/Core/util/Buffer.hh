@@ -30,7 +30,11 @@
 
 #include <cstdlib>
 #include <cstring>
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 extern "C" {
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>

@@ -52,7 +52,11 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
+#if (__GNUC__ > 2)
 #include <istream>
+#else
+#include <istream.h>
+#endif
 #include <cstdio>
 #include <sstream>
 #include <fstream>
