@@ -59,7 +59,11 @@
 #include <sys/types.h>
 #include <vector>
 #include <sstream>
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 
 typedef unsigned long long int       ip_v6word_t;
 

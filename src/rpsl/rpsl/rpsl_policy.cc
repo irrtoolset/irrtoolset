@@ -55,7 +55,11 @@
 #include <cstdio>
 #include "rpsl_policy.hh"
 #include "rpsl_attr.hh"
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 
 using namespace std;
 

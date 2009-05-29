@@ -16,7 +16,13 @@ License along with this library; if not, write to the Free Software
 Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#if defined( HAVE_STDINT_H )
+#include <stdint.h>
+#elif defined( HAVE_INTTYPES_H )
 #include <inttypes.h>
+#else
+#include <sys/types.h>
+#endif
 
 #ifndef _intdefs_h
 #define _intdefs_h 1

@@ -53,7 +53,11 @@
 
 #include "config.h"
 #include "SymbolConjunct.hh"
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 
 using namespace std;
 

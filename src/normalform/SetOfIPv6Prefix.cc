@@ -58,7 +58,11 @@
 #include "SetOfIPv6Prefix.hh"
 #include <cstdio>
 #include <cassert>
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 
 using namespace std;
 

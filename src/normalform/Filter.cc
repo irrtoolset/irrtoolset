@@ -54,7 +54,11 @@
 #include "config.h"
 #include "Filter.hh"
 #include "util/debug.hh"
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 
 using namespace std;
 

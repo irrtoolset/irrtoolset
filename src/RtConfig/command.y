@@ -56,7 +56,11 @@
 
 #include "config.h"
 
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 #include <cstring>
 #include <cstdlib>
 #include <cctype>

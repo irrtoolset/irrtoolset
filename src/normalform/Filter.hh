@@ -55,7 +55,11 @@
 #define FILTER_H
 
 #include "config.h"
+#if (__GNUC__ > 2)
 #include <ostream>
+#else
+#include <ostream.h>
+#endif
 extern "C" {
 #include <sys/types.h>
 }
