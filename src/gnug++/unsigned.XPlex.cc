@@ -316,25 +316,6 @@ int unsignedXPlex::del_low ()
   return ++lo;
 }
 
-void unsignedXPlex::reverse()
-{
-  unsigned tmp;
-  int l = lo;
-  int h = fnc - 1;
-  unsignedIChunk* loch = hd;
-  unsignedIChunk* hich = tl();
-  while (l < h)
-  {
-    unsigned* lptr = loch->pointer_to(l);
-    unsigned* hptr = hich->pointer_to(h);
-    tmp = *lptr;
-    *lptr = *hptr;
-    *hptr = tmp;
-    if (++l >= loch->fence_index()) loch = loch->next();
-    if (--h < hich->low_index()) hich = hich->prev();
-  }
-}
-
 void unsignedXPlex::fill(const unsigned  x)
 {
   for (int i = lo; i < fnc; ++i) (*this)[i] = x;

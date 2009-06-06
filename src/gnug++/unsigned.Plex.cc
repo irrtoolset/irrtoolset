@@ -64,16 +64,6 @@ unsignedIChunk::unsignedIChunk(unsigned*     d,
   nxt = prv = this;
 }
 
-void unsignedIChunk:: re_index(int lo)
-{
-  int delta = lo - low;
-  base += delta;
-  low += delta;
-  fence += delta;
-  top += delta;
-}
-
-
 void unsignedIChunk::clear(int lo)
 {
   int s = top - base;
@@ -143,22 +133,6 @@ void unsignedPlex::prepend (const unsignedPlex& a)
   for (int i = a.high(); i > a.ecnef(); a.prev(i)) add_low(a[i]);
 }
 
-void unsignedPlex::reverse()
-{
-  unsigned tmp;
-  int l = low();
-  int h = high();
-  while (l < h)
-  {
-    tmp = (*this)[l];
-    (*this)[l] = (*this)[h];
-    (*this)[h] = tmp;
-    next(l);
-    prev(h);
-  }
-}
-
-
 void unsignedPlex::fill(const unsigned  x)
 {
   for (int i = lo; i < fnc; ++i) (*this)[i] = x;
@@ -198,25 +172,3 @@ void unsignedPlex::invalidate()
     hd = 0;
   }
 }
-
-int unsignedPlex::reset_low(int l)
-{
-  int old = lo;
-  int diff = l - lo;
-  if (diff != 0)
-  {
-    lo += diff;
-    fnc += diff;
-    unsignedIChunk* t = hd;
-    do
-    {
-      t->re_index(t->low_index() + diff);
-      t = t->next();
-    } while (t != hd);
-  }
-  return old;
-}
-
-
-
-

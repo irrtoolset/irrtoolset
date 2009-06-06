@@ -32,7 +32,6 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 class unsignedIChunk
 {
-//public: // kludge until C++ `protected' policies settled
 protected:      
 
   unsigned*           data;           // data, from client
@@ -105,7 +104,6 @@ public:
 
   virtual void   clear(int lo);     // reset to empty ch with base = lo
   virtual void   cleardown(int hi); // reset to empty ch with top = hi
-  void           re_index(int lo);  // re-index so lo is new low
 
 // chunk traversal
 
@@ -224,8 +222,6 @@ public:
   virtual void      fill(const unsigned  x);          // set all elements = x
   virtual void      fill(const unsigned  x, int from, int to); // fill from to to
   virtual void      clear() = 0;                // reset to zero-sized Plex
-  virtual int       reset_low(int newlow); // change low index,return old
-  virtual void      reverse();                   // reverse in-place
   virtual void      append(const unsignedPlex& a);    // concatenate a copy
   virtual void      prepend(const unsignedPlex& a);   // prepend a copy
 

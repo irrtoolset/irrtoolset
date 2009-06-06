@@ -210,21 +210,6 @@ Pix SymbolConjunctPtrSplayBag::seek(SymbolConjunctPtr  key, Pix i)
   }
 }
 
-int SymbolConjunctPtrSplayBag::nof(SymbolConjunctPtr  item)
-{
-  int n = 0;
-  SymbolConjunctPtrSplayNode* t = (SymbolConjunctPtrSplayNode*)(seek(item));
-  if (t != 0)
-  {
-    do
-    {
-      ++n;
-      t = succ(t);
-    } while (t != 0 && SymbolConjunctPtrEQ(item, t->item));
-  }
-  return n;
-}
-
 Pix SymbolConjunctPtrSplayBag::add(SymbolConjunctPtr  item)
 {
   ++count;
@@ -382,17 +367,6 @@ void SymbolConjunctPtrSplayBag::_del(SymbolConjunctPtrSplayNode* t)
     }
   }
   delete t;
-}
-
-
-void SymbolConjunctPtrSplayBag::remove(SymbolConjunctPtr  key)
-{
-  SymbolConjunctPtrSplayNode* t = (SymbolConjunctPtrSplayNode*)(seek(key));
-  while (t != 0)
-  {
-    _del(t);
-    t = (SymbolConjunctPtrSplayNode*)(seek(key));
-  }
 }
 
 

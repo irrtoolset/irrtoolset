@@ -78,12 +78,9 @@ public:
   void                  join(NormalTermPtrDLList&);
 
   NormalTermPtr&                  front();
-  NormalTermPtr                   remove_front();
   void                  del_front();
 
   NormalTermPtr&                  rear();
-  NormalTermPtr                   remove_rear();
-  void                  del_rear();
 
   NormalTermPtr&                  operator () (Pix p);
   Pix                   first();
@@ -91,10 +88,7 @@ public:
   void                  next(Pix& p);
   void                  prev(Pix& p);
   int                   owns(Pix p);
-  Pix                   ins_after(Pix p, NormalTermPtr  item);
-  Pix                   ins_before(Pix p, NormalTermPtr  item);
   void                  del(Pix& p, int dir = 1);
-  void                  del_after(Pix& p);
 
   void                  error(const char* msg);
   int                   OK();

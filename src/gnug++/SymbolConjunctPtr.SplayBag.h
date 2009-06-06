@@ -66,7 +66,6 @@ public:
   void          del(SymbolConjunctPtr  item);
    void         del_this(Pix i); // added by cengiz alaettinoglu
   void          remove(SymbolConjunctPtr item);
-  int           nof(SymbolConjunctPtr  item);
   int           contains(SymbolConjunctPtr  item);
 
   void          clear();
