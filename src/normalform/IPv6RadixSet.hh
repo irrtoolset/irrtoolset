@@ -297,14 +297,10 @@ public:
 
    IPv6RadixSet(const IPv6RadixSet &b) {
       if (b.root) {
-	 root = new IPv6RadixTree(*b.root);
-   }
-      else {
-	 root = (IPv6RadixTree *) NULL;
-   }
-
-    // DEBUG
-    //cout << "created IPv6RadixSet " << *this << endl;
+         root = new IPv6RadixTree(*b.root);
+      } else {
+         root = (IPv6RadixTree *) NULL;
+      }
    }
 
    ~IPv6RadixSet() {
