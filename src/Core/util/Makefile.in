@@ -3,7 +3,7 @@
 # Objects and sources files
 SOURCES		= debug.cc Buffer.cc  strupr.c rusage.cc
 OBJECTS		= debug.o  Buffer.o   strupr.o rusage.o
-HEADERS		= Allocator.hh Buffer.hh FixedSizeAllocator.hh Handler.hh \
+HEADERS		= Allocator.hh Buffer.hh FixedSizeAllocator.hh \
                   List.hh Types.hh debug.hh rusage.hh xstring.h
 
 #--------------------------------------------------------------------
