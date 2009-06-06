@@ -33,16 +33,6 @@ typedef char* SymID;
 #define SymIDEQ(a, b)  (strcasecmp((a),(b)) == 0)
 #endif
 
-// less-than-or-equal
-#ifndef SymIDLE
-#define SymIDLE(a, b)  (strcasecmp((a),(b)) <= 0)
-#endif
-
-// comparison : less-than -> < 0; equal -> 0; greater-than -> > 0
-#ifndef SymIDCMP
-#define SymIDCMP(a, b) (strcasecmp((a),(b)))
-#endif
-
 // hash function
 #ifndef SymIDHASH
 extern unsigned int hashpjw(const char* s);

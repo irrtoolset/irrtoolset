@@ -26,8 +26,6 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 typedef void (*two_arg_error_handler_t)(const char*, const char*);
 
-unsigned int hashpjw(const char*);
-
 extern void default_two_arg_error_handler(const char*, const char*) __attribute__ ((noreturn));
 
 extern two_arg_error_handler_t lib_error_handler;

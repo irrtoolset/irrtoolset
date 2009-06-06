@@ -7,7 +7,7 @@ SRCDIRS		= gnu		\
 
 SUBDIRS		= $(SRCDIRS)
 
-OBJECTS 	= gnu/hash.o gnu/error.o \
+OBJECTS 	= gnu/error.o \
 		  util/rusage.o util/Buffer.o util/strupr.o
 
 #-------------------------------------------------------------------

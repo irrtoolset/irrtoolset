@@ -60,6 +60,20 @@ static inline unsigned int doublehashinc(unsigned int h, unsigned int s)
   return (dh > 1)? dh : 1;
 }
 
+unsigned int 
+hashpjw(const char *x)		// From Dragon book, p436
+{
+   unsigned int    h = 0;
+   unsigned int    g;
+
+   while (*x != 0) {
+      h = (h << 4) + *x++;
+      if ((g = h & 0xf0000000) != 0)
+         h = (h ^ (g >> 24)) ^ g;
+   }
+   return h;
+}
+
 Pix SymIDVHSet::seek(SymID  key) const
 {
   unsigned int hashval = SymIDHASH(key);
