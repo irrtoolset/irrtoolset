@@ -102,7 +102,6 @@ public:
   void             fill(const unsigned  x);
   void             fill(const unsigned  x, int from, int to);
   void             clear();
-  void             reverse();
     
   int              OK () const; 
 

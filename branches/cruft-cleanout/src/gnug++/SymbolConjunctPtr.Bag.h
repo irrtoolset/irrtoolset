@@ -41,12 +41,9 @@ public:
   virtual Pix           add(SymbolConjunctPtr  item) = 0;      // add item; return Pix
 
   virtual void          del(SymbolConjunctPtr  item) = 0;      // delete 1 occurrence of item
-#undef remove
-  virtual void          remove(SymbolConjunctPtr  item);       // delete all occurrences
   virtual void          clear();                 // delete all items
 
   virtual int           contains(SymbolConjunctPtr  item);     // is item in Bag?
-  virtual int           nof(SymbolConjunctPtr  item);          // how many in Bag?
 
   virtual Pix           first() = 0;             // Pix of first item or 0
   virtual void          next(Pix& i) = 0;        // advance to next or 0

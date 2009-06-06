@@ -48,20 +48,6 @@ int SymbolConjunctPtrBag::owns(Pix p)
   return 0;
 }
 
-void SymbolConjunctPtrBag::remove(SymbolConjunctPtr  item)
-{
-  int i = nof(item);
-  while (i-- > 0) del(item);
-}
-
-
-int SymbolConjunctPtrBag::nof(SymbolConjunctPtr  item)
-{
-  int n = 0;
-  for (Pix p = first(); p; next(p)) if (SymbolConjunctPtrEQ((*this)(p), item)) ++n;
-  return n;
-}
-
 void SymbolConjunctPtrBag::clear()
 {
   Pix i = first(); 

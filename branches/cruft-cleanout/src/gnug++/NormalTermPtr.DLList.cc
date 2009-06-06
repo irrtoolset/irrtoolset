@@ -145,27 +145,6 @@ Pix NormalTermPtrDLList::append(NormalTermPtr  item)
   return Pix(t);
 }
 
-Pix NormalTermPtrDLList::ins_after(Pix p, NormalTermPtr  item)
-{
-  if (p == 0) return prepend(item);
-  NormalTermPtrDLListNode* u = (NormalTermPtrDLListNode*) p;
-  NormalTermPtrDLListNode* t = new NormalTermPtrDLListNode(item, u, u->fd);
-  u->fd->bk = t;
-  u->fd = t;
-  return Pix(t);
-}
-
-Pix NormalTermPtrDLList::ins_before(Pix p, NormalTermPtr  item)
-{
-  if (p == 0) error("null Pix");
-  NormalTermPtrDLListNode* u = (NormalTermPtrDLListNode*) p;
-  NormalTermPtrDLListNode* t = new NormalTermPtrDLListNode(item, u->bk, u);
-  u->bk->fd = t;
-  u->bk = t;
-  if (u == h) h = t;
-  return Pix(t);
-}
-
 void NormalTermPtrDLList::join(NormalTermPtrDLList& b)
 {
   NormalTermPtrDLListNode* t = b.h;
@@ -228,50 +207,6 @@ void NormalTermPtrDLList::del(Pix& p, int dir)
   delete t;
 }
 
-void NormalTermPtrDLList::del_after(Pix& p)
-{
-  if (p == 0)
-  {
-    del_front();
-    return;
-  }
-
-  NormalTermPtrDLListNode* b = (NormalTermPtrDLListNode*) p;
-  NormalTermPtrDLListNode* t = b->fd;
-
-  if (b == t)
-  {
-    h = 0;
-    p = 0;
-  }
-  else
-  {
-    t->bk->fd = t->fd;
-    t->fd->bk = t->bk;
-    if (t == h) h = t->fd;
-  }
-  delete t;
-}
-
-NormalTermPtr NormalTermPtrDLList::remove_front()
-{
-  if (h == 0)
-    error("remove_front of empty list");
-  NormalTermPtrDLListNode* t = h;
-  NormalTermPtr res = t->hd;
-  if (h->fd == h)
-    h = 0;
-  else
-  {
-    h->fd->bk = h->bk;
-    h->bk->fd = h->fd;
-    h = h->fd;
-  }
-  delete t;
-  return res;
-}
-
-
 void NormalTermPtrDLList::del_front()
 {
   if (h == 0)
@@ -287,40 +222,6 @@ void NormalTermPtrDLList::del_front()
   }
   delete t;
 }
-
-NormalTermPtr NormalTermPtrDLList::remove_rear()
-{
-  if (h == 0)
-    error("remove_rear of empty list");
-  NormalTermPtrDLListNode* t = h->bk;
-  NormalTermPtr res = t->hd;
-  if (h->fd == h)
-    h = 0;
-  else
-  {
-    t->fd->bk = t->bk;
-    t->bk->fd = t->fd;
-  }
-  delete t;
-  return res;
-}
-
-
-void NormalTermPtrDLList::del_rear()
-{
-  if (h == 0)
-    error("del_rear of empty list");
-  NormalTermPtrDLListNode* t = h->bk;
-  if (h->fd == h)
-    h = 0;
-  else
-  {
-    t->fd->bk = t->bk;
-    t->bk->fd = t->fd;
-  }
-  delete t;
-}
-
 
 int NormalTermPtrDLList::OK()
 {
