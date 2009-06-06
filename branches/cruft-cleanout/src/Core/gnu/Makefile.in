@@ -1,9 +1,9 @@
 # $Id$
 
 # Objects and source files
-SOURCES		= hash.cc error.cc
+SOURCES		= error.cc
 
-OBJECTS		= hash.o error.o
+OBJECTS		= error.o
 
 #-------------------------------------------------------------------
 # Paths
