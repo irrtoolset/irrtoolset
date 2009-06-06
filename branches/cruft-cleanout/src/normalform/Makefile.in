@@ -13,7 +13,7 @@ SRCS   = NE.cc NT.cc Filter.cc FilterOfASPath.cc \
 	 FilterOfSymbol.cc SetOfSymbol.cc SymbolConjunct.cc
 
 HFILES = NE.hh NT.hh Filter.hh FilterOfASPath.hh \
-	 FilterOfCommunity.hh community.hh \
+	 FilterOfCommunity.hh community.hh Stack.hh \
 	 FilterOfPrefix.hh RadixSet.hh IPv6RadixSet.hh SetOfPrefix.hh SetOfIPv6Prefix.hh \
 	 FilterOfSymbol.hh SetOfSymbol.hh SymbolConjunct.hh
 
