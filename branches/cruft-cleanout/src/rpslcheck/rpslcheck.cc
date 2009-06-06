@@ -56,7 +56,7 @@
 #include <iostream>
 #include "rpsl/object.hh"
 #include "util/rusage.hh"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "irrutil/trace.hh"
 #include "irrutil/Argv.hh"
 #include "irrutil/version.hh"

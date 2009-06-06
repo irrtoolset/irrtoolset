@@ -1,11 +1,10 @@
 # $Id$
 
 # Objects and sources files
-SOURCES		= Buffer.cc  strupr.c Trail.cc   rusage.cc
-OBJECTS		= Buffer.o   strupr.o Trail.o    rusage.o
+SOURCES		= debug.cc Buffer.cc  strupr.c rusage.cc
+OBJECTS		= debug.o  Buffer.o   strupr.o rusage.o
 HEADERS		= Allocator.hh Buffer.hh FixedSizeAllocator.hh Handler.hh \
-                  List.hh NoTrail.hh Trail.hh Types.hh debug.hh rusage.hh \
-                  xstring.h
+                  List.hh Types.hh debug.hh rusage.hh xstring.h
 
 #--------------------------------------------------------------------
 # Paths

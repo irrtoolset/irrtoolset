@@ -52,7 +52,7 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "community.hh"
 #include <iostream>
 #include "rpsl/rpsl_item.hh"
