@@ -56,7 +56,6 @@
 #include <ostream>
 #include <cstring>
 #include <cstdio>
-#include "gnu/std.h"
 
 #include "object.hh"
 #include "schema.hh"
