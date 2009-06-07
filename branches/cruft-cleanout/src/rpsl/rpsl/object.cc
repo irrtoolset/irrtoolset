@@ -257,7 +257,7 @@ bool Object::setClass(char *cls) {
    return type;
 }
 
-bool Object::hasAttr(char *name) {
+bool Object::hasAttr(const char *name) {
   Attr *attr;
   for (attr = attrs.head(); attr; attr = attrs.next(attr)) {
      if (strcasecmp(attr->type->name(), name) == 0) 

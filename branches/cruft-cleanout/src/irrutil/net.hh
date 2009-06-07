@@ -296,7 +296,7 @@ class ipAddr {
 
     char *getAsname () {
 	static char *ptr;
-	ptr = "(null)";
+	ptr = (char *)"(null)";
 	if (asname[0] != '\0') ptr = (char *) asname;
 	return ptr;
     }

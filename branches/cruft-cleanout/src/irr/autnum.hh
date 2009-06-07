@@ -281,7 +281,7 @@ protected:
 public:
    AutNumDefaultIterator(const AutNum *an,
 			 const ASt _peerAS = INVALID_AS, 
-       const char *attrib = "default",
+			 const char *attrib = "default",
 			 const MPPrefix *_peerIP = NULL, 
 			 const MPPrefix *_ip = NULL):
      AttrIterator<AttrDefault>(an, attrib), 
@@ -376,7 +376,7 @@ private:
 public:
    AutNumSelector(const AutNum *an, const char *attrib, SymID pset,
                   const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip,
-                  char *fProtName = "BGP4", char *iProtName = "BGP4"):
+                  const char *fProtName = "BGP4", const char *iProtName = "BGP4"):
       current(NULL), afi_list(new ItemList) {
       AttrIterator<AttrType> itr(an, attrib);
       const AttrType *import;

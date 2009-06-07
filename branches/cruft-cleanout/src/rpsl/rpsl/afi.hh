@@ -32,20 +32,20 @@ class MPPrefix;
 
 class AddressFamily {
  public:
-   char *afi;
+   const char *afi;
 
  public:
    AddressFamily();
    AddressFamily(const AddressFamily &p);
-   AddressFamily(char *name); 
-   char *name() {
+   AddressFamily(const char *name); 
+   const char *name() {
       return afi;
    }
    AddressFamily *dup() const {
      return new AddressFamily(*this);
    }
 
-   bool is_Matching (char *name); // exact match
+   bool is_Matching (const char *name); // exact match
    bool is_ipv4 ();  
    bool is_ipv6 ();  
    bool is_default ();

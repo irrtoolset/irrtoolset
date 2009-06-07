@@ -175,7 +175,7 @@ PrefixRange::PrefixRange(unsigned int ipaddr, unsigned char length,
 {
 }
 
-PrefixRange::PrefixRange(char *name) : 
+PrefixRange::PrefixRange(const char *name) : 
   ipaddr(0), 
   length(0), 
   n(0), 
@@ -184,7 +184,7 @@ PrefixRange::PrefixRange(char *name) :
   parse(name);
 }
 
-void PrefixRange::parse(char *name)
+void PrefixRange::parse(const char *name)
 {
   unsigned int i1, i2, i3, i4, uiLength = 0, uiN = 0, uiM = 0;
   char ch = ' ';
@@ -408,7 +408,7 @@ Prefix::Prefix(char *name) {
    ipaddr &= masks[length];
 }
 
-IPAddr::IPAddr(char *name) {
+IPAddr::IPAddr(const char *name) {
    unsigned int i1, i2, i3, i4;
 
    sscanf(name, "%u.%u.%u.%u", &i1, &i2, &i3, &i4);
@@ -417,7 +417,6 @@ IPAddr::IPAddr(char *name) {
 }
 
 PrefixRange NullPrefixRange("0.0.0.0/32^32-32");
-Prefix      NullPrefix("0.0.0.0/32");
 IPAddr      NullIPAddr("0.0.0.0");
 PrefixRange MulticastPrefixRange("224.0.0.0/4^+");
 
@@ -581,7 +580,7 @@ IPv6PrefixRange::IPv6PrefixRange(ipv6_addr_t *ipaddr, unsigned char length,
 }
 
 // constructor from string
-IPv6PrefixRange::IPv6PrefixRange(char *name) :
+IPv6PrefixRange::IPv6PrefixRange(const char *name) :
   ipaddr(NULL),
   length(0),
   n(0),
@@ -590,7 +589,7 @@ IPv6PrefixRange::IPv6PrefixRange(char *name) :
   parse(name);
 }
 // parse generic ipv6 prefix range 
-void IPv6PrefixRange::parse(char *name)
+void IPv6PrefixRange::parse(const char *name)
 {
   char *slash;
   char *address =  (char *) calloc (IPV6_LENGTH,1);
@@ -853,7 +852,7 @@ ipv6_addr_t IPv6PrefixRange::get_range() const {
 /* class IPv6Prefix */
 
 // IPv6Prefix constructor 
-IPv6Prefix::IPv6Prefix(char *name)
+IPv6Prefix::IPv6Prefix(const char *name)
 {
   parse(name);
 }
@@ -877,7 +876,7 @@ char *IPv6Addr::get_text(char *buffer) const {
 }
 
 // IPv6Addr constructor
-IPv6Addr::IPv6Addr(char *name)
+IPv6Addr::IPv6Addr(const char *name)
 {
   parse(name);
 }

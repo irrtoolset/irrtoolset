@@ -34,7 +34,7 @@ AddressFamily::AddressFamily(void) :
 {
 }
 
-AddressFamily::AddressFamily(char *name) : 
+AddressFamily::AddressFamily(const char *name) : 
   afi(strdup(name))
 {
 }
@@ -44,7 +44,7 @@ AddressFamily::AddressFamily(const AddressFamily &p) :
 {
 }
 
-bool AddressFamily::is_Matching(char *name)  {
+bool AddressFamily::is_Matching(const char *name)  {
   if (strcasecmp (name, afi) == 0) 
      return 1;
   return 0; 

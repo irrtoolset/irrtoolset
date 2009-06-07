@@ -75,7 +75,7 @@ class BirdWhoisClient : public IRR, public Socket {
 
   protected:
     virtual bool getAutNum(char *as,          char *&text, int &len);
-    virtual bool getSet(SymID sname, char *clss, char *&text, int &len);
+    virtual bool getSet(SymID sname, const char *clss, char *&text, int &len);
     virtual bool getRoute(char *rt, char *as, char *&text, int &len);
     virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len);
     virtual bool expandASSet(SymID asset,     SetOfUInt    *result);

@@ -80,7 +80,7 @@ public:
 
 private:
    long int enabled;
-   static char *tracenames[TR_MAX];
+   static const char *tracenames[TR_MAX];
    inline int index(char *tracename);
 };
 

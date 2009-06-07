@@ -210,7 +210,7 @@ bool IRR::queryCache(SymID setID, Set *&set) {
   return (SetCache.query(setID, set));
 }
 
-void IRR::initCache(char *objectText, int objectLength, char *clss) {
+void IRR::initCache(char *objectText, int objectLength, const char *clss) {
    Buffer b(objectText, objectLength);
    Set *o = new Set(b);
    Set *result = NULL;
@@ -331,7 +331,7 @@ const AutNum *IRR::getAutNum(ASt as) {
    return result;
 }
 
-const Set *IRR::getSet(SymID sname, char *clss) {
+const Set *IRR::getSet(SymID sname, const char *clss) {
    char *text;
    int  len;
    Set *result = NULL;

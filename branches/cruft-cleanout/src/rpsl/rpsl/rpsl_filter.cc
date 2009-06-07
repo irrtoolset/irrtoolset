@@ -165,7 +165,7 @@ ostream &FilterMPPRFXList::print(ostream &out) const {
    if (p != end()) {
      out << *p;
      ++p;
-     for (p; p != end(); ++p) {
+     for (; p != end(); ++p) {
        out << ", ";
        out << *p ;
      }

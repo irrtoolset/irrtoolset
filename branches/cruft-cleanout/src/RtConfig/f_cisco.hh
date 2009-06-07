@@ -148,6 +148,7 @@ private:
 
 private:
    static bool  firstCommunityList;
+   const char  *returnPermitOrDeny(int, bool);
    ListOf2Ints *printRoutes(SetOfPrefix& nets);
    ListOf2Ints *printRoutes(SetOfIPv6Prefix& nets);
    ListOf2Ints *printPrefixList(SetOfPrefix& nets);

@@ -112,11 +112,11 @@ public:
    virtual Item *typeCast(const Item  *item) const;
    virtual RPType *dup() const = 0;
    virtual const char *name() = 0;
-   static RPType *newRPType(char *name);
-   static RPType *newRPType(char *name, long long int min, long long int max);
-   static RPType *newRPType(char *name, double min, double max);
-   static RPType *newRPType(char *name, List<WordNode> *words);
-   static RPType *newRPType(char *name, List<RPTypeNode> *types);
+   static RPType *newRPType(const char *name);
+   static RPType *newRPType(const char *name, long long int min, long long int max);
+   static RPType *newRPType(const char *name, double min, double max);
+   static RPType *newRPType(const char *name, List<WordNode> *words);
+   static RPType *newRPType(const char *name, List<RPTypeNode> *types);
 };
 
 inline std::ostream &operator<<(std::ostream &out, RPType &type) {

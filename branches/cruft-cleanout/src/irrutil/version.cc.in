@@ -56,8 +56,8 @@
 #include <stdlib.h>
 
 char ProjectGoal[64];
-char *ProjectVersion = "@VERSION@";
-char *ProjectVersion2 = "@VERSION2@";
+const char *ProjectVersion = "@VERSION@";
+const char *ProjectVersion2 = "@VERSION2@";
 
 int version(char *dst, char *key, char *nextArg) {
    fprintf(stderr, "%s %s\n", ProjectGoal, ProjectVersion);

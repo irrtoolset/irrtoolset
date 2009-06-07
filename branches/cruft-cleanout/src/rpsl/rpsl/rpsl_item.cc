@@ -425,7 +425,7 @@ Buffer *ItemFREETEXT::bufferize(Buffer *buf, bool lcase) const {
    return buf;
 }
 
-ostream &ItemList::print(ostream &out, char *delim) const {
+ostream &ItemList::print(ostream &out, const char *delim) const {
    Item *item = head();
    if (item) {
       item->print(out);

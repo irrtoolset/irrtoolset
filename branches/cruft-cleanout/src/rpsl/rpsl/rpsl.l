@@ -140,8 +140,8 @@ YY_BUFFER_STATE rpsl_buffer = (YY_BUFFER_STATE) NULL;
 #define yy_scan_object rpsl_scan_object
 #define yyschema schema
 
-extern void handle_error(char *, ...);
-extern void handle_warning(char *, ...);
+extern void handle_error(const char *, ...);
+extern void handle_warning(const char *, ...);
 %}
 
 %%
@@ -689,7 +689,7 @@ int yywrap () {
 }
 }
 
-void handle_error(char *s, ...) {
+void handle_error(const char *s, ...) {
    current_object->has_error = true;
 
    char buffer[1024] = "***";
@@ -704,7 +704,7 @@ void handle_error(char *s, ...) {
       current_object->errors += buffer;
 }
 
-void handle_object_error(char *s, ...) {
+void handle_object_error(const char *s, ...) {
    current_object->has_error = true;
 
    char buffer[1024] = "***";
@@ -716,7 +716,7 @@ void handle_object_error(char *s, ...) {
    current_object->errors += buffer;
 }
 
-void rpslerror(char *, ...) {
+void rpslerror(const char *, ...) {
    if (current_attribute) {
       current_attribute->errorLine = errorLine;
       current_attribute->errorColon = errorColon - yyleng;
@@ -724,7 +724,7 @@ void rpslerror(char *, ...) {
    }
 }
 
-void handle_warning(char *s, ...) {
+void handle_warning(const char *s, ...) {
    current_object->has_warning = true;
 
    char buffer[1024];

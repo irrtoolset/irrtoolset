@@ -139,7 +139,7 @@ class StringBuffer
     StringBuffer &append(char *pzcText) {
       return append(pzcText, strlen(pzcText));
     }
-    StringBuffer &append(char *pzcFormat, ...) {
+    StringBuffer &append(const char *pzcFormat, ...) {
       char pzcText[1024]; // This will limit the use of the member function
       va_list ap;
       va_start(ap, pzcFormat);

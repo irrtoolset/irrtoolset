@@ -94,7 +94,7 @@ using namespace std;
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
-char *opt_prompt                 = "peval> ";
+char *opt_prompt                 = (char *)"peval> ";
 int  opt_expand                  = EXPAND_ALL;
 int  opt_symbolic                = 0;
 bool opt_asdot                   = false;

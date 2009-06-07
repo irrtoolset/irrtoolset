@@ -103,7 +103,13 @@ unsigned int ones(unsigned char from, unsigned char to)
   return result;
 }
 
-
+const char *CiscoConfig::returnPermitOrDeny(int allow_flag, bool permitordeny = true) {
+   if (allow_flag)
+      return " permit ";
+   else
+      return " accept;";
+}
+                  
 ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
    if (usePrefixLists)
       return printPrefixList(nets);
@@ -162,14 +168,8 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
       for (bool ok = itr.first(addr, leng);
 	   ok;
 	   ok = itr.next(addr, leng)) {
-	 cout << "ipv6 access-list " << ipv6_acl << aclID;
-	 if (allow_flag)
-	    cout << " permit ";
-	 else 
-	    cout << " deny ";
-
+	 cout << "ipv6 access-list " << ipv6_acl << aclID << returnPermitOrDeny(allow_flag);
 	 cout << ipv62hex(&addr, buffer) << "/" << leng << " any\n";
-
       }
   // }
 
@@ -294,14 +294,10 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfIPv6Prefix& nets) {
    u_int end;
    char buffer[256];
 
-   char *permitOrDeny = " deny ";
-   if (allow_flag)
-      permitOrDeny = " permit ";
-
    for (bool ok = itr.first(addr, leng, start, end);
 	ok;
 	ok = itr.next(addr, leng, start, end)) {
-      cout << "ipv6 prefix-list " << ipv6_pl << aclID << permitOrDeny;
+      cout << "ipv6 prefix-list " << ipv6_pl << aclID << returnPermitOrDeny(allow_flag);
       cout << ipv62hex(&addr, buffer) << "/" << leng;
       if (start != leng)
 	      cout << " ge " << start;
@@ -349,14 +345,10 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfPrefix& nets) {
    u_int end;
    char buffer[64];
 
-   char *permitOrDeny = " deny ";
-   if (allow_flag)
-      permitOrDeny = " permit ";
-
    for (bool ok = itr.first(addr, leng, start, end);
 	ok;
 	ok = itr.next(addr, leng, start, end)) {
-      cout << "ip prefix-list pl" << aclID << permitOrDeny;
+      cout << "ip prefix-list pl" << aclID << returnPermitOrDeny(allow_flag);
 
       /* need to look at WeeSan's code */
       cout << int2quad(buffer, addr) << "/" << leng;
@@ -1379,7 +1371,7 @@ void CiscoConfig::static2bgp(ASt asno, MPPrefix *addr) {
      // Made asno part of the map name if it's not changed by users
      sprintf(mapName, mapNameFormat, asno, mapCount++);
 
-     for (fa; fa; fa = common_list->next(fa)) {
+     for (; fa; fa = common_list->next(fa)) {
         ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), asno);
 
       if (eliminateDupMapParts) {

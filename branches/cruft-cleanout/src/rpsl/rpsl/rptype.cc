@@ -70,7 +70,7 @@ int strcasecmp(...);
 
 ////////////////////////////// RPType ////////////////////
 
-RPType *RPType::newRPType(char *name) {
+RPType *RPType::newRPType(const char *name) {
    if (!strcasecmp(name, "integer"))
       return new RPTypeInt;
    if (!strcasecmp(name, "date"))
@@ -123,7 +123,7 @@ RPType *RPType::newRPType(char *name) {
    return schema.searchTypedef(name)->dup();
 }
 
-RPType *RPType::newRPType(char *name, long long int min, long long int max) {
+RPType *RPType::newRPType(const char *name, long long int min, long long int max) {
    if (!strcasecmp(name, "integer"))
       return new RPTypeInt(min, max);
    if (!strcasecmp(name, "real"))
@@ -132,21 +132,21 @@ RPType *RPType::newRPType(char *name, long long int min, long long int max) {
    return NULL;
 }
 
-RPType *RPType::newRPType(char *name, double min, double max) {
+RPType *RPType::newRPType(const char *name, double min, double max) {
    if (!strcasecmp(name, "real"))
       return new RPTypeReal(min, max);
 
    return NULL;
 }
 
-RPType *RPType::newRPType(char *name, List<WordNode> *words) {
+RPType *RPType::newRPType(const char *name, List<WordNode> *words) {
    if (!strcasecmp(name, "enum"))
       return new RPTypeEnum(words);
 
    return NULL;
 }
 
-RPType *RPType::newRPType(char *name, List<RPTypeNode> *types) {
+RPType *RPType::newRPType(const char *name, List<RPTypeNode> *types) {
    if (types && !types->isEmpty())
       if (!strcasecmp(name, "union"))
 	 return new RPTypeUnion(types);

@@ -452,7 +452,7 @@ bool RAWhoisClient::getAutNum(char *as,   char *&text, int &len) {
    return len;
 }
 
-bool RAWhoisClient::getSet(SymID sname, char *clss, char *&text, int &len) {
+bool RAWhoisClient::getSet(SymID sname, const char *clss, char *&text, int &len) {
    len = QueryResponse(text, "!i%s,1", sname);
    return len;
 }
