@@ -23,9 +23,6 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #include "config.h"
 #include <cstring>
 
-// Added by wlee to get rid of implicit declaration warning message
-#include "std.h"
-
 typedef char* SymID;
 
 // equality operator

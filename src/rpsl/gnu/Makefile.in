@@ -8,7 +8,7 @@ SOURCES = PrefixRange.Plex.cc PrefixRange.XPlex.cc SymID.Set.cc SymID.VHSet.cc
 
 HFILES = PrefixRange.Plex.h  PrefixRange.XPlex.h  SymID.Set.h  SymID.VHSet.h \
 	 PrefixRange.defs.h  SetOfSymID.hh SymID.defs.h prefixranges.hh \
-	 std.h builtin.h Pix.h
+	 builtin.h Pix.h
 
 LIBS   =
 
