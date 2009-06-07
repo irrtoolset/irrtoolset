@@ -63,11 +63,11 @@
 class RPSLKeyword {
    friend class Schema;
 private:
-   char *_name;		    // token in ASCII, e.g. "accept"
+   const char *_name;		    // token in ASCII, e.g. "accept"
    int  token_id;	    // token as integer, e.g. TKN_ACCEPT
    char is_reserved;        // a reserved word returns token_id to the parser
 public:
-   RPSLKeyword(char *n, int id, int is_res) : _name(n), token_id(id), 
+   RPSLKeyword(const char *n, int id, int is_res) : _name(n), token_id(id), 
       is_reserved(is_res) {}
 };
 
@@ -104,7 +104,7 @@ public:
    }
    ~Schema();
    void initialize();
-   Object *initializeFromString(char *class_text, char *lookFor=(char *) NULL);
+   Object *initializeFromString(char *class_text, const char *lookFor=(const char *) NULL);
 
    // following searches return NULL/0 on failure
    AttrClass               *searchClass(const char *name); 

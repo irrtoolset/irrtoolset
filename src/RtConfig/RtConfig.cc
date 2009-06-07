@@ -80,7 +80,7 @@ using namespace std;
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
-char *opt_prompt                 = "RtConfig> ";
+char *opt_prompt                 = (char *)"RtConfig> ";
 bool opt_asdot                   = false;
 
 bool         RtConfig::supressMartians          = false;
@@ -103,7 +103,7 @@ const AttrRPAttr *RtConfig::dctn_rp_aspath = (AttrRPAttr *) NULL;
 const AttrMethod     *RtConfig::dctn_rp_aspath_prepend = (AttrMethod *) NULL;
 
 typedef struct {
-   char     *name;
+   const char     *name;
    RtConfig *config;
 } config_format_type;
 

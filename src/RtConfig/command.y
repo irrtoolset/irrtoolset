@@ -79,7 +79,7 @@ extern "C" {
 
 #define yylineno commandlineno
 
-extern int yyerror(char *);
+extern int yyerror(const char *);
 extern int yylex();
 extern int yylineno;
 
@@ -450,7 +450,7 @@ source_line: KW_SET KW_SOURCE '=' TKN_STR {
 
 %%
 
-int yyerror(char *s) {
+int yyerror(const char *s) {
      std::cerr << "Error in template file at line " << yylineno
                << ": " << s
                << std::endl;

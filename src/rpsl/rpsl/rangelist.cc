@@ -62,7 +62,7 @@ using namespace std;
 #endif
 
 // static member initialization
-char *RangeList::prefix_str = "AS";
+const char *RangeList::prefix_str = "AS";
 bool  RangeList::useOrList = false;
 
 ostream& operator<<(ostream& out, const RangeList &no) {

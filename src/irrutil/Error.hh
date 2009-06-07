@@ -301,7 +301,7 @@ class Messages {
     Messages () {
 	head_ = tail_ = NULL;
 	buffer_[0] = '\0';
-	separator_ = " ";
+	setSeparator(" ");
     }
 
     ~Messages () {

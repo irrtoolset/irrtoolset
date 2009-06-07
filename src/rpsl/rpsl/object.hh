@@ -150,7 +150,7 @@ public:
    friend std::istream& operator>>(std::istream &is, const Object &o);
    friend std::ostream& operator<<(std::ostream &os, const Object &o);
    
-   bool hasAttr(char *name);
+   bool hasAttr(const char *name);
    void validate();
 
    // Added by wlee@isi.edu

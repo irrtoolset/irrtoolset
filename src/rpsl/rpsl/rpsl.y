@@ -76,17 +76,17 @@ extern "C" {
 #endif
 }
 
-extern void handle_error(char *, ...);
-extern void handle_object_error(char *, ...);
-extern void handle_warning(char *, ...);
+extern void handle_error(const char *, ...);
+extern void handle_object_error(const char *, ...);
+extern void handle_warning(const char *, ...);
 extern int yylex();
 char *token_name(int token_id);
-void rpslerror(char *s, ...);
+void rpslerror(const char *s, ...);
 Attr *changeCurrentAttr(Attr *b);
-void handleArgumentTypeError(char *attr, char *method, int position,
+void handleArgumentTypeError(char *attr, const char *method, int position,
 			     const RPType *correctType, 
 			     bool isOperator = false);
-const AttrMethod *searchMethod(const AttrRPAttr *rp_attr, char *method, ItemList *args);
+const AttrMethod *searchMethod(const AttrRPAttr *rp_attr, const char *method, ItemList *args);
 
 /* argument to yyparse result of parsing should be stored here */
 #define YYPARSE_PARAM object	
@@ -3075,7 +3075,7 @@ void enable_yy_parser_debugging() {
 #endif
 }
 
-void handleArgumentTypeError(char *attr, char *method, int position,
+void handleArgumentTypeError(char *attr, const char *method, int position,
 			     const RPType *correctType, 
 			     bool isOperator) {
    if (isOperator)
@@ -3094,7 +3094,7 @@ void handleArgumentTypeError(char *attr, char *method, int position,
 		      attr, method);
 }
 
-const AttrMethod *searchMethod(const AttrRPAttr *rp_attr, char *method, ItemList *args) {
+const AttrMethod *searchMethod(const AttrRPAttr *rp_attr, const char *method, ItemList *args) {
    const AttrMethod *mtd = rp_attr->searchMethod(method);
    int position;
    const RPType *correctType;

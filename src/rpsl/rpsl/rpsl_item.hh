@@ -584,7 +584,7 @@ public:
    ItemAFI(AddressFamily *af) {
       afi = af->afi;
    }
-   ItemAFI(char *af_text) {
+   ItemAFI(const char *af_text) {
       afi = af_text;
    }
    ItemAFI(const ItemAFI &pt) {
@@ -844,10 +844,12 @@ public:
    virtual ~ItemList() {
       List<Item>::clear();
    }
+
    virtual std::ostream& print(std::ostream &out) const {
       return print(out, ", ");
    }
-   std::ostream& print(std::ostream &out, char *delim) const;
+
+   std::ostream& print(std::ostream &out, const char *delim) const;
    virtual Item *dup() const {
       return new ItemList(*this);
    }

@@ -69,7 +69,7 @@ using namespace std;
 Rusage ru;
 bool opt_stats                   = false;
 bool opt_rusage                  = false;
-char *opt_prompt                 = "rpslcheck> ";
+char *opt_prompt                 = (char *)"rpslcheck> ";
 bool opt_echo                    = false;
 bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;

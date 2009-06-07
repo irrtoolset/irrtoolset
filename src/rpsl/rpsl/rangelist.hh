@@ -65,7 +65,7 @@ friend class regexp_nf;
 friend class CiscoConfig;
 friend class JunosConfig;
 public:
-   static char *prefix_str;
+   static const char *prefix_str;
    static bool  useOrList;
 public:
    class Range : public ListNode {

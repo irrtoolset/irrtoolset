@@ -469,7 +469,7 @@ void Schema::initializeBase() {
    dictionary = initializeFromString(base_text, "dictionary");
 }
 
-Object *Schema::initializeFromString(char *class_text, char *lookFor) {
+Object *Schema::initializeFromString(char *class_text, const char *lookFor) {
    Object *o;
    const AttrAttr *attr;
    Object *result = (Object *) NULL;

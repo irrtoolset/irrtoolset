@@ -116,7 +116,6 @@ ipv6_addr_t* hex2ipv6(char *hex);
 char *compact(ipv6_addr_t *ip, char *buffer);
 
 extern class PrefixRange NullPrefixRange;
-extern class Prefix      NullPrefix;
 extern class IPAddr      NullIPAddr;
 extern class PrefixRange MulticastPrefixRange;
 extern class IPv6PrefixRange NullIPv6PrefixRange;
@@ -144,7 +143,7 @@ friend class MPPrefix;
    PrefixRange(unsigned int ipaddr, unsigned char length, 
 	  unsigned char n, unsigned char m);
 
-   PrefixRange(char *name);
+   PrefixRange(const char *name);
 
    void define(unsigned int ipaddr, unsigned char length, 
 	       unsigned char n, unsigned char m);
@@ -186,7 +185,7 @@ friend class MPPrefix;
    friend const ostream& operator<<(ostream& stream, const PrefixRange& p);
 */
 
-   void parse(char *name);
+   void parse(const char *name);
 };
 
 class Prefix : public PrefixRange {
@@ -210,7 +209,7 @@ public:
    IPAddr(unsigned int ipaddr) :
       Prefix(ipaddr, 32) {
    }
-   IPAddr(char *name);
+   IPAddr(const char *name);
    void define(unsigned int ipaddr) {
       Prefix::define(ipaddr, 32);
    }
@@ -236,7 +235,7 @@ friend class MPPrefix;
    IPv6PrefixRange(ipv6_addr_t *ipaddr, unsigned char length, 
 	  unsigned char n, unsigned char m);
 
-   IPv6PrefixRange(char *name);
+   IPv6PrefixRange(const char *name);
 
    void define(ipv6_addr_t *ipaddr, unsigned char length, 
 	       unsigned char n, unsigned char m);
@@ -274,7 +273,7 @@ friend class MPPrefix;
    friend std::ostream& operator<<(std::ostream& stream,
                                    const IPv6PrefixRange& p);
 
-   void parse(char *name);
+   void parse(const char *name);
 
 };
 
@@ -285,7 +284,7 @@ public:
    IPv6Prefix(ipv6_addr_t *ipaddr, unsigned char length) :
       IPv6PrefixRange(ipaddr, length, length, length) {
    }
-   IPv6Prefix(char *name);
+   IPv6Prefix(const char *name);
 
    void define(ipv6_addr_t *ipaddr, unsigned char length) {
       IPv6PrefixRange::define(ipaddr, length, length, length);
@@ -303,7 +302,7 @@ public:
    IPv6Addr(ipv6_addr_t *ipaddr) :
       IPv6Prefix(ipaddr, 128) {
    }
-   IPv6Addr(char *name);
+   IPv6Addr(const char *name);
    void define(ipv6_addr_t *ipaddr) {
       IPv6Prefix::define(ipaddr, 128);
    }

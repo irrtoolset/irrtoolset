@@ -105,7 +105,7 @@ public:
 
    // get objects
    const AutNum     *getAutNum(ASt as);
-   const Set        *getSet(SymID asset, char *clss);
+   const Set        *getSet(SymID asset, const char *clss);
    const ASSet      *getASSet(SymID asset);
    const RSSet      *getRSSet(SymID rsset);
    const RtrSet     *getRtrSet(SymID rtrset);
@@ -169,7 +169,7 @@ protected:
    // using new char[size]
    // and set the len to strlen(text)
    virtual bool getAutNum(char *as,          char *&text, int &len) = 0;
-   virtual bool getSet(SymID sname, char *clss, char *&text, int &len) = 0;
+   virtual bool getSet(SymID sname, const char *clss, char *&text, int &len) = 0;
    virtual bool getRoute(char *rt, char *as, char *&text, int &len) = 0;
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len) = 0;
 
@@ -191,7 +191,7 @@ protected:
 
 
 private:
-   static void initCache(char *objectText, int objectLength, char *clss);
+   static void initCache(char *objectText, int objectLength, const char *clss);
 };
 
 struct ProtocolName {

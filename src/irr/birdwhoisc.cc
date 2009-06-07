@@ -201,7 +201,7 @@ bool BirdWhoisClient::getAutNum(char *as,          char *&text, int &len)
   return true;
 }
 
-bool BirdWhoisClient::getSet(SymID sname, char *clss, char *&text, int &len) {
+bool BirdWhoisClient::getSet(SymID sname, const char *clss, char *&text, int &len) {
    if (!sendQuery("-T %s %s", clss, sname)) 
       return false;
    if (!getResponse(text, len)) 

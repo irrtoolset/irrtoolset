@@ -88,17 +88,21 @@ public:
       peerAS = symID("PEERAS");
    }
 
-   SymID symID(char *name, int len = -1) {
+   SymID symID(const char *name, int len = -1) {
       Pix r;
-      strupr(name);
-      if (r = symset.seek((char *) name))
+      char *nname=strdup(name);	
+
+      strupr(nname);
+      if (r = symset.seek((char *) nname))
 	 return symset(r);
 
       if (len == -1)
-	 len = strlen(name);
+	 len = strlen(nname);
       char *cptr = (char *) allocator.allocate(len+1);
-      strcpy(cptr, name);
+      strcpy(cptr, nname);
       symset.add(cptr);
+
+      free (nname);
 
       return cptr;
    }

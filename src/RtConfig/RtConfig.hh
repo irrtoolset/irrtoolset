@@ -88,6 +88,11 @@ public:
       std::cerr << "Error: importGroup not implemented" << std::endl;
    }
    
+   virtual const char *returnPermitOrDeny(int, bool) {
+      std::cerr << "Error: returnPermitOrDeny not implemented" << std::endl;
+      return NULL;
+   }
+
    void printPrefixes(char *filter, char *fmt);
    void printPrefixRanges(char *filter, char *fmt);
    void printSuperPrefixRanges(char *filter, char *fmt);

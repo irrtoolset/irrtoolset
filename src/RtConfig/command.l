@@ -73,7 +73,7 @@ IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 #define LEXER_RETURN(x)  return(x)
 
 typedef struct _KeyWord {
-   char *val;
+   const char *val;
    int num;
 } KeyWord;
 
