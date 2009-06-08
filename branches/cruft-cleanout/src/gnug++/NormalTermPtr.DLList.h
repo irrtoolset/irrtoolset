@@ -25,7 +25,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #define _NormalTermPtrDLList_h 1
 
 #include "config.h"
-#include "Pix.h"
+#include "gnu/Pix.h"
 #include "NormalTermPtr.defs.h"
 
 #ifndef _NormalTermPtrDLListNode_h

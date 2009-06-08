@@ -25,7 +25,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <cstring>
 #include <climits>
 #include "NormalTermPtr.DLList.h"
-#include <builtin.h>
+#include <gnu/builtin.h>
 
 // error handling
 
