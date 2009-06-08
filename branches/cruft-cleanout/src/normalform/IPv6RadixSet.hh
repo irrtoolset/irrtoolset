@@ -53,7 +53,7 @@
 #include <cstdio>
 #include <sys/types.h>
 #include "Stack.hh"
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "rpsl/prefix.hh"
 
 #ifndef foreachchild
@@ -68,7 +68,7 @@
 #define u_int unsigned int
 #endif
 
-#include "util/FixedSizeAllocator.hh"
+#include "FixedSizeAllocator.hh"
 
 extern FixedSizeAllocator IPv6RadixTreeAllocator;
 extern ip_v6word_t ipv6masks[];

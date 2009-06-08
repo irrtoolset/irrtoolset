@@ -56,17 +56,12 @@
 #include <cstdarg>
 #include <cstdio>
 #include <typeinfo>
-#include "util/List.hh"
+#include "List.hh"
+#include <strings.h>
 
 class Attribute;
 #include "rptype.hh"
 #include "schema.hh"
-
-extern "C" {
-#ifndef HAVE_STRCASECMP_DEFINITION
-int strcasecmp(...);
-#endif // HAVE_STRCASECMP_DEFINITION
-}
 
 ////////////////////////////// RPType ////////////////////
 

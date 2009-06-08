@@ -20,7 +20,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "config.h"
-#include <gnu/builtin.h>
+#include "util/errhandler.h"
 #include "unsigned.Set.h"
 
 
@@ -114,5 +114,5 @@ void unsignedSet::operator &= (unsignedSet& b)
 
 void unsignedSet::error(const char* msg)
 {
-  (*lib_error_handler)("Set", msg);
+  lib_error_handler("Set", msg);
 }

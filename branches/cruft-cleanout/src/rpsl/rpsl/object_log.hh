@@ -55,7 +55,7 @@
 #define OBJECT_LOG_HH
 
 #include "config.h"
-#include "util/List.hh"
+#include "List.hh"
 
 class Buffer;
 class Object;

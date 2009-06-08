@@ -55,7 +55,7 @@
 #define RPTYPE_HH
 
 #include "config.h"
-#include "util/List.hh"
+#include "List.hh"
 #include <climits>
 #include <iostream>
 #include <cstdlib>

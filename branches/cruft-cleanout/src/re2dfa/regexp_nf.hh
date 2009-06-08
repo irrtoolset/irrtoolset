@@ -56,7 +56,7 @@
 
 #include "config.h"
 #include <iostream>
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "rpsl/regexp.hh"
 #include "rpsl/rpsl_item.hh"
 

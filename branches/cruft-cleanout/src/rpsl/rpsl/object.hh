@@ -59,8 +59,8 @@
 #include <string>
 #include <fstream>  // For class ifstream
 #include <sstream>  // For class ostream, class istream
-#include "util/List.hh"
-#include "util/Buffer.hh"
+#include "List.hh"
+#include "Buffer.hh"
 #include "util/debug.hh"
 #include "rpsl_attr.hh"
 

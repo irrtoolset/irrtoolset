@@ -44,7 +44,7 @@ using namespace std;
 #include <strings.h>
 #endif // HAVE_STRINGS_H
 
-#include "util/Buffer.hh"
+#include "Buffer.hh"
 
 ostream &operator<<(ostream &os, const Buffer &b)
 {

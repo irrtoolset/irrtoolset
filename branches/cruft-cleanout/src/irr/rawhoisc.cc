@@ -80,16 +80,6 @@ extern "C" {
 #include "rpsl/object_log.hh"
 
 extern "C" {
-#ifndef HAVE_DECL_CONNECT
-extern int connect(...);
-#endif // HAVE_DECL_CONNECT
-#ifndef HAVE_DECL_SOCKET
-extern int socket(...);
-#endif // HAVE_DECL_SOCKET
-#ifndef HAVE_DECL_GETHOSTBYNAME
-extern struct hostent *gethostbyname(...);
-#endif // HAVE_DECL_GETHOSTBYNAME
-
 #ifdef DEFINE_HTONS_WITH_ELLIPSIS
 extern u_short htons(...);
 #else  // DEFINE_HTONS_WITH_ELLIPSIS

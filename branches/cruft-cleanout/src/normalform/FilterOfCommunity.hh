@@ -57,7 +57,7 @@
 #include "config.h"
 #include "Filter.hh"
 #include <iostream>
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "community.hh"
 
 class CommunityConjunct : public ListNode {

@@ -58,7 +58,7 @@
 
 #include "rpsl/object.hh"
 #include "gnug++/SetOfUInt.hh"
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "rpsl/schema.hh"
 #include "irr/irr.hh"
 #include "rpsl/prefix.hh"

@@ -61,7 +61,6 @@
 extern "C" {
 #include <sys/param.h>
 #include <sys/socket.h>
-//#include <sys/fcntl.h>      // For AIX portability
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -70,7 +69,12 @@ extern "C" {
 #include <unistd.h>
 #include <netdb.h>
 #include <fcntl.h>
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
 }
 
 #include <cctype>
@@ -94,84 +98,26 @@ extern "C" {
 #endif
 }
 
-extern "C" {
-#ifndef HAVE_DECL_GETTIMEOFDAY
-extern int gettimeofday(...);
-#endif // HAVE_DECL_GETTIMEOFDAY
-#ifndef HAVE_DECL_BZERO
-extern void bzero  (...);
-#endif // HAVE_DECL_BZERO
-#ifndef HAVE_DECL_BCOPY
-extern void bcopy  (...);
-#endif // HAVE_DECL_BCOPY
-#ifndef HAVE_DECL_SOCKET
-extern int socket  (...);
-#endif // HAVE_DECL_SOCKET
-#ifndef HAVE_DECL_CONNECT
-extern int connect (...);
-#endif // HAVE_DECL_CONNECT
-#ifndef HAVE_DECL_BIND
-extern int bind    (...);
-#endif // HAVE_DECL_BIND
-#ifndef HAVE_DECL_LISTEN
-extern int listen  (...);
-#endif // HAVE_DECL_LISTEN
-#ifndef HAVE_DECL_ACCEPT
-extern int accept  (...);
-#endif // HAVE_DECL_ACCEPT
-#ifndef HAVE_DECL_RECVFROM
-extern int recvfrom(...);
-#endif // HAVE_DECL_RECVFROM
-#ifndef HAVE_DECL_GETHOSTNAME
-extern int gethostname (...);
-#endif // HAVE_DECL_GETHOSTNAME
-#ifndef HAVE_DECL_SETSOCKOPT
-extern int setsockopt  (...);
-#endif // HAVE_DECL_SETSOCKOPT
-#ifndef HAVE_DECL_SELECT
-extern int select (...);
-#endif // HAVE_DECL_SELECT
-#ifndef HAVE_DECL_SENDTO
-extern int sendto (...);
-#endif // HAVE_DECL_SENDTO
-#ifndef HAVE_DECL_SEND
-extern int send   (...);
-#endif // HAVE_DECL_SEND
-}
-
-
 #include <iostream>
 #include "Error.hh"
 
 #ifndef MAXPACKETLEN
 #define MAXPACKETLEN 4096
 #endif  // MAXPACKETLEN
+
 #ifndef INADDR_NONE
 #define INADDR_NONE  -1
 #endif  // INADDR_NONE 
+
 #define ERRORMSGLEN  80
+
 #ifndef TRUE
 #define TRUE 1
 #endif  // TRUE
+
 #ifndef FALSE 
 #define FALSE 0
 #endif  // FALSE
-
-#ifndef __LITTLE_ENDIAN__
-#define __LITTLE_ENDIAN__ 1234
-#endif  // __LITTLE_ENDIAN__
-#ifndef __BIG_ENDIAN__
-#define __BIG_ENDIAN__ 4321
-#endif  // __BIG_ENDIAN__
-
-#ifndef BYTE_ORDER
-#ifdef WORDS_BIGENDIAN
-#define BYTE_ORDER __BIG_ENDIAN__
-#else
-#define BYTE_ORDER __LITTLE_ENDIAN__
-#endif // WORDS_BIGENDIAN
-#endif // BYTE_ORDER
-
 
 #ifdef ACCEPT_USES_SOCKLEN_T
 #define SOCKLEN_T socklen_t

@@ -69,6 +69,7 @@
 #include "rpsl/rpsl.hh"
 
 extern "C" {
+// FIXME
 #if HAVE_MEMORY_H && 0
 #   include <memory.h>
 #endif
