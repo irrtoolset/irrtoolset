@@ -7,7 +7,13 @@ SRCDIRS		= gnu		\
 
 SUBDIRS		= $(SRCDIRS)
 
-OBJECTS 	= rpsl/object.o rpsl/rpsl_attr.o rpsl/schema.o rpsl/rpsl_item.o rpsl/prefix.o rpsl/afi.o rpsl/rpsl_filter.o rpsl/rpsl_policy.o rpsl/symbols.o rpsl/rpsl.y.o rpsl/rpsl.l.o rpsl/rptype.o rpsl/regexp.o rpsl/schema_rpsl.o rpsl/rangelist.o rpsl/object_log.l.o gnu/PrefixRange.Plex.o gnu/PrefixRange.XPlex.o gnu/SymID.Set.o gnu/SymID.VHSet.o
+OBJECTS 	= rpsl/object.o rpsl/rpsl_attr.o rpsl/schema.o \
+		  rpsl/rpsl_item.o rpsl/prefix.o rpsl/afi.o \
+		  rpsl/rpsl_filter.o rpsl/rpsl_policy.o rpsl/symbols.o \
+		  rpsl/rpsl.y.o rpsl/rpsl.l.o rpsl/rptype.o rpsl/regexp.o \
+		  rpsl/schema_rpsl.o rpsl/rangelist.o rpsl/object_log.l.o \
+		  gnu/PrefixRange.Plex.o gnu/PrefixRange.XPlex.o \
+		  gnu/SymID.Set.o gnu/SymID.VHSet.o
 
 #-------------------------------------------------------------------
 # Paths

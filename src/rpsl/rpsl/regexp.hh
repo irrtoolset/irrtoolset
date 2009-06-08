@@ -58,7 +58,7 @@
 #include <iostream>
 #include <cassert>
 #include "gnu/SetOfSymID.hh"
-#include "util/List.hh"
+#include "List.hh"
 #include "rangelist.hh"
 #include "symbols.hh"
 

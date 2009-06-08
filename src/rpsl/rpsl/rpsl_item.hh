@@ -73,8 +73,8 @@ extern "C" {
 #include <malloc.h>
 #endif // HAVE_MALLOC_H
 }
-#include "util/List.hh"
-#include "util/Buffer.hh"
+#include "List.hh"
+#include "Buffer.hh"
 #include "symbols.hh"
 #include "prefix.hh"
 #include "afi.hh"

@@ -20,7 +20,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "config.h"
-#include <builtin.h>
+#include "util/errhandler.h"
 #include "SymID.Set.h"
 
 
@@ -114,5 +114,5 @@ void SymIDSet::operator &= (SymIDSet& b)
 
 void SymIDSet::error(const char* msg) const
 {
-  (*lib_error_handler)("Set", msg);
+  lib_error_handler("Set", msg);
 }

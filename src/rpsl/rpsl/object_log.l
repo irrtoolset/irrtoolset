@@ -2,7 +2,7 @@ NAME           [[:alpha:]]([[:alnum:]_-]*[[:alnum:]])?
 
 %{
 #include "config.h"
-#include "util/List.hh"
+#include "List.hh"
 #include "rpsl/object.hh"
 
 #define LEXER_RETURN return

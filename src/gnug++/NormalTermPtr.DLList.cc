@@ -25,7 +25,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #include <cstring>
 #include <climits>
 #include "NormalTermPtr.DLList.h"
-#include <gnu/builtin.h>
+#include "util/errhandler.h"
 
 // error handling
 
@@ -33,7 +33,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 void NormalTermPtrDLList::error(const char* msg)
 {
-  (*lib_error_handler)("DLList", msg);
+  lib_error_handler("DLList", msg);
 }
 
 int NormalTermPtrDLList::length()

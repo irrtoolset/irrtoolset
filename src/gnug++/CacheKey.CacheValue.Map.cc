@@ -20,7 +20,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "CacheKey.CacheValue.Map.h"
-#include <gnu/builtin.h>
+#include "util/errhandler.h"
 
 
 Pix CacheKeyCacheValueMap::seek(CacheKey  item)
@@ -55,5 +55,5 @@ int CacheKeyCacheValueMap::contains (CacheKey  item)
 
 void CacheKeyCacheValueMap::error(const char* msg)
 {
-  (*lib_error_handler)("Map", msg);
+  lib_error_handler("Map", msg);
 }

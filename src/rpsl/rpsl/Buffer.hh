@@ -37,7 +37,7 @@ extern "C" {
 #endif // HAVE_MALLOC_H
 }
 
-#include "util/List.hh"
+#include "rpsl/List.hh"
 
 const int BufferExtendIncrement	= 4 * 1024;
 

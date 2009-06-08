@@ -2,7 +2,6 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/normalform/NT.cc)
 AC_CONFIG_HEADER(src/config.h)
 AC_CONFIG_SUBDIRS(src/Core)
-AC_CONFIG_SUBDIRS(src/rpsl)
 
 AC_CANONICAL_HOST
 
@@ -55,7 +54,6 @@ AC_PROG_LN_S
 
 AC_PROG_INSTALL
 AC_C_CONST
-AC_C_BIGENDIAN
 
 : ${LD=$CXX}
 AC_SUBST(LD)
@@ -163,39 +161,9 @@ AC_EGREP_HEADER(in_addr_t, netinet/in.h, ,
 		AC_CHECK_TYPE(in_addr_t, unsigned long)))
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(gettimeofday socket strstr memcpy vsnprintf)
-
-dnl Check for function declarations (irrutil/net.hh barfs if defined)
-AC_EGREP_HEADER(gettimeofday, sys/time.h,   AC_DEFINE(HAVE_DECL_GETTIMEOFDAY))
-AC_EGREP_HEADER(bzero,        string.h,     AC_DEFINE(HAVE_DECL_BZERO))
-AC_EGREP_HEADER(bcopy,        string.h,     AC_DEFINE(HAVE_DECL_BCOPY))
-AC_EGREP_HEADER(gethostname,  unistd.h,     AC_DEFINE(HAVE_DECL_GETHOSTNAME))
-AC_EGREP_HEADER(gethostbyname,netdb.h,      AC_DEFINE(HAVE_DECL_GETHOSTBYNAME))
-AC_EGREP_HEADER(select,       sys/select.h, AC_DEFINE(HAVE_DECL_SELECT))
-AC_EGREP_HEADER(socket,       sys/socket.h, AC_DEFINE(HAVE_DECL_SOCKET))
-AC_EGREP_HEADER(connect,      sys/socket.h, AC_DEFINE(HAVE_DECL_CONNECT))
-AC_EGREP_HEADER(bind,         sys/socket.h, AC_DEFINE(HAVE_DECL_BIND))
-AC_EGREP_HEADER(listen,       sys/socket.h, AC_DEFINE(HAVE_DECL_LISTEN))
-AC_EGREP_HEADER(accept,       sys/socket.h, AC_DEFINE(HAVE_DECL_ACCEPT))
-AC_EGREP_HEADER(recvfrom,     sys/socket.h, AC_DEFINE(HAVE_DECL_RECVFROM))
-AC_EGREP_HEADER(setsockopt,   sys/socket.h, AC_DEFINE(HAVE_DECL_SETSOCKOPT))
-AC_EGREP_HEADER(send,         sys/socket.h, AC_DEFINE(HAVE_DECL_SEND))
-AC_EGREP_HEADER(sendto,       sys/socket.h, AC_DEFINE(HAVE_DECL_SENDTO))
-
-case "${host_os}" in
-      solaris* )
-        AC_EGREP_HEADER(bzero,        strings.h,     AC_DEFINE(HAVE_DECL_BZERO))
-        AC_EGREP_HEADER(bcopy,        strings.h,     AC_DEFINE(HAVE_DECL_BCOPY))
-      ;;
-      *bsd* )
-        AC_EGREP_HEADER(bzero,        strings.h,     AC_DEFINE(HAVE_DECL_BZERO))
-        AC_EGREP_HEADER(bcopy,        strings.h,     AC_DEFINE(HAVE_DECL_BCOPY))
-      ;;
-esac
-
+AC_CHECK_FUNCS(timegm gettimeofday socket strstr memcpy vsnprintf)
 
 dnl #############################################
-
 
 AC_MSG_CHECKING(if we need to declare sys_errlist)
 AC_EGREP_CPP(sys_errlist, [
@@ -243,8 +211,6 @@ fi
 AC_LANG_RESTORE
 CXXFLAGS="$tmp_CXXFLAGS"
 
-AC_CHECK_HEADERS(malloc.h)
-
 ############################ prefix ################################
 
 AC_SUBST(prefix)
@@ -272,4 +238,7 @@ AC_OUTPUT(Makefile
 	src/peval/Makefile
 	src/rpslcheck/Makefile
 	src/RtConfig/Makefile
+	src/rpsl/Makefile
+        src/rpsl/gnu/Makefile
+        src/rpsl/rpsl/Makefile
 )

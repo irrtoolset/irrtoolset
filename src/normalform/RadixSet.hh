@@ -58,7 +58,7 @@
 #include <cstdio>
 #include <sys/types.h>
 #include "Stack.hh"
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "rpsl/prefix.hh"
 
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
@@ -70,7 +70,7 @@
 extern u_int64_t bits[];
 extern u_int masks[];
 
-#include "util/FixedSizeAllocator.hh"
+#include "FixedSizeAllocator.hh"
 
 extern FixedSizeAllocator RadixTreeAllocator;
 

@@ -77,7 +77,7 @@ extern "C" {
 #include <malloc.h>
 #endif // HAVE_MALLOC_H
 }
-#include "util/List.hh"
+#include "List.hh"
 #include "symbols.hh"
 #include "prefix.hh"
 #include "rpsl_item.hh"

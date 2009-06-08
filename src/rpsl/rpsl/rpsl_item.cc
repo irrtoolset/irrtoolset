@@ -56,7 +56,7 @@
 #include <iomanip>
 #include "rpsl_item.hh"
 #include "rpsl_filter.hh"
-#include "util/Buffer.hh"
+#include "Buffer.hh"
 
 using namespace std;
 

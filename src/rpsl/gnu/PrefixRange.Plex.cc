@@ -21,13 +21,13 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "PrefixRange.Plex.h"
-#include <builtin.h>
+#include "util/errhandler.h"
 
 // IChunk support
 
 void PrefixRangeIChunk::error(const char* msg) const
 {
-  (*lib_error_handler)("PrefixRangeIChunk", msg);
+  lib_error_handler("PrefixRangeIChunk", msg);
 }
 
 void PrefixRangeIChunk::index_error() const
@@ -106,7 +106,7 @@ int PrefixRangeIChunk:: OK() const
 
 void PrefixRangePlex::error(const char* msg) const
 {
-  (*lib_error_handler)("Plex", msg);
+  lib_error_handler("Plex", msg);
 }
 
 void PrefixRangePlex::index_error() const

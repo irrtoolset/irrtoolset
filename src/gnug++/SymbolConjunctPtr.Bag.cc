@@ -21,13 +21,13 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #endif
 #include "config.h"
 #include "SymbolConjunctPtr.Bag.h"
-#include <gnu/builtin.h>
+#include "util/errhandler.h"
 
 // error handling
 
 void SymbolConjunctPtrBag::error(const char* msg)
 {
-  (*lib_error_handler)("Bag", msg);
+  lib_error_handler("Bag", msg);
 }
 
 

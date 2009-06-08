@@ -55,7 +55,7 @@
 #define SYMBOLS_HH
 
 #include "config.h"
-#include "util/Allocator.hh"
+#include "Allocator.hh"
 #include "gnu/SetOfSymID.hh"
 #include "util/xstring.h"
 #include "rpsl/rpsl_asnum.hh"

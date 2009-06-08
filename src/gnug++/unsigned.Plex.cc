@@ -21,14 +21,14 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "config.h"
-#include <gnu/builtin.h>
+#include "util/errhandler.h"
 #include "unsigned.Plex.h"
 
 // IChunk support
 
 void unsignedIChunk::error(const char* msg) const
 {
-  (*lib_error_handler)("unsignedIChunk", msg);
+  lib_error_handler("unsignedIChunk", msg);
 }
 
 void unsignedIChunk::index_error() const
@@ -97,7 +97,7 @@ int unsignedIChunk:: OK() const
 
 void unsignedPlex::error(const char* msg) const
 {
-  (*lib_error_handler)("Plex", msg);
+  lib_error_handler("Plex", msg);
 }
 
 void unsignedPlex::index_error() const

@@ -56,7 +56,7 @@
 
 #include "config.h"
 #include <iostream>
-#include "util/List.hh"
+#include "List.hh"
 
 #define RANGE_TOP 65535
 

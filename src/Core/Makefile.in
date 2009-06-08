@@ -2,13 +2,11 @@
 
 GOAL		= libCore.a
 
-SRCDIRS		= gnu		\
-		  util
+SRCDIRS		= util
 
 SUBDIRS		= $(SRCDIRS)
 
-OBJECTS 	= gnu/error.o \
-		  util/rusage.o util/Buffer.o util/strupr.o
+OBJECTS 	= util/debug.o util/errhandler.o util/rusage.o util/strupr.o
 
 #-------------------------------------------------------------------
 # Paths
