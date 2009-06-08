@@ -23,7 +23,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #endif
 #define _unsignedPlex_h 1
 
-#include "Pix.h"
+#include "gnu/Pix.h"
 #include "unsigned.defs.h"
 
 // Plexes are made out of unsignedIChunks
