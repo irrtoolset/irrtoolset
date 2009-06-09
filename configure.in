@@ -231,13 +231,11 @@ AC_OUTPUT(Makefile
 	src/irrutil/Makefile
 	src/irrutil/version.cc
 	src/re2dfa/Makefile
-	src/gnug++/Makefile
+	src/dataset/Makefile
 	src/irr/Makefile
 	src/normalform/Makefile
 	src/peval/Makefile
 	src/rpslcheck/Makefile
 	src/RtConfig/Makefile
 	src/rpsl/Makefile
-        src/rpsl/gnu/Makefile
-        src/rpsl/rpsl/Makefile
 )
