@@ -24,7 +24,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #define _SymbolConjunctPtrBag_h 1
 
 #include "config.h"
-#include "gnu/Pix.h"
+#include "dataset/Pix.h"
 #include "SymbolConjunctPtr.defs.h"
 
 class SymbolConjunctPtrBag

@@ -8,7 +8,7 @@ HFILES =
 
 OTHERS = 
 
-REQUIRES = normalform irr re2dfa rpsl gnug++ irrutil
+REQUIRES = normalform irr re2dfa rpsl dataset irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@ @READLINE_LIBS@
 

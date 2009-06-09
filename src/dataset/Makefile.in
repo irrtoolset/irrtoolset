@@ -1,13 +1,29 @@
 # $Id$
 
-GOAL   = $(OBJS)
+GOAL   = libdataset.a
 
-OBJS   = PrefixRange.Plex.o  PrefixRange.XPlex.o  SymID.Set.o  SymID.VHSet.o 
+OBJS   = SymbolConjunctPtr.Bag.o  SymbolConjunctPtr.SplayBag.o \
+	 SymbolConjunctPtr.SplayNode.o \
+	 NormalTermPtr.DLList.o \
+	 unsigned.OXPSet.o unsigned.Plex.o unsigned.Set.o unsigned.XPlex.o \
+	 CacheKey.CacheValue.AVLMap.o CacheKey.CacheValue.Map.o \
+	 PrefixRange.Plex.o PrefixRange.XPlex.o SymID.Set.o SymID.VHSet.o
 
-SOURCES = PrefixRange.Plex.cc PrefixRange.XPlex.cc SymID.Set.cc SymID.VHSet.cc
+SRCS   = SymbolConjunctPtr.Bag.cc SymbolConjunctPtr.SplayBag.cc \
+	 SymbolConjunctPtr.SplayNode.cc \
+	 NormalTermPtr.DLList.cc \
+	 unsigned.OXPSet.cc unsigned.Plex.cc unsigned.Set.cc unsigned.XPlex.cc \
+	 CacheKey.CacheValue.AVLMap.cc CacheKey.CacheValue.Map.cc \
+	 PrefixRange.Plex.cc PrefixRange.XPlex.cc SymID.Set.cc SymID.VHSet.cc
 
-HFILES = PrefixRange.Plex.h  PrefixRange.XPlex.h  SymID.Set.h  SymID.VHSet.h \
-	 PrefixRange.defs.h  SetOfSymID.hh SymID.defs.h prefixranges.hh \
+HFILES = SymbolConjunctPtr.Bag.h  SymbolConjunctPtr.SplayBag.h \
+	 SymbolConjunctPtr.SplayNode.h  SymbolConjunctPtr.defs.h \
+	 NormalTermPtr.DLList.h NormalTermPtr.defs.h \
+	 unsigned.OXPSet.h unsigned.Plex.h unsigned.Set.h unsigned.XPlex.h \
+	 unsigned.defs.h \
+	 CacheKey.CacheValue.Map.h CacheKey.CacheValue.AVLMap.h CacheKey.defs.h \
+	 PrefixRange.Plex.h PrefixRange.XPlex.h SymID.Set.h SymID.VHSet.h \
+	 PrefixRange.defs.h SetOfSymID.hh SymID.defs.h prefixranges.hh \
 	 Pix.h
 
 LIBS   =
@@ -17,7 +33,7 @@ datarootdir	= @datarootdir@
 srcdir		= @srcdir@
 top_srcdir	= @top_srcdir@
 VPATH		= @srcdir@
-INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I..  @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@
+INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@
 
 # programs
 @SET_MAKE@
@@ -39,13 +55,15 @@ exec_prefix = @exec_prefix@
 bindir      = @bindir@
 mandir      = @mandir@
 man1dir     = $(mandir)/man1
-man8dir     = $(mandir)/man8
+man3dir     = $(mandir)/man3
 
 DEFINES  = @DEFS@
 CFLAGS   = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS  = @LDFLAGS@
 CXXFLAGS = @CXXFLAGS@
+
+default: all
 
 .y.o:
 
@@ -60,7 +78,11 @@ CXXFLAGS = @CXXFLAGS@
 #
 # No need to make changes below
 #
-all: $(OBJS)
+all: $(GOAL)
+
+$(GOAL): $(OBJS)
+	ar ruv $(GOAL) $?
+	$(RANLIB) $(GOAL)
 
 clean:
 	rm -f core *.o *~ $(GOAL)
@@ -69,8 +91,8 @@ mostlyclean:
 	rm -f core *.o *~
 
 # make dependencies
-depend:	${SOURCES}
-	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) ${SOURCES} >makedep
+depend:	${SRCS}
+	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $^ >makedep
 	echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
 	echo '$$r makedep' >>eddep
 	echo 'w' >>eddep

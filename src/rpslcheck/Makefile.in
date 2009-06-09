@@ -8,7 +8,7 @@ HFILES =
 
 OTHERS = 
 
-REQUIRES = irr rpsl gnug++ irrutil
+REQUIRES = irr rpsl dataset irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 

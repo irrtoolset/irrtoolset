@@ -60,7 +60,7 @@ extern "C" {
 #include <sys/types.h>
 }
 #include "NT.hh"
-#include "gnug++/NormalTermPtr.DLList.h"
+#include "dataset/NormalTermPtr.DLList.h"
 #include "irrutil/debug.hh"
 #include "rpsl/rpsl_filter.hh"
 

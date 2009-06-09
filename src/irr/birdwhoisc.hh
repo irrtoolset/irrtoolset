@@ -59,7 +59,7 @@
 #include "irr/irr.hh"
 #include "irrutil/net.hh"
 #include "irrutil/IRRbuffer.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include <cassert>
 
 

@@ -56,7 +56,7 @@
 #include "rpsl/schema.hh"
 #include "irr/irr.hh"
 #include "rpsl/prefix.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include <algorithm>
 #include <iostream>
 

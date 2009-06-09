@@ -56,7 +56,7 @@
 
 #include "config.h"
 #include "Allocator.hh"
-#include "gnu/SetOfSymID.hh"
+#include "dataset/SetOfSymID.hh"
 #include "irrutil/strcase.h"
 #include "rpsl/rpsl_asnum.hh"
 #include <cstdio>

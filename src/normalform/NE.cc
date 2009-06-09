@@ -59,8 +59,8 @@
 #include "irr/irr.hh"
 #include "irr/classes.hh"
 #include "rpsl/schema.hh"
-#include "gnug++/SetOfUInt.hh"
-#include "gnu/prefixranges.hh"
+#include "dataset/SetOfUInt.hh"
+#include "dataset/prefixranges.hh"
 
 using namespace std;
 
