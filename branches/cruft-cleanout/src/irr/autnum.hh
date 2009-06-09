@@ -57,7 +57,7 @@
 #define AUTNUM_H
 
 #include "rpsl/object.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include "rpsl/List.hh"
 #include "rpsl/schema.hh"
 #include "irr/irr.hh"

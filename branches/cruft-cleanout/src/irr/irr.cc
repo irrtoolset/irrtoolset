@@ -55,8 +55,8 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
-#include "gnu/prefixranges.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/prefixranges.hh"
+#include "dataset/SetOfUInt.hh"
 #include "irr.hh"
 #include "autnum.hh"
 #include "route.hh"

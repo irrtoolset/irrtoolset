@@ -58,7 +58,7 @@
 
 #include "irrutil/debug.hh"
 #include "regexp_nf.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include "irr/irr.hh"
 
 using namespace std;

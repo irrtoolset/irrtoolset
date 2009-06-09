@@ -71,7 +71,7 @@ extern "C" {
 #include "List.hh"
 #include "symbols.hh"
 #include "prefix.hh"
-#include "gnu/prefixranges.hh"
+#include "dataset/prefixranges.hh"
 #include "regexp.hh"
 #include "rpsl_item.hh"
 

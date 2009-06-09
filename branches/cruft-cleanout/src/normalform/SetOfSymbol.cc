@@ -56,7 +56,7 @@
 #include <cassert>
 #include "config.h"
 #include "SetOfSymbol.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include "irrutil/debug.hh"
 
 using namespace std;

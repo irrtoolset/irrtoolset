@@ -60,7 +60,7 @@ extern "C" {
 #include <sys/types.h>
 }
 
-#include "gnu/Pix.h"
+#include "dataset/Pix.h"
 #include "irrutil/debug.hh"
 
 // base type for any filter

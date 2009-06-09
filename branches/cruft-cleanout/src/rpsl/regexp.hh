@@ -57,7 +57,7 @@
 #include "config.h"
 #include <iostream>
 #include <cassert>
-#include "gnu/SetOfSymID.hh"
+#include "dataset/SetOfSymID.hh"
 #include "List.hh"
 #include "rangelist.hh"
 #include "symbols.hh"

@@ -23,7 +23,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #endif
 #define _unsignedSet_h 1
 
-#include "gnu/Pix.h"
+#include "dataset/Pix.h"
 #include "unsigned.defs.h"
 
 class unsignedSet
