@@ -63,9 +63,9 @@ extern "C" {
 #include <iomanip>
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "irrutil/trace.hh"
-#include "util/rusage.hh"
+#include "irrutil/rusage.hh"
 #include "RtConfig.hh"
 #include "irrutil/Argv.hh"
 #include "irrutil/version.hh"

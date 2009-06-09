@@ -21,7 +21,7 @@ Foundation, 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #pragma implementation
 #endif
 #include "PrefixRange.Plex.h"
-#include "util/errhandler.h"
+#include "irrutil/errhandler.h"
 
 // IChunk support
 

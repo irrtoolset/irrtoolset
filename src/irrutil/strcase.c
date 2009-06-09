@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: strupr.c 18 2002-04-09 11:48:49Z katie $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -49,103 +49,27 @@
 //  Questions concerning this software should be directed to 
 //  ratoolset@isi.edu.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
-#ifndef SYMBOLS_HH
-#define SYMBOLS_HH
+#include <stdio.h>
+#include <ctype.h>
 
-#include "config.h"
-#include "Allocator.hh"
-#include "gnu/SetOfSymID.hh"
-#include "irrutil/strcase.h"
-#include "rpsl/rpsl_asnum.hh"
-#include <cstdio>
+char *strupr(char *c)
+{
+   char *p;
+   if (!c) return NULL;
+   for (p = c; *p; p++)
+      if (isascii(*p) && islower(*p))
+         *p = toupper(*p);
+   return c;
+}
 
-typedef unsigned int ASt;
-
-const int ExpNoOfSymbols = 2000; // covers all AS#'s, and set names in '97
-const int ExpSymbolLength = 20;  // well much bigger
-
-typedef char* SymID;
-
-class Symbols {
-private:
-   Allocator allocator;
-   SetOfSymID symset;
-   SymID as_any;
-   SymID peerAS;
-public:
-
-   Symbols() : allocator(ExpNoOfSymbols*ExpSymbolLength, ExpSymbolLength*5),
-      symset(ExpNoOfSymbols) {
-      as_any = symID("AS-ANY");
-      peerAS = symID("PEERAS");
-   }
-   Symbols(int expNoOfSymbols, int expSymbolLength) : 
-      allocator(expNoOfSymbols*expSymbolLength, expSymbolLength*5),
-      symset(ExpNoOfSymbols) {
-      as_any = symID("AS-ANY");
-      peerAS = symID("PEERAS");
-   }
-
-   SymID symID(const char *name, int len = -1) {
-      Pix r;
-      char *nname=strdup(name);	
-
-      strupr(nname);
-      if (r = symset.seek((char *) nname))
-	 return symset(r);
-
-      if (len == -1)
-	 len = strlen(nname);
-      char *cptr = (char *) allocator.allocate(len+1);
-      strcpy(cptr, nname);
-      symset.add(cptr);
-
-      free (nname);
-
-      return cptr;
-   }
-
-   char *operator[](const SymID p) const {
-      return p;
-   }
-
-   bool isASAny(SymID sid) {
-      return sid == as_any;
-   }
-   bool isPeerAS(SymID sid) {
-      return sid == peerAS;
-   }
-
-   SymID resolvePeerAS(SymID sid, ASt peerAS) {
-      char *buffer = (char *) malloc(strlen(sid) * 3);
-      char *head, *tail, *ptr;
-      int  written;
-      ptr = buffer;
-      for (head = strstr(sid, "PEERAS"), tail = sid; 
-	   head;
-	   tail = head + 6, head++, head = strstr(head, "PEERAS")) {
-	 strncpy(ptr, tail, head - tail);
-	 ptr += (head - tail);
-	 asnum_string(ptr, peerAS);
-	 written = strlen(ptr);
-	 ptr += written;
-      }
-      if (tail == sid) {
-	 free(buffer);
-	 return sid;
-      }
-
-      strcpy(ptr, tail);
-
-      SymID nid = symID(buffer);
-      free(buffer);
-
-      return nid;
-   }
-};
-
-extern Symbols symbols;
-
-#endif   // SYMBOLS_HH
+char *strlwr(char *c)
+{
+   char *p;
+   if (!c) return NULL;
+   for (p = c; *p; p++)
+      if (isascii(*p) && isupper(*p))
+         *p = tolower(*p);
+   return c;
+}

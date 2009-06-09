@@ -55,8 +55,8 @@
 #include <config.h>
 #include <iostream>
 #include "rpsl/object.hh"
-#include "util/rusage.hh"
-#include "util/debug.hh"
+#include "irrutil/rusage.hh"
+#include "irrutil/debug.hh"
 #include "irrutil/trace.hh"
 #include "irrutil/Argv.hh"
 #include "irrutil/version.hh"

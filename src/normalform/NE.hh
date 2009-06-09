@@ -61,7 +61,7 @@ extern "C" {
 }
 #include "NT.hh"
 #include "gnug++/NormalTermPtr.DLList.h"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "rpsl/rpsl_filter.hh"
 
 const unsigned int EXPAND_AS_MACROS         = 0x000001;

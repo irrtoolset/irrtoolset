@@ -57,7 +57,7 @@
 #include "config.h"
 #include "SetOfSymbol.hh"
 #include "gnug++/SetOfUInt.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 
 using namespace std;
 

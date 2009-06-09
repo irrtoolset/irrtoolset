@@ -93,15 +93,11 @@ config-clean:
 	touch config.log
 	rm config.log 
 	cd src; rm Makefile config.h \
-	Core/config.h Core/config.log Core/config.status Core/Makefile \
-	Core/gnu/Makefile Core/sched/Makefile \
-	Core/sys/Makefile Core/util/Makefile \
-	aoe/Makefile roe/Makefile bgp/Makefile CIDRAdvisor/Makefile \
 	gnug++/Makefile irr/Makefile normalform/Makefile peval/Makefile \
-	prpath/Makefile prtraceroute/Makefile re2dfa/Makefile \
+	uril/Makefile re2dfa/Makefile \
 	rpsl/Makefile rpsl/config.h rpsl/config.log rpsl/config.status \
 	rpsl/gnu/Makefile \
-	rpslcheck/Makefile RtConfig/Makefile irrutil/Makefile 
+	rpslcheck/Makefile RtConfig/Makefile
 
 release_tag: 
 	cvs tag ${RELEASE_TAG}

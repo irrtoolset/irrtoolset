@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: version.cc.in 247 2009-06-07 23:07:30Z nick $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -52,19 +52,14 @@
 //  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
 
-#ifndef XSTRING_H
-#define XSTRING_H
+#include <stdio.h>
+#include <stdlib.h>
 
+char ProjectGoal[64];
+const char *ProjectVersion = "(IRRToolSet v4.8.5) nick@crumpet.foobar.org";
+const char *ProjectVersion2 = "IRRToolSet4.8.5";
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
-
-extern char *strlwr(char *c);
-extern char *strupr(char *c);
-
-#ifdef __cplusplus
+int version(char *dst, char *key, char *nextArg) {
+   fprintf(stderr, "%s %s\n", ProjectGoal, ProjectVersion);
+   exit(0);
 }
-#endif
-
-#endif // XSTRING_H
