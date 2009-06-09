@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: rusage.hh 157 2006-06-08 15:16:26Z shane $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -46,30 +46,51 @@
 //  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
 //  OR PERFORMANCE OF THIS SOFTWARE.
 //
-//  Questions concerning this software should be directed to 
+//  Questions concerning this software should be directed to
 //  ratoolset@isi.edu.
 //
-//  Author(s): WeeSan Lee <wlee@ISI.EDU>
+//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//             WeeSan Lee <wlee@ISI.EDU>
 
-#include <stdio.h>
-#include <ctype.h>
+#ifndef RUSAGE_H
+#define RUSAGE_H
 
-char *strupr(char *c)
-{
-   char *p;
-   if (!c) return NULL;
-   for (p = c; *p; p++)
-      if (isascii(*p) && islower(*p))
-         *p = toupper(*p);
-   return c;
-}
+#include "config.h"
+#include <ostream>
 
-char *strlwr(char *c)
-{
-   char *p;
-   if (!c) return NULL;
-   for (p = c; *p; p++)
-      if (isascii(*p) && isupper(*p))
-         *p = tolower(*p);
-   return c;
-}
+class Rusage {
+private:
+   double last_rtime,
+          last_utime,
+          last_stime;
+   // Added by wlee@isi.edu
+   std::ostream *out;
+   bool *flag;
+public:
+   Rusage() : flag(0) {
+      start();
+      last_utime = 0.0;
+      last_stime = 0.0;
+   }
+   // Added by wlee@isi.edu
+   Rusage(std::ostream &out, bool *flag) : out(&out), flag(flag) {
+     start();           // Will get the user time, system time and elapsed time
+     last_utime = 0.0;  // By the time Rusage gets called, it has been mini
+     last_stime = 0.0;  // seconds passed already, do the correction here!
+   }
+   ~Rusage(void) {
+     if (flag && *flag)
+       *out << *this;
+   }
+
+   void start();
+   void reset() {
+      start();
+   }
+
+   friend std::ostream& operator<<(std::ostream& stream, Rusage& ru);
+};
+
+std::ostream& operator<<(std::ostream& stream, Rusage& ru);
+
+#endif   // RUSAGE_H

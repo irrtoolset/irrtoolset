@@ -8,7 +8,7 @@ HFILES =
 
 OTHERS = 
 
-REQUIRES = irr rpsl Core gnug++ irrutil
+REQUIRES = irr rpsl gnug++ irrutil
 
 LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) @EXTRA_LIBS@
 

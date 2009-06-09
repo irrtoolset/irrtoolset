@@ -55,7 +55,7 @@
 #include "config.h"
 #include <iostream>
 #include "NE.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "irr/irr.hh"
 #include "irr/classes.hh"
 #include "rpsl/schema.hh"

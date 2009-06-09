@@ -56,7 +56,7 @@
 #include <cassert>
 #include <map>
 
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "regexp_nf.hh"
 #include "gnug++/SetOfUInt.hh"
 #include "irr/irr.hh"

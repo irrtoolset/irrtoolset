@@ -61,7 +61,7 @@
 #include <sstream>  // For class ostream, class istream
 #include "List.hh"
 #include "Buffer.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "rpsl_attr.hh"
 
 #define RPSL_CLASS_UNKONWN 0

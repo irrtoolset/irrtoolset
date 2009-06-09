@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: rusage.cc 198 2007-02-09 19:46:31Z shane $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -50,47 +50,105 @@
 //  ratoolset@isi.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
-//             WeeSan Lee <wlee@ISI.EDU>
-
-#ifndef RUSAGE_H
-#define RUSAGE_H
 
 #include "config.h"
 #include <ostream>
+#include "rusage.hh"
+#include <iomanip>
 
-class Rusage {
-private:
-   double last_rtime,
-          last_utime,
-          last_stime;
-   // Added by wlee@isi.edu
-   std::ostream *out;
-   bool *flag;
-public:
-   Rusage() : flag(0) {
-      start();
-      last_utime = 0.0;
-      last_stime = 0.0;
-   }
-   // Added by wlee@isi.edu
-   Rusage(std::ostream &out, bool *flag) : out(&out), flag(flag) {
-     start();           // Will get the user time, system time and elapsed time
-     last_utime = 0.0;  // By the time Rusage gets called, it has been mini
-     last_stime = 0.0;  // seconds passed already, do the correction here!
-   }
-   ~Rusage(void) {
-     if (flag && *flag)
-       *out << *this;
-   }
+using namespace std;
 
-   void start();
-   void reset() {
-      start();
-   }
+#if RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL && HAVE_GETTIMEOFDAY
 
-   friend std::ostream& operator<<(std::ostream& stream, Rusage& ru);
-};
+extern "C" {
+#include <sys/types.h>
 
-std::ostream& operator<<(std::ostream& stream, Rusage& ru);
+#if TIME_WITH_SYS_TIME
+#   include <sys/time.h>
+#   include <time.h>
+#else
+#   if HAVE_SYS_TIME_H
+#      include <sys/time.h>
+#   else
+#      include <time.h>
+#   endif
+#endif
 
-#endif   // RUSAGE_H
+#include <sys/resource.h>
+//extern int getrusage(...);
+//extern int gettimeofday(...);
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+//extern int getpagesize(...);
+#endif
+}
+
+double tv2f(timeval &tv)
+/* Converts a timeval into a double giving the time in seconds. */
+{
+    return tv.tv_sec + tv.tv_usec / 1e6;
+}
+
+void Rusage::start() {
+    struct timeval start_time;
+    struct rusage self;
+
+    gettimeofday(&start_time, NULL);
+    last_rtime = tv2f(start_time);
+
+    getrusage(RUSAGE_SELF, &self);
+    last_utime = tv2f(self.ru_utime);
+    last_stime = tv2f(self.ru_stime);
+}
+
+ostream& operator<<(ostream& stream, Rusage& ru) {
+    struct timeval end_time;
+    struct rusage self;
+    double rtime, utime, stime;
+
+    getrusage(RUSAGE_SELF, &self);
+    gettimeofday(&end_time, NULL);
+
+    utime = tv2f(self.ru_utime) - ru.last_utime;
+    stime = tv2f(self.ru_stime) - ru.last_stime;
+    rtime = tv2f(end_time)      - ru.last_rtime;
+
+    stream << setiosflags(ostream::fixed) << setprecision(2);
+    stream <<  "     times:    "
+           << utime << " "
+           << stime << " "
+           << rtime << endl;
+    stream << "     i/o:      "
+           << self.ru_inblock << " "
+           << self.ru_oublock << endl;
+    stream << "     faults:   "
+           << self.ru_minflt << " "
+           << self.ru_majflt << endl;
+    stream << "     swaps:    "
+           << self.ru_nswap << endl;
+    stream << "     max size: "
+           << self.ru_maxrss << " "
+           << getpagesize() << endl;
+    stream << "     ws size:  "
+           << self.ru_idrss << endl;
+    stream << "     signals:  "
+           << self.ru_nsignals << endl;
+    stream << "     vo/nv cs: "
+           << self.ru_nvcsw << " "
+           << self.ru_nivcsw << endl;
+    stream << setiosflags(ostream::scientific) << setprecision(0);
+    return stream;
+}
+
+#else // RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL
+
+void Rusage::start() {
+    return;
+}
+
+ostream& operator<<(ostream& stream, Rusage& ru) {
+   stream << "No resource usage is available in this system.\n";
+   return stream;
+}
+
+#endif // RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL

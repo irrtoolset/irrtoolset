@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: debug.cc 241 2009-06-06 16:54:23Z nick $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -70,95 +70,46 @@
 //            University of Maryland
 //            College Park, MD 20742
 
-#ifndef DEBUG_H
-#define DEBUG_H
-
 #include "config.h"
 #ifdef DEBUG
-#include <iostream>
+#include <cstdlib>
+#include "debug.hh"
 
-#define DBG_ERR             1
-#define DBG_INFO            2 
+dbgstream dbg;
 
-void Abort();
-void copy_constructor(char *p);
+dbgstream::dbgstream() { 
+   level=0; 
+   enabled=0; 
+   // only DBG_ERR and DBG_INFO levels are initially enabled
+   enable(DBG_ERR);
+   enable(DBG_INFO);
+}
 
-class dbgstream {
-public:
-   dbgstream();
-   dbgstream(dbgstream& a) { copy_constructor("dbgstream"); }
-   int operator[](int _level) { 
-      level = _level;
-      return enabledp();
-   }
-   void dbgstream::enable();
-   void dbgstream::disable();
-   void dbgstream::enable(int level);
-   void dbgstream::disable(int level);
-   int  dbgstream::enabledp();
-   int  dbgstream::enabledp(int level);
-private:
-   int level;
-   int enabled;
-};
+void dbgstream::enable() {
+   enabled |= (1 << level);
+}
+void dbgstream::disable() {
+   enabled &= ~(1 << level);
+}
+void dbgstream::enable(int level) {
+   enabled |= (1 << level);
+}
+void dbgstream::disable(int level) {
+   enabled &= ~(1 << level);
+}
+int dbgstream::enabledp() {
+   return (enabled & (1 << level));
+}
+int dbgstream::enabledp(int level) {
+   return (enabled & (1 << level));
+}
+void Abort() {
+   abort();
+}
 
-extern dbgstream dbg;
-
-//----------------------------------------------------------------------
-// ASSERT
-//      If condition is false,  print a message and dump core.
-//	Useful for documenting assumptions in the code.
-//
-//	NOTE: needs to be a #define, to be able to print the location 
-//	where the error occurred.
-//----------------------------------------------------------------------
-/*
-#ifndef ASSERT
-#define ASSERT(condition)                                                     \
-    if (!(condition)) {                                                       \
-        cerr << __FILE__ << ":" << __LINE__                                   \
-	     << ": Assertion failed `" << #condition << "'\n";                \
-        Abort();                                                              \
-    }
-#endif // ASSERT
-*/
-
-#define Debug(whatever) whatever
-#define Channel(no) if (dbg.enabledp(no)) cerr
-#define PRINT(var) cout << #var << " = " << var << endl;
-
-
-
-
-#else /* DEBUG */
-#define copy_constructor(p) 
-#ifndef ASSERT
-#define ASSERT(condition) /* do nothing */
-#endif // ASSERT
-#define Debug(whatever)   /* do nothing */
-#define PRINT(var)        /* do nothing */
+void copy_constructor(char *p) {
+   std::cerr << "Copy constructor called for " << p << std::endl;
+}
 
 #endif /* DEBUG */
 
-#endif /* DEBUG_H */
-
-#ifdef DEBUG_MEMORY
-#define CLASS_DEBUG_MEMORY_HH(classX)        \
-   void* operator new(size_t size) {         \
-      classX::count++;                             \
-      return ::operator new(size);           \
-   }                                         \
-   void operator delete(void* p) {           \
-      classX::count--;                             \
-      ::delete(p);                           \
-   }                                         \
-   static int count                         
-#define CLASS_DEBUG_MEMORY_CC(classX) \
-   int classX::count = 0
-#define CLASS_DEBUG_MEMORY_PRINT(classX) \
-   dbg[DBG_INFO] << #classX << " remaining: " << classX::count << "\n"
-#else // DEBUG_MEMORY
-#define CLASS_DEBUG_MEMORY_HH(classX)
-#define CLASS_DEBUG_MEMORY_CC(classX)
-#define CLASS_DEBUG_MEMORY_PRINT(classX)
-#endif // DEBUG_MEMORY

@@ -61,7 +61,7 @@ extern "C" {
 }
 
 #include "gnu/SetOfSymID.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "rpsl/symbols.hh"
 
 

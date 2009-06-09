@@ -61,7 +61,7 @@ extern "C" {
 }
 
 #include "gnu/Pix.h"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 
 // base type for any filter
 class NEFilter {
