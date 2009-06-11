@@ -54,6 +54,9 @@
 //             Katie Petrusha <katie@ripe.net>
 */
 
+%option outfile="rpsl.l.cc"
+%option prefix="rpsl"
+
 /* definitions */
 %x STRING
 %x EXPECT_OPERATOR

@@ -57,7 +57,6 @@
 
 extern char ProjectGoal[64];
 extern const char *ProjectVersion;
-extern const char *ProjectVersion2;
 
 extern int version(char *dst, char *key, char *nextArg);
 

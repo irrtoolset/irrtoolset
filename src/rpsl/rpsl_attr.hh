@@ -70,8 +70,6 @@
 extern "C" {
 #ifdef HAVE_REGEX_H
 #include <regex.h>
-#else
-#include <dataset/regex.h>
 #endif
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>

@@ -142,7 +142,9 @@ int ParseArgv(int *argcPtr, char **argv, ArgvInfo *argTable, int flags)
     int len = strlen(argv[0]);
     char *pGoal = argv[0] + len;
     while (*pGoal != '/' && *pGoal != '\\' && --len >= 0) pGoal--;
-    strcpy(ProjectGoal, pGoal);
+    if (*pGoal == '/' || *pGoal == '\\')
+       pGoal++;
+    strncpy(ProjectGoal, pGoal, 63);
 
     if (flags & ARGV_DONT_SKIP_FIRST_ARG) {
 	srcIndex = dstIndex = 0;

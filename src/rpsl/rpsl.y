@@ -97,6 +97,9 @@ extern Object *current_object;
 
 %}
 
+%name-prefix="rpsl"
+%output="rpsl.y.cc"
+
 %expect 1
 
 %union {
