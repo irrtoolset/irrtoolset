@@ -50,37 +50,26 @@
 .\"//  THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .\"//
 .\"//  Questions concerning this software should be directed to 
-.\"//  irrtoolset@ripe.net
+.\"//  irrtoolset@lists.isc.org.
 .\"//
 .\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
 .\"//             Katie Petrusha <katie@ripe.net>
 .\"
 .\"
-.TH peval 1 local
+.TH rpslcheck 1 local
 .SH NAME
-peval
+rpslcheck
 .SH SYNOPSIS
-.B peval
-.RI [ options ]\ [<expression>]
+.B rpslcheck
+.RI [ flags ]\ [<as-no>]
 .SH DESCRIPTION
 .PP
-peval is a low level policy evaluation tool 
-that can be used to write router configuration generators.
-peval, in a command loop,
-inputs policy expressions,
-expands the AS sets, route sets, filter sets, AS numbers 
-(unless specified otherwise using command line options),
-evaluates the resulting expression
-and outputs the result.
-Instead of a command loop,
-the expression can be given as an argument.
+rpslcheck syntax-checks any RPSL object. If the object passes rpslcheck's syntax check it will not cause errors to any of the tools in IRRToolSet, such as RtConfig. However, the syntax constraints of a particular IRR can differ from the ones in RPSL.
 .PP
-By default peval evaluates the expression for ipv4 unicast address family. Also the list of address families can be specified in order to restrict the results. The syntax is: afi <afi_list> <mp-filter>.
+The input can be supplied via "-as <ASnum>" option (only AS-numbers). If no option is specified the object is expected as a standard input. The input can contain multiple objects.
 .PP
-<afi_list> is a comma separated list of address families. The supported ones are: ipv4, ipv4.unicast (same as ipv4), ipv4.multicast, ipv6, ipv6.unicast (same as ipv6), ipv6.multicast, any.unicast (ipv4.unicast, ipv6.unicast), any.multicast (ipv4.multicast, ipv6.multicast), any (ipv4.unicast, ipv4.multicast, ipv6.unicast, ipv6.multicast). If the results are to be restricted to uncomparable address families (ipv4, ipv6), in the output they will be joined using 'OR' clause.
-.PP
-<mp-filter> is a valid RPSLng filter over AS-numbers, ipv4/ipv6 prefixes, range operators, filter-sets, route-sets, as-sets and logical operators. For more details about mp-filter format see RPSLng documentation.
-.PP
+Future versions of this tool will generate better error messages and do
+more than just syntax checking.
 .SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
@@ -94,28 +83,19 @@ Print debugging messages of debug channel <integer>
 Print the version number and quit.
 .IP "\-h <host-name>"
 Establish a whois connection to host <host-name>.
-The default is whois.radb.net.
+The default is whois.radb.net
 .IP "\-p <port-no>"
 Establish a whois connection to port <port-no>.
 The default is 43.
 .IP "\-protocol <protocol>"
-Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd), or ripe(bird). The default is irrd.
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd) or ripe(bird). The default is irrd.
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
-peval uses the definition first encountered in <source-list>
+prcheck uses the definition first encountered in <source-list>
 from left to right.
-.IP "\-f <file-name>" 
-IRR cache file. You can have any RPSL object in this file, except route
-objects. 
-They will override these objects in IRR.
-This option is intended for private objects, or to test new public objects 
-before publishing. You can specify more than one cache file by specifying this
-option repeatedly.
 .IP \-rusage
 Print resource usage upon completion.
-.IP "\-prompt <string>"
-Set the interactive prompt to <string>.
 .IP "\-ignore_errors"
 Do not print error and warning messages due to communication to the
 database server or parsing policy objects.
@@ -125,27 +105,11 @@ database server or parsing policy objects.
 .RE
 .SH OTHER OPTIONS
 .RS
-.IP -no-as-set
-Do not expand AS sets into AS numbers.
-.IP -no-route-set
-Do not expand route sets into prefixes.
-.IP -no-as
-Do not expand AS numbers into prefixes.
-.IP -none
-Do not expand anything.
-.IP -symbolic
-Do a prior symbolic evaluation, then do the expansions and then
-re-evaluate.
-This may be faster for some policies.
-.IP \-asdot
-Print AS numbers as asdot, i.e. in "X.Y" format;
-the default is to use RFC-5396 recommended "asplain" format.
-.IP -compressed
-Print prefix lists using the more specific operators. 
-Otherwise,
-an expression like 128.9.0.0/16^24 will result in 256 prefixes being printed.
-.IP "\-e <expression>"
-Evaluate expression.
+.IP "\-as <as-no>"
+Syntax check the aut-num object for <as-no>. 
+If this option is not supplied, stdin is parsed.
+.IP "\-echo"
+Print the aut-num object before matching.
 .RE
 .SH ENVIRONMENT VARIABLES
 .RS
@@ -160,61 +124,27 @@ Specifies the source list (comma separated) to consider.
 Command line options take precedence over environment variables.
 .SH EXAMPLES
 .PP
-Perform only symbolic evaluation:
-.PP
 .nf
-% ./peval -none
-peval> (AS1 OR AS2) AND AS1
-((AS1))
-peval> AS1 AND NOT AS1
-NOT ANY
-peval> 
+	% ./rpslcheck 
+	Congratulations no errors were found in parsing AS226	
+	% rpslcheck AS3130
+	Congratulations no errors were found in parsing AS3130
+	% rpslcheck AS86
+	Error: *it: AS701 192.41.177.6/32 192.41.177.249 (pref=MED) ANY
+	Error:                            ^^^^^^^^^^^^^^
 .fi
 .PP
-Expand AS macros and evaluate:
-.PP
-.nf
-% ./peval -no-as AS-ANSCT
-((AS1326 AS2002 AS2538 AS2752 AS3723))
-.fi
-.PP
-Expand all and evaluate 
-(e.g. multihomed routes to AS1220 and AS226):
-.PP
-.nf
-% ./peval 'AS1220 AND AS226'
-({192.237.125.0/24, 192.92.56.0/24, 196.2.41.0/24, 196.2.40.0/24})
-.fi
-.PP 
-Evaluate the filter for ipv4 and ipv6 address families:
-.PP
-.nf
-% ./peval 'afi ipv6, ipv4 rs-rpslng'
-({1001:0:0:0:0:0:0:0/35, 1:0:0:0:0:0:0:0/35})
- OR ({1.0.0.0/8, 1.2.3.0/24})
 .SH ERROR AND WARNING MESSAGES
-Error: Internal error.
+Error: no object for AS <as_no>
 .RS
 .PP
-Fails if couldn't evaluate the filter to resulting normal expression.
+Aut-num object for <as_no> is not found in specified IRR for specified source. You could mistype the source, hostname or AS-number, or the object is truly non-existent.
 .PP
 .RE
-Unknown protocol!
-.RS
-.PP
-Connection to IRR server failed. This can be caused by various reasons, please see Errors manpage, IRR Communication errors.
-.PP
-.RE
-***Error: badly formed filter.
-.RS
-.PP
-syntax error in RPSL filter specification. 
-.PP
-.RE
-For more error descriptions, please see 
+For more error descriptions, please see
 .B
-Errors manual page.
+irrtoolset-errors
+manual page.
 .SH AUTHORS
 Cengiz Alaettinoglu <cengiz@isi.edu>
-.PP
 Katie Petrusha <katie@ripe.net>

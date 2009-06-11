@@ -51,13 +51,12 @@
 //
 //  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
-
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 char ProjectGoal[64];
-const char *ProjectVersion = "(IRRToolSet v4.8.5) nick@crumpet.foobar.org";
-const char *ProjectVersion2 = "IRRToolSet4.8.5";
+const char *ProjectVersion = PACKAGE_NAME "-" PACKAGE_VERSION;
 
 int version(char *dst, char *key, char *nextArg) {
    fprintf(stderr, "%s %s\n", ProjectGoal, ProjectVersion);

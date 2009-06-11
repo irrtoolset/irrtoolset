@@ -51,13 +51,12 @@
 //
 //  Author(s): WeeSan Lee <wlee@ISI.EDU>
 
-
+#include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 char ProjectGoal[64];
-const char *ProjectVersion = "@VERSION@";
-const char *ProjectVersion2 = "@VERSION2@";
+const char *ProjectVersion = PACKAGE_NAME "-" PACKAGE_VERSION;
 
 int version(char *dst, char *key, char *nextArg) {
    fprintf(stderr, "%s %s\n", ProjectGoal, ProjectVersion);

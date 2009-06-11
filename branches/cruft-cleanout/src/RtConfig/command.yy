@@ -52,6 +52,8 @@
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
+/***** ALL CONFIGS EXCEPT CISCO TEMP DISABLED !!! *****/
+
 #include "config.h"
 
 #include <ostream>
@@ -93,9 +95,6 @@ int xx_eof = 0;
    MPPrefix *ip;
    ASt as;
 }
-
-%name-prefix="command"
-%output="command.y.cc"
 
 %token <ip>  TKN_IP
 %token <as>  TKN_ASNUM

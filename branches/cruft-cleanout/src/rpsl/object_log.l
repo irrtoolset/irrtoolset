@@ -1,3 +1,6 @@
+%option outfile="object_log.l.cc"
+%option prefix="object_log"
+
 NAME           [[:alpha:]]([[:alnum:]_-]*[[:alnum:]])?
 
 %{

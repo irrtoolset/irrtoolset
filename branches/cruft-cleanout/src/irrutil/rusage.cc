@@ -58,8 +58,6 @@
 
 using namespace std;
 
-#if RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL && HAVE_GETTIMEOFDAY
-
 extern "C" {
 #include <sys/types.h>
 
@@ -139,16 +137,3 @@ ostream& operator<<(ostream& stream, Rusage& ru) {
     stream << setiosflags(ostream::scientific) << setprecision(0);
     return stream;
 }
-
-#else // RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL
-
-void Rusage::start() {
-    return;
-}
-
-ostream& operator<<(ostream& stream, Rusage& ru) {
-   stream << "No resource usage is available in this system.\n";
-   return stream;
-}
-
-#endif // RUSAGE_USES_TIMEVAL && HAVE_TIMEVAL

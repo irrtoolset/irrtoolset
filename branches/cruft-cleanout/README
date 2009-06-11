@@ -13,7 +13,7 @@ FTP and WWW SITES
 
         ftp://ftp.isc.org/isc/IRRToolSet
 
-        http://www.isc.org/index.pl?/sw/IRRToolSet/
+        http://irrtoolset.isc.org/
 
 INSTALLATION
         0. To install you need an ISO C++ compiler (such as g++ from
@@ -76,4 +76,4 @@ KNOWN PROBLEMS DURING INSTALLATION
 	these options on these platforms.
 
 Please let us know if you face any problems at the mailing list
-irrtoolset@ripe.net. Bug reports and suggestions are always welcome.
+irrtoolset@lists.isc.org. Bug reports and suggestions are always welcome.
