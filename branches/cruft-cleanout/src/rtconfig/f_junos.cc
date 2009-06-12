@@ -60,7 +60,7 @@
 #include "normalform/NE.hh"
 #include "irr/irr.hh"
 #include "irr/autnum.hh"
-#include "RtConfig.hh"
+#include "rtconfig.hh"
 #include "f_cisco.hh"
 #include "f_junos.hh"
 #include "rpsl/schema.hh"

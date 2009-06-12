@@ -56,25 +56,25 @@
 .\"//             Katie Petrusha <katie@ripe.net>
 .\"
 .\"
-.TH RtConfig 1 local
+.TH rtconfig 1 local
 .SH NAME
-RtConfig
+rtconfig
 .SH SYNOPSIS
-.B RtConfig
+.B rtconfig
 .RI [ flags ]
 .SH DESCRIPTION
 .PP
-RtConfig analyzes the routing policies registered 
+rtconfig analyzes the routing policies registered 
 in the Internet Routing Registry (IRR)
 and produces router configuration files. 
-It supports cisco, junos, nortel/bay, gated, RSd router configuration file
+It currently supports cisco and junos router configuration file
 formats. 
-RtConfig reads lines form the standard input,
+rtconfig reads lines form the standard input,
 and prints them to the standard output,
-except for the lines that start with "@RtConfig"
-which instruct RtConfig to perform special operation
-(please see "RtConfig Commands" Section below).
-RtConfig establishes a whois connection to query IRR.
+except for the lines that start with "@rtconfig"
+which instruct rtconfig to perform special operation
+(please see "rtconfig Commands" Section below).
+rtconfig establishes a whois connection to query IRR.
 .SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
@@ -97,7 +97,7 @@ Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
-RtConfig uses the definition first encountered in <source-list>
+rtconfig uses the definition first encountered in <source-list>
 from left to right.
 .IP "\-f <file-name>" 
 IRR cache file. You can have any RPSL object in this file, except route
@@ -110,7 +110,7 @@ option repeatedly.
 Print resource usage upon completion.
 .IP "\-prompt <new-prompt>"
 Change the prompt to <new-prompt> when invoked interactively. By default
-the prompt is "RtConfig>\ ".
+the prompt is "rtconfig>\ ".
 .IP "\-ignore_errors"
 Do not print error and warning messages due to communication to the
 database server or parsing policy objects.
@@ -126,16 +126,16 @@ which is either cisco (default), junos, bcc (for bay), gated or rsd.
 .IP \-no_match_ip_inbound
 In older Cisco IOS versions, 
 in-bound route maps did not support ip access-list matches.
-Use of this option causes RtConfig to use distribute-lists to overcome
+Use of this option causes rtconfig to use distribute-lists to overcome
 this limitation.
 .IP \-asdot
 Print AS numbers as asdot, i.e. in "X.Y" format;
 the default is to use RFC-5396 recommended "asplain" format.
 .IP \-disable_access_list_cache
-RtConfig caches the access-lists (and in the future ip as-path
+rtconfig caches the access-lists (and in the future ip as-path
 access-lists and route-maps) that it generates so that the same
 access-list number can be reused instead of generating a new access list.
-If you do not want RtConfig to consume much memory,
+If you do not want rtconfig to consume much memory,
 \-disable_access_list_cache option can be used to turn off this feature.
 However,
 if you are short on memory on your cisco box, 
@@ -150,15 +150,15 @@ This option is used to disable combining multiple cisco access list lines
 into a single line using wildcards whenever possible.
 .IP "\-cisco_use_prefix_lists"
 This option only affects cisco configurations.
-This option instructs RtConfig to output prefix-lists which yield higher 
+This option instructs rtconfig to output prefix-lists which yield higher 
 performace than access-lists. This flag implies -cisco_compress_acls.
 .IP "\-cisco_eliminate_dup_map_parts"
 This option only affects cisco configurations.
-This option instructs RtConfig to eliminate a later map part if its filter
+This option instructs rtconfig to eliminate a later map part if its filter
 is covered by earlier map parts.
 .IP "\-cisco_skip_route_maps"
 This option only affects cisco configurations.
-This option instructs RtConfig not to print route maps, 
+This option instructs rtconfig not to print route maps, 
 hence it only prints access lists.
 .IP "\-cisco_force_tilda"
 This option only affects cisco configurations. It forces * and + operators
@@ -179,19 +179,19 @@ Specifies the source list (comma separated) to consider.
 .RE
 .PP
 Command line options take precedence over environment variables.
-.SH RtConfig COMMANDS
+.SH rtconfig COMMANDS
 .PP
-RtConfig copies standard input to standard output 
-except when it encounters RtConfig commands on the standard input.
-All RtConfig commands start with "@RtConfig" at the beginning of a line.
+rtconfig copies standard input to standard output 
+except when it encounters rtconfig commands on the standard input.
+All rtconfig commands start with "@rtconfig" at the beginning of a line.
 Currently the following commands are implemented:
 .RS
-.IP "@RtConfig import <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+.IP "@rtconfig import <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 <ASN-1> and <ASN-2> are AS numbers preceded with string "AS". For
 example, AS number 1 is specified as "AS1".
 <rtr-1> and <rtr-2> are ip addresses in prefix notation. For
 example, the router with address 128.9.128.9 is specified as "128.9.128.9".
-This command instructs RtConfig to generate import filters
+This command instructs rtconfig to generate import filters
 where 
 <rtr-1> in <ASN-1> is importing routes from
 <rtr-2> in <ASN-2>.
@@ -199,9 +199,9 @@ The appropriate filters are generated
 by considering 
 the import/mp-import lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
-.IP "@RtConfig export <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+.IP "@rtconfig export <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 The arguments of the export command are the same as the import command.
-This command instructs RtConfig to generate export filters
+This command instructs rtconfig to generate export filters
 where 
 <rtr-1> in <ASN-1> is exporting routes to
 <rtr-2> in <ASN-2>.
@@ -209,47 +209,47 @@ The appropriate filters are generated
 by considering 
 the export/mp-export lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
-.IP "@RtConfig configureRouter <inet-rtr-name>"
+.IP "@rtconfig configureRouter <inet-rtr-name>"
 <inet-rtr-name> is the DNS name of an inet-rtr object.
 This command will use the named inet-rtr object,
 and configure import/mp-import and export/mp-export policies
 for each of the BGP4 peers of the router 
 (using the peer attribute).
-.IP "@RtConfig importGroup <ASN-1> <peering-set-name>"
-.IP "@RtConfig exportGroup <ASN-1> <peering-set-name>"
+.IP "@rtconfig importGroup <ASN-1> <peering-set-name>"
+.IP "@rtconfig exportGroup <ASN-1> <peering-set-name>"
 <peering-set-name> is a name of a peering set object.
-This command instructs RtConfig to generate import/mp-import (export/mp-export) filters
+This command instructs rtconfig to generate import/mp-import (export/mp-export) filters
 where 
 <ASN-1> is importing (exporting) routes from (to) the peers listed in 
 <peering-set-name>.
 The aut-num object for <ASN-1>
 should have an import/mp-import (export/mp-export) attribute using the peering set's name.
-.IP "@RtConfig static2bgp <ASN-1> <rtr-1>"
-This command instructs RtConfig to generate inject filters
+.IP "@rtconfig static2bgp <ASN-1> <rtr-1>"
+This command instructs rtconfig to generate inject filters
 where 
 <rtr-1> in <ASN-1> is injecting static routes into BGP4.
 The appropriate filters are generated 
 by considering 
 the import/mp-import policies of <ASN-1>
 where "protocol STATIC" or "protocol STATIC into BGP4" is used.
-.IP "@RtConfig set sources = <source-list>"
+.IP "@rtconfig set sources = <source-list>"
 <source-list> is string containing comma separated list of sources to
 consider.
-This command instruct RtConfig to change the list of sources considered.
-.IP "@RtConfig access_list filter <filter>"
+This command instruct rtconfig to change the list of sources considered.
+.IP "@rtconfig access_list filter <filter>"
 <filter> is an RPSL filter over AS numbers, AS set names and route set
 names using operators AND, OR and NOT.
-This command instruct RtConfig to generate an access list for <filter>.
+This command instruct rtconfig to generate an access list for <filter>.
 <mp-filter> is also accepted.
-.IP "@RtConfig aspath_access_list filter <filter>"
+.IP "@rtconfig aspath_access_list filter <filter>"
 <filter> is an RPSL filter over AS path regular expressions using
 operators AND, OR and NOT. 
-This command instruct RtConfig to generate an as path access list for <filter>.
-.IP "@RtConfig printPrefixes <format> filter <filter>"
+This command instruct rtconfig to generate an as path access list for <filter>.
+.IP "@rtconfig printPrefixes <format> filter <filter>"
 <format> is a quoted string, and
 <filter> is an RPSL filter over AS numbers, AS set names and route set
 names using operators AND, OR and NOT, <mp-filter> is also accepted.
-This command instruct RtConfig to print the prefixes in <filter> using
+This command instruct rtconfig to print the prefixes in <filter> using
 <format>.
 The <format> can contain the following escape sequences:
 .nf
@@ -266,13 +266,13 @@ The <format> can contain the following escape sequences:
 .fi
 Example, use:
 .nf
-   @RtConfig printPrefixes "net %p \\tmask %k\\n" filter AS1
+   @rtconfig printPrefixes "net %p \\tmask %k\\n" filter AS1
 .fi
-.IP "@RtConfig printPrefixRanges <format> filter <filter>"
+.IP "@rtconfig printPrefixRanges <format> filter <filter>"
 This command is same as the "printPrefixes" command,
 except the consecutive address prefixes are compressed into a single
 address prefix range. <mp-filter> is also accepted.
-.IP "@RtConfig printSuperPrefixRanges <format> filter <filter>"
+.IP "@rtconfig printSuperPrefixRanges <format> filter <filter>"
 This command is same as the "printPrefixRanges" command,
 except it compresses more aggresively. The %n and %m information is
 lost. But,
@@ -282,9 +282,9 @@ provided. <mp-filter> is also accepted.
 .PP
 Cisco specific commands:
 .RS
-.IP "@RtConfig set cisco_map_name = <map-name>"
+.IP "@rtconfig set cisco_map_name = <map-name>"
 <map-name> is a quoted string.
-This command instruct RtConfig to use <map-name> as the name for the route
+This command instruct rtconfig to use <map-name> as the name for the route
 maps generated. 
 If the <map-name> contains %d, 
 it will be replaced by the peer's AS number.
@@ -292,52 +292,52 @@ If it contains a second %d,
 it will be replaced by an integer that is incremented each time a new
 map is generated (to ensure unique map names).
 The default cisco_map_name is "MyMap_%d_%d".
-.IP "@RtConfig set cisco_map_first_no = <no>"
+.IP "@rtconfig set cisco_map_first_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to use <no> as the first number of a newly
+This command instruct rtconfig to use <no> as the first number of a newly
 generated route map.
 If missing, 1 is used.
-.IP "@RtConfig set cisco_map_increment_by = <no>"
+.IP "@rtconfig set cisco_map_increment_by = <no>"
 <no> is an integer.
-This command instruct RtConfig to increment route map numbers by <no>. 
+This command instruct rtconfig to increment route map numbers by <no>. 
 If missing, successive route maps are numbered by increments of 1.
-.IP "@RtConfig set cisco_prefix_acl_no = <no>"
+.IP "@rtconfig set cisco_prefix_acl_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to start numbering prefix access lists at <no>.
-.IP "@RtConfig set cisco_aspath_acl_no = <no>"
+This command instruct rtconfig to start numbering prefix access lists at <no>.
+.IP "@rtconfig set cisco_aspath_acl_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to start numbering aspath access lists at <no>.
-.IP "@RtConfig set cisco_pktfilter_acl_no = <no>"
+This command instruct rtconfig to start numbering aspath access lists at <no>.
+.IP "@rtconfig set cisco_pktfilter_acl_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to start numbering inbound/outbound packet filter access lists at <no>.
-.IP "@RtConfig set cisco_community_acl_no = <no>"
+This command instruct rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
+.IP "@rtconfig set cisco_community_acl_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to start numbering community access lists at <no>.
-.IP "@RtConfig set cisco_access_list_no = <no>"
+This command instruct rtconfig to start numbering community access lists at <no>.
+.IP "@rtconfig set cisco_access_list_no = <no>"
 <no> is an integer.
-This command instruct RtConfig to start numbering all access lists at <no>.
-.IP "@RtConfig set cisco_max_preference = <no>"
+This command instruct rtconfig to start numbering all access lists at <no>.
+.IP "@rtconfig set cisco_max_preference = <no>"
 <no> is an integer defaulting to 1000.
-This command instruct RtConfig to start using preferences from <no> (most
+This command instruct rtconfig to start using preferences from <no> (most
 preferred) and counting down from there.
-.IP "@RtConfig networks <ASN-1>"
+.IP "@rtconfig networks <ASN-1>"
 <ASN-1> is an AS number preceded with string "AS". 
 For each route registered with origin <ASN-1>,
 a network statement of the form "network <prefix> mask <mask>" is generated.
-.IP "@RtConfig v6networks <ASN-1>"
+.IP "@rtconfig v6networks <ASN-1>"
 <ASN-1> is an AS number preceded with string "AS".
 For each route6 registered with origin <ASN-1>,
 a network statement of the form "network <prefix> mask <mask>" is generated.
-.IP "@RtConfig default <ASN-1> <ASN-2>"
+.IP "@rtconfig default <ASN-1> <ASN-2>"
 <ASN-1> and <ASN-2> are AS numbers preceded with string "AS". 
-This command instructs RtConfig to generate "ip default-network" statements
+This command instructs rtconfig to generate "ip default-network" statements
 where <ASN-1> is defaulting to <ASN-2>.
 The appropriate statements are generated 
 for the network addresses listed in
 the default attribute for <ASN-2> in the aut-num object of <ASN-1>.
-.IP "@RtConfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+.IP "@rtconfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 The arguments of the pkt_filter command are the same as the import command.
-This command instructs RtConfig to generate packet filters
+This command instructs rtconfig to generate packet filters
 where 
 <rtr-1> in <ASN-1> is going to drop data packets 
 that are received from <rtr-2> in <ASN-2>,
@@ -349,7 +349,7 @@ the import lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
 The filter is applied to the interface <if-name> in the inbound direction.
 The <if-name> is a string and must be enclosed in double quotes.
-.IP "@RtConfig outbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+.IP "@rtconfig outbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 Same as the pkt_filter command,
 except
 the appropriate filters are generated 
@@ -361,9 +361,9 @@ The filter is applied to the interface <if-name> in the outbound direction.
 .PP
 Junos specific commands:
 .RS
-.IP "@RtConfig set junos_policy_name = <policy-name>"
+.IP "@rtconfig set junos_policy_name = <policy-name>"
 <policy-name> is a quoted string.
-This command instruct RtConfig to use <policy-name> as the name for the
+This command instruct rtconfig to use <policy-name> as the name for the
 policy statements generated. 
 If the <policy-name> contains %d, 
 it will be replaced by the peer's AS number.
@@ -371,7 +371,7 @@ If it contains a second %d,
 it will be replaced by an integer that is incremented each time a new
 map is generated (to ensure unique map names).
 The default junos_map_name is "policy_%d_%d".
-.IP "@RtConfig networks <ASN-1>"
+.IP "@rtconfig networks <ASN-1>"
 <ASN-1> is an AS number preceded with string "AS". 
 For each route registered with origin <ASN-1>,
 a network statement of the form "network <prefix> mask <mask>" is
@@ -380,25 +380,25 @@ generated. This needs to be Juniperized.
 .PP
 BCC (Bay Networks BayRS)  specific commands:
 .RS
-.IP "@RtConfig set bcc_version = <version>"
+.IP "@rtconfig set bcc_version = <version>"
 Create output  for  BCC  version  <version>.
 Default  is 310 (= BCC 3.10) which is available
 since BayRS 12.00. This  paramater  has
 no  effect  in  the current version, however
 might be used in the future.
-.IP "@RtConfig set bcc_force_back = <flag>"
+.IP "@rtconfig set bcc_force_back = <flag>"
 <flag> is either 0 or 1 defaulting to 0  (do
 not force).  If this flag is set, the generated
 output will add 'back' statements, even
 if  they are not required, but are useful if
 this output is diff'd against the output  of
 'show config' run on BCC.
-.IP "@RtConfig set bcc_max_prefixes = <nr>"
+.IP "@rtconfig set bcc_max_prefixes = <nr>"
 <nr>  defines the maximum number of prefixes
 allowed per filter definition.   Default  is
 66  (SiteManager  limitation).  BCC limit is
 somewhere less than 200.
-.IP "@RtConfig set bcc_advertise_all = <flag>"
+.IP "@rtconfig set bcc_advertise_all = <flag>"
 <flag> is either 0  or  1  defaulting  to  0
 (don't  advertise subnets) This flag, if set
 to 1, advertise network 255.255.255.255 mask
@@ -407,7 +407,7 @@ of the actual network  IDs  along  with  the
 oterh IDs in the advertise list. This allows
 advertisements of an  aggregate  or  default
 along with the actual network.
-.IP "@RtConfig set bcc_advertise_nets = <flag>"
+.IP "@rtconfig set bcc_advertise_nets = <flag>"
 <flag>  is  either  0  or  1 defaulting to 0
 (don't build advertise list) If this flag is
 set  (1),  then  for  each  network  in  the
@@ -416,15 +416,15 @@ advertise  list  of  the same filter is created.
 Note however,  that  this  results  in
 advertising of all network IDs as long as at
 least 1 network match the network list.
-.IP "@RtConfig set bcc_max_preference = <no>"
+.IP "@rtconfig set bcc_max_preference = <no>"
 <no> is an integer defaulting to 1000.  This
-command  instruct  RtConfig  to  start using
+command  instruct  rtconfig  to  start using
 preferences from <no> (most  preferred)  and
 counting down from there.
-.IP "@RtConfig default <ASN-1> <ASN-2>"
+.IP "@rtconfig default <ASN-1> <ASN-2>"
 <ASN-1>  and <ASN-2> are AS numbers preceded
 with string "AS".   This  command  instructs
-RtConfig  to  generate  an  "inject  policy"
+rtconfig  to  generate  an  "inject  policy"
 (accept policiy with set action "inject"  of
 default  or  network  IDs  where  <ASN-1> is
 defaulting  to  <ASN-2>.   The   appropriate
@@ -456,9 +456,9 @@ Here is an example input file:
 	router bgp 4550
 	 neighbor 198.32.4.25 remote-as 4551
 	!
-	@RtConfig set cisco_map_name = "mymap"
-	@RtConfig set cisco_access_list_no = 500
-	@RtConfig import AS4550 198.32.4.1 AS4551 198.32.4.25
+	@rtconfig set cisco_map_name = "mymap"
+	@rtconfig set cisco_access_list_no = 500
+	@rtconfig import AS4550 198.32.4.1 AS4551 198.32.4.25
 	!
 	end
 .fi
@@ -498,7 +498,7 @@ patches to gated's regular expressions.
 .RE
 .SH ERROR AND WARNING MESSAGES
 .PP
-Error: Unknown RtConfig/RSd command.
+Error: Unknown rtconfig/RSd command.
 .RS
 .PP
 Wrong rsd command specified, see manpage for details on rsd commands supported.
@@ -507,7 +507,7 @@ Wrong rsd command specified, see manpage for details on rsd commands supported.
 Error in template file
 .RS
 .PP
-Wrong RtConfig command, syntax or arguments to RtConfig command.
+Wrong rtconfig command, syntax or arguments to rtconfig command.
 .PP
 .RE
 Error: config file format <config_format> is not supported...
@@ -571,7 +571,7 @@ Warning: unimplemented method <rp_attr>.<method>
 .PP
 .RS
 .PP
-Unimplemented method for this rp_attribute is specified. This error indicates that method is correctly specified in RPSL dictionary, but has no actual implementation for RtConfig.
+Unimplemented method for this rp_attribute is specified. This error indicates that method is correctly specified in RPSL dictionary, but has no actual implementation for rtconfig.
 .PP
 .RE
 .PP

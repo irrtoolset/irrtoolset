@@ -68,7 +68,7 @@ IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 %{
 #include "config.h"
 #include <iostream>
-#include "RtConfig.hh"
+#include "rtconfig.hh"
 #include "command.y.hh"
 #include "irr/irr.hh"
 
@@ -180,7 +180,7 @@ int yywrap () {
 /* Rules */
 %}
 
-^@RtConfig {
+^@[Rr]t[Cc]onfig {
    BEGIN(USEFUL_LINE);
 }
 

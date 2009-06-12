@@ -66,7 +66,7 @@ extern "C" {
 #include "irrutil/debug.hh"
 #include "irrutil/trace.hh"
 #include "irrutil/rusage.hh"
-#include "RtConfig.hh"
+#include "rtconfig.hh"
 #include "irrutil/Argv.hh"
 #include "irrutil/version.hh"
 #include "re2dfa/regexp_nf.hh"
@@ -80,7 +80,7 @@ using namespace std;
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
-char *opt_prompt                 = (char *)"RtConfig> ";
+char *opt_prompt                 = (char *)"rtconfig> ";
 bool opt_asdot                   = false;
 
 bool         RtConfig::supressMartians          = false;

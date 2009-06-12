@@ -59,7 +59,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <cstdarg>
-#include "RtConfig.hh"
+#include "rtconfig.hh"
 #include "f_cisco.hh"
 #include "f_junos.hh" 
 #include "irr/irr.hh"

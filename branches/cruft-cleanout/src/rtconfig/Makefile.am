@@ -1,7 +1,7 @@
 bin_PROGRAMS = rtconfig
 
-rtconfig_SOURCES = RtConfig.cc command.l.cc command.y.cc f_cisco.cc f_junos.cc \
-                   RtConfig.hh f_cisco.hh f_junos.hh command.y.hh
+rtconfig_SOURCES = rtconfig.cc command.l.cc command.y.cc f_cisco.cc f_junos.cc \
+                   rtconfig.hh f_cisco.hh f_junos.hh command.y.hh
 
 rtconfig_LDFLAGS = @LDFLAGS@ $(EXTRA_LIBS)
 

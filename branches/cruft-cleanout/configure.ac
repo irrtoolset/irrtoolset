@@ -1,3 +1,4 @@
+# $Id$
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -126,7 +127,7 @@ AC_MSG_RESULT(${ac_have_yylineno})
 dnl spit out configuration files 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
-                 src/RtConfig/Makefile
+                 src/rtconfig/Makefile
                  src/dataset/Makefile
                  src/irr/Makefile
                  src/irrutil/Makefile
