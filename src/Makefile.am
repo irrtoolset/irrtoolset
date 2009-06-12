@@ -4,7 +4,7 @@
 #
 
 SUBDIRS= 	dataset irr normalform re2dfa rpsl irrutil . \
-		peval rpslcheck RtConfig
+		peval rpslcheck rtconfig
 
 INCLUDES=	-I@top_srcdir@/
 

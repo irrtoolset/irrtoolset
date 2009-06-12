@@ -58,7 +58,7 @@
 #include <iomanip>
 #include <cctype>
 #include "normalform/NE.hh"
-#include "RtConfig.hh"
+#include "rtconfig.hh"
 #include "f_cisco.hh"
 #include "rpsl/schema.hh"
 
