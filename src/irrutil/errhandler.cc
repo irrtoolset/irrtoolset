@@ -28,4 +28,3 @@ void lib_error_handler(const char* fn, const char* errmessage)
    cerr << fn << " Error: " << errmessage << endl;
    abort();
 }
-          

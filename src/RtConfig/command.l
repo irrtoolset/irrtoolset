@@ -75,10 +75,9 @@ IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 #define yylval commandlval
 #define LEXER_RETURN(x)  return(x)
 
-#define HAVE_YYLINENO
-#ifndef HAVE_YYLINENO
 #define yylineno commandlineno
-int yylineno();
+#ifndef HAVE_YYLINENO
+int yylineno;
 #endif // HAVE_YYLINENO
 
 typedef struct _KeyWord {
