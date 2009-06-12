@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.62])
 AC_INIT([irrtoolset], [4.9.0-alpha1], [irrtoolset@lists.isc.org])
 AC_CONFIG_SRCDIR([RELEASE-NOTES])
 AC_CONFIG_HEADERS([src/config.h])
@@ -41,7 +41,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([bzero gethostbyaddr gethostbyname gethostname getpagesize gettimeofday inet_ntoa isascii memchr memmove memset regcomp select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol])
+AC_CHECK_FUNCS([timegm bzero gethostbyaddr gethostbyname gethostname getpagesize gettimeofday inet_ntoa isascii memchr memmove memset regcomp select socket strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol])
 
 # Libtoolize wants this
 AC_CONFIG_MACRO_DIR([m4])
@@ -94,6 +94,34 @@ case "${host_os}" in
               EXTRA_LIBS="-lsocket -lnsl"
       ;;
 esac
+
+dnl check for yylineno -- HAVE_YYLINENO
+dnl
+ac_have_yylineno=no
+AC_MSG_CHECKING([for yylineno declaration])
+# some systems have yylineno, others don't...
+  echo '
+%%
+a { ECHO; }
+b { REJECT; }
+c { yymore (); }
+d { yyless (1); }
+e { yyless (input () != 0); }
+f { unput (yytext[0]); }
+. { BEGIN INITIAL; }
+%%
+int main (void)
+{
+  return ! yylex () + ! yywrap ();
+}
+' | ${LEX} -t > conftest.out
+egrep yylineno conftest.out >/dev/null 2>&1
+if test X"$?" = X0 ; then
+  AC_DEFINE([HAVE_YYLINENO], [1], [check for yylineno declaration in lex output])
+  ac_have_yylineno=yes
+fi
+rm -f conftest.out
+AC_MSG_RESULT(${ac_have_yylineno})
 
 dnl spit out configuration files 
 AC_CONFIG_FILES([Makefile
