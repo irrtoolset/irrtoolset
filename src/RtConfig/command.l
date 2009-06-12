@@ -53,6 +53,9 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 */
 
+%option outfile="command.l.cc"
+%option prefix="command"
+
 /* Definitions */
 %x USEFUL_LINE
 %x USELESS_LINE
