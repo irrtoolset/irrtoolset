@@ -77,7 +77,6 @@ AC_CHECK_LIB(readline, main)
 AC_CHECK_LIB(history, main)
 READLINE_LIBS="$LIBS"
 )
-AC_SUBST(READLINE_LIBS)
 
 dnl enable debugging
 AC_ARG_WITH(debug, [  --enable-debug          turn on debugging],
@@ -92,7 +91,7 @@ OPTFLAG=""
 
 case "${host_os}" in
       solaris* )
-              EXTRA_LIBS="-lsocket -lnsl"
+              SOLARIS_LIBS="-lsocket -lnsl"
       ;;
 esac
 
@@ -123,6 +122,10 @@ if test X"$?" = X0 ; then
 fi
 rm -f conftest.out
 AC_MSG_RESULT(${ac_have_yylineno})
+
+EXTRA_LIBS="${SOLARIS_LIBS} ${READLINE_LIBS}"
+
+AC_SUBST(EXTRA_LIBS)
 
 dnl spit out configuration files 
 AC_CONFIG_FILES([Makefile
