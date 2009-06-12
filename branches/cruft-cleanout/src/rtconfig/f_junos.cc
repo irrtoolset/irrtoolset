@@ -57,6 +57,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cctype>
+#include <string>
 #include "normalform/NE.hh"
 #include "irr/irr.hh"
 #include "irr/autnum.hh"
@@ -875,33 +876,32 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
    }
 
    if (afi_activate) {
-#define SMALLBUF 32
-	   char *tok = (char *)malloc(SMALLBUF+1);
-		char *sp;
-		strncpy (tok, filter_afi->name(), SMALLBUF);
-		sp = strsep(&tok, ".");
-	   cout << "            family ";
-		
-		if (strcmp(sp, "ipv4") == 0) {
-			cout << "inet";
-		} else if (strcmp(sp, "ipv6") == 0) {
-			cout << "inet6";
-		} else
-			// really, we need to check for other AFIs here.
-			cout << "any";
-		
-		cout << " { "<< endl 
-		<< "                ";
-		sp = strsep(&tok, ".");
-		if (*sp)
-			cout << sp;
-		else
-			cout << "unicast";
-	   cout << ";" << endl 
-	   << "            } " << endl;
-		free (tok);
-   }
+      string s, afi_s, safi_s;
+      size_t pos;
 
+      // we expect this string to be of the form: "$afi" or "$afi.$safi"
+      s = filter_afi->name();
+      pos = s.find(".");
+
+      if (pos == string::npos) {// "." not found
+      	 afi_s = s;
+      	 safi_s = "unicast";	// we default to using unicast if safi is not specified
+      } else {
+         afi_s = s.substr (0, pos);
+         safi_s = s.substr (pos + 1);
+      }
+
+      if (afi_s.compare("ipv4") == 0)
+         afi_s = "inet";
+      else if (afi_s.compare("ipv6") == 0)
+         afi_s = "inet6";
+      else 
+         afi_s = "any";
+
+      cout << "            family " << afi_s << " {" << endl
+           << "                " << safi_s << ";" << endl
+           << "            }" << endl;
+   }
    cout << "         }\n"
 	<< "      }\n"
 	<< "   }\n"
