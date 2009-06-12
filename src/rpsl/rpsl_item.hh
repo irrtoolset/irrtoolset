@@ -68,6 +68,7 @@
 #include <ctime>
 #include <iomanip>
 #include <string>
+#include <typeinfo>
 extern "C" {
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>

@@ -57,6 +57,7 @@
 #include "config.h"
 #include <iostream>
 #include <cassert>
+#include <typeinfo>
 #include "dataset/SetOfSymID.hh"
 #include "List.hh"
 #include "rangelist.hh"
