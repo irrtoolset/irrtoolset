@@ -153,12 +153,6 @@ public:
      else
        QueryKillResponse("!uF=0");
    }
-   int getSourceOrigin(char *&buffer, const char *rt) {
-     return QueryResponse(buffer, "!r%s,o", rt);
-   }
-   int getSourceOrigin(char *&buffer) {
-     return Response(buffer);
-   }
    void querySourceOrigin(const char *rt) {
      Query("!r%s,o", rt);
    }

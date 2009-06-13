@@ -58,7 +58,6 @@
 #include "config.h"
 #include "irr/irr.hh"
 #include "irrutil/net.hh"
-#include "irrutil/IRRbuffer.hh"
 #include "dataset/SetOfUInt.hh"
 #include <cassert>
 
@@ -94,9 +93,6 @@ class BirdWhoisClient : public IRR, public Socket {
 		      const char *_sources = dflt_sources);
     virtual void Close(void);
 
-    // For compatibility reasons mostly for roe
-    int getSourceOrigin(char *&buffer, const char *rt);
-    int getSourceOrigin(char *&buffer);
     void querySourceOrigin(const char *rt);
     bool readReady(void) {
        return (response && response->size > 0) || Socket::readReady();

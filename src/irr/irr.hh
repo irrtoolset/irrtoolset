@@ -151,8 +151,6 @@ public:
    // For compatibility reasons, mostly for roe
 public:
    virtual void setFastResponseFlag(bool onoff) {}
-   virtual int getSourceOrigin(char *&buffer, const char *rt) = 0;
-   virtual int getSourceOrigin(char *&buffer) = 0;
    virtual void querySourceOrigin(const char *rt) = 0;
    virtual bool readReady(void) = 0;
 
