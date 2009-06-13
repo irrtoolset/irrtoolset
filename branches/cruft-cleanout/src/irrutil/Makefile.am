@@ -4,3 +4,5 @@ libirrutil_la_SOURCES = \
 	strcase.c rusage.cc \
 	trace.hh Argv.hh net.hh IRRbuffer.hh version.hh debug.hh errhandler.h  \
 	strcase.h  rusage.hh Error.hh
+
+CLEANFILES = *~ *.bak

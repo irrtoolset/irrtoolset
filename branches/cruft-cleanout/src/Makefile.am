@@ -17,3 +17,5 @@ libirrtoolset_la_LIBADD= \
 	rpsl/librpsl.la \
 	dataset/libdataset.la \
 	irrutil/libirrutil.la
+
+CLEANFILES = *~ *.bak

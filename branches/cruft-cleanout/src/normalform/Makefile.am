@@ -8,3 +8,5 @@ libnormalform_la_SOURCES = \
 	FilterOfSymbol.hh FixedSizeAllocator.hh IPv6RadixSet.hh NE.hh NT.hh \
 	RadixSet.hh SetOfIPv6Prefix.hh SetOfPrefix.hh SetOfSymbol.hh \
 	Stack.hh SymbolConjunct.hh community.hh
+
+CLEANFILES = *~ *.bak

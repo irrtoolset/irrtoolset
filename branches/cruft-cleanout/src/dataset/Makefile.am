@@ -14,3 +14,5 @@ libdataset_la_SOURCES = \
 	SymbolConjunctPtr.SplayNode.h SymbolConjunctPtr.defs.h \
 	prefixranges.hh unsigned.OXPSet.h unsigned.Plex.h unsigned.Set.h \
 	unsigned.XPlex.h unsigned.defs.h
+
+CLEANFILES = *~ *.bak
