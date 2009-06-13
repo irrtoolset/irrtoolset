@@ -10,10 +10,10 @@ librpsl_la_SOURCES = \
 	schema.hh symbols.hh
 
 man1_MANS = irrtoolset-errors.1
-#notrans_man_MANS = $(man1_MANS)
 dist_man_MANS = $(man1_MANS)
 
-CLEAN_FILES = object_log.l.cc rpsl.l.cc rpsl.y.cc rpsl.y.hh
+MAINTAINERCLEANFILES = object_log.l.cc rpsl.l.cc rpsl.y.cc rpsl.y.hh
+CLEANFILES = *~ *.bak
 
 schema_rpsl.cc: rpsl.y.cc
 
