@@ -408,46 +408,6 @@ bool BirdWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
   return true;
 }
 
-int BirdWhoisClient::getSourceOrigin(char *&buffer, const char *rt)
-{
-  querySourceOrigin(rt);
-  return getSourceOrigin(buffer); 
-}
-
-int BirdWhoisClient::getSourceOrigin(char *&buffer)
-{
-  StringBuffer cBuffer;
-  char *pzcResult;
-  int iResultLen;
-  if (getResponse(pzcResult, iResultLen)) 
-    {
-    // More and complete route objects are here
-    Buffer b(pzcResult, iResultLen);  // pass ownership to class Buffer
-    List<Object> cObjects;
-    objectLog(b, cObjects);
-    for (ListIterator<Object> itrObject(cObjects); itrObject; ++itrObject)
-      if (itrObject->type && strcmp(itrObject->type->name, "route") == 0)
-	{
-	AttrGenericIterator<ItemASNO> itrOrigin(itrObject, "origin");
-	AttrGenericIterator<ItemWORD> itrSource(itrObject, "source");
-	if (itrOrigin && itrSource)
-	  {
-	  char buf[64];
-	  asnum_string_dot(buf, itrOrigin()->asno);
-	  cBuffer.append("%s %s\n", itrSource()->word, buf);
-	  }
-	}
-    }
-  if (cBuffer.empty()) 
-    {
-    buffer = NULL;
-    return 0;
-    }
-  buffer = new char[cBuffer.length() + 1];
-  strcpy(buffer, cBuffer.c_str());
-  return cBuffer.length();
-}
-
 void BirdWhoisClient::querySourceOrigin(const char *rt)
 {
    // ripev3 support

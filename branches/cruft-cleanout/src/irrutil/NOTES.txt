@@ -3,6 +3,3 @@ Code to examine:
 class ipAddr (net.{cc,hh})
 	this is referenced once in irr/birdwhoisc.cc, where the class is
 	effectively used only to perform getaddrinfo().  Flag for removal.
-
-StringBuffer (IRRBuffer.{cc,hh})
-	referenced only once in irr/birdwhoisc.cc. Flag for removal.
