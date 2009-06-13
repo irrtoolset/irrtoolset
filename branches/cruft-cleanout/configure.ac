@@ -90,9 +90,16 @@ OPTFLAG=""
 )
 
 case "${host_os}" in
-      solaris* )
-              SOLARIS_LIBS="-lsocket -lnsl"
-      ;;
+	# Solaris needs extra libs for its socket api
+	solaris* )
+		SOLARIS_LIBS="-lsocket -lnsl"
+	;;
+	# Mac OS/X has native support for readline but doesn't contain
+	# libhistory.  We pretend it does.
+	darwin* )
+		READLINE_LIBS="-lreadline"
+		AC_DEFINE([HAVE_LIBHISTORY], [1])
+	;;
 esac
 
 dnl check for yylineno -- HAVE_YYLINENO
