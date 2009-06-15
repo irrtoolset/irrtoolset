@@ -61,7 +61,7 @@
 %x USELESS_LINE
 
 DNAME          [[:alnum:]_-]+
-QUAD           [0-9A-F]{1,4}
+QUAD           [0-9A-Fa-f]{1,4}
 IPV6           {QUAD}(:{QUAD}){7}
 IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 
