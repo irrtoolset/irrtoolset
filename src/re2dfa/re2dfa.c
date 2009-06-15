@@ -175,7 +175,7 @@ typedef struct _rd_dq  rd_rhead;	/* Ditto */
 
 #define RD_ALLOC_RANGE(r) {					\
     (r) = (rd_range *) malloc(sizeof (rd_range));		\
-    bzero((caddr_t) (r), sizeof (rd_range));			\
+    bzero((void *) (r), sizeof (rd_range));			\
     RDQ_INIT(&(r)->ra_arcs, (r));				\
 }
 
