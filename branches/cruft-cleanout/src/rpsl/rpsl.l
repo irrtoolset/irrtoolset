@@ -86,7 +86,7 @@ FLTRNAME       FLTR-[[:alnum:]_-]*[[:alnum:]]
 IPV4           [0-9]+(\.[0-9]+){3,3}
 PRFXV4         {IPV4}\/[0-9]+
 PRFXV4RNG      {PRFXV4}("^+"|"^-"|"^"{INT}|"^"{INT}-{INT})
-QUAD           [0-9A-F]{1,4}
+QUAD           [0-9A-Fa-f]{1,4}
 IPV6           {QUAD}(:{QUAD}){7}
 IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 PRFXV6         {IPV6}\/{INT}
