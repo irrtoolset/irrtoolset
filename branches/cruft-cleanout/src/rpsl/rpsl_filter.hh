@@ -76,9 +76,9 @@ extern "C" {
 #include "rpsl_item.hh"
 
 // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 typedef unsigned int ASt;
 
@@ -90,12 +90,12 @@ public:
    virtual ~Filter() {}
    virtual std::ostream& print(std::ostream &out) const;
    virtual Filter* dup() const = 0;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const = 0;
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); print(os); os << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Filter &f) {
@@ -121,7 +121,7 @@ public:
    virtual Filter* dup() const {
       return new FilterOR(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterOR";
    }
@@ -131,7 +131,7 @@ public:
       INDENT(indent); os << "f2 (" << f2->className() << " *)" << std::endl;
       f2->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterAND: public Filter {
@@ -153,7 +153,7 @@ public:
    virtual Filter* dup() const {
       return new FilterAND(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterAND";
    }
@@ -163,7 +163,7 @@ public:
       INDENT(indent); os << "f2" << std::endl;
       f2->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterNOT: public Filter {
@@ -182,7 +182,7 @@ public:
    virtual Filter* dup() const {
       return new FilterNOT(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterNOT";
    }
@@ -190,7 +190,7 @@ public:
       INDENT(indent); os << "f1 (NOT)" << std::endl;
       f1->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterEXCEPT: public Filter {
@@ -212,7 +212,7 @@ public:
    virtual Filter* dup() const {
       return new FilterEXCEPT(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterEXCEPT";
    }
@@ -222,7 +222,7 @@ public:
       INDENT(indent); os << "f2" << std::endl;
       f2->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterMS: public Filter {
@@ -252,7 +252,7 @@ public:
       return new FilterMS(*this);
    } 
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterMS";
    }
@@ -260,7 +260,7 @@ public:
       INDENT(indent); os << "f1 (" << f1->className() << " *)" << std::endl;
       f1->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterASNO : public Filter {
@@ -275,14 +275,14 @@ public:
    virtual Filter* dup() const {
       return new FilterASNO(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterASNO";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "asno = " << asno << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterASNAME : public Filter {
@@ -297,14 +297,14 @@ public:
    virtual Filter* dup() const {
       return new FilterASNAME(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterASNAME";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "asname = \"" << asname << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterRSNAME : public Filter {
@@ -319,14 +319,14 @@ public:
    virtual Filter* dup() const {
       return new FilterRSNAME(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterRSNAME";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "rsname = \"" << rsname << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterRTRSNAME : public Filter {
@@ -341,14 +341,14 @@ public:
    virtual Filter* dup() const {
       return new FilterRTRSNAME(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterRTRSNAME";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "rtrsname = \"" << rtrsname << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterFLTRNAME : public Filter {
@@ -363,14 +363,14 @@ public:
    virtual Filter* dup() const {
       return new FilterFLTRNAME(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterFLTRNAME";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "fltrname = \"" << fltrname << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterANY: public Filter {
@@ -382,14 +382,14 @@ public:
    virtual Filter* dup() const {
       return new FilterANY(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterANY";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "ANY" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterPeerAS: public Filter {
@@ -401,14 +401,14 @@ public:
    virtual Filter* dup() const {
       return new FilterPeerAS(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterPeerAS";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "peerAS" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterASPath: public Filter {
@@ -428,14 +428,14 @@ public:
    virtual Filter* dup() const {
       return new FilterASPath(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterASPath";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "re = ..." << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterPRFXList: public Filter, public PrefixRanges {
@@ -448,14 +448,14 @@ public:
    virtual Filter* dup() const {
       return new FilterPRFXList(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterPRFXList";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << *this << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterMPPRFXList: public Filter, public MPPrefixRanges {
@@ -473,14 +473,14 @@ public:
    } 
    virtual FilterPRFXList* get_v4();
    virtual FilterMPPRFXList* get_v6();
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterMPPRFXList";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); print(os); os << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterAFI: public Filter {
@@ -512,14 +512,14 @@ public:
    virtual Filter* dup() const {
       return new FilterAFI(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterAFI";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << *this << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 
 
@@ -550,7 +550,7 @@ public:
    virtual Filter* dup() const {
       return new FilterRPAttribute(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterRPAttribute";
    }
@@ -567,7 +567,7 @@ public:
       INDENT(indent); os << "args (ItemList *)" << std::endl;
       args->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 ////// The following is needed by route class ///////////////////////////
@@ -589,11 +589,11 @@ public:
    virtual Filter* dup() const {
       return new FilterHAVE_COMPONENTS(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterHAVE_COMPONENTS";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterEXCLUDE: public Filter {
@@ -613,11 +613,11 @@ public:
    virtual Filter* dup() const {
       return new FilterEXCLUDE(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterEXCLUDE";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 //// the following is needed by route6 class ///////////////////////////
@@ -639,11 +639,11 @@ public:
    virtual Filter* dup() const {
       return new FilterV6HAVE_COMPONENTS(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterV6HAVE_COMPONENTS";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterV6EXCLUDE: public Filter {
@@ -663,11 +663,11 @@ public:
    virtual Filter* dup() const {
       return new FilterV6EXCLUDE(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterV6EXCLUDE";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 
@@ -696,11 +696,11 @@ public:
    virtual Filter* dup() const {
       return new FilterRouter(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterRouter";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class FilterRouterName : public Filter {
@@ -717,14 +717,14 @@ public:
    virtual Filter* dup() const {
       return new FilterRouterName(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "FilterRouterName";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "name = \"" << name << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 

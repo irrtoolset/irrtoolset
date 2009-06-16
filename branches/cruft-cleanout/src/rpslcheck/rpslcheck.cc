@@ -73,9 +73,9 @@ char *opt_prompt                 = (char *)"rpslcheck> ";
 bool opt_echo                    = false;
 bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 bool opt_debug_rpsl              = false;
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 int start_tracing(char *dst, char *key, char *nextArg) {
    if (nextArg) {
@@ -120,10 +120,10 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      {"-echo", ARGV_BOOL, (char *) NULL,           (char *) &opt_echo,
       "Echo each object parsed"},
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
      {"-debug_rpsl", ARGV_BOOL, (char *) NULL,     (char *) &opt_debug_rpsl,
       "Turn on bison debugging. Intended for developers."},
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
@@ -154,11 +154,11 @@ int main(int argc, char **argv, char **envp) {
 
    // opt_echo = 1;
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    extern int rpsldebug;
    if (opt_debug_rpsl)
       rpsldebug = 1;
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
    Object *o;
    bool code = true;

@@ -74,7 +74,7 @@
 #define DEBUG_H
 
 #include "config.h"
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #include <iostream>
 
 #define DBG_ERR             1
@@ -130,7 +130,7 @@ extern dbgstream dbg;
 
 
 
-#else /* DEBUG */
+#else /* ENABLE_DEBUG */
 #define copy_constructor(p) 
 #ifndef ASSERT
 #define ASSERT(condition) /* do nothing */
@@ -138,7 +138,7 @@ extern dbgstream dbg;
 #define Debug(whatever)   /* do nothing */
 #define PRINT(var)        /* do nothing */
 
-#endif /* DEBUG */
+#endif /* ENABLE_DEBUG */
 
 #endif /* DEBUG_H */
 

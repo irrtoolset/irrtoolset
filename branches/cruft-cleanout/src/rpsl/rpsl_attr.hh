@@ -82,9 +82,9 @@ extern "C" {
 #include "rpsl_policy.hh"
 
 // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 typedef unsigned int ASt;
 
@@ -124,14 +124,14 @@ public:
    Object *getObject(void) const { return object; }
    int getOffset(void) const { return offset; }
    int getLen(void) const { return len; }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "Attr";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Attr &attr) {
@@ -304,14 +304,14 @@ public:
    void touch() {
       _refCount++;
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrAttr";
    }
    virtual void printClass(std::ostream &os, int indent) const {
      INDENT(indent); os << "_name = \"" << name() << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrClass: public Attr {
@@ -363,14 +363,14 @@ public:
    AttrAttr *searchAttr(const char *word);
 
    bool validate(std::string &errors); // return true if valid,, i.e. no error
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrClass";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 ///////////////////////// common ///////////////////////////////////
@@ -393,7 +393,7 @@ public:
    virtual Attr *dup() const {
       return new AttrGeneric(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrGeneric";
    }
@@ -403,7 +403,7 @@ public:
       INDENT(indent); os << "items (" << items->className() << " *)" << std::endl;
       items->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 ///////////////////////// dictionary ///////////////////////////////////
@@ -431,11 +431,11 @@ public:
    virtual Attr *dup() const {
       return new AttrTypedef(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrTypedef";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrMethod: public ListNode {
@@ -467,11 +467,11 @@ public:
    }
    bool validateArgs(ItemList *actualArgs, 
 		     int &position, const RPType *&correctType) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrMethod";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 inline std::ostream &operator<<(std::ostream &out, const AttrMethod &mtd) {
@@ -506,11 +506,11 @@ public:
    }
    const AttrMethod *searchMethod(const char *name) const; 
    const AttrMethod *searchNextMethod(const AttrMethod *last) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrRPAttr";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrProtocolOption: public ListNode {
@@ -535,11 +535,11 @@ public:
    virtual AttrProtocolOption *dup() {
       return new AttrProtocolOption(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrProtocolOption";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrProtocol: public Attr  {
@@ -576,14 +576,14 @@ public:
 
    void startMandatoryCheck();
    const AttrProtocolOption *missingMandatoryOption();
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrProtocol";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "name = \"" << name << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 ///////////////////////// aut-num ///////////////////////////////////
@@ -613,7 +613,7 @@ public:
    virtual Attr *dup() const {
       return new AttrImport(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrImport";
    }
@@ -633,7 +633,7 @@ public:
       INDENT(indent); os << "policy (" << policy->className() << " *)" << std::endl;
       policy->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 // mp-export/export
@@ -661,7 +661,7 @@ public:
    virtual Attr *dup() const {
       return new AttrExport(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrExport";
    }
@@ -681,7 +681,7 @@ public:
       INDENT(indent); os << "policy (" << policy->className() << " *)" << std::endl;
       policy->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 // mp-default/default
@@ -718,7 +718,7 @@ public:
    virtual Attr *dup() const {
       return new AttrDefault(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrDefault";
    }
@@ -730,7 +730,7 @@ public:
       INDENT(indent); os << "filter (Filter *)" << std::endl;
       filter->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrFilter: public Attr {
@@ -750,7 +750,7 @@ public:
    virtual Attr *dup() const {
       return new AttrFilter(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrFilter";
    }
@@ -758,7 +758,7 @@ public:
       INDENT(indent); os << "filter (Filter *)" << std::endl;
       filter->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrMPPeval: public Attr {
@@ -778,7 +778,7 @@ public:
    virtual Attr *dup() const {
       return new AttrMPPeval(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrMPPeval";
    }
@@ -786,7 +786,7 @@ public:
       INDENT(indent); os << "mp-peval (Filter *)" << std::endl;
       filter->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 // peering mp-peering
@@ -808,7 +808,7 @@ public:
    virtual Attr *dup() const {
       return new AttrPeering(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrPeering";
    }
@@ -816,7 +816,7 @@ public:
       INDENT(indent); os << "peering (PolicyPeering *)" << std::endl;
       peering->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 ///////////////////////// inet-rtr ///////////////////////////////////
@@ -841,7 +841,7 @@ public:
    virtual Attr *dup() const {
       return new AttrIfAddr(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrIfAddr";
    }
@@ -854,7 +854,7 @@ public:
       os << "(*** Need to fix const declaration in the extraction operator ***)"
 	 << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 */
 class Tunnel {
@@ -911,7 +911,7 @@ public:
    virtual Attr *dup() const {
       return new AttrIfAddr(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrIfAddr";
    }
@@ -924,7 +924,7 @@ public:
       os << "(*** Need to fix const declaration in the extraction operator ***)"
    << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 
@@ -952,7 +952,7 @@ public:
    virtual AttrPeerOption* dup() const {
       return new AttrPeerOption(*this);
    } 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrPeerOption";
    }
@@ -969,7 +969,7 @@ public:
       INDENT(indent); os << "args (ItemList *)" << std::endl;
       args->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 /*
@@ -998,11 +998,11 @@ public:
       return new AttrPeer(*this);
    }
    const AttrPeerOption *searchOption(const char *name) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrPeer";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 */
 
@@ -1030,11 +1030,11 @@ public:
       return new AttrPeer(*this);
    }
    const AttrPeerOption *searchOption(const char *name) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrPeer";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 
@@ -1081,11 +1081,11 @@ public:
    virtual Attr *dup() const {
       return new AttrMntRoutes(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "AttrMntRoutes";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class AttrTRLabel: public Attr {

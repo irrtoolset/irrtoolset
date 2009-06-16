@@ -81,9 +81,9 @@ extern "C" {
 #include "afi.hh"
 
 // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 typedef unsigned int ASt;
 
@@ -99,12 +99,12 @@ public:
       return false;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const = 0;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const = 0;
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Item &item) {
@@ -133,14 +133,14 @@ public:
       asnum_string(buf, asno);
    }
  */
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemASNO";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "asno = " << asno << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemMSItem : public Item {
@@ -170,11 +170,11 @@ public:
       return new ItemMSItem(*this);
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemMSItem";
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemFilter : public Item {
@@ -190,14 +190,14 @@ public:
       return new ItemFilter(*this);
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemFilter";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "filter = " << filter << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemINT : public Item {
@@ -215,14 +215,14 @@ public:
 	 && i <= ((ItemINT&) b).i;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemINT";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "i = " << i << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemTimeStamp : public Item {
@@ -240,14 +240,14 @@ public:
       return new ItemTimeStamp(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemTimeStamp";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "stamp = " << stamp << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemREAL : public Item {
@@ -265,14 +265,14 @@ public:
 	 && real <= ((ItemREAL&) b).real;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemREAL";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "real = " << real << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemSTRING : public Item {
@@ -297,14 +297,14 @@ public:
 	 && strcasecmp(string, ((ItemSTRING&) b).string) < 0;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemSTRING";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "string = \"" << string << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemBLOB : public Item {
@@ -328,14 +328,14 @@ public:
 	 && strcasecmp(blob, ((ItemBLOB&) b).blob) < 0;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemBLOB";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "blob = \"" << blob << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemBUFFER : public Item {
@@ -360,14 +360,14 @@ public:
 			buffer->size) < 0;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemBUFFER";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "buffer = \"" << buffer << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemIPV4 : public Item {
@@ -392,14 +392,14 @@ public:
 	 && ipv4->get_ipaddr() <= ((ItemIPV4&) b).ipv4->get_ipaddr();
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemIPV4";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "ipv4 = \"" << *ipv4 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemPRFXV4 : public Item {
@@ -426,14 +426,14 @@ public:
 	 && prfxv4->get_length() == ((ItemPRFXV4&) b).prfxv4->get_length();
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemPRFXV4";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "prfxv4 = \"" << *prfxv4 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemPRFXV4Range : public Item {
@@ -462,14 +462,14 @@ public:
 	 && prfxv4->get_length() == ((ItemPRFXV4Range&)b).prfxv4->get_length();
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemPRFXV4Range";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "prfxv4 = \"" << *prfxv4 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemIPV6 : public Item {
@@ -495,14 +495,14 @@ public:
    }
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemIPV6";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "ipv6 = \"" << *ipv6 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemPRFXV6 : public Item {
@@ -528,14 +528,14 @@ public:
          && prfxv6 <= ((ItemPRFXV6&) b).prfxv6;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemPRFXV6";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "prfxv6 = \"" << *prfxv6 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemPRFXV6Range : public Item {
@@ -565,14 +565,14 @@ public:
 
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemPRFXV6Range";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "prfxrangev6 = \"" << *prfxv6 << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemAFI : public Item , public AddressFamily {
@@ -598,14 +598,14 @@ public:
       return new ItemAFI(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemAFI";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "afi = \"" << *afi << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
    int operator==(ItemAFI &af) {
       return ((AddressFamily &) af == (AddressFamily &) *this);
    }
@@ -644,7 +644,7 @@ public:
       return new ItemConnection(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemConnection";
    }
@@ -653,7 +653,7 @@ public:
       INDENT(indent); os << "host = \"" << host << "\"" << std::endl;
       INDENT(indent); os << "port = \"" << port << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemSID : public Item {
@@ -669,14 +669,14 @@ public:
       return new ItemSID(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemSID";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "name (SymID) = \"" << name << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemASNAME : public ItemSID {
@@ -720,14 +720,14 @@ public:
       return new ItemBOOLEAN(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemBOOLEAN";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "i = " << i << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemWORD : public Item {
@@ -756,14 +756,14 @@ public:
    && strcasecmp(word, ((ItemWORD&) b).word) == 0;
    }
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemWORD";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "word = \"" << word << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemEMAIL : public Item {
@@ -784,14 +784,14 @@ public:
       return new ItemEMAIL(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemEMAIL";
    }
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "email = \"" << email << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemFREETEXT : public Item {
@@ -807,7 +807,7 @@ public:
       return new ItemFREETEXT(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemFREETEXT";
    }
@@ -831,7 +831,7 @@ public:
       }
       os << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemList: public Item, public List<Item> {
@@ -906,7 +906,7 @@ public:
    virtual ItemList *expand();
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemList";
    }
@@ -916,7 +916,7 @@ public:
         item->printClass(os, indent + 2);
      }
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemRange : public Item {
@@ -939,7 +939,7 @@ public:
       return new ItemRange(*this);
    } 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemRange";
    }
@@ -947,7 +947,7 @@ public:
       INDENT(indent); os << "begin = \"" << "\"" << std::endl;
       INDENT(indent); os << "end = \"" << "\"" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class ItemSequence: public Item, public List<Item> {
@@ -972,7 +972,7 @@ public:
    }
 
    virtual Buffer *bufferize(Buffer *buf = NULL, bool lcase = false) const;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "ItemSequence";
    }
@@ -982,7 +982,7 @@ public:
         item->printClass(os, indent + 2);
      }
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 

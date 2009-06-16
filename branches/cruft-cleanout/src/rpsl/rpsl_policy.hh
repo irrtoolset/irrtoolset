@@ -74,9 +74,9 @@ extern "C" {
 #include "rpsl_filter.hh"
 
 // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 typedef unsigned int ASt;
 
@@ -89,12 +89,12 @@ public:
    virtual std::ostream& print(std::ostream &out) const;
    virtual Policy* dup() const = 0;
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const = 0;
    virtual void printClass(std::ostream &os, int indent) const {
       INDENT(indent); os << "(*** Need more work here ***)" << std::endl;
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 inline std::ostream &operator<<(std::ostream &out, const Policy &p) {
@@ -132,7 +132,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyPeering(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyPeering";
    }
@@ -140,7 +140,7 @@ public:
       // For peerASSet
       INDENT(indent); 
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyAction: public Policy, public ListNode {
@@ -164,7 +164,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyAction(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyAction";
    }
@@ -181,7 +181,7 @@ public:
       INDENT(indent); os << "args (ItemList *)" << std::endl;
       args->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyActionList: public Policy, public List<PolicyAction> {
@@ -195,7 +195,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyActionList(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyActionList";
    }
@@ -203,7 +203,7 @@ public:
       for (PolicyAction *node = head(); node; node = next(node)) 
 	 node->printClass(os, indent);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyPeeringAction: public Policy, public ListNode {
@@ -226,7 +226,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyPeeringAction(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyPeeringAction";
    }
@@ -236,7 +236,7 @@ public:
       INDENT(indent); os << "action (PolicyActionList *)" << std::endl;
       action->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyFactor: public Policy, public ListNode {
@@ -259,7 +259,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyFactor(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyFactor";
    }
@@ -275,7 +275,7 @@ public:
       INDENT(indent); os << "filter (Filter *)" << std::endl;
       filter->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyExpr: public Policy {
@@ -292,7 +292,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyTerm(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyTerm";
    }
@@ -301,7 +301,7 @@ public:
 	 pf->printClass(os, indent);
       }
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyRefine: public PolicyExpr {
@@ -322,7 +322,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyRefine(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyRefine";
    }
@@ -332,7 +332,7 @@ public:
       INDENT(indent); os << "right" << std::endl;
       right->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 class PolicyExcept: public PolicyExpr {
@@ -353,7 +353,7 @@ public:
    virtual Policy *dup() const {
       return new PolicyExcept(*this);
    }
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    virtual const char *className(void) const {
       return "PolicyExcept";
    }
@@ -363,7 +363,7 @@ public:
       INDENT(indent); os << "right" << std::endl;
       right->printClass(os, indent + 2);
    }
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 };
 
 #endif   // POLICY_HH

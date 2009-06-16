@@ -60,9 +60,9 @@
 #include "regexp.hh"
 #include "rptype.hh"
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #define YYDEBUG 1
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 #if YYDEBUG != 0
 // stdio is needed for yydebug
 #include <cstdio>

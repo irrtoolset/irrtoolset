@@ -211,7 +211,7 @@ void Object::reportErrors(ostream &ostrm) {
 }
 
 // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 
 #define PRINT1(x) os << "  " #x " = " << x << endl
 #define PRINT2(x, y) os << "  " #x " = " << y << endl
@@ -237,7 +237,7 @@ void Object::printPTree(ostream &os) const
   }
 }
 
-#endif // #ifdef DEBUG
+#endif // #ifdef ENABLE_DEBUG
 
 ostream& operator<<(ostream &os, const Object &o) {
    Attr *attr;
