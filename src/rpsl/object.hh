@@ -154,9 +154,9 @@ public:
    void validate();
 
    // Added by wlee@isi.edu
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    void printPTree(std::ostream &os) const;
-#endif // #ifdef DEBUG
+#endif // #ifdef ENABLE_DEBUG
 };
 
 template<class AttrType = Attr>

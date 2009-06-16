@@ -64,7 +64,7 @@ AC_MSG_RESULT(yes)], AC_MSG_RESULT(no))
 
 dnl Do the readline dance
 READLINE_LIBS=""
-AC_ARG_WITH(readline, [  --enable-readline       support fancy command line editing (default: yes)],
+AC_ARG_ENABLE([readline], [  --enable-readline       support fancy command line editing (default: yes)],
 if eval "test x$enable_readline = xyes"; then
 	AC_CHECK_LIB(termcap, main)
 	AC_CHECK_LIB(readline, main)
@@ -79,15 +79,20 @@ READLINE_LIBS="$LIBS"
 )
 
 dnl enable debugging
-AC_ARG_WITH(debug, [  --enable-debug          turn on debugging],
+AC_MSG_CHECKING(whether to enable development debugging)
+AC_ARG_ENABLE([debug], [  --enable-debug          turn on debugging],
 if eval "test x$enable_debug = xyes"; then
-  OPTFLAG="-DDEBUG -fno-inline"
+	AC_DEFINE([ENABLE_DEBUG], [1], [enable debugging stuff for development purposes])
+	CFLAGS=
+	CXXLAGS=
+	OPTFLAGS="-fno-inline -g -O"
 else
-  OPTFLAG=""
+	OPTFLAGS=""
 fi
 ,
-OPTFLAG=""
+OPTFLAGS=""
 )
+AC_MSG_RESULT(${enable_debug})
 
 case "${host_os}" in
 	# Solaris needs extra libs for its socket api
@@ -133,6 +138,9 @@ AC_MSG_RESULT(${ac_have_yylineno})
 EXTRA_LIBS="${SOLARIS_LIBS} ${READLINE_LIBS}"
 
 AC_SUBST(EXTRA_LIBS)
+
+CXXFLAGS="${CFLAGS} ${OPTFLAGS}"
+CFLAGS="${CFLAGS} ${OPTFLAGS}"
 
 dnl spit out configuration files 
 AC_CONFIG_FILES([Makefile
