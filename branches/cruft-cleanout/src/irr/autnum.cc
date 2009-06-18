@@ -155,7 +155,9 @@ void AutNum::gatherPeerings(PolicyPeering *peering,
 		            peerings->insertSortedNoDups(new Peering((*ases)(as), 
 							   *p, *l));
               else  // do nothing, issue a warning
-                cout << "Warning: routers address families mismatch: " << p->get_afi() << l->get_afi() << endl;   
+                cerr << "Warning: router address family mismatch. " << 
+                   "peer afi is "  << p->get_afi() << " (" << p->get_ip_text() << "); " << 
+                   "local afi is " << l->get_afi() << " (" << l->get_ip_text() << ")" << endl;
         }
       else if (!pRtrs->empty())
 	      for (Pix as = ases->first(); as; ases->next(as))  {

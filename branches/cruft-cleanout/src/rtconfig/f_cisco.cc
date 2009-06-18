@@ -1726,11 +1726,11 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    // afi is ignored here
    printNeighbor(IMPORT, asno, 0, pset, true, NULL, NULL);
 
-   const PeeringSet *prngSet = irr->getPeeringSet(psetID);
-   PeeringSetIterator *itr_set = new PeeringSetIterator((PeeringSet *) prngSet);
 
-   for (Peering *peering = itr_set->first(); peering; peering = itr_set->next()) {
-     cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
+   AutNumPeeringIterator aut_itr(autnum);
+   for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+     if (!peering->peerIP.isNull())
+       cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
    }
    
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
@@ -1740,7 +1740,9 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
      const char *indent = (afi_activate) ? " " : "";
      if (afi_activate)
        cout << " address-family " << *afi << endl;
-     for (Peering *peering = itr_set->first(); peering; peering = itr_set->next()) {
+     for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
+       if (peering->peerIP.isNull())
+          continue;
        if (afi_activate)
          cout << indent << " neighbor " << peering->peerIP.get_ip_text() << " activate\n";
        cout << indent << " neighbor " << peering->peerIP.get_ip_text() << " peer-group " << pset << "\n";
@@ -1795,11 +1797,10 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
    // afi is ignored here
    printNeighbor(EXPORT, asno, 0, pset, true, NULL, NULL);
 
-   const PeeringSet *prngSet = irr->getPeeringSet(psetID);
-   PeeringSetIterator *itr_set = new PeeringSetIterator((PeeringSet *) prngSet);
-
-   for (Peering *peering = itr_set->first(); peering; peering = itr_set->next()) {
-     cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
+   AutNumPeeringIterator aut_itr(autnum);
+   for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+     if (!peering->peerIP.isNull())
+       cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
    }
    
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
@@ -1809,7 +1810,9 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
      const char *indent = (afi_activate) ? " " : "";
      if (afi_activate)
        cout << " address-family " << *afi << endl;
-     for (Peering *peering = itr_set->first(); peering; peering = itr_set->next()) {
+     for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+       if (peering->peerIP.isNull())
+          continue;
        if (afi_activate)
          cout << indent << " neighbor " << peering->peerIP.get_ip_text() << " activate\n";
        cout << indent << " neighbor " << peering->peerIP.get_ip_text() << " peer-group " << pset << "\n";

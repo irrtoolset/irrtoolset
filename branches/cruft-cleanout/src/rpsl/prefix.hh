@@ -367,6 +367,16 @@ public:
     return false;
   }
 
+  bool isNull() const {
+    if (ipv4) {
+      return (*ipv4 == NullPrefixRange);
+    }
+    if (ipv6) {
+      return (*ipv6 == NullIPv6PrefixRange);
+    }
+    return true;
+  }
+
   friend std::ostream& operator<<(std::ostream& stream, const MPPrefix& p);
 
 };
