@@ -143,14 +143,8 @@ int xx_eof = 0;
 %token <val> KW_BCC_MAX_PREFIXES
 
 %%
-input_stream: {
-   if (opt_prompt)
-      std::cout << opt_prompt;
-}
-| input_stream input {
-   if (opt_prompt)
-      std::cout << opt_prompt;
-}
+input_stream: /* empty */
+| input_stream input
 ;
 
 input: input_line '\n'

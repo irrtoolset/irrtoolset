@@ -72,6 +72,12 @@ IPV6DC         (({QUAD}:){0,6}{QUAD})?::({QUAD}(:{QUAD}){0,6})?
 #include "command.y.hh"
 #include "irr/irr.hh"
 
+#if HAVE_LIBREADLINE && HAVE_LIBHISTORY 
+#include <readline/readline.h> 
+#include <readline/history.h> 
+extern int rtconfig_input(char *, int); 
+#endif // HAVE_LIBREADLINE and HAVE_LIBHISTORY 
+                        
 #define yylval commandlval
 #define LEXER_RETURN(x)  return(x)
 
@@ -139,38 +145,10 @@ int yywrap () {
 }
 }
 
-
-#if 0
-/* The use of YY_INPUT() seems to tickle a bug in the
- * lexer.  Sometmes it drops the initial character.
- * [GDT. Red Hat Linux Fedora Core 1, flex-2.5.4a-30]
- */
-/* Redefine end of line as CR, CR LF or LF so that Unix, Mac, Windows,
- * MS-DOS files can be used as input.  CP/M and old MS-DOS files might
- * have 1 to 128 trailing Ctrl+Z -- we don't cope with those :-)
- */
-#define YY_INPUT(BUFFER,RESULT,MAX_SIZE) \
-{ \
-    int ch; \
-    int next_ch; \
- \
-    ch = getc(yyin); \
-    if (ch == EOF) { \
-        RESULT = YY_NULL; \
-    } \
-    else { \
-        if (ch == '\r') { \
-            ch = '\n'; \
-            next_ch = fgetc(yyin); \
-            if (next_ch != EOF && next_ch != '\n') { \
-                (void)ungetc(next_ch, yyin); \
-            } \
-        } \
-        BUFFER[0] = ch; \
-        RESULT = 1; \
-    } \
-}
-#endif
+#if HAVE_LIBREADLINE && HAVE_LIBHISTORY
+#define YY_INPUT(buf,result,max_size)	\
+   result = rtconfig_input (buf, max_size);
+#endif // HAVE_LIBREADLINE && HAVE_LIBHISTORY
 
 %}
 
