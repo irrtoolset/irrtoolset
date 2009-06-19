@@ -75,6 +75,11 @@ extern "C" {
 #include "rpsl/schema.hh"
 #include "irr/classes.hh"
 
+#if HAVE_LIBREADLINE && HAVE_LIBHISTORY
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif // HAVE_LIBREADLINE && HAVE_LIBHISTORY
+
 using namespace std;
 
 bool opt_rusage                  = false;
@@ -228,6 +233,44 @@ void init_and_set_options (int argc, char **argv, char **envp) {
    if (!isatty(fileno(stdin)) || !isatty(fileno(stdout)))
       opt_prompt = (char *) NULL;
 }
+
+#if HAVE_LIBREADLINE && HAVE_LIBHISTORY
+int rtconfig_input (char *buf, int maxcmdlen) {
+   static char *cmd = NULL;
+   static int cmdlen = 0;
+   static int upto = 0; 
+   int buflen;
+
+   if (opt_prompt) {
+      if (upto >= cmdlen)
+      {
+         if (cmd != NULL)
+            free(cmd);   
+
+         cmd = readline(opt_prompt);
+
+         if (cmd == NULL)   
+            return 0;
+
+         if (cmd[0] != '\0')
+            add_history(cmd);
+
+         cmdlen = strlen(cmd);
+         cmd[cmdlen++] = '\n';   
+         upto = 0;   
+      }
+
+      buflen = min(cmdlen - upto, maxcmdlen);
+      memcpy(buf, cmd + upto, buflen);
+      upto += buflen;
+
+      return buflen;    
+   } else {
+      /* regular input for yyparse() */
+      return fread(buf, 1, maxcmdlen, stdin); 
+   }
+}
+#endif // HAVE_LIBREADLINE && HAVE_LIBHISTORY
 
 int main(int argc, char **argv, char **envp) {
    extern int commandparse();
