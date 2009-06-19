@@ -175,13 +175,6 @@ input_line: import_line
 | cisco_map_inc_line
 | cisco_map_start_line
 | cisco_access_list_no_line
-/*| bcc_version_line
-| bcc_max_preference_line
-| bcc_advertise_nets_line
-| bcc_advertise_all_line
-| bcc_force_back_line
-| bcc_max_prefixes_line
-*/
 | preferenceCeiling_line
 | source_line
 ;
@@ -388,45 +381,6 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
 }
 ;
 
-// following are new addition
-/*
-bcc_version_line: KW_SET KW_BCC_VERSION '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_version = $4;
-}
-;
-
-bcc_max_preference_line: KW_SET KW_BCC_MAX_PREFERENCE '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_max_preference = $4;
-}
-;
-
-bcc_advertise_nets_line: KW_SET KW_BCC_ADVERTISE_NETS '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_advertise_nets = $4;
-}
-;
-
-bcc_advertise_all_line: KW_SET KW_BCC_ADVERTISE_ALL '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_advertise_all = $4;
-}
-;
-
-bcc_force_back_line: KW_SET KW_BCC_FORCE_BACK '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_force_back = $4;
-}
-;
-
-bcc_max_prefixes_line: KW_SET KW_BCC_MAX_PREFIXES '=' TKN_INT {
-   if ($4 >= 0) 
-      BccConfig::bcc_max_prefixes = $4;
-}
-;
-*/
-// end of new
 preferenceCeiling_line: KW_SET KW_PREFERENCECEILING '=' TKN_INT {
    if ($4 >= 0)
       RtConfig::preferenceCeiling = $4;

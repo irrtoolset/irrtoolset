@@ -122,7 +122,7 @@ database server or parsing policy objects.
 .RS
 .IP "\-config <config-format>"
 Produce router configuration in <config-format>
-which is either cisco (default), junos, bcc (for bay), gated or rsd.
+which is either cisco (default) or junos.
 .IP \-no_match_ip_inbound
 In older Cisco IOS versions, 
 in-bound route maps did not support ip access-list matches.
@@ -377,72 +377,6 @@ For each route registered with origin <ASN-1>,
 a network statement of the form "network <prefix> mask <mask>" is
 generated. This needs to be Juniperized.
 .RE
-.PP
-BCC (Bay Networks BayRS)  specific commands:
-.RS
-.IP "@rtconfig set bcc_version = <version>"
-Create output  for  BCC  version  <version>.
-Default  is 310 (= BCC 3.10) which is available
-since BayRS 12.00. This  paramater  has
-no  effect  in  the current version, however
-might be used in the future.
-.IP "@rtconfig set bcc_force_back = <flag>"
-<flag> is either 0 or 1 defaulting to 0  (do
-not force).  If this flag is set, the generated
-output will add 'back' statements, even
-if  they are not required, but are useful if
-this output is diff'd against the output  of
-'show config' run on BCC.
-.IP "@rtconfig set bcc_max_prefixes = <nr>"
-<nr>  defines the maximum number of prefixes
-allowed per filter definition.   Default  is
-66  (SiteManager  limitation).  BCC limit is
-somewhere less than 200.
-.IP "@rtconfig set bcc_advertise_all = <flag>"
-<flag> is either 0  or  1  defaulting  to  0
-(don't  advertise subnets) This flag, if set
-to 1, advertise network 255.255.255.255 mask
-255.255.255.255  resulting  in advertisments
-of the actual network  IDs  along  with  the
-oterh IDs in the advertise list. This allows
-advertisements of an  aggregate  or  default
-along with the actual network.
-.IP "@rtconfig set bcc_advertise_nets = <flag>"
-<flag>  is  either  0  or  1 defaulting to 0
-(don't build advertise list) If this flag is
-set  (1),  then  for  each  network  in  the
-announce match network list an entry in  the
-advertise  list  of  the same filter is created.
-Note however,  that  this  results  in
-advertising of all network IDs as long as at
-least 1 network match the network list.
-.IP "@rtconfig set bcc_max_preference = <no>"
-<no> is an integer defaulting to 1000.  This
-command  instruct  rtconfig  to  start using
-preferences from <no> (most  preferred)  and
-counting down from there.
-.IP "@rtconfig default <ASN-1> <ASN-2>"
-<ASN-1>  and <ASN-2> are AS numbers preceded
-with string "AS".   This  command  instructs
-rtconfig  to  generate  an  "inject  policy"
-(accept policiy with set action "inject"  of
-default  or  network  IDs  where  <ASN-1> is
-defaulting  to  <ASN-2>.   The   appropriate
-statements  are  generated  for  the network
-addresses listed in  the  default  attribute
-for   <ASN-2>   in  the  aut-num  object  of
-<ASN-1>.
-.RE
-.PP
-RSd specific commands:
-.PP
-.RS
-There is no export command for RSd.
-When an import command is used for RSd,
-both the import policies of <ASN-1>
-and the export policies of <ASN-2>
-are considered.
-.RE
 .SH EXAMPLES
 .PP
 Here is an example input file:
@@ -489,20 +423,7 @@ Note that the last example contains 16 numbers which is more than 10. This
 is converted since no single range (AS100-AS105 or AS300-AS307) contains
 more than 10 numbers.
 .RE
-.PP
-Gated Configuration Generation:
-.PP
-.RS
-As path regular expressions generated for gated requires ISI's
-patches to gated's regular expressions.
-.RE
 .SH ERROR AND WARNING MESSAGES
-.PP
-Error: Unknown rtconfig/RSd command.
-.RS
-.PP
-Wrong rsd command specified, see manpage for details on rsd commands supported.
-.RE
 .PP
 Error in template file
 .RS
@@ -514,7 +435,7 @@ Error: config file format <config_format> is not supported...
 .RS
 .PP
 Unknown config format specified. Supported formats are:
-cisco, junos, bcc, gated, rsd.
+cisco, junos.
 .PP
 .RE
 Error: no object for router: <router_name>
