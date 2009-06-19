@@ -120,12 +120,6 @@ static KeyWord keywords[] = {
 "cisco_community_acl_no",  KW_CISCO_COMMUNITY_ACL_NO,
 "cisco_max_preference",    KW_PREFERENCECEILING,
 "sources",                 KW_SOURCE,
-"bcc_version_line",        KW_BCC_VERSION, 
-"bcc_max_preference",      KW_BCC_MAX_PREFERENCE, 
-"bcc_advertise_nets",      KW_BCC_ADVERTISE_NETS,
-"bcc_advertise_all",       KW_BCC_ADVERTISE_ALL,
-"bcc_force_back",          KW_BCC_FORCE_BACK,
-"bcc_max_prefixes",        KW_BCC_MAX_PREFIXES,
 NULL,        -1
 };
 
