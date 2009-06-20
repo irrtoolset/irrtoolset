@@ -111,9 +111,9 @@ public:
    virtual void IPv6networks(ASt as) {
       std::cerr << "Error: v6networks not implemented" << std::endl;
    }
-   virtual void packetFilter
+   virtual void inboundPacketFilter
    (char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {
-      std::cerr << "Error: pkt_filter not implemented" << std::endl;
+      std::cerr << "Error: inbound_pkt_filter not implemented" << std::endl;
    }
    virtual void outboundPacketFilter
    (char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr) {

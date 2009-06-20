@@ -1543,8 +1543,12 @@ int CiscoConfig::printPacketFilter(SetOfIPv6Prefix &set) {
 }
 
 
-void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr, 
+void CiscoConfig::inboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, 
 			       ASt peerAS, MPPrefix* peerAddr) {
+   int import = IMPORT;
+   const char *rpsltag = (import == IMPORT) ? "import" : "export";
+   const char *mp_rpsltag = (import == IMPORT) ? "mp-import" : "mp-export";
+   const char *direction = (import == IMPORT) ? " in" : " out";
 
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(as);
@@ -1555,17 +1559,15 @@ void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr,
     }
 
    // get matching import & mp-import attributes
-   AutNumSelector<AttrImport> itr(autnum, "import", 
-                                  NULL, peerAS, peerAddr, addr);
-   AutNumSelector<AttrImport> itr1(autnum, "mp-import",
-          NULL, peerAS, peerAddr, addr);
+   AutNumSelector<AttrImport> itr(autnum, rpsltag, NULL, peerAS, peerAddr, addr);
+   AutNumSelector<AttrImport> itr1(autnum, mp_rpsltag, NULL, peerAS, peerAddr, addr);
 
    List<FilterAction> *common_list = itr.get_fa_list();
    common_list->splice(*(itr1.get_fa_list()));
    
    FilterAction *fa = common_list->head();
    if (! fa) {
-     printPolicyWarning(as, addr, peerAS, peerAddr, "import/mp-import");
+     printPolicyWarning(as, addr, peerAS, peerAddr, mp_rpsltag);
      return;
    }
    ItemList *afi_list = itr.get_afi_list();
@@ -1593,22 +1595,22 @@ void CiscoConfig::packetFilter(char *ifname, ASt as, MPPrefix* addr,
       ipv6_aclid = printPacketFilter(ipv6_set);
 
    if (!set.isEmpty())
-     cout << "\n!\ninterface " << ifname << "\n ip access-group " << aclid << " in\n";
+     cout << "\n!\ninterface " << ifname << "\n ip access-group " << aclid << direction << endl;
 
    if (!ipv6_set.isEmpty()) {
      cout << "address family ipv6" << endl;
-     cout << " interface " << ifname << "\n ipv6 access-group " << ipv6_acl << ipv6_aclid << " in\n";
+     cout << " interface " << ifname << "\n ipv6 access-group " << ipv6_acl << ipv6_aclid << direction << endl;
      cout << "exit" << endl;
    }
-
 }
 
-// REIMPLEMENTED
 void CiscoConfig::outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, 
 				       ASt peerAS, MPPrefix* peerAddr) {
+   int import = EXPORT;
+   const char *rpsltag = (import == IMPORT) ? "import" : "export";
+   const char *mp_rpsltag = (import == IMPORT) ? "mp-import" : "mp-export";
+   const char *direction = (import == IMPORT) ? " in" : " out";
 
-   /*
-   SetOfPrefix set;
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(as);
 
@@ -1617,33 +1619,50 @@ void CiscoConfig::outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr,
       return;
     }
 
-   // get matching export attributes
-   AutNumSelector<AttrExport> itr(autnum, "export", 
-				  NULL, peerAS,peerAddr, addr);
-   const FilterAction *fa = itr.first();
-   if (! fa)
-      printPolicyWarning(as, addr, peerAS, peerAddr, "export");
+   // get matching import & mp-import attributes
+   AutNumSelector<AttrExport> itr(autnum, rpsltag, NULL, peerAS, peerAddr, addr);
+   AutNumSelector<AttrExport> itr1(autnum, mp_rpsltag, NULL, peerAS, peerAddr, addr);
 
-   NormalExpression *ne;
-   int last = 0;
-   for (; fa && !last; fa = itr.next()) {
-      ne = NormalExpression::evaluate(fa->filter, peerAS);
-
-      for (NormalTerm *nt = ne->first(); nt; nt = ne->next())
-	 set |= nt->prfx_set;
-      
-      delete ne;
+   List<FilterAction> *common_list = itr.get_fa_list();
+   common_list->splice(*(itr1.get_fa_list()));
+   
+   FilterAction *fa = common_list->head();
+   if (! fa) {
+     printPolicyWarning(as, addr, peerAS, peerAddr, mp_rpsltag);
+     return;
    }
+   ItemList *afi_list = itr.get_afi_list();
+   afi_list->merge(*(itr1.get_afi_list()));
+   int last = 0;
+   SetOfPrefix set;
+   SetOfIPv6Prefix ipv6_set;
 
-   int aclid = printPacketFilter(set);
+   for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+     NormalExpression *ne = NormalExpression::evaluate(new FilterAFI(afi_list,fa->filter), peerAS);
+     for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) { //either v4 or v6
+       if (nt->ipv6_prfx_set.universal())
+         set |= nt->prfx_set;
+       else 
+         ipv6_set |= nt->ipv6_prfx_set;
+     }
+   }
+  
+   int aclid;
+   int ipv6_aclid;
 
-   static char neighbor[128];
-   int2quad(neighbor, peerAddr->get_ipaddr());
+   if (!set.isEmpty())
+      aclid = printPacketFilter(set);
+   if (!ipv6_set.isEmpty())
+      ipv6_aclid = printPacketFilter(ipv6_set);
 
-   cout << "interface " << ifname 
-	<< "\n ip access-group " << aclid << " out\n";
+   if (!set.isEmpty())
+     cout << "\n!\ninterface " << ifname << "\n ip access-group " << aclid << direction << endl;
 
-   */
+   if (!ipv6_set.isEmpty()) {
+     cout << "address family ipv6" << endl;
+     cout << " interface " << ifname << "\n ipv6 access-group " << ipv6_acl << ipv6_aclid << direction << endl;
+     cout << "exit" << endl;
+   }
 }
 
 void CiscoConfig::importGroup(ASt asno, char * pset) {
