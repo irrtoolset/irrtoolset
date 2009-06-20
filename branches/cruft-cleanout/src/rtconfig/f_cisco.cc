@@ -103,11 +103,11 @@ unsigned int ones(unsigned char from, unsigned char to)
   return result;
 }
 
-const char *CiscoConfig::returnPermitOrDeny(int allow_flag, bool permitordeny = true) {
+const char *CiscoConfig::returnPermitOrDeny(bool allow_flag) {
    if (allow_flag)
       return " permit ";
    else
-      return " accept;";
+      return " deny ";
 }
                   
 ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
@@ -174,12 +174,7 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfIPv6Prefix& nets) {
   // }
 
    // terminate the access list
-   if (allow_flag)
-      cout << "ipv6 access-list " << ipv6_acl << aclID 
-           << " deny any any \n";
-   else
-      cout << "ipv6 access-list " << ipv6_acl << aclID 
-           << " permit any any \n";
+   cout << "ipv6 access-list " << ipv6_acl << aclID << returnPermitOrDeny(!allow_flag) << "any any" << endl;
 
    return result;
 }
@@ -220,11 +215,7 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfPrefix& nets) {
       for (bool ok = itr.first(addr, leng, start, end);
 	   ok;
 	   ok = itr.next(addr, leng, start, end)) {
-	 cout << "access-list " << aclID;
-	 if (allow_flag)
-	    cout << " permit ip ";
-	 else 
-	    cout << " deny ip ";
+	 cout << "access-list " << aclID << returnPermitOrDeny(allow_flag) << "ip ";
 
 	 /* need to look at WeeSan's code */
 	 cout << int2quad(buffer, addr) << "   ";
@@ -242,24 +233,16 @@ ListOf2Ints *CiscoConfig::printRoutes(SetOfPrefix& nets) {
       for (bool ok = itr.first(addr, leng);
 	   ok;
 	   ok = itr.next(addr, leng)) {
-	 cout << "access-list " << aclID;
-	 if (allow_flag)
-	    cout << " permit ip ";
-	 else 
-	    cout << " deny ip ";
+	 cout << "access-list " << aclID << returnPermitOrDeny(allow_flag) << "ip ";
 
 	 cout << int2quad(buffer, addr) << "   0.0.0.0   ";
 	 cout << int2quad(buffer, masks[leng]) << "   0.0.0.0\n";
       }
    }
 
-   // terminate the acess lis
-   if (allow_flag)
-      cout << "access-list " << aclID 
-           << " deny ip 0.0.0.0 255.255.255.255 0.0.0.0 255.255.255.255\n";
-   else
-      cout << "access-list " << aclID 
-           << " permit ip 0.0.0.0 255.255.255.255 0.0.0.0 255.255.255.255\n";
+   // terminate the access list
+   cout << "access-list " << aclID  << returnPermitOrDeny(!allow_flag)
+        << "ip 0.0.0.0 255.255.255.255 0.0.0.0 255.255.255.255\n";
 
    return result;
 }
@@ -306,11 +289,7 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfIPv6Prefix& nets) {
       cout << "\n";
    }
 
-   // terminate the acess lis
-   if (allow_flag)
-      cout << "ipv6 prefix-list " << ipv6_pl << aclID << " deny ::/0 le 128\n";
-   else
-      cout << "ipv6 prefix-list " << ipv6_pl << aclID << " permit ::/0 le 128\n";
+   cout << "ipv6 prefix-list " << ipv6_pl << aclID << returnPermitOrDeny(!allow_flag) << "::/0 le 128" << endl;
 
    return result;
 
@@ -359,11 +338,8 @@ ListOf2Ints *CiscoConfig::printPrefixList(SetOfPrefix& nets) {
       cout << "\n";
    }
 
-   // terminate the acess lis
-   if (allow_flag)
-      cout << "ip prefix-list pl" << aclID << " deny 0.0.0.0/0 le 32\n";
-   else
-      cout << "ip prefix-list pl" << aclID << " permit 0.0.0.0/0 le 32\n";
+   // terminate the access list
+   cout << "ip prefix-list pl" << aclID << returnPermitOrDeny(!allow_flag) << "0.0.0.0/0 le 32\n";
 
    return result;
 }
@@ -1515,11 +1491,7 @@ int CiscoConfig::printPacketFilter(SetOfPrefix &set) {
       if (!addr && !leng) // skip 0.0.0.0/0
 	 continue;
 
-      cout << "access-list " << aclID;
-      if (allow_flag)
-	 cout << " permit ip ";
-      else 
-	 cout << " deny ip ";
+      cout << "access-list " << aclID << returnPermitOrDeny(allow_flag) << "ip ";
 
       cout << int2quad(buffer, addr) << " ";
       cout << int2quad(buffer, ~masks[leng]) << " any \n";
@@ -1528,10 +1500,7 @@ int CiscoConfig::printPacketFilter(SetOfPrefix &set) {
    if (set.universal()) // handle 0.0.0.0/0
      allow_flag = false;
 
-   if (allow_flag)
-      cout << "access-list " << aclID << " deny ip any any\n";
-   else
-      cout << "access-list " << aclID << " permit ip any any\n";
+   cout << "access-list " << aclID << returnPermitOrDeny(!allow_flag) << "ip any any" << endl;
 
    return aclID;
 }
@@ -1559,11 +1528,7 @@ int CiscoConfig::printPacketFilter(SetOfIPv6Prefix &set) {
       if (!addr && !leng)
         continue;
 
-      cout << "ipv6 access-list " << ipv6_acl << aclID;
-      if (allow_flag)
-   cout << " permit ip ";
-      else
-   cout << " deny ip ";
+      cout << "ipv6 access-list " << ipv6_acl << aclID << returnPermitOrDeny(allow_flag) << "ip ";
 
       cout << ipv62hex(&addr, buffer) << " ";
       cout << ipv62hex(&(addr.getmask(leng)), buffer) << " any \n";
@@ -1572,10 +1537,7 @@ int CiscoConfig::printPacketFilter(SetOfIPv6Prefix &set) {
    if (set.universal()) // handle ::/0
      allow_flag = false;
 
-   if (allow_flag)
-      cout << "ipv6 access-list " << ipv6_acl << aclID << " deny ip any any\n";
-   else
-      cout << "ipv6 access-list " << ipv6_acl << aclID << " permit ip any any\n";
+   cout << "ipv6 access-list " << ipv6_acl << aclID << returnPermitOrDeny(!allow_flag) << "ip any any" << endl;
 
    return aclID;
 }

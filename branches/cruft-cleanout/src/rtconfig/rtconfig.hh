@@ -88,7 +88,7 @@ public:
       std::cerr << "Error: importGroup not implemented" << std::endl;
    }
    
-   virtual const char *returnPermitOrDeny(int, bool) {
+   virtual const char *returnPermitOrDeny(bool) {
       std::cerr << "Error: returnPermitOrDeny not implemented" << std::endl;
       return NULL;
    }

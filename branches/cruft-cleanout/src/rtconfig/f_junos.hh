@@ -115,7 +115,7 @@ private:
    ListOf2Ints *printCommunities(FilterOfCommunity& cm);
    ListOf2Ints *printASPaths(FilterOfASPath& path);
 
-   const char  *returnPermitOrDeny(int, bool);
+   const char  *returnPermitOrDeny(bool);
    inline void  printCommunity(std::ostream &os, unsigned int i);
    int          printCommunityList(std::ostream &os, ItemList *args);
    int          printCommunitySet(std::ostream &os, CommunitySet *set, bool exact);

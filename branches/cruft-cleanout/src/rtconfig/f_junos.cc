@@ -95,11 +95,11 @@ bool JunosConfig::exportStatics = false;
 AccessListManager<CommunitySet>		 communityMgr2;
 //AccessListManager<SetOfPrefix>       pktFilterMgr(100);
 
-const char *JunosConfig::returnPermitOrDeny(int allow_flag, bool permitordeny = true) {
-   if ((permitordeny && !allow_flag) || (!permitordeny && allow_flag))
-      return " reject;";
-   else
+const char *JunosConfig::returnPermitOrDeny(bool allow_flag) {
+   if (allow_flag)
       return " accept;";
+   else
+      return " reject;";
 }
 
 ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
@@ -117,9 +117,9 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 	int aclID = ipv6prefixMgr.newID();
 	result->add(aclID, aclID);
 
-	int allow_flag = 1;
+	bool allow_flag = true;
 	if (nets.negated())
-		allow_flag = 0;
+		allow_flag = false;
 
    cout << "   policy-statement prefix-list-" << aclID << " {\n"
     << "      term prefixes {\n";
@@ -131,7 +131,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
    if (!itr.first(addr, leng)) {
      cout << "          then "
-          << returnPermitOrDeny(allow_flag, false)
+          << returnPermitOrDeny(!allow_flag)
           << "\n      }\n   }\n\n";
    } else {
      cout << "         from {\n";
@@ -139,7 +139,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
      for (bool ok = itr.first(addr, leng); ok; ok = itr.next(addr, leng)) {
        cout << "            route-filter ";
        cout << ipv62hex(&addr, buffer) << "/" << leng;
-       cout  << " exact" << returnPermitOrDeny(allow_flag, true) << "\n";
+       cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
      }
 
      cout << "         }\n"
@@ -147,10 +147,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
           << "      term catch-rest {\n";
 
      // terminate the access list
-     if (allow_flag)
-       cout << "          then reject;\n";
-     else
-       cout << "          then accept;\n";
+     cout << "          then" << returnPermitOrDeny(!allow_flag) << endl;
 
      cout << "      }\n"
           << "   }\n\n";
@@ -174,9 +171,9 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
    int aclID = prefixMgr.newID();
    result->add(aclID, aclID);
 
-   int allow_flag = 1;
+   bool allow_flag = true;
    if (nets.negated())
-      allow_flag = 0;
+      allow_flag = false;
 
    char buffer[64];
 
@@ -185,7 +182,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
 
    if (nets.members.isEmpty()) {
      cout << "          then"
-          << returnPermitOrDeny(allow_flag, false)
+          << returnPermitOrDeny(!allow_flag)
           << "\n      }\n   }\n\n";
      return result;
    }
@@ -214,7 +211,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
           else cout << " exact";
         }
 	 
-       cout  << returnPermitOrDeny(allow_flag, true) << "\n";
+       cout  << returnPermitOrDeny(allow_flag) << "\n";
       }
    } else {
       RadixSet::SortedPrefixIterator itr(&nets.members);
@@ -229,7 +226,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
 
 	 cout << int2quad(buffer, addr) << "/" << leng;
 
-	 cout  << " exact" << returnPermitOrDeny(allow_flag, true) << "\n";
+	 cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
       }
    }
 
@@ -237,11 +234,8 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
 	<< "      }\n"
 	<< "      term catch-rest {\n";
    
-   // terminate the acess lis
-   if (allow_flag)
-      cout << "          then reject;\n";
-   else
-      cout << "          then accept;\n";
+   // terminate the access list
+   cout << "          then" << returnPermitOrDeny(!allow_flag) << endl;
 
    cout << "      }\n"
 	<< "   }\n\n";
