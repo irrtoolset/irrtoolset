@@ -1146,6 +1146,9 @@ bool CiscoConfig::printNeighbor(int import,
        cout << indent <<" no neighbor " << neighbor << " activate\n"; 
        cout << " address-family " << "ipv6 multicast" << endl;
        cout << indent <<" neighbor " << neighbor << " activate\n"; 
+     } else if (strcmp(filter_afi->name(),"ipv4.unicast") == 0) { 
+       cout << " address-family " << "ipv4 unicast" << endl; 
+       cout << indent <<" neighbor " << neighbor << " activate\n"; 
      }
      // ought to handle afi any too, but that's not just done by naming it here
    }

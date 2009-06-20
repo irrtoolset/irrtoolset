@@ -167,6 +167,11 @@ This is useful if you get as path access lists with real long lines, it
 will force them to multiple lines.
 .IP "\-cisco_empty_lists"
 This option only affects Cisco configurations. It forces interpreting ANY/NOT ANY prefix filters as universal/empty set of prefixes, and produces access lists for them. By default only warning is issued.
+.IP \-cisco_no_default_afi 
+Causes rtconfig not to assume that ipv4.unicast is the router's default 
+address family. IPv4 peers will then have ipv4.unicast explicitly activated 
+and policy will be set in ipv4.unicast address family. Useful when the router 
+is configured with "no bgp default ipv4-unicast". 
 .RE
 .SH ENVIRONMENT VARIABLES
 .RS

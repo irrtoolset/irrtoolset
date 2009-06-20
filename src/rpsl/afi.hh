@@ -32,6 +32,7 @@ class MPPrefix;
 
 class AddressFamily {
  public:
+   static bool noDefaultAfi;
    const char *afi;
 
  public:
@@ -41,6 +42,9 @@ class AddressFamily {
    const char *name() {
       return afi;
    }
+   const char *name_afi();
+   const char *name_safi();
+
    AddressFamily *dup() const {
      return new AddressFamily(*this);
    }

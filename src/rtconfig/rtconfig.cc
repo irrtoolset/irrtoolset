@@ -210,6 +210,8 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-cisco_empty_lists", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::emptyLists,
       "Generate access lists for ANY and NOT ANY prefix filters.\n\t\t\t\tCisco only."},
+     {"-cisco_no_default_afi", ARGV_BOOL, (char *) NULL, (char *) &AddressFamily::noDefaultAfi,
+      "Do not assume the router defaults to ipv4 unicast address family."},
      {"-junos_no_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &JunosConfig::compressAcls,
       "Do not combine multiple route-filter lines into a single line whenever possible.\n\t\t\t\tJunos only."},
