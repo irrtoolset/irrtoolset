@@ -1647,9 +1647,11 @@ void CiscoConfig::outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr,
 }
 
 void CiscoConfig::importGroup(ASt asno, char * pset) {
-
+   int import = IMPORT;
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(asno);
+   const char *rpsltag = (import == IMPORT) ? "import" : "export";
+   const char *mp_rpsltag = (import == IMPORT) ? "mp-import" : "mp-export";
 
    if (!autnum) {
       cerr << "Error: no object for AS" << asno << endl;
@@ -1658,15 +1660,16 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
 
    SymID psetID = symbols.symID(pset);
    // get matching import attributes
-   AutNumSelector<AttrImport> itr(autnum, "import", psetID, ~0, NULL, NULL);
-   AutNumSelector<AttrImport> itr1(autnum, "mp-import", psetID, ~0, NULL, NULL);
+   AutNumSelector<AttrImport> itr(autnum, rpsltag, psetID, ~0, NULL, NULL);
+   AutNumSelector<AttrImport> itr1(autnum, mp_rpsltag, psetID, ~0, NULL, NULL);
 
    List<FilterAction> *common_list = itr.get_fa_list();
    common_list->splice(*(itr1.get_fa_list()));
 
    FilterAction *fa = common_list->head();
    if (! fa) {
-     cerr << "Warning: AS" << asno << " has no import/mp-import policy for " << pset << endl;
+     cerr << "Warning: AS" << asno << " has no " << rpsltag << "/" << mp_rpsltag
+          << " policy for " << pset << endl;
      return;
    }
 
@@ -1681,16 +1684,15 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
      sprintf(mapName, mapNameFormat, asno, mapCount++);
      for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
        ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), ~0);
-       last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);;
+       last = print(ne, fa->action, import, (ItemAFI *) afi);;
        delete ne;
      }
    }
    // afi is ignored here
-   printNeighbor(IMPORT, asno, 0, pset, true, NULL, NULL);
-
+   printNeighbor(import, asno, 0, pset, true, NULL, NULL);
 
    AutNumPeeringIterator aut_itr(autnum);
-   for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+   for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
      if (!peering->peerIP.isNull())
        cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
    }
@@ -1718,9 +1720,11 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
 } 
 
 void CiscoConfig::exportGroup(ASt asno, char * pset) {
-
+   int import = EXPORT;
    // get the aut-num object
    const AutNum *autnum = irr->getAutNum(asno);
+   const char *rpsltag = (import == IMPORT) ? "import" : "export";
+   const char *mp_rpsltag = (import == IMPORT) ? "mp-import" : "mp-export";
 
    if (!autnum) {
       cerr << "Error: no object for AS" << asno << endl;
@@ -1729,15 +1733,16 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
 
    SymID psetID = symbols.symID(pset);
    // get matching import attributes
-   AutNumSelector<AttrExport> itr(autnum, "export", psetID, ~0, NULL, NULL);
-   AutNumSelector<AttrExport> itr1(autnum, "mp-export", psetID, ~0, NULL, NULL);
+   AutNumSelector<AttrExport> itr(autnum, rpsltag, psetID, ~0, NULL, NULL);
+   AutNumSelector<AttrExport> itr1(autnum, mp_rpsltag, psetID, ~0, NULL, NULL);
 
    List<FilterAction> *common_list = itr.get_fa_list();
    common_list->splice(*(itr1.get_fa_list()));
 
    FilterAction *fa = common_list->head();
    if (! fa) {
-     cerr << "Warning: AS" << asno << " has no export/mp-export policy for " << pset << endl;
+     cerr << "Warning: AS" << asno << " has no " << rpsltag << "/" << mp_rpsltag
+          << " policy for " << pset << endl;
      return;
    }
 
@@ -1752,15 +1757,15 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
      sprintf(mapName, mapNameFormat, asno, mapCount++);
      for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
        ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), ~0);
-       last = print(ne, fa->action, EXPORT, (ItemAFI *) afi);;
+       last = print(ne, fa->action, import, (ItemAFI *) afi);;
        delete ne;
      }
    }
    // afi is ignored here
-   printNeighbor(EXPORT, asno, 0, pset, true, NULL, NULL);
+   printNeighbor(import, asno, 0, pset, true, NULL, NULL);
 
    AutNumPeeringIterator aut_itr(autnum);
-   for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+   for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
      if (!peering->peerIP.isNull())
        cout << " neighbor " << peering->peerIP.get_ip_text() << " remote-as " << peering->peerAS << endl;
    }
@@ -1772,7 +1777,7 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
      const char *indent = (afi_activate) ? " " : "";
      if (afi_activate)
        cout << " address-family " << *afi << endl;
-     for (const Peering *peering = aut_itr.first(); aut_itr; peering = aut_itr.next()) {
+     for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
        if (peering->peerIP.isNull())
           continue;
        if (afi_activate)
@@ -1786,5 +1791,3 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
    routeMapGenerated = false;
    prefixListGenerated = false;
 } 
-
-
