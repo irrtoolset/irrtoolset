@@ -29,6 +29,8 @@
 
 using namespace std;
 
+bool AddressFamily::noDefaultAfi = false;
+
 AddressFamily::AddressFamily(void) :
   afi(NULL)
 {
@@ -63,7 +65,7 @@ bool AddressFamily::is_ipv6() {
 }
 
 bool AddressFamily::is_default() {
-  if (strcmp(afi, "ipv4.unicast") == 0)
+  if (strcmp(afi, "ipv4.unicast") == 0 && !AddressFamily::noDefaultAfi)
      return true;
   return false;
 } 
@@ -90,5 +92,23 @@ bool AddressFamily::is_valid(MPPrefix *p) {
        (strstr(afi, "ipv4") && p->ipv4))
       return true;
    return false;
+}
+
+const char *AddressFamily::name_afi() {
+   if (strstr(afi, "ipv4"))
+      return "ipv4";
+   if (strstr(afi, "ipv6"))
+      return "ipv6";
+
+   return "ipv4";
+}
+
+const char *AddressFamily::name_safi() {
+   if (strstr(afi, "unicast"))
+      return "unicast";
+   if (strstr(afi, "multicast"))
+      return "multicast";
+
+   return "";
 }
 
