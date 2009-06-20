@@ -69,9 +69,6 @@ class SetOfPrefix {
    friend class RtConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
-   friend class GatedConfig;
-   friend class RsdConfig;
-   friend class BccConfig;
 
 public:
    SetOfPrefix() : members() {
