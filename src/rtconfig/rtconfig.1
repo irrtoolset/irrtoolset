@@ -335,8 +335,8 @@ where <ASN-1> is defaulting to <ASN-2>.
 The appropriate statements are generated 
 for the network addresses listed in
 the default attribute for <ASN-2> in the aut-num object of <ASN-1>.
-.IP "@rtconfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
-The arguments of the pkt_filter command are the same as the import command.
+.IP "@rtconfig inbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+The arguments of the inbound_pkt_filter command are the same as the import command.
 This command instructs rtconfig to generate packet filters
 where 
 <rtr-1> in <ASN-1> is going to drop data packets 
@@ -349,6 +349,8 @@ the import lines for <ASN-2>-<rtr-1>-<rtr-2>
 in the aut-num object for <ASN-1>.
 The filter is applied to the interface <if-name> in the inbound direction.
 The <if-name> is a string and must be enclosed in double quotes.
+.IP "@rtconfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+An alias for inbound_pkt_filter.  Now deprecated.
 .IP "@rtconfig outbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
 Same as the pkt_filter command,
 except

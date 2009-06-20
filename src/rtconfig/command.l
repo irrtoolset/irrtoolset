@@ -18,7 +18,7 @@
 // AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
-//  $Id$
+//  $Id: command.l 272 2009-06-19 21:49:01Z nick $
 //
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
@@ -106,7 +106,8 @@ static KeyWord keywords[] = {
 "static2bgp",              KW_STATIC2BGP,
 "networks",                KW_NETWORKS,
 "v6networks",              KW_V6NETWORKS,
-"pkt_filter",              KW_PKT_FILTER,
+"pkt_filter",              KW_INBOUND_PKT_FILTER,
+"inbound_pkt_filter",      KW_INBOUND_PKT_FILTER,
 "outbound_pkt_filter",     KW_OUTBOUND_PKT_FILTER,
 "set",                     KW_SET,
 "cisco_map_name",          KW_CISCO_MAP_NAME,

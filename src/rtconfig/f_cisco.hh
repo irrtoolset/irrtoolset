@@ -117,7 +117,7 @@ public:
    void static2bgp(ASt as, MPPrefix* addr);
    void networks(ASt as);
    void IPv6networks(ASt as);
-   void packetFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
+   void inboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
    void outboundPacketFilter(char *ifname, ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
 
 public:

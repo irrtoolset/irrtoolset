@@ -133,7 +133,7 @@ int xx_eof = 0;
 %token <val> KW_DEFAULT
 %token <val> KW_CISCO_MAP_INC
 %token <val> KW_CISCO_MAP_START
-%token <val> KW_PKT_FILTER
+%token <val> KW_INBOUND_PKT_FILTER
 %token <val> KW_OUTBOUND_PKT_FILTER
 
 %%
@@ -162,7 +162,7 @@ input_line: import_line
 | static2bgp_line
 | networks_line
 | v6networks_line
-| pkt_filter_line
+| inbound_pkt_filter_line
 | outbound_pkt_filter_line
 | cisco_map_name_line
 | junos_policy_name_line
@@ -297,8 +297,8 @@ v6networks_line: KW_V6NETWORKS TKN_ASNUM {
 }
 ;
 
-pkt_filter_line: KW_PKT_FILTER TKN_STR TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP {
-   rtConfig->packetFilter($2, $3, $4, $5, $6);
+inbound_pkt_filter_line: KW_INBOUND_PKT_FILTER TKN_STR TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP {
+   rtConfig->inboundPacketFilter($2, $3, $4, $5, $6);
    delete $4;
    delete $6;
 }
