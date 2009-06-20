@@ -70,11 +70,8 @@ extern "C" {
 #define REGEXPNF_FRIENDS \
    friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp; \
-   friend class BccConfig;\
    friend class CiscoConfig;\
-   friend class GatedConfig;\
-   friend class JunosConfig;\
-   friend class RSdConfig;
+   friend class JunosConfig;
 
 class regexp_nf : public regexp {
 REGEXPNF_FRIENDS

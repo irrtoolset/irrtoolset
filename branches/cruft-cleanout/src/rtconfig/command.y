@@ -135,12 +135,6 @@ int xx_eof = 0;
 %token <val> KW_CISCO_MAP_START
 %token <val> KW_PKT_FILTER
 %token <val> KW_OUTBOUND_PKT_FILTER
-%token <val> KW_BCC_VERSION
-%token <val> KW_BCC_MAX_PREFERENCE
-%token <val> KW_BCC_ADVERTISE_NETS
-%token <val> KW_BCC_ADVERTISE_ALL
-%token <val> KW_BCC_FORCE_BACK
-%token <val> KW_BCC_MAX_PREFIXES
 
 %%
 input_stream: /* empty */

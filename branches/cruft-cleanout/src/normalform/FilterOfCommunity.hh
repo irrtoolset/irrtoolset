@@ -62,7 +62,6 @@
 
 class CommunityConjunct : public ListNode {
    friend class FilterOfCommunity;
-   friend class BccConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
 private:
@@ -121,7 +120,6 @@ public:
 
 class FilterOfCommunity : public NEFilter {
    friend class NormalTerm;
-   friend class BccConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
 private:
