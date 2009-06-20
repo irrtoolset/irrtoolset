@@ -1721,11 +1721,12 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
      bool afi_activate = false;
-     if (!((ItemAFI *) afi)->is_default())
+     ItemAFI *iafi = (ItemAFI *)afi;
+     if (!iafi->is_default())
        afi_activate = true;
      const char *indent = (afi_activate) ? " " : "";
      if (afi_activate)
-       cout << " address-family " << *afi << endl;
+       cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
      for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
        if (peering->peerIP.isNull())
           continue;
@@ -1794,11 +1795,12 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
    
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
      bool afi_activate = false;
-     if (!((ItemAFI *) afi)->is_default())
+     ItemAFI *iafi = (ItemAFI *)afi;
+     if (!iafi->is_default())
        afi_activate = true;
      const char *indent = (afi_activate) ? " " : "";
      if (afi_activate)
-       cout << " address-family " << *afi << endl;
+       cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
      for (const Peering *peering = aut_itr.first(); peering; peering = aut_itr.next()) {
        if (peering->peerIP.isNull())
           continue;
