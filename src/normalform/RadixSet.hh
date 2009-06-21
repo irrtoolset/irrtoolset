@@ -242,7 +242,6 @@ public:
       PrefixRangeIterator(const RadixSet *s) : itr(s->root) {}
       bool first(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
       bool next(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
-      // Added by wlee@isi.edu for roe
       bool first(PrefixRange &pr) {
 	u_int _addr, _leng, _start, _end;
 	bool b = first(_addr, _leng, _start, _end);
@@ -324,7 +323,6 @@ public:
       root = root->makeMoreSpecific(code, n, m);
    }
 
-   // Added by wlee@isi.edu, used by roe
    void insert(const PrefixRange &pr) {
      u_int n = pr.get_n();
      u_int m = pr.get_m();

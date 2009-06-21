@@ -68,8 +68,6 @@ public:
 inline SymIDVHSet::~SymIDVHSet()
 {
   delete [] tab;
-  // Fixed by wlee@isi.edu
-  // delete status;
   delete [] status;
 }
 

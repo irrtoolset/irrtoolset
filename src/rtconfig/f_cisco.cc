@@ -1396,8 +1396,6 @@ void CiscoConfig::deflt(ASt asno, ASt peerAS) {
     }
 
    // get matching default attributes
-   // Modified by wlee
-   // AutNumIterator<AttrDefault> itr(autnum, "default", peerAS);
    AutNumDefaultIterator itr(autnum, peerAS);
    const AttrDefault *deflt = itr.first();
    if (! deflt) {

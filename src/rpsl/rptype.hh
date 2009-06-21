@@ -92,7 +92,6 @@ protected:
    char *_name;
 public:
    RPType() : _name(NULL) {}
-   // Added by wlee
    RPType(const RPType &t) {
      if (t._name)
        _name = strdup(t._name);
@@ -101,8 +100,6 @@ public:
    }
    virtual ~RPType() {
       if (_name) 
-        // Modified by wlee
-	// delete _name;
 	free(_name);
       _name = NULL;
    }
@@ -151,15 +148,6 @@ public:
              s = os.str();
              s.copy(buffer, buffer_size);
              _name = strdup(buffer);
-#if 0
-	    char buffer[1024];
-            // Changed by wlee
-	    // sprintf(buffer, "integer[%Ld, %Ld]", min, max);
-            std::ostringstream os;
-            os << "integer[" << min << ", " << max << "]" << ends;
-	    _name = strdup(buffer);
-            os.freeze(false);
-#endif
 	 }
       }
       return _name;

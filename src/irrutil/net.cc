@@ -176,7 +176,6 @@ Socket::write (char *buf, int len)
     while (l > 0) {
         int c = ::write (sock, b, l);
 	if (c < 0) {
-  	    // Added by wlee@isi.edu
   	    if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
 	      errno = 0;
 	      continue;
@@ -196,7 +195,6 @@ Socket::read (char *buf, int len)
     while (c < 0) {
         c = ::read (sock, buf, len);
         if (c < 0) {
-  	    // Modified by wlee@isi.edu
             if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
                 errno = 0;
                 continue;

@@ -69,7 +69,6 @@ class Buffer : public ListNode {
         offset = 0;
         callerAllocated = true;
     }
-    // Added by wlee
     Buffer(const char *cont) : ListNode() {
         contents = NULL;
 	capacity = size = offset = 0;

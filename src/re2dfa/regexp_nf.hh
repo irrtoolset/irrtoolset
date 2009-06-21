@@ -95,7 +95,6 @@ private:
 	    re = b.re->dup();
 	    negated = b.negated;
 	 }
-	// Added by wlee@isi.edu
 	~ReInt(void) { 
 	  if (re) delete re;
 	}

@@ -138,7 +138,6 @@ friend class MPPrefix;
 
   public:
    PrefixRange(void);
-   // Added by wlee@isi.edu
    PrefixRange(const PrefixRange &p);
    PrefixRange(unsigned int ipaddr, unsigned char length, 
 	  unsigned char n, unsigned char m);
@@ -179,11 +178,6 @@ friend class MPPrefix;
    unsigned long long int get_range() const;
 
    friend std::ostream& operator<<(std::ostream& stream, const PrefixRange& p);
-
-/*
-   // Added const to PrefixRange& p by wlee@isi.edu
-   friend const ostream& operator<<(ostream& stream, const PrefixRange& p);
-*/
 
    void parse(const char *name);
 };

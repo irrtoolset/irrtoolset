@@ -141,14 +141,6 @@ std::ostream& operator<<(std::ostream& stream, const PrefixRange& p) {
    return stream;
 }
 
-/*
-// Added const to PrefixRange& p by wlee@isi.edu
-const ostream& operator<<(ostream& stream, const PrefixRange& p) {
-  stream << p.get_text();
-   return stream;
-}
-*/
-
 PrefixRange::PrefixRange(void) : 
   ipaddr(0), 
   length(0), 
@@ -157,7 +149,6 @@ PrefixRange::PrefixRange(void) :
 {
 }
 
-// Added by wlee@isi.edu
 PrefixRange::PrefixRange(const PrefixRange &p) :
   ipaddr(p.ipaddr),
   length(p.length),

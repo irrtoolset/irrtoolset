@@ -399,21 +399,8 @@ void regexp_nf::do_and(regexp_nf &b) {
 
    rd_fm *m3 = rd_intersect_dfa(m, b.m);
 
-#if 0   
-   if (rd_equal_dfa(m, m3)) // intersection is same as us
-      ;
-   else if (rd_equal_dfa(b.m, m3)) { // intersection is same as b
-      rclist.clear();
-      rclist.splice(b.rclist);
-      b.become_empty();
-   } else { // intersection is new!
-      do_and_terms(b);
-      b.become_empty();
-   }
-#else
-      do_and_terms(b);
-      b.become_empty();
-#endif
+   do_and_terms(b);
+   b.become_empty();
 
    rd_free_dfa(m); /* works with dfa too */ 
    m = m3;

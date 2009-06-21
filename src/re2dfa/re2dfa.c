@@ -1420,7 +1420,6 @@ rd_minimize(rd_fm *dfa)
 	rd_merge_arcs(&(rs->rs_arcs));
     } RDQ_LIST_END(&(dfa->rf_states), dfa, rs, rd_state);
 
-    // Added by wlee@isi.edu according to Ramesh's suggestion
     RD_FREE_NOTSAME();
 
     return; 	/* Phew! */

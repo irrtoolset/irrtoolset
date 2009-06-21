@@ -63,7 +63,6 @@ private:
    double last_rtime,
           last_utime,
           last_stime;
-   // Added by wlee@isi.edu
    std::ostream *out;
    bool *flag;
 public:
@@ -72,7 +71,6 @@ public:
       last_utime = 0.0;
       last_stime = 0.0;
    }
-   // Added by wlee@isi.edu
    Rusage(std::ostream &out, bool *flag) : out(&out), flag(flag) {
      start();           // Will get the user time, system time and elapsed time
      last_utime = 0.0;  // By the time Rusage gets called, it has been mini

@@ -70,14 +70,8 @@ void SetOfPrefix::insert(const PrefixRanges& b) {
    u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
       rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
 	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
 
       if (not_)
 	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
@@ -95,14 +89,8 @@ void SetOfPrefix::remove(const PrefixRanges& b) {
    u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
       rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
 	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
       if (not_)
 	 members.insert(b[j].get_ipaddr(), b[j].get_length(), rngs); 
       else

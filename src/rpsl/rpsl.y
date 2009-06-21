@@ -18,7 +18,7 @@
 // AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 //
-//  $Id$
+//  $Id: rpsl.y 269 2009-06-16 15:36:20Z nick $
 //
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
@@ -1040,7 +1040,6 @@ single_action: TKN_RP_ATTR '.' TKN_WORD '(' generic_list ')' ';' {
       delete plist;
       $$ = NULL;
    }
-   // Added by wlee
    free($2);
 }
 | TKN_RP_ATTR '(' generic_list ')' ';' {
@@ -1266,7 +1265,6 @@ filter_rp_attribute: TKN_RP_ATTR '.' TKN_WORD '(' generic_list ')' {
       delete plist;
       $$ = NULL;
    }
-   // Added by wlee
    free($2);
 }
 | TKN_RP_ATTR '(' generic_list ')' {

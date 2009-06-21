@@ -80,7 +80,6 @@ extern "C" {
 #include "prefix.hh"
 #include "afi.hh"
 
-// Added by wlee@isi.edu
 #ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
 #endif // ENABLE_DEBUG
@@ -412,7 +411,6 @@ public:
    virtual ~ItemPRFXV4() {
       delete prfxv4;
    }
-   // Added by wlee@isi.edu
    ItemPRFXV4(const ItemPRFXV4 &pt) {
       prfxv4 = new Prefix(*pt.prfxv4);
    }
@@ -446,7 +444,6 @@ public:
    virtual ~ItemPRFXV4Range() {
       delete prfxv4;
    }
-   // Added by wlee@isi.edu
    ItemPRFXV4Range(const ItemPRFXV4Range &pt) {
       prfxv4 = new PrefixRange(*pt.prfxv4);
    }
@@ -515,7 +512,6 @@ public:
    virtual ~ItemPRFXV6() {
       delete prfxv6;
    }
-   // Added by wlee@isi.edu
    ItemPRFXV6(const ItemPRFXV6 &pt) {
       prfxv6 = new IPv6Prefix(*pt.prfxv6);
    }
@@ -548,7 +544,6 @@ public:
    virtual ~ItemPRFXV6Range() {
       delete prfxv6;
    }
-   // Added by wlee@isi.edu
    ItemPRFXV6Range(const ItemPRFXV6Range &pt) {
       prfxv6 = new IPv6PrefixRange(*pt.prfxv6);
    }

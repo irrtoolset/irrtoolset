@@ -380,7 +380,6 @@ void IRR::getRoute(Route *&route, Prefix *rt, ASt as) {
       route = NULL;
 }
 
-// Added by wlee
 void IRR::getRoute(Route *&route, char *rt, ASt as)
 {
   char *text;
