@@ -155,10 +155,6 @@ class Timer {
 		(double) (tv.tv_usec - tt.tv.tv_usec) / 1000);
     }
 
-    // need to add at least: +, - and =.
-    // Commented out by wlee@isi.edu
-    //    double operator- (Timer &tt) {}
-
     Error error;
 };
 
@@ -288,8 +284,6 @@ class Socket {
 
     void setPort   (u_int port)    { sockdst.sin_port = htons(port); }
     int setsockopt (int, int, char *, int);
-    // Changed by wlee@isi.edu
-    //    int setSendflags (int flags) { send_flags = flags; }
     void setSendflags (int flags) { send_flags = flags; }
     int connect() {
 	// XXX: exceptions
@@ -324,12 +318,7 @@ class Socket {
 	return error();
     }
     int accept () {
-// Added by wlee to port it to aix
-#ifdef _AIX
-	size_t addrlen = sizeof (struct sockaddr);
-#else
 	int addrlen = sizeof (struct sockaddr);
-#endif
 	bzero ((char *) &socknew, sizeof (socknew));
 	int newsock = ::accept (sock, (struct sockaddr *) &socknew,
 				(SOCKLEN_T *) &addrlen);
@@ -346,12 +335,7 @@ class Socket {
     }
     
     int recvfrom (void *packet, int size, int flags = 0) {
-// Added by wlee to port it to aix
-#ifdef _AIX
-	size_t fromlen = size;
-#else
 	int fromlen = size;
-#endif
 	int c = ::recvfrom (sock, (char *) packet, size, flags,
 			    (struct sockaddr *) &socksrc, 
 			    (SOCKLEN_T *) &fromlen);
@@ -498,7 +482,6 @@ class Socket {
     }
 
   
-    // Added by wlee@isi.edu
     bool readReady(void) {
       int status;
       bool answer = false;
@@ -519,7 +502,6 @@ class Socket {
       return answer;
     }
 
-    // Added by wlee@isi.edu
     bool writeReady(void) {
       int status;
       bool answer = false;

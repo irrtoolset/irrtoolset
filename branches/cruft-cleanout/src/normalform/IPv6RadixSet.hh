@@ -243,23 +243,6 @@ public:
       PrefixRangeIterator(const IPv6RadixSet *s) : itr(s->root) {}
       bool first(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
       bool next(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
-      // Added by wlee@isi.edu for roe
-/*
-      bool first(PrefixRange &pr) {
-	u_int _addr, _leng, _start, _end;
-	bool b = first(_addr, _leng, _start, _end);
-	pr = PrefixRange(_addr, _leng, 
-			 (unsigned char)_start, (unsigned char)_end);
-	return b;
-      }
-      bool next(PrefixRange &pr) {
-	u_int _addr, _leng, _start, _end;
-	bool b = next(_addr, _leng, _start, _end);
-	pr = PrefixRange(_addr, _leng, 
-			 (unsigned char)_start, (unsigned char)_end);
-	return b;
-      }
-*/
    };
 
    class SortedPrefixRangeIterator {
@@ -331,23 +314,6 @@ public:
       root = root->makeMoreSpecific(code, n, m);
    }
 
-   // Added by wlee@isi.edu, used by roe
-/*
-   void insert(const PrefixRange &pr) {
-     u_int n = pr.get_n();
-     u_int m = pr.get_m();
-     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
-                        (~(u_int64_t)0 << (32 - m));
-     insert(pr.get_ipaddr(), pr.get_length(), range);
-   }
-   bool contains(PrefixRange &pr) const {
-     u_int n = pr.get_n();
-     u_int m = pr.get_m();
-     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
-                        (~(u_int64_t)0 << (32 - m));
-     return contains(pr.get_ipaddr(), pr.get_length(), range);
-   }
-*/
    void clear() {
       if (root) {
 	 delete root;

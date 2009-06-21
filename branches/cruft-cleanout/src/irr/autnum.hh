@@ -271,7 +271,6 @@ private:
    const MPPrefix *peerIP;
    const MPPrefix *ip;
 
-// Made it protected by wlee
 protected:      
    virtual bool isMatching(Attr *attr) {
       return isPeeringMatching(((AttrDefault *) attr)->peering, 
@@ -308,15 +307,6 @@ protected:
 	for (ListIterator<PolicyPeeringAction> j(*(i->peeringActionList)); j; ++j)	
           // isPeeringMatching for extracting AS from peering-sets and as-sets as peerings
 	  if (j->peering && isPeeringMatching(j->peering, NULL, peerAS, NULL, NULL)) return true;
-
-       // never returned true!
-/*#if 0
-	  if (j()->peering && j()->peering->peerAS == peerAS) return true;
-
-
-#else
-      ;
-#endif */
     }
     else
       if (typeid(*policy) == typeid(PolicyRefine))

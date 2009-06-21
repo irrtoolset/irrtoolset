@@ -383,7 +383,6 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	}
     }
 
-    // Added by wlee@isi.edu
     cerr << endl;
 
     cerr << "Command-specific options:";
@@ -394,9 +393,7 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	       cerr << "\n" << infoPtr->help;
 		continue;
 	    }
-	    // Modified by wlee@isi.edu to get rid of ':' 
 	    cerr << "\n " << infoPtr->key << " ";
-//	    cerr << "\n " << infoPtr->key << ":";
 	    numSpaces = width + 1 - strlen(infoPtr->key);
 	    while (numSpaces > 0) {
 		if (numSpaces >= spacesLen) {
@@ -436,7 +433,6 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	}
 	cerr << "\nGeneric options for all commands:";
     }
-    // Added by wlee@isi.edu
     cerr << endl;
 }
 

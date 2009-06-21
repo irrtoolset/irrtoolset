@@ -75,7 +75,6 @@ extern "C" {
 #include "regexp.hh"
 #include "rpsl_item.hh"
 
-// Added by wlee@isi.edu
 #ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
 #endif // ENABLE_DEBUG

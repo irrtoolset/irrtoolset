@@ -81,7 +81,6 @@ extern "C" {
 #include "rpsl_item.hh"
 #include "rpsl_policy.hh"
 
-// Added by wlee@isi.edu
 #ifdef ENABLE_DEBUG
 #define INDENT(indent) for (int iii = 0; iii < indent; iii++) os << " "
 #endif // ENABLE_DEBUG
@@ -120,7 +119,6 @@ public:
    virtual Attr *dup() const {
       return new Attr(*this);
    }
-   // Added by wlee
    Object *getObject(void) const { return object; }
    int getOffset(void) const { return offset; }
    int getLen(void) const { return len; }
@@ -328,7 +326,6 @@ public:
       strlwr(name);
       ref_cnt = 0;
    }
-   // Modified by wlee
    AttrClass(const AttrClass &b) : Attr(b) {
       ref_cnt = 0;
       name = strdup(b.name);
@@ -382,7 +379,6 @@ public:
    AttrGeneric(const AttrAttr *type, ItemList *_items) 
       : Attr(type), items(_items) {
    }
-   // Modified by wlee
    AttrGeneric(const AttrGeneric &pt) : Attr(pt) {
       items = pt.items ? (ItemList *) pt.items->dup() : (ItemList *) NULL;
    }
@@ -414,7 +410,6 @@ public:
    RPType *type;
 public:
    AttrTypedef(char *_name, RPType *_type) : name(_name), type(_type) {}
-   // Modified by wlee
    AttrTypedef(const AttrTypedef &b) : Attr(b) {
       if (b.type)
 	 type = b.type->dup();
@@ -485,7 +480,6 @@ public:
 public:
    AttrRPAttr(char *_name, List<AttrMethod> *_methods) :
       name(_name), methods(_methods) {}
-   // Modified by wlee
    // AttrRPAttr(const AttrRPAttr &b) {
    AttrRPAttr(const AttrRPAttr &b) : Attr(b) {
       if (b.methods)
@@ -549,7 +543,6 @@ public:
 public:
    AttrProtocol(char *_name, List<AttrProtocolOption> *_options) : 
       name(_name), options(_options) {}
-   // Modified by wlee
    AttrProtocol(const AttrProtocol &b) : Attr(b) {
       if (b.name)
 	 name = strdup(b.name);
@@ -739,7 +732,6 @@ public:
 public:
    AttrFilter(Filter *flt) : filter(flt) {
    }
-   // Modified by wlee
    AttrFilter(const AttrFilter &pt) : Attr(pt) {
       filter  = (Filter *)pt.filter->dup();
    }
@@ -767,7 +759,6 @@ public:
 public:
    AttrMPPeval(Filter *flt) : filter(flt) {
    }
-   // Modified by wlee
    AttrMPPeval(const AttrMPPeval &pt) : Attr(pt) {
       filter  = (Filter *)pt.filter->dup();
    }
@@ -797,7 +788,6 @@ public:
 public:
    AttrPeering(PolicyPeering *p) : peering(p) {
    }
-   // Modified by wlee
    AttrPeering(const AttrPeering &pt) : Attr(pt) {
       peering  = (PolicyPeering *)pt.peering->dup();
    }
@@ -971,40 +961,6 @@ public:
    }
 #endif // ENABLE_DEBUG
 };
-
-/*
-class AttrPeer: public Attr {
-public: 
-   const AttrProtocol   *protocol;
-   IPAddr               *peer;
-   List<AttrPeerOption> *options;
-public:
-   AttrPeer(const AttrProtocol *_protocol, IPAddr *_peer, 
-	    List<AttrPeerOption> *_options) : 
-      protocol(_protocol), peer(_peer), options(_options) {
-   }
-   // Modified by wlee
-   AttrPeer(const AttrPeer &b) : Attr(b), protocol(b.protocol) {
-      peer = new IPAddr(*b.peer);
-      options = new List<AttrPeerOption>(*b.options);
-   }
-   virtual ~AttrPeer() {
-      // Added by wlee
-      if (peer) delete peer;
-      if (options) delete options;
-   }
-   virtual std::ostream& print(std::ostream &out) const;
-   virtual Attr *dup() const {
-      return new AttrPeer(*this);
-   }
-   const AttrPeerOption *searchOption(const char *name) const;
-#ifdef ENABLE_DEBUG
-   virtual const char *className(void) const {
-      return "AttrPeer";
-   }
-#endif // ENABLE_DEBUG
-};
-*/
 
 // serves both peer and mp-peer
 class AttrPeer: public Attr {

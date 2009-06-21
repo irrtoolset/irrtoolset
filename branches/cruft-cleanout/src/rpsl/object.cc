@@ -210,7 +210,6 @@ void Object::reportErrors(ostream &ostrm) {
    ostrm << "\n";
 }
 
-// Added by wlee@isi.edu
 #ifdef ENABLE_DEBUG
 
 #define PRINT1(x) os << "  " #x " = " << x << endl

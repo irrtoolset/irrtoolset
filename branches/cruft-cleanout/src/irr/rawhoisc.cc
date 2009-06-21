@@ -127,12 +127,6 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    server_sockaddr.sin_port = htons((u_short) port);
    
    sock = socket(AF_INET, SOCK_STREAM, 0);
-/*
-   // Set keep alive option for the socket -- wlee@isi.edu
-   int on = 1;
-   if (setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&on, sizeof(on)) < 0)
-     error.warning("Warning: setsockopt SO_KEEPALIVE failed!\n");
-*/
    if (sock < 0)
       error.Die("Error: socket() failed.\n");
 

@@ -86,7 +86,6 @@ protected:
    int      port;
 
 public:
-   // Added by wlee@isi.edu
    IRR(void) {
      strcpy(host, dflt_host);
      strcpy(sources, dflt_sources);
@@ -97,8 +96,6 @@ public:
 		     const int _port = dflt_port, 
 		     const char *_sources = dflt_sources) = 0;
    virtual void Close() = 0;
-   // Modified by wlee@isi.edu
-   //  virtual void SetSources(char *s) {}
    virtual void SetSources(const char *_sources = dflt_sources) {
      strcpy(sources, _sources);
    }
@@ -113,7 +110,6 @@ public:
    const PeeringSet *getPeeringSet(SymID set);
    const InetRtr    *getInetRtr(SymID inetRtr);
    void getRoute(Route *&route, Prefix *rt, ASt as);
-   // Added by wlee
    void getRoute(Route *&route, char *rt, ASt as);
 
    // expand sets
@@ -147,8 +143,6 @@ public:
    static void handleEnvironmentVariables(char **envp);
    static IRR *newClient();
 
-   // Added by wlee@isi.edu 
-   // For compatibility reasons, mostly for roe
 public:
    virtual void setFastResponseFlag(bool onoff) {}
    virtual void querySourceOrigin(const char *rt) = 0;

@@ -115,7 +115,6 @@ public:
    int                      searchAttrSyntax(const char *name);
    void                     printClassStats();
 
-   // Added by wlee
    int getLastClass(void) const {
      return lastClass;
    }

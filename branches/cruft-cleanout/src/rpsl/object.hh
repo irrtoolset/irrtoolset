@@ -94,14 +94,12 @@ public:
       else
 	 scan();
    }
-   // Modified by wlee to fix a fatal bug while duplicating objects
-   //   Object(const Object& obj) : attrs(obj.attrs), errors(obj.errors) {
    Object(const Object& obj) : Buffer(obj), errors(obj.errors) {
      has_error   = obj.has_error;
      has_warning = obj.has_warning;
      isDeleted   = obj.isDeleted;
      type        = obj.type;
-     // Added by wlee
+
      for (Attr *attr = obj.attrs.head(); attr; attr = obj.attrs.next(attr))
         attrs.append(attr->dup());
      for (Attr *attr = attrs.head(); attr; attr = attrs.next(attr))
@@ -153,7 +151,6 @@ public:
    bool hasAttr(const char *name);
    void validate();
 
-   // Added by wlee@isi.edu
 #ifdef ENABLE_DEBUG
    void printPTree(std::ostream &os) const;
 #endif // #ifdef ENABLE_DEBUG
@@ -166,7 +163,6 @@ private:
    AttrAttr      *type;
    Attr          *currentAttr;
 
-// Made it protected by wlee
 protected:
    virtual bool   isMatching(Attr *attr) {
       return true;
@@ -211,7 +207,6 @@ public:
 	    return (AttrType *) currentAttr;
       return (AttrType *) NULL;
    }
-   // Added by wlee@isi.edu
    const AttrIterator &operator++() {
       next();
       return *this;
@@ -264,7 +259,6 @@ public:
       return (ItemType *) currentItem;
    }
 
-   // Added by wlee@isi.edu
    const AttrGenericIterator &operator++(int) {
       next();
       return *this;
