@@ -1224,13 +1224,7 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
    cout << "protocols {\n"
 	<< "   bgp {\n"
 	<< "      group peers-" << pset << " {\n"
-	<< "         type external;\n"
-	<< "         peer-as ";
-
-   if (peer_as)
-      cout << peer_as << ";\n";
-   else
-      cout << "1; # this will be overriden below\n";
+	<< "         type external;\n";
 
    cout << "         " << direction << " ";
 
@@ -1243,13 +1237,22 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
       cout << "]";
    cout << ";\n";
   
-   for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
+   for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
 	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
 	      << "         }\n";
       }
+   }   
+   for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
+      if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
+	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
+	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "         }\n";
+      }
+   }   
 
    cout << "      }\n"
 	<< "   }\n"
@@ -1333,24 +1336,26 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
    cout << "protocols {\n"
 	<< "   bgp {\n"
 	<< "      group peers-" << pset << " {\n"
-	<< "         type external;\n"
-	<< "         peer-as ";
-
-   if (peer_as)
-      cout << peer_as << ";\n";
-   else
-      cout << "1; # this will be overriden below\n";
+	<< "         type external;\n";
 
    cout << "         " << direction << " " << mapName << ";\n";
    
-   for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
+   for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
 	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
 	      << "         }\n";
       }
-   
+   }   
+   for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
+      if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
+	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
+	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "         }\n";
+      }
+   }   
    cout << "      }\n"
 	<< "   }\n"
 	<< "}\n\n";
