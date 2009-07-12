@@ -633,7 +633,7 @@ void JunosConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       if (actn->rp_attr == dctn_rp_pref) {
 	 if (actn->rp_method == dctn_rp_pref_set) {
 	    int pref = ((ItemINT *) actn->args->head())->i;
-	    os << "            preference " << pref << ";\n";
+	    os << "            local-preference " << (preferenceCeiling-pref) << ";\n";
 	 } else 
 	    UNIMPLEMENTED_METHOD;
 	 continue;
