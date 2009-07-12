@@ -796,6 +796,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
       if (printRouteMap) {
 	 for (asp = aspath_acls->head(); asp; asp = aspath_acls->next(asp)) {
 	    for (cmp = comm_acls->head(); cmp; cmp = comm_acls->next(cmp)) {
+	       cout << "   policy-statement " << mapName << " {\n";
 	       for (prp = prfx_acls->head(); prp; prp =prfx_acls->next(prp)) {
 		  cout << "      term " << mapName << "-term-" << routeMapID << " {\n"
 		       << "         from {\n";
@@ -817,8 +818,9 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 		       << "         then {\n";
 		  JunosConfig::printActions(cout, actn, afi);
 		  cout << "         }\n";
-		  cout << "      }\n\n";
+		  cout << "      }\n";
 	       }
+	       cout << "   }\n\n";
 	    }
 	 }
       }
@@ -949,8 +951,6 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
 		}
    }
 
-   cout << "   policy-statement " << mapName << " {\n";
-
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
 		last = 0;
 		for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
@@ -960,7 +960,8 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
 	   }
 	}
 
-   cout << "      term " << mapName << "-catch-rest {\n"
+   cout << "   policy-statement " << mapName << " {\n"
+	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
         << "      }\n"
 	<< "   }\n"
@@ -1021,8 +1022,6 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 		}
    }
 
-   cout << "   policy-statement " << mapName << " {\n";
-
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
 		last = 0;
    		for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
@@ -1032,7 +1031,8 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 		}
    }
 
-   cout << "      term " << mapName << "-catch-rest {\n"
+   cout << "   policy-statement " << mapName << " {\n"
+	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
         << "      }\n"
 	<< "   }\n"
@@ -1090,8 +1090,6 @@ void JunosConfig::static2bgp(ASt asno, MPPrefix *addr) {
 		}
    }
 
-   cout << "   policy-statement static2bgp {\n";
-
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
 		last = 0;
 		for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
@@ -1101,7 +1099,8 @@ void JunosConfig::static2bgp(ASt asno, MPPrefix *addr) {
 		}
    }
 
-   cout << "      term static2bgp-catch-rest {\n"
+   cout << "   policy-statement static2bgp {\n"
+	<< "      term static2bgp-catch-rest {\n"
 	<< "         from protocol static;\n"
 	<< "         then reject;\n"
         << "      }\n"
@@ -1183,8 +1182,6 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
 	   }
    }
 
-   cout << "   policy-statement " << mapName << " {\n";
-
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
 		last = 0;
 	   for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
@@ -1194,7 +1191,8 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
 	   }
    }
 
-   cout << "      term " << mapName << "-catch-rest {\n"
+   cout << "   policy-statement " << mapName << " {\n"
+	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
         << "      }\n"
 	<< "   }\n"
@@ -1295,8 +1293,6 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
 	   }
    }
 
-   cout << "   policy-statement " << mapName << " {\n";
-
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
 		last = 0;
 	   for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
@@ -1306,7 +1302,8 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
 	   }
    }
 
-   cout << "      term " << mapName << "-catch-rest {\n"
+   cout << "   policy-statement " << mapName << " {\n"
+	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
         << "      }\n"
 	<< "   }\n"
