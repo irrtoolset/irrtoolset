@@ -81,7 +81,7 @@
 #define DBG_INFO            2 
 
 void Abort();
-void copy_constructor(char *p);
+void copy_constructor(const char *p);
 
 class dbgstream {
 public:
@@ -91,12 +91,12 @@ public:
       level = _level;
       return enabledp();
    }
-   void dbgstream::enable();
-   void dbgstream::disable();
-   void dbgstream::enable(int level);
-   void dbgstream::disable(int level);
-   int  dbgstream::enabledp();
-   int  dbgstream::enabledp(int level);
+   void enable();
+   void disable();
+   void enable(int level);
+   void disable(int level);
+   int  enabledp();
+   int  enabledp(int level);
 private:
    int level;
    int enabled;
