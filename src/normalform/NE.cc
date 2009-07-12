@@ -590,10 +590,12 @@ void NormalExpression::do_and(NormalExpression &other) {
 }
 
 void NormalExpression::restrict(FilterAFI *af) {
+   /* this wasn't thought out so well, needs serious rework */
 
    NormalTerm *term = new NormalTerm;
    NormalExpression *ne = new NormalExpression (*this);
    become_empty();
+   this->singleton_flag = ne->singleton_flag;
 
    for (term = ne->first(); term ; term = ne->next()) {
      if (term->prfx_set.universal() && term->ipv6_prfx_set.universal()) {
@@ -603,13 +605,11 @@ void NormalExpression::restrict(FilterAFI *af) {
        term->ipv6_prfx_set.restrict(af->afi_list);   
        if (! term->ipv6_prfx_set.isEmpty()) {
          *this += term;
-         this->singleton_flag = NormalTerm::IPV6_PRFX;
        }
      } else if (term->ipv6_prfx_set.universal()) {
        term->prfx_set.restrict(af->afi_list);   
        if (! term->prfx_set.isEmpty()) {
          *this += term;
-         this->singleton_flag = NormalTerm::PRFX;
        }
      }
    }
