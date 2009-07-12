@@ -990,7 +990,7 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
 				  NULL, peerAS, peer_addr, addr);
-   AutNumSelector<AttrExport> itr1(autnum, "mp-import",
+   AutNumSelector<AttrImport> itr1(autnum, "mp-import",
 				  NULL, peerAS, peer_addr, addr);
 
    List<FilterAction> *common_list = itr.get_fa_list();
@@ -1267,7 +1267,7 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
    SymID psetID = symbols.symID(pset);
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", psetID, ~0, NULL, NULL);
-   AutNumSelector<AttrExport> itr1(autnum, "mp-import", psetID, ~0, NULL, NULL);
+   AutNumSelector<AttrImport> itr1(autnum, "mp-import", psetID, ~0, NULL, NULL);
    
    List<FilterAction> *common_list = itr.get_fa_list();
    common_list->splice(*(itr1.get_fa_list()));
