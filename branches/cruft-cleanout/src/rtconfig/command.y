@@ -137,8 +137,18 @@ int xx_eof = 0;
 %token <val> KW_OUTBOUND_PKT_FILTER
 
 %%
-input_stream: /* empty */
-| input_stream input
+input_stream: {
+#if !(HAVE_LIBREADLINE && HAVE_LIBHISTORY)
+   if (opt_prompt)
+      std::cout << opt_prompt;
+#endif // HAVE_LIBREADLINE && HAVE_LIBHISTORY
+}
+| input_stream input {
+#if !(HAVE_LIBREADLINE && HAVE_LIBHISTORY)
+   if (opt_prompt)
+      std::cout << opt_prompt;
+#endif // !(HAVE_LIBREADLINE && HAVE_LIBHISTORY)
+}
 ;
 
 input: input_line '\n'
