@@ -363,7 +363,6 @@ int JunosConfig::printRE(ostream& os, const regexp& r) {
    bool hasBOL = false;
    bool hasEOL = false;
    printRE_(out, r, hasBOL, hasEOL);
-   out << ends;
    
    if (!hasBOL)
       os << ".* ";
@@ -600,12 +599,9 @@ ListOf2Ints *JunosConfig::printCommunities(FilterOfCommunity& cm) {
 	   << "   policy-statement community-pol-inner-" 
 	   << aclID << "-" << 1 << " {\n";
 
-      midCout << ends;
       cout << midCout.str();
-      
       cout << "   }\n\n";
    
-      lastCout << ends;
       cout << "\n" << lastCout.str();
 
       for (int i = 1; i <= count; ++i)
@@ -615,10 +611,7 @@ ListOf2Ints *JunosConfig::printCommunities(FilterOfCommunity& cm) {
 	      << "         then accept;\n"
 	      << "      }\n";
    } else {
-      lastCout << ends;
       cout << "\n" << lastCout.str();
-
-      midCout << ends;
       cout << midCout.str();
    }      
 
