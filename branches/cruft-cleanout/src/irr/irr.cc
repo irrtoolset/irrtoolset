@@ -236,8 +236,10 @@ void IRR::initCache(const char *fname) {
       return;
 
    ifstream in(fname);
-   if (!in)
+   if (!in) {
+      cerr << "WARNING: Could not open '" << fname << "' for reading" << endl;
       return;
+   }
 
    bool code = true;
    char *objectText;
