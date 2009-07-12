@@ -355,12 +355,14 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    if (typeid(*ptree) == typeid(FilterAFI)) {
    
       ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
+
       if (ne->is_any() == NEITHER &&
           ((ne->singleton_flag == NormalTerm::PRFX) || (ne->singleton_flag == NormalTerm::IPV6_PRFX) ||
            (ne->singleton_flag == -1))) {
         ne->restrict((FilterAFI *) ptree);
       }
-      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
+
       Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
       return ne;
 
@@ -410,7 +412,7 @@ ostream& operator<<(ostream& stream, NormalExpression& ne) {
 	 stream << "(" << *term << ")";
 	 ne.terms.next(i);
 	 if (i)
-	    stream << "\n OR ";
+	    stream << " OR ";
       }
    }
    return stream;
@@ -501,8 +503,6 @@ void NormalExpression::do_or(NormalExpression &other) {
    // add his terms to my terms
    terms.join(other.terms);
 
-   Debug(Channel(DBG_OR) << *this << "\n");
- 
    // get rid of duplicate terms
    reduce();
 }
@@ -596,7 +596,10 @@ void NormalExpression::restrict(FilterAFI *af) {
    become_empty();
 
    for (term = ne->first(); term ; term = ne->next()) {
-     if (term->prfx_set.universal()) { // v6
+     if (term->prfx_set.universal() && term->ipv6_prfx_set.universal()) {
+       /* neither a IPv4 or an IPv6 prefix set, e.g. an AS path */
+       *this += term;
+     } else if (term->prfx_set.universal()) { // v6
        term->ipv6_prfx_set.restrict(af->afi_list);   
        if (! term->ipv6_prfx_set.isEmpty()) {
          *this += term;
