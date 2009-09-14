@@ -494,13 +494,16 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
       }
     if (set != NULL) free (set);
   } else {
-    char *text;
+    char *text, *set = NULL;
     int  len;
-    if (getSet(asset, "as-set", text, len)) {
+    if (getSet(asset, "as-set", set, len)) {
+      /* strtok() modifies the pointer that we later want to free() */
+      text = set;
       for (char *word = strtok(text, " \t\n"); word; word = strtok(NULL, " \t\n"))
         result->add(atoi(word+2));
     }
-    if (text != NULL) free(text);
+    if (set != NULL)
+        free(set);
   }
 
   return true;
@@ -518,15 +521,19 @@ bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
     for (Item *pt = itr1.first(); pt; pt = itr1.next()) {
       expandItem(pt, result);
     }
-    if (set != NULL) free (set);
+    if (set != NULL)
+        free(set);
   } else {
-    char *text;
+    char *text, *set = NULL;
     int  len;
-    if (getSet(rsset, "route-set", text, len)) {
+    if (getSet(rsset, "route-set", set, len)) {
+      /* strtok() modifies the pointer that we later want to free() */
+      text = set;
       for (char *word = strtok(text, " \t\n"); word; word = strtok(NULL, " \t\n"))
         result->push_back(MPPrefix(word));
     }
-    if (text != NULL) free(text);
+    if (set != NULL)
+        free(set);
   }
 
   return true;  
