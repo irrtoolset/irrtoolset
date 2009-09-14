@@ -68,7 +68,6 @@
 
 using namespace std;
 
-#define DBG_JUNOS 7
 #define EXPORT 0
 #define IMPORT 1
 #define STATIC 2
@@ -755,7 +754,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
    int last = 0;
    static ListOf2Ints empty_list(1);
 
-   Debug(Channel(DBG_JUNOS) << "# ne: " << *ne << "\n");
+   Debug(Channel(DBG_RTC_JUNOS) << "# ne: " << *ne << "\n");
 
    if (ne->is_any() != NEITHER)
       cerr << "Warning: filter matches ANY/NOT ANY" << endl;
