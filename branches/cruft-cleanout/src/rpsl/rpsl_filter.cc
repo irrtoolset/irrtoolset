@@ -105,7 +105,7 @@ ostream &FilterNOT::print(ostream &out) const {
 }
 
 ostream &FilterASNO::print(ostream &out) const {
-   out << "AS" << asno;
+   out << asno;
    return out;
 }
 
