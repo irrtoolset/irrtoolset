@@ -64,7 +64,6 @@
 
 using namespace std;
 
-#define DBG_CISCO 7
 #define EXPORT 0
 #define IMPORT 1
 
@@ -952,7 +951,7 @@ int CiscoConfig::print(NormalExpression *ne,
    int last = 0;
    static ListOf2Ints empty_list(1);
 
-   Debug(Channel(DBG_CISCO) << "# ne: " << *ne << "\n");
+   Debug(Channel(DBG_RTC_CISCO) << "# ne: " << *ne << "\n");
    
    // modified by katie@ripe.net to handle any/not any expr
    // for prefix filters, cisco only
