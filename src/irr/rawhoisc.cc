@@ -437,7 +437,7 @@ bool RAWhoisClient::getAutNum(char *as,   char *&text, int &len) {
 }
 
 bool RAWhoisClient::getSet(SymID sname, const char *clss, char *&text, int &len) {
-   len = QueryResponse(text, "!i%s,1", sname);
+   len = QueryResponse(text, "!m%s,%s", clss, sname);
    return len;
 }
 
@@ -483,27 +483,28 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
     AttrGenericIterator<Item> itr(set, "members");
     for (Item *pt = itr.first(); pt; pt = itr.next())
       if (typeid(*pt) == typeid(ItemASNAME)) { // ASNAME (aka as-set)
-         const SetOfUInt *tmp = IRR::expandASSet(((ItemASNAME *)pt)->name);
-         if (tmp) 
-           *result |= *(SetOfUInt *) tmp;
+        const SetOfUInt *tmp = IRR::expandASSet(((ItemASNAME *)pt)->name);
+        if (tmp) 
+          *result |= *(SetOfUInt *) tmp;
       } else if (typeid(*pt) == typeid(ItemASNO)) {
-         result->add(((ItemASNO *)pt)->asno);
+        result->add(((ItemASNO *)pt)->asno);
       } else {
-       cerr << "WARNING: irrd/rawhoisd cannot resolve as-set " << asset << "!";
+        cerr << "WARNING: irrd/rawhoisd cannot resolve as-set " << asset << "!";
         cerr << "Unknown element found in as-set definition!\n";
       }
-    if (set != NULL) free (set);
+      if (set)
+        delete [] set;
   } else {
-    char *text, *set = NULL;
+    char *response;
     int  len;
-    if (getSet(asset, "as-set", set, len)) {
-      /* strtok() modifies the pointer that we later want to free() */
-      text = set;
-      for (char *word = strtok(text, " \t\n"); word; word = strtok(NULL, " \t\n"))
-        result->add(atoi(word+2));
-    }
-    if (set != NULL)
-        free(set);
+    if (!getSet(asset, "as-set", response, len))
+      return false;
+    for (char *word = strtok(response, " \t\n"); 
+         word; 
+         word = strtok(NULL, " \t\n"))
+      result->add(atoi(word+2));
+    if (response)
+      delete [] response;
   }
 
   return true;
@@ -521,19 +522,20 @@ bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
     for (Item *pt = itr1.first(); pt; pt = itr1.next()) {
       expandItem(pt, result);
     }
-    if (set != NULL)
-        free(set);
+
+    if (set)
+      delete [] set;
   } else {
-    char *text, *set = NULL;
+    char *response;
     int  len;
-    if (getSet(rsset, "route-set", set, len)) {
-      /* strtok() modifies the pointer that we later want to free() */
-      text = set;
-      for (char *word = strtok(text, " \t\n"); word; word = strtok(NULL, " \t\n"))
-        result->push_back(MPPrefix(word));
-    }
-    if (set != NULL)
-        free(set);
+    if (!getSet(rsset, "route-set", response, len))
+      return false;
+    for (char *word = strtok(response, " \t\n"); 
+         word; 
+         word = strtok(NULL, " \t\n"))
+      result->push_back(MPPrefix(word));
+    if (response)
+      delete [] response;
   }
 
   return true;  
