@@ -67,9 +67,6 @@ class SetOfIPv6Prefix {
    friend class RtConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
-   friend class GatedConfig;
-   friend class RsdConfig;
-   friend class BccConfig;
 
 public:
    SetOfIPv6Prefix() : members() {

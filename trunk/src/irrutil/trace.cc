@@ -58,7 +58,7 @@
 
 Tracer trace;
 
-char *Tracer::tracenames[TR_MAX] = { "all",
+const char *Tracer::tracenames[TR_MAX] = { "all",
 				     "whois_query", 
 				     "whois_response", 
 				     "input", 

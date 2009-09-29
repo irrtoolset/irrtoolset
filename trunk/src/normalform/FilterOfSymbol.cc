@@ -52,7 +52,7 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "FilterOfSymbol.hh"
 #include <cstdio>
 

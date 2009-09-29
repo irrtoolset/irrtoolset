@@ -57,12 +57,11 @@
 #include "config.h"
 #include "Filter.hh"
 #include <iostream>
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "community.hh"
 
 class CommunityConjunct : public ListNode {
    friend class FilterOfCommunity;
-   friend class BccConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
 private:
@@ -121,7 +120,6 @@ public:
 
 class FilterOfCommunity : public NEFilter {
    friend class NormalTerm;
-   friend class BccConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
 private:

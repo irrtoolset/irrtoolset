@@ -56,9 +56,9 @@
 #include <cassert>
 #include <map>
 
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "regexp_nf.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/SetOfUInt.hh"
 #include "irr/irr.hh"
 
 using namespace std;
@@ -399,21 +399,8 @@ void regexp_nf::do_and(regexp_nf &b) {
 
    rd_fm *m3 = rd_intersect_dfa(m, b.m);
 
-#if 0   
-   if (rd_equal_dfa(m, m3)) // intersection is same as us
-      ;
-   else if (rd_equal_dfa(b.m, m3)) { // intersection is same as b
-      rclist.clear();
-      rclist.splice(b.rclist);
-      b.become_empty();
-   } else { // intersection is new!
-      do_and_terms(b);
-      b.become_empty();
-   }
-#else
-      do_and_terms(b);
-      b.become_empty();
-#endif
+   do_and_terms(b);
+   b.become_empty();
 
    rd_free_dfa(m); /* works with dfa too */ 
    m = m3;
@@ -464,7 +451,7 @@ void regexp_nf::do_not() {
 
    // complement terms
    regexp_nf tmp, tmp2;
-   RegexpConjunct *rc1, *rc2, *rc3;
+   RegexpConjunct *rc1, *rc2;
    RegexpConjunct::ReInt *ri1, *ri2;
 
    tmp.become_universal();
@@ -592,8 +579,8 @@ regexp* regexp_nf::construct() const {
    // check for empty string
    if (RD_ACCEPTS_EMPTY_STRING(m))
       return buildQuestion(fmtore_map[int2(&start, &final)]);
-   else
-      return fmtore_map[int2(&start, &final)];
+
+   return fmtore_map[int2(&start, &final)];
 }
 
 regexp* regexp_nf::buildCat(regexp *l, regexp *r) const {
@@ -700,32 +687,3 @@ regexp* regexp_nf::buildQuestion(regexp *l) const {
    regexp_question* re = new regexp_question(l);
    return re;
 }
-
-inline rd_state *rd_next_state(rd_fm *fm, rd_state *rs, ASt as) {
-   rd_arc	*ra;		/* Current arc we're at */
-
-   RDQ_LIST_START(&(rs->rs_arcs), rs, ra, rd_arc) {
-      if (ra->ra_low <= as && as <= ra->ra_high)
-	 return ra->ra_to;
-      if (ra->ra_low > as) // note that the list is sorted
-	 return NULL;
-   } RDQ_LIST_END(&(rs->rs_arcs), rs, ra, rd_arc);
-
-   return NULL;
-}
-
-bool regexp_nf::match(List<ItemASNO> & path) {
-   rd_state	* rs;		// Current state 
-   dfa();
-
-   rs = m->rf_start;
-   for (ItemASNO * asln = path.head(); asln;
-                    asln = path.next(asln)) {    
-     rs = rd_next_state(m, rs, asln->asno);
-     if (!rs || (rs->rs_flags & RSF_REJECT)) {
-       return false;
-     }
-   }
-  return true;
-}
-

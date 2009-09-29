@@ -142,7 +142,9 @@ int ParseArgv(int *argcPtr, char **argv, ArgvInfo *argTable, int flags)
     int len = strlen(argv[0]);
     char *pGoal = argv[0] + len;
     while (*pGoal != '/' && *pGoal != '\\' && --len >= 0) pGoal--;
-    strcpy(ProjectGoal, pGoal);
+    if (*pGoal == '/' || *pGoal == '\\')
+       pGoal++;
+    strncpy(ProjectGoal, pGoal, 63);
 
     if (flags & ARGV_DONT_SKIP_FIRST_ARG) {
 	srcIndex = dstIndex = 0;
@@ -356,9 +358,10 @@ PrintUsage(ArgvInfo *argTable, int flags)
 {
     register ArgvInfo *infoPtr;
     int width, i, numSpaces;
-#define NUM_SPACES 20
     static char spaces[] = "                    ";
-    char tmp[30];
+    unsigned spacesLen;
+    
+    spacesLen = sizeof(spaces) - 1;
 
     /*
      * First, compute the width of the widest option key, so that we
@@ -380,7 +383,6 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	}
     }
 
-    // Added by wlee@isi.edu
     cerr << endl;
 
     cerr << "Command-specific options:";
@@ -391,17 +393,15 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	       cerr << "\n" << infoPtr->help;
 		continue;
 	    }
-	    // Modified by wlee@isi.edu to get rid of ':' 
 	    cerr << "\n " << infoPtr->key << " ";
-//	    cerr << "\n " << infoPtr->key << ":";
 	    numSpaces = width + 1 - strlen(infoPtr->key);
 	    while (numSpaces > 0) {
-		if (numSpaces >= NUM_SPACES) {
+		if (numSpaces >= spacesLen) {
 		   cerr << spaces;
 		} else {
-		   cerr << spaces+NUM_SPACES-numSpaces;
+		   cerr << spaces+spacesLen-numSpaces;
 		}
-		numSpaces -= NUM_SPACES;
+		numSpaces -= spacesLen;
 	    }
 	    cerr << infoPtr->help;
 	    switch (infoPtr->type) {
@@ -433,7 +433,6 @@ PrintUsage(ArgvInfo *argTable, int flags)
 	}
 	cerr << "\nGeneric options for all commands:";
     }
-    // Added by wlee@isi.edu
     cerr << endl;
 }
 

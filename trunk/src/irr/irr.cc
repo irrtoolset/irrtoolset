@@ -55,8 +55,8 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
-#include "gnu/prefixranges.hh"
-#include "gnug++/SetOfUInt.hh"
+#include "dataset/prefixranges.hh"
+#include "dataset/SetOfUInt.hh"
 #include "irr.hh"
 #include "autnum.hh"
 #include "route.hh"
@@ -68,7 +68,6 @@ using namespace std;
 IRR *irr;
 ProtocolName protocolName[] = {
   { IRR::rawhoisd, "rawhoisd" },
-  { IRR::ripe,     "ripe_perl" },
   { IRR::bird,     "ripe" },
   { IRR::bird,     "bird" },
   { IRR::unknown,  "unknown" }
@@ -104,9 +103,6 @@ void IRR::SetDefaultProtocol(const char *_protocol) {
     if (strcasecmp(_protocol, "irrd") == 0)
       dflt_protocol = rawhoisd;
     else
-      if (strcasecmp(_protocol, "ripe_perl") == 0)
-	dflt_protocol = ripe;
-      else
 	 if (strcasecmp(_protocol, "ripe") == 0)
 	    dflt_protocol = bird;
 	 else
@@ -115,7 +111,7 @@ void IRR::SetDefaultProtocol(const char *_protocol) {
 	    else {
 	       cerr << "Error: unknown irr protocol " << _protocol 
 		    << ", using irrd" << endl;
-	       cerr << "Error: known protocols: irrd(rawhoisd), ripe(bird), ripe_perl" << endl;
+	       cerr << "Error: known protocols: irrd(rawhoisd), ripe(bird)" << endl;
 	       dflt_protocol =  rawhoisd;
 	    }
 }
@@ -214,7 +210,7 @@ bool IRR::queryCache(SymID setID, Set *&set) {
   return (SetCache.query(setID, set));
 }
 
-void IRR::initCache(char *objectText, int objectLength, char *clss) {
+void IRR::initCache(char *objectText, int objectLength, const char *clss) {
    Buffer b(objectText, objectLength);
    Set *o = new Set(b);
    Set *result = NULL;
@@ -240,8 +236,10 @@ void IRR::initCache(const char *fname) {
       return;
 
    ifstream in(fname);
-   if (!in)
+   if (!in) {
+      cerr << "WARNING: Could not open '" << fname << "' for reading" << endl;
       return;
+   }
 
    bool code = true;
    char *objectText;
@@ -335,7 +333,7 @@ const AutNum *IRR::getAutNum(ASt as) {
    return result;
 }
 
-const Set *IRR::getSet(SymID sname, char *clss) {
+const Set *IRR::getSet(SymID sname, const char *clss) {
    char *text;
    int  len;
    Set *result = NULL;
@@ -384,7 +382,6 @@ void IRR::getRoute(Route *&route, Prefix *rt, ASt as) {
       route = NULL;
 }
 
-// Added by wlee
 void IRR::getRoute(Route *&route, char *rt, ASt as)
 {
   char *text;
@@ -428,8 +425,6 @@ const InetRtr *IRR::getInetRtr(SymID inetRtr)
 const MPPrefixRanges *IRR::expandAS(ASt as) {
    MPPrefixRanges *result;
    MPPrefix prfx;
-   char *text;
-   int  len;
 
    if (! expandASCache.query(as, result)) {
       result = new MPPrefixRanges;
@@ -626,15 +621,12 @@ void collectPrefix(void *result, const Object *o) {
 //////////////////////////////////////////////////////////////////////
 
 #include "rawhoisc.hh"
-#include "ripewhoisc.hh"
 #include "birdwhoisc.hh"
 
 IRR *IRR::newClient() {
    switch (dflt_protocol) {
    case rawhoisd:
       return new RAWhoisClient;
-   case ripe:
-      return NULL; //new RipeWhoisClient;
    case bird:
       return new BirdWhoisClient;
    default:

@@ -366,7 +366,6 @@ extern void rd_complement_dfa(rd_fm *fm);
 extern void rd_free_nfa(rd_fm *fm); /* works for dfa and nfa */
 #define rd_free_dfa rd_free_nfa
 extern rd_fm *rd_intersect_dfa(rd_fm *fm1, rd_fm *fm2);
-extern void rd_reachable_dfa(rd_fm *fm);
 extern int rd_equal_dfa(rd_fm *fm1, rd_fm *fm2);
 extern void rd_dton(rd_fm *fm);
 extern rd_fm *rd_make_bol(rd_fm *fm);
