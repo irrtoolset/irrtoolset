@@ -56,12 +56,11 @@
 #ifndef __NET_H__
 #define __NET_H__
 
-#include "config.h"
+#include <config.h>
 
 extern "C" {
 #include <sys/param.h>
 #include <sys/socket.h>
-//#include <sys/fcntl.h>      // For AIX portability
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -70,7 +69,12 @@ extern "C" {
 #include <unistd.h>
 #include <netdb.h>
 #include <fcntl.h>
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
 }
 
 #include <cctype>
@@ -94,84 +98,26 @@ extern "C" {
 #endif
 }
 
-extern "C" {
-#ifndef HAVE_DECL_GETTIMEOFDAY
-extern int gettimeofday(...);
-#endif // HAVE_DECL_GETTIMEOFDAY
-#ifndef HAVE_DECL_BZERO
-extern void bzero  (...);
-#endif // HAVE_DECL_BZERO
-#ifndef HAVE_DECL_BCOPY
-extern void bcopy  (...);
-#endif // HAVE_DECL_BCOPY
-#ifndef HAVE_DECL_SOCKET
-extern int socket  (...);
-#endif // HAVE_DECL_SOCKET
-#ifndef HAVE_DECL_CONNECT
-extern int connect (...);
-#endif // HAVE_DECL_CONNECT
-#ifndef HAVE_DECL_BIND
-extern int bind    (...);
-#endif // HAVE_DECL_BIND
-#ifndef HAVE_DECL_LISTEN
-extern int listen  (...);
-#endif // HAVE_DECL_LISTEN
-#ifndef HAVE_DECL_ACCEPT
-extern int accept  (...);
-#endif // HAVE_DECL_ACCEPT
-#ifndef HAVE_DECL_RECVFROM
-extern int recvfrom(...);
-#endif // HAVE_DECL_RECVFROM
-#ifndef HAVE_DECL_GETHOSTNAME
-extern int gethostname (...);
-#endif // HAVE_DECL_GETHOSTNAME
-#ifndef HAVE_DECL_SETSOCKOPT
-extern int setsockopt  (...);
-#endif // HAVE_DECL_SETSOCKOPT
-#ifndef HAVE_DECL_SELECT
-extern int select (...);
-#endif // HAVE_DECL_SELECT
-#ifndef HAVE_DECL_SENDTO
-extern int sendto (...);
-#endif // HAVE_DECL_SENDTO
-#ifndef HAVE_DECL_SEND
-extern int send   (...);
-#endif // HAVE_DECL_SEND
-}
-
-
 #include <iostream>
 #include "Error.hh"
 
 #ifndef MAXPACKETLEN
 #define MAXPACKETLEN 4096
 #endif  // MAXPACKETLEN
+
 #ifndef INADDR_NONE
 #define INADDR_NONE  -1
 #endif  // INADDR_NONE 
+
 #define ERRORMSGLEN  80
+
 #ifndef TRUE
 #define TRUE 1
 #endif  // TRUE
+
 #ifndef FALSE 
 #define FALSE 0
 #endif  // FALSE
-
-#ifndef __LITTLE_ENDIAN__
-#define __LITTLE_ENDIAN__ 1234
-#endif  // __LITTLE_ENDIAN__
-#ifndef __BIG_ENDIAN__
-#define __BIG_ENDIAN__ 4321
-#endif  // __BIG_ENDIAN__
-
-#ifndef BYTE_ORDER
-#ifdef WORDS_BIGENDIAN
-#define BYTE_ORDER __BIG_ENDIAN__
-#else
-#define BYTE_ORDER __LITTLE_ENDIAN__
-#endif // WORDS_BIGENDIAN
-#endif // BYTE_ORDER
-
 
 #ifdef ACCEPT_USES_SOCKLEN_T
 #define SOCKLEN_T socklen_t
@@ -202,17 +148,12 @@ class Timer {
 	tv.tv_usec = t.tv_usec;
     }
 
-    struct timeval *tval() { return &tv; }
     void gettimeofday () { ::gettimeofday(&tv, &tz); }
 
     double delta (Timer &tt) {
 	return ((double) (tv.tv_sec - tt.tv.tv_sec) * 1000.0 +
 		(double) (tv.tv_usec - tt.tv.tv_usec) / 1000);
     }
-
-    // need to add at least: +, - and =.
-    // Commented out by wlee@isi.edu
-    //    double operator- (Timer &tt) {}
 
     Error error;
 };
@@ -297,7 +238,7 @@ class ipAddr {
 
     char *getAsname () {
 	static char *ptr;
-	ptr = "(null)";
+	ptr = (char *)"(null)";
 	if (asname[0] != '\0') ptr = (char *) asname;
 	return ptr;
     }
@@ -342,10 +283,7 @@ class Socket {
     u_long get_dstInaddr () { return sockdst.sin_addr.s_addr; } 
 
     void setPort   (u_int port)    { sockdst.sin_port = htons(port); }
-    void setLocalPort (u_short port) { socksrc.sin_port = htons (port); }
     int setsockopt (int, int, char *, int);
-    // Changed by wlee@isi.edu
-    //    int setSendflags (int flags) { send_flags = flags; }
     void setSendflags (int flags) { send_flags = flags; }
     int connect() {
 	// XXX: exceptions
@@ -380,12 +318,7 @@ class Socket {
 	return error();
     }
     int accept () {
-// Added by wlee to port it to aix
-#ifdef _AIX
-	size_t addrlen = sizeof (struct sockaddr);
-#else
 	int addrlen = sizeof (struct sockaddr);
-#endif
 	bzero ((char *) &socknew, sizeof (socknew));
 	int newsock = ::accept (sock, (struct sockaddr *) &socknew,
 				(SOCKLEN_T *) &addrlen);
@@ -402,12 +335,7 @@ class Socket {
     }
     
     int recvfrom (void *packet, int size, int flags = 0) {
-// Added by wlee to port it to aix
-#ifdef _AIX
-	size_t fromlen = size;
-#else
 	int fromlen = size;
-#endif
 	int c = ::recvfrom (sock, (char *) packet, size, flags,
 			    (struct sockaddr *) &socksrc, 
 			    (SOCKLEN_T *) &fromlen);
@@ -435,7 +363,6 @@ class Socket {
     
     int write (char *buf, int len);
     int read  (char *buf, int len);
-    int wait_for_reply (char *buffer, int size, int timeout);
 
     struct sockaddr_in *get_socknew () {
 	return (struct sockaddr_in *) &socknew;
@@ -555,7 +482,6 @@ class Socket {
     }
 
   
-    // Added by wlee@isi.edu
     bool readReady(void) {
       int status;
       bool answer = false;
@@ -576,7 +502,6 @@ class Socket {
       return answer;
     }
 
-    // Added by wlee@isi.edu
     bool writeReady(void) {
       int status;
       bool answer = false;
@@ -613,55 +538,5 @@ class Socket {
     }
     Error error;
 };
-
-////////////////////////////////////////////////////////////////////////
-class TCP : public Socket {
-    ipAddr *ipaddr;
-    struct servent *service;
-    int port;
-    int init_tcp (char *hostname, int p);
-    int init_server (int);
-
-  public:
-    TCP () : Socket (PF_INET, SOCK_STREAM, IPPROTO_TCP) {
-	ipaddr = NULL;
-	service = NULL;
-	port = 0;
-    }
-    TCP (int p);
-    TCP (char *hostname, int p);
-    TCP (char *hostname, char *proto);
-
-    // Modified by wlee@isi.edu
-    // int operator() (int port) { init_server(port); }
-    int operator() (int port) { return init_server(port); }
-};
-
-
-////////////////////////////////////////////////////////////////////////
-class UDP : public Socket {
-    ipAddr *ipaddr;
-    struct servent *service;
-    int port;
-
-  public:
-    UDP (char *hostname, int p);
-    UDP (char *hostname, char *proto);
-
-
-  private:
-    // Modified by wlee@isi.edu
-    //    int init_udp (char *hostname, int p) {
-    void init_udp (char *hostname, int p) {
-	ipaddr->setAddress (hostname);
-	set_dstInaddr (ipaddr->getInaddr()); // better way ???
-	setPort   (p);
-	error = connect ();
-	if (error())
-	    error.fatal ("connect");
-	port = p;
-    }
-};
-
 
 #endif  // __NET_H__

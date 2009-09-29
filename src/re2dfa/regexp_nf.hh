@@ -56,7 +56,7 @@
 
 #include "config.h"
 #include <iostream>
-#include "util/List.hh"
+#include "rpsl/List.hh"
 #include "rpsl/regexp.hh"
 #include "rpsl/rpsl_item.hh"
 
@@ -70,11 +70,8 @@ extern "C" {
 #define REGEXPNF_FRIENDS \
    friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp; \
-   friend class BccConfig;\
    friend class CiscoConfig;\
-   friend class GatedConfig;\
-   friend class JunosConfig;\
-   friend class RSdConfig;
+   friend class JunosConfig;
 
 class regexp_nf : public regexp {
 REGEXPNF_FRIENDS
@@ -98,7 +95,6 @@ private:
 	    re = b.re->dup();
 	    negated = b.negated;
 	 }
-	// Added by wlee@isi.edu
 	~ReInt(void) { 
 	  if (re) delete re;
 	}

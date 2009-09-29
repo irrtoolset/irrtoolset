@@ -54,7 +54,7 @@
 #pragma implementation
 
 #include "config.h"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include "SetOfPrefix.hh"
 #include <cstdio>
 #include <cassert>
@@ -67,17 +67,11 @@ void SetOfPrefix::insert(const PrefixRanges& b) {
    if (_universal)
       return;
 
-   u_int64_t rngs; int i;
+   u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
       rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
 	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
 
       if (not_)
 	 members.remove(b[j].get_ipaddr(), b[j].get_length(), rngs); 
@@ -92,17 +86,11 @@ void SetOfPrefix::remove(const PrefixRanges& b) {
       not_ = 1;
    }
 
-   u_int64_t rngs; int i;
+   u_int64_t rngs;
 
    for (int j = b.low(); j < b.fence(); ++j) {
-      // Replaced by wlee@isi.edu for better performance
       rngs = ~(~(u_int64_t)0 << (33 - b[j].get_n())) & 
 	      (~(u_int64_t)0 << (32 - b[j].get_m()));
-/*
-      rngs = 0;
-      for (i = b[j].get_n(); i <= b[j].get_m(); ++i)
-	 rngs |= bits[i];
-*/
       if (not_)
 	 members.insert(b[j].get_ipaddr(), b[j].get_length(), rngs); 
       else

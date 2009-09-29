@@ -54,7 +54,7 @@
 #include <cstdio>
 #include "config.h"
 #include "FilterOfCommunity.hh"
-#include "util/debug.hh"
+#include "irrutil/debug.hh"
 #include <ostream>
 
 using namespace std;

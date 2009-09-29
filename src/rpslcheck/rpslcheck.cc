@@ -55,14 +55,13 @@
 #include <config.h>
 #include <iostream>
 #include "rpsl/object.hh"
-#include "util/rusage.hh"
+#include "irrutil/rusage.hh"
 #include "irrutil/debug.hh"
 #include "irrutil/trace.hh"
 #include "irrutil/Argv.hh"
 #include "irrutil/version.hh"
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
 
 using namespace std;
@@ -70,13 +69,13 @@ using namespace std;
 Rusage ru;
 bool opt_stats                   = false;
 bool opt_rusage                  = false;
-char *opt_prompt                 = "rpslcheck> ";
+char *opt_prompt                 = (char *)"rpslcheck> ";
 bool opt_echo                    = false;
 bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 bool opt_debug_rpsl              = false;
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
 int start_tracing(char *dst, char *key, char *nextArg) {
    if (nextArg) {
@@ -121,10 +120,10 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      {"-echo", ARGV_BOOL, (char *) NULL,           (char *) &opt_echo,
       "Echo each object parsed"},
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
      {"-debug_rpsl", ARGV_BOOL, (char *) NULL,     (char *) &opt_debug_rpsl,
       "Turn on bison debugging. Intended for developers."},
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
@@ -148,18 +147,18 @@ void init_and_set_options (int argc, char **argv, char **envp) {
 }
 
 
-main(int argc, char **argv, char **envp) {
+int main(int argc, char **argv, char **envp) {
    schema.initialize();
    init_and_set_options(argc, argv, envp);
    schema.beHarsh();
 
    // opt_echo = 1;
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
    extern int rpsldebug;
    if (opt_debug_rpsl)
       rpsldebug = 1;
-#endif // DEBUG
+#endif // ENABLE_DEBUG
 
    Object *o;
    bool code = true;

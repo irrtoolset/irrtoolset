@@ -164,6 +164,7 @@ Socket::setsockopt (int level, int optname, char *data, int dlen)
 	break;
 #endif // IP_OPTIONS
     }
+	return 0;
 }
 
 		    
@@ -175,7 +176,6 @@ Socket::write (char *buf, int len)
     while (l > 0) {
         int c = ::write (sock, b, l);
 	if (c < 0) {
-  	    // Added by wlee@isi.edu
   	    if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
 	      errno = 0;
 	      continue;
@@ -195,7 +195,6 @@ Socket::read (char *buf, int len)
     while (c < 0) {
         c = ::read (sock, buf, len);
         if (c < 0) {
-  	    // Modified by wlee@isi.edu
             if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
                 errno = 0;
                 continue;
@@ -204,87 +203,4 @@ Socket::read (char *buf, int len)
         }
     }
     return c;
-}
-
-int 
-Socket::wait_for_reply (char *buffer, int size = MAXPACKETLEN, int seconds = 0)
-{
-    fd_set fds;
-    FD_ZERO (&fds);
-    FD_SET  (sock, &fds);
-    Timer timeout(seconds);
-    int c = select (sock+1, &fds, (fd_set *) NULL, (fd_set *) NULL, timeout.tval());
-    if (c > 0) {
-	c = recvfrom ((char *)buffer, 1024);
-    }
-    if (c < 0) 
-	error.fatal ("Socket.wait_for_reply");
-    return c;			// < 0 = count; 0 = timeout; > 0 = system err
-}
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// open up a connection to listen on
-//
-////////////////////////////////////////////////////////////////////////
-TCP::TCP (int p) :
-    Socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)
-{
-    init_server (p);
-}
-
-int TCP::init_server (int p) {
-    setLocalPort (p);
-    bind();
-    listen();
-    if (error())
-	error.fatal ("TCP socket");
-
-    return 1;
-}
-
-TCP::TCP (char *hostname, int p) : Socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)
-{
-    service = (struct servent *) NULL;
-    init_tcp (hostname, p);
-}
-
-TCP::TCP (char *hostname, char *s) : Socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)
-{
-    service = getservbyname (s, "tcp");
-    if (service == NULL) {
-	error.fatal ("tcp: unknown service: %s\n", s);
-	return;
-    }
-    init_tcp (hostname, service->s_port);
-}
-
-int
-TCP::init_tcp (char *hostname, int p)
-{
-    ipaddr->setAddress (hostname);
-    set_dstInaddr (ipaddr->getInaddr());
-    setPort (p);
-    port = p;
-    connect ();
-    return error();
-}
-
-
-
-////////////////////////////////////////////////////////////////////////
-UDP::UDP (char *hostname, int p) : Socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)
-{
-    init_udp (hostname, p);
-}
-
-UDP::UDP (char *hostname, char *s) : Socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)
-{
-    service = getservbyname (s, "udp");
-    if (service == NULL) {
-	error.fatal ("udp: unknown service: %s\n", s);
-	return;
-    }
-    init_udp (hostname, service->s_port);
 }

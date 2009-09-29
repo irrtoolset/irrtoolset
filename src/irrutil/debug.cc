@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: debug.cc 241 2009-06-06 16:54:23Z nick $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -71,7 +71,7 @@
 //            College Park, MD 20742
 
 #include "config.h"
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 #include <cstdlib>
 #include "debug.hh"
 
@@ -111,5 +111,5 @@ void copy_constructor(char *p) {
    std::cerr << "Copy constructor called for " << p << std::endl;
 }
 
-#endif /* DEBUG */
+#endif /* ENABLE_DEBUG */
 

@@ -896,7 +896,6 @@ ostream& operator<<(ostream& o, const RadixSet &set) {
 
 // make tree include any more specifics, i.e. ^+, ^-, ^n-m, ^n (i.e. ^n-n)
 RadixTree *RadixTree::makeMoreSpecific(int code, int n, int m) {
-   u_int64_t _rngs;
    int i;
 
    if (!this)
@@ -977,16 +976,11 @@ RadixTree *insert(RadixTree *root, char *prfx) {
    unsigned int i, rngs;
    unsigned int i1, i2, i3, i4, i5, i6, i7;
 
-#if 0
-   sscanf(prfx, "%u.%u.%u.%u/%u", &i1, &i2, &i3, &i4, &i5);
-   rngs = bits[i5];
-#else
    sscanf(prfx, "%u.%u.%u.%u/%u^%u-%u", &i1, &i2, &i3, &i4, &i5, &i6, &i7);
  
    rngs = 0;
    while (i6 <= i7)
       rngs |= bits[i6++];
-#endif
 
    i = i4 + (i3 << 8) + (i2 << 16) + (i1 << 24);
    i &= masks[i5];
@@ -998,15 +992,7 @@ RadixTree *remove(RadixTree *root, char *prfx) {
    unsigned int i, rngs;
    unsigned int i1, i2, i3, i4, i5, i6, i7;
 
-#if 1
    sscanf(prfx, "%x@%u.%u.%u.%u/%u", &rngs, &i1, &i2, &i3, &i4, &i5);
-#else
-   sscanf(prfx, "%u.%u.%u.%u/%u^%u-%u", &i1, &i2, &i3, &i4, &i5, &i6, &i7);
- 
-   rngs = 0;
-   while (i6 <= i7)
-      rngs |= bits[i6++];
-#endif
 
    i = i4 + (i3 << 8) + (i2 << 16) + (i1 << 24);
    i &= masks[i5];

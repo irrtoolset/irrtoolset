@@ -73,9 +73,9 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
   char pzcBuffer[BUFFER_SIZE + 1];
   char pzcFormat[512];
   if (sources && *sources) 
-     sprintf(pzcFormat, "-k -V %s -r -s %s %s\r\n", ProjectVersion2, sources, pzcQuery);
+     sprintf(pzcFormat, "-k -V %s -r -s %s %s\r\n", ProjectVersion, sources, pzcQuery);
   else
-     sprintf(pzcFormat, "-k -V %s -r %s\r\n", ProjectVersion2, pzcQuery);
+     sprintf(pzcFormat, "-k -V %s -r %s\r\n", ProjectVersion, pzcQuery);
 
   va_list ap;
   va_start(ap, pzcQuery);
@@ -201,7 +201,7 @@ bool BirdWhoisClient::getAutNum(char *as,          char *&text, int &len)
   return true;
 }
 
-bool BirdWhoisClient::getSet(SymID sname, char *clss, char *&text, int &len) {
+bool BirdWhoisClient::getSet(SymID sname, const char *clss, char *&text, int &len) {
    if (!sendQuery("-T %s %s", clss, sname)) 
       return false;
    if (!getResponse(text, len)) 
@@ -336,6 +336,8 @@ bool BirdWhoisClient::getIndirectMembers(char *setName,
 	 (*collect)(collectArg, o);
 
    free(response);
+
+   return true;
 }
 
 bool BirdWhoisClient::expandRSSet(SymID sname, MPPrefixRanges *result) {
@@ -406,46 +408,6 @@ bool BirdWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {
   return true;
 }
 
-int BirdWhoisClient::getSourceOrigin(char *&buffer, const char *rt)
-{
-  querySourceOrigin(rt);
-  return getSourceOrigin(buffer); 
-}
-
-int BirdWhoisClient::getSourceOrigin(char *&buffer)
-{
-  StringBuffer cBuffer;
-  char *pzcResult, *pzcResult2;
-  int iResultLen, iResultLen2;
-  if (getResponse(pzcResult, iResultLen)) 
-    {
-    // More and complete route objects are here
-    Buffer b(pzcResult, iResultLen);  // pass ownership to class Buffer
-    List<Object> cObjects;
-    objectLog(b, cObjects);
-    for (ListIterator<Object> itrObject(cObjects); itrObject; ++itrObject)
-      if (itrObject->type && strcmp(itrObject->type->name, "route") == 0)
-	{
-	AttrGenericIterator<ItemASNO> itrOrigin(itrObject, "origin");
-	AttrGenericIterator<ItemWORD> itrSource(itrObject, "source");
-	if (itrOrigin && itrSource)
-	  {
-	  char buf[64];
-	  asnum_string_dot(buf, itrOrigin()->asno);
-	  cBuffer.append("%s %s\n", itrSource()->word, buf);
-	  }
-	}
-    }
-  if (cBuffer.empty()) 
-    {
-    buffer = NULL;
-    return 0;
-    }
-  buffer = new char[cBuffer.length() + 1];
-  strcpy(buffer, cBuffer.c_str());
-  return cBuffer.length();
-}
-
 void BirdWhoisClient::querySourceOrigin(const char *rt)
 {
    // ripev3 support
@@ -487,159 +449,3 @@ ASt BirdWhoisClient::getOrigin(char *format, ...)
     }
   return tResult;
 }
-
-
-#ifdef DEBUG_BIRDWHOISC
-
-#include <iostream.h>
-#include "autnum.hh"
-#include "route.hh"
-
-void getAutNum(int argc, char *argv[])
-{
-  IRR *pcClient = new BirdWhoisClient("water", 3500);
-  for (int i = 1; i < argc; i++)
-    {
-    const AutNum *pcAutNum = pcClient->getAutNum(atoi(argv[i]));
-    cout << "\033[32m" << i << ": AS" << argv[i] << "\033[m" << endl;
-    if (pcAutNum)
-      {
-	;
-//      for (AttrIterator<AttrExport> itr(pcAutNum, "export"); itr; itr++)
-//	cout << itr()->policy << endl;
-
-//      pcAutNum->printPTree(cout);
-
-//      cout << *pcAutNum;
-/*
-for (ASt asno = pcAutNum->firstPeerAS();
-     asno != INVALID_AS;
-     asno = pcAutNum->nextPeerAS())
-  cout << asno << endl;
-*/
-/*
-List<Peering> peeringList = pcAutNum->getPeeringList();
-for (ListIterator<Peering> itr(peeringList); itr; itr++)
-  cout << *itr() << endl;
-*/
-      // Can't do that since AutNum object will be cache!
-      //      delete pcAutNum;
-      }
-    else
-      cout << "Nothing!" << endl;
-    }
-  delete pcClient;
-}
-
-void getRoute(void)
-{
-  IRR *pcClient = new BirdWhoisClient("localhost", 3500);
-  Prefix *pcPrefix = new Prefix("128.97.0.0/16");
-  Route *pcRoute;
-  pcClient->getRoute(pcRoute, pcPrefix, 226);
-  if (pcRoute)
-    {
-    cout << *pcRoute << endl;
-    delete pcRoute;
-    }
-  else
-    cout << "Nothing!" << endl;
-  delete pcPrefix;                   
-  delete pcClient;
-}
-
-void getInetRtr(int argc, char *argv[])
-{
-  IRR *pcClient = new BirdWhoisClient("water", 3500);
-  for (int i = 1; i < argc; i++)
-    {
-    const InetRtr *pcInetRtr = pcClient->getInetRtr(argv[i]);
-    if (pcInetRtr) 
-      //      cout << *(Object *)pcInetRtr;
-      ;
-    else
-      cout << "Nothing!" << endl;
-    }
-  delete pcClient;
-}
-
-void expandAS(int argc, char *argv[])
-{
-  IRR *pcClient = new BirdWhoisClient("localhost", 3500);
-  //  const PrefixRanges *pcPrefixRanges = pcClient->expandAS(3582);
-  for (int i = 1; i < argc; i++)
-    {
-    cout << "\n\nexpandAS(" << argv[i] << ")\n======================\n";
-    const PrefixRanges *pcPrefixRanges = pcClient->expandAS(atoi(argv[i]));
-    if (pcPrefixRanges)
-      {
-      for (int j = pcPrefixRanges->low(); j < pcPrefixRanges->fence(); j++)
-        cout << (*pcPrefixRanges)[j].get_text() << endl;
-      cout << endl;
-      }
-    else
-      cout << "Nothing!" << endl;
-    }
-  delete pcClient;
-}
-
-void expandASSet(int argc, char *argv[])
-{
-  IRR *pcClient = 
-    new BirdWhoisClient("localhost", 3500);
-  for (int i = 1; i < argc; i++)
-    {
-    const SetOfUInt *pcASSet = 
-      pcClient->expandASSet(symbols.symID(argv[i]));
-    cout << "\n\nexpandASSet() for " << argv[i] << endl
-	 << "==================================" << endl;
-    if (pcASSet)
-      {
-      for (Pix x = pcASSet->first(); x; pcASSet->next(x))
-	cout << (*pcASSet)(x) << " ";
-      }
-    else
-      cout << "Nothing!";
-    cout << endl << endl;
-    }
-  delete pcClient;  
-}
-
-void expandRSSet(int argc, char *argv[])
-{
-  IRR *pcClient = new BirdWhoisClient("wee", 3500);
-  for (int i = 1; i < argc; i++)
-    {
-//    char aa[] = "rs-any";
-    const PrefixRanges *pcRSSet = 
-//      pcClient->expandRSSet(symbols.symID(aa));
-      pcClient->expandRSSet(symbols.symID(argv[i]));
-    cout << "\n\nexpandRSSet() for " << argv[i] << endl
-	 << "==================================" << endl;
-    if (pcRSSet)
-      for (int j = pcRSSet->low(); j < pcRSSet->fence(); j++)
-	{
-        PrefixRange prefix((*pcRSSet)[j]); // To avoid warning!
-	cout << prefix << " ";
-	}
-    else
-      cout << "Nothing!";
-    cout << endl << endl;
-    }
-  delete pcClient;  
-}
-
-
-void main(int argc, char *argv[])
-{
-  trace.enable(0);
-  schema.initialize();
-  //  getAutNum(argc, argv);
-  //  getRoute();
-  //  getInetRtr(argc, argv);
-  //  expandAS(argc, argv);
-  expandASSet(argc, argv);
-  //  expandRSSet(argc, argv);
-}
-
-#endif // DEBUG_BIRDWHOISC

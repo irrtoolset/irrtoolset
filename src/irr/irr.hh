@@ -56,8 +56,8 @@
 
 #include "config.h"
 #include "rpsl/object.hh"
-#include "gnug++/SetOfUInt.hh"
-#include "gnu/prefixranges.hh"
+#include "dataset/SetOfUInt.hh"
+#include "dataset/prefixranges.hh"
 #include "rpsl/prefix.hh"
 #include "classes.hh"
 
@@ -86,7 +86,6 @@ protected:
    int      port;
 
 public:
-   // Added by wlee@isi.edu
    IRR(void) {
      strcpy(host, dflt_host);
      strcpy(sources, dflt_sources);
@@ -97,20 +96,13 @@ public:
 		     const int _port = dflt_port, 
 		     const char *_sources = dflt_sources) = 0;
    virtual void Close() = 0;
-   // Modified by wlee@isi.edu
-   //  virtual void SetSources(char *s) {}
    virtual void SetSources(const char *_sources = dflt_sources) {
      strcpy(sources, _sources);
    }
 
-   // Added by wlee@isi.edu
-   virtual const char *GetSources(void) { 
-     return sources;
-   }
-
    // get objects
    const AutNum     *getAutNum(ASt as);
-   const Set        *getSet(SymID asset, char *clss);
+   const Set        *getSet(SymID asset, const char *clss);
    const ASSet      *getASSet(SymID asset);
    const RSSet      *getRSSet(SymID rsset);
    const RtrSet     *getRtrSet(SymID rtrset);
@@ -118,7 +110,6 @@ public:
    const PeeringSet *getPeeringSet(SymID set);
    const InetRtr    *getInetRtr(SymID inetRtr);
    void getRoute(Route *&route, Prefix *rt, ASt as);
-   // Added by wlee
    void getRoute(Route *&route, char *rt, ASt as);
 
    // expand sets
@@ -152,13 +143,8 @@ public:
    static void handleEnvironmentVariables(char **envp);
    static IRR *newClient();
 
-   // Added by wlee@isi.edu 
-   // For compatibility reasons, mostly for roe
 public:
-   virtual void setFullObjectFlag(bool onoff) {}
    virtual void setFastResponseFlag(bool onoff) {}
-   virtual int getSourceOrigin(char *&buffer, const char *rt) = 0;
-   virtual int getSourceOrigin(char *&buffer) = 0;
    virtual void querySourceOrigin(const char *rt) = 0;
    virtual bool readReady(void) = 0;
 
@@ -175,7 +161,7 @@ protected:
    // using new char[size]
    // and set the len to strlen(text)
    virtual bool getAutNum(char *as,          char *&text, int &len) = 0;
-   virtual bool getSet(SymID sname, char *clss, char *&text, int &len) = 0;
+   virtual bool getSet(SymID sname, const char *clss, char *&text, int &len) = 0;
    virtual bool getRoute(char *rt, char *as, char *&text, int &len) = 0;
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len) = 0;
 
@@ -197,7 +183,7 @@ protected:
 
 
 private:
-   static void initCache(char *objectText, int objectLength, char *clss);
+   static void initCache(char *objectText, int objectLength, const char *clss);
 };
 
 struct ProtocolName {

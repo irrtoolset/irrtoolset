@@ -1,4 +1,4 @@
-//  $Id$
+//  $Id: debug.hh 215 2008-09-17 00:36:52Z shane $
 // Copyright (c) 2001,2002                        RIPE NCC
 //
 // All Rights Reserved
@@ -74,14 +74,29 @@
 #define DEBUG_H
 
 #include "config.h"
-#ifdef DEBUG
-#include <iostream.h>
+#ifdef ENABLE_DEBUG
+#include <iostream>
 
-#define DBG_ERR             1
-#define DBG_INFO            2 
+/* explicit numbering since this is a user interface */
+enum dbgchannels {
+	DBG_ERR			= 1,
+	DBG_INFO		= 2,
+
+	/* Normal Expressions */
+	DBG_NE_REDUCE		= 3,
+	DBG_NE_REDUCE_DETAIL	= 4,
+	DBG_NE_OR		= 5,
+	DBG_NE_NOT		= 6,
+	DBG_NE_AND		= 7,
+	DBG_NE_AFI		= 8,
+
+	/* rtconfig */
+	DBG_RTC_CISCO		= 9,
+	DBG_RTC_JUNOS		= 10,
+};
 
 void Abort();
-void copy_constructor(char *p);
+void copy_constructor(const char *p);
 
 class dbgstream {
 public:
@@ -91,12 +106,12 @@ public:
       level = _level;
       return enabledp();
    }
-   void dbgstream::enable();
-   void dbgstream::disable();
-   void dbgstream::enable(int level);
-   void dbgstream::disable(int level);
-   int  dbgstream::enabledp();
-   int  dbgstream::enabledp(int level);
+   void enable();
+   void disable();
+   void enable(int level);
+   void disable(int level);
+   int  enabledp();
+   int  enabledp(int level);
 private:
    int level;
    int enabled;
@@ -104,41 +119,15 @@ private:
 
 extern dbgstream dbg;
 
-//----------------------------------------------------------------------
-// ASSERT
-//      If condition is false,  print a message and dump core.
-//	Useful for documenting assumptions in the code.
-//
-//	NOTE: needs to be a #define, to be able to print the location 
-//	where the error occurred.
-//----------------------------------------------------------------------
-/*
-#ifndef ASSERT
-#define ASSERT(condition)                                                     \
-    if (!(condition)) {                                                       \
-        cerr << __FILE__ << ":" << __LINE__                                   \
-	     << ": Assertion failed `" << #condition << "'\n";                \
-        Abort();                                                              \
-    }
-#endif // ASSERT
-*/
-
 #define Debug(whatever) whatever
 #define Channel(no) if (dbg.enabledp(no)) cerr
-#define PRINT(var) cout << #var << " = " << var << endl;
 
+#else /* ENABLE_DEBUG */
 
-
-
-#else /* DEBUG */
 #define copy_constructor(p) 
-#ifndef ASSERT
-#define ASSERT(condition) /* do nothing */
-#endif // ASSERT
 #define Debug(whatever)   /* do nothing */
-#define PRINT(var)        /* do nothing */
 
-#endif /* DEBUG */
+#endif /* ENABLE_DEBUG */
 
 #endif /* DEBUG_H */
 
