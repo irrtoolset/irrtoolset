@@ -497,7 +497,7 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
   } else {
     char *response;
     int  len;
-    if (!getSet(asset, "as-set", response, len))
+    if (!QueryResponse(response, "!i%s,1", asset))
       return false;
     for (char *word = strtok(response, " \t\n"); 
          word; 
@@ -528,7 +528,7 @@ bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
   } else {
     char *response;
     int  len;
-    if (!getSet(rsset, "route-set", response, len))
+    if (!QueryResponse(response, "!i%s,1", rsset))
       return false;
     for (char *word = strtok(response, " \t\n"); 
          word; 
