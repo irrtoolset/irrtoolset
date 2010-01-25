@@ -617,7 +617,9 @@ void CiscoConfig::printRE(ostream &s,
    out << endl;
 
    int lineLen = out.str().length();
-   const char *p = out.str().c_str();
+
+   // for string.h, we need to ensure that p is a char *, not const char *
+   char *p = strdup(out.str().c_str());
 
    if (lineLen < 240 && ! hasTilda) {
       for (char *q = strchr(p, '@'); q; q = strchr(q, '@'))
@@ -674,7 +676,7 @@ void CiscoConfig::printRE(ostream &s,
 	 } 
       }
    }
-   //out.freeze(0); no need for ostringstream
+   free(p);
 }
 
 ListOf2Ints* CiscoConfig::printASPaths(regexp_nf& path) {
