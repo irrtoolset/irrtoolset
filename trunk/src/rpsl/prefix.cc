@@ -180,7 +180,7 @@ void PrefixRange::parse(const char *name)
   unsigned int i1, i2, i3, i4, uiLength = 0, uiN = 0, uiM = 0;
   char ch = ' ';
 
-  char *p;
+  const char *p;
   if (strstr(name, "^+"))
     // Inclusive more specific operation
     sscanf(name, "%u.%u.%u.%u/%u^%c", &i1, &i2, &i3, &i4, &uiLength, &ch);
@@ -582,7 +582,7 @@ IPv6PrefixRange::IPv6PrefixRange(const char *name) :
 // parse generic ipv6 prefix range 
 void IPv6PrefixRange::parse(const char *name)
 {
-  char *slash;
+  const char *slash;
   char *address =  (char *) calloc (IPV6_LENGTH,1);
   char ch = ' ';
   unsigned int uLength, uN, uM;
@@ -601,8 +601,13 @@ void IPv6PrefixRange::parse(const char *name)
     //printf ("integers: %lld %lld\n", ipaddr->high, ipaddr->low);
     ipv62hex(ipaddr, address);
     //printf ("normalized: %s\n", address);
+
     // go further
+
+    // religious fundamentalists may not like this statemenet.  however, it
+    // is both semantically and syntactically legitimate.
     slash ++;
+
     if (strstr(slash, "^+")) {
       sscanf(slash, "%u^%c", &uLength, &ch);
     }
