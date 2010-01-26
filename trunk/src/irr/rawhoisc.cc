@@ -496,7 +496,6 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
         delete [] set;
   } else {
     char *response;
-    int  len;
     if (!QueryResponse(response, "!i%s,1", asset))
       return false;
     for (char *word = strtok(response, " \t\n"); 
@@ -527,7 +526,6 @@ bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
       delete [] set;
   } else {
     char *response;
-    int  len;
     if (!QueryResponse(response, "!i%s,1", rsset))
       return false;
     for (char *word = strtok(response, " \t\n"); 
