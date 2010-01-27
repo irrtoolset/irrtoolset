@@ -166,11 +166,15 @@ int main(int argc, char **argv, char **envp) {
    
    while (opt_my_as || cin ) {
        if (opt_my_as) {
+          // if the first two characters of the ASN are "as", then ignore them
+          if (strcasestr(opt_my_as, "as") == opt_my_as)
+            opt_my_as += 2;
+
           const char *dot = strchr(opt_my_as,'.');
           if (dot)
-             myAS = atoi(opt_my_as + 2)<<16 | atoi(dot+1);
+             myAS = atoi(opt_my_as)<<16 | atoi(dot+1);
           else
-	     myAS = atoi(opt_my_as + 2);
+	     myAS = atoi(opt_my_as);
 	  const AutNum *autnum = irr->getAutNum(myAS);
           if (!autnum)	{
           	std::cerr << "Error: no object for AS " << myAS << std::endl;
