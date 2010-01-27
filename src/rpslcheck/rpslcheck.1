@@ -58,22 +58,19 @@
 .\"
 .TH rpslcheck 1 local
 .SH NAME
-rpslcheck
+rpslcheck -- an RPSL syntax checker
 .SH SYNOPSIS
 .B rpslcheck
-.RI [ flags ]\ [<as-no>]
+.RI [ flags ]
 .SH DESCRIPTION
 .PP
-rpslcheck syntax-checks any RPSL object. If the object passes rpslcheck's syntax check it will not cause errors to any of the tools in IRRToolSet, such as rtconfig. However, the syntax constraints of a particular IRR can differ from the ones in RPSL.
+rpslcheck syntax-checks an RPSL object. If the object passes rpslcheck's syntax check it will not cause errors to any of the tools in IRRToolSet, such as rtconfig. However, the syntax constraints of a particular IRR can differ from the ones in RPSL.
 .PP
-The input can be supplied via "-as <ASnum>" option (only AS-numbers). If no option is specified the object is expected as a standard input. The input can contain multiple objects.
-.PP
-Future versions of this tool will generate better error messages and do
-more than just syntax checking.
+The input can be supplied via "-as <ASnum>" option (only AS-numbers). If no option is specified the object is expected on standard input. The input can contain multiple objects.
 .SH IRRToolSet COMMON OPTIONS
 .RS
 .IP -help
-Print summary of command-line options and abort.
+Print summary of command-line options and exit.
 .IP "\-T [whois_query | whois_response | input | all]"
 Trace the argument. Useful for debugging.
 .IP "\-D <integer>"
@@ -92,7 +89,7 @@ Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd
 .IP "\-s <source-list>"
 Consider the sources specified in the comma separated <source-list>.
 If an object is defined in multiple sources in <source-list>,
-prcheck uses the definition first encountered in <source-list>
+rpslcheck uses the definition first encountered in <source-list>
 from left to right.
 .IP \-rusage
 Print resource usage upon completion.
@@ -125,11 +122,11 @@ Command line options take precedence over environment variables.
 .SH EXAMPLES
 .PP
 .nf
-	% ./rpslcheck 
+	% ./rpslcheck < as226.txt
 	Congratulations no errors were found in parsing AS226	
-	% rpslcheck AS3130
+	% rpslcheck -as AS3130
 	Congratulations no errors were found in parsing AS3130
-	% rpslcheck AS86
+	% rpslcheck -as AS86
 	Error: *it: AS701 192.41.177.6/32 192.41.177.249 (pref=MED) ANY
 	Error:                            ^^^^^^^^^^^^^^
 .fi
@@ -138,7 +135,7 @@ Command line options take precedence over environment variables.
 Error: no object for AS <as_no>
 .RS
 .PP
-Aut-num object for <as_no> is not found in specified IRR for specified source. You could mistype the source, hostname or AS-number, or the object is truly non-existent.
+Aut-num object for <as_no> is not found in specified IRR for specified source. You could have mistyped the source, hostname or AS-number, or perhaps the object does not exist.
 .PP
 .RE
 For more error descriptions, please see
