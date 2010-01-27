@@ -75,9 +75,13 @@ using namespace std;
 
 char Schema::dictionary_text[] = "";
 
+// org: should be defined as:
+//"attr:  org              syntax(rpsl_word),                                     optional,  multiple\n"
+// however, this requires a substantial amount of plumbing
 #define CMN_ATTRS \
 "attr:  notify           syntax(email),                                         optional,  multiple\n" \
 "attr:  remarks                                                                 optional,  multiple\n" \
+"attr:  org                                                                     optional,  multiple, lookup\n" \
 "attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal\n" \
 "attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal\n" \
 "attr:  changed          optional,  multiple\n" \
@@ -444,7 +448,54 @@ CMN_ATTRS
 "attr:  admin-c              mandatory,  multiple, lookup\n"
 "attr:  tech-c               mandatory,  multiple, lookup\n"
 "attr:  mnt-by               mandatory,  multiple, lookup\n"
-CMN_ATTRS;
+CMN_ATTRS
+"\n"
+"class: poem\n"
+"attr:  poem                                                                    mandatory, single, key\n"
+"attr:  form                                                                    mandatory, single, lookup\n"
+"attr:  text                                                                    mandatory, multiple\n"
+"attr:  author                                                                  mandatory, multiple, lookup\n"
+"attr:  descr                                                                   optional,  multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  notify           syntax(email),                                         optional,  multiple\n" \
+"attr:  remarks                                                                 optional,  multiple\n" \
+"attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal\n" \
+"attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal\n" \
+"attr:  changed          optional,  multiple\n" \
+"attr:  deleted                                                                 optional,  single, deleted\n"
+"\n"
+"class: poetic-form\n"
+// this should really be:
+// "attr:  poetic-form   syntax(poetic_form_name)                                  mandatory, single, key\n"
+"attr:  poetic-form                                                             mandatory, single, key\n"
+"attr:  descr                                                                   optional,  multiple\n"
+"attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
+"attr:  admin-c                                                                 mandatory, multiple, lookup\n"
+"attr:  notify           syntax(email),                                         optional,  multiple\n" \
+"attr:  remarks                                                                 optional,  multiple\n" \
+"attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal\n" \
+"attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal\n" \
+"attr:  changed          optional,  multiple\n" \
+"attr:  deleted                                                                 optional,  single, deleted\n"
+"\n"
+"class: organisation\n"
+"attr:  org-name                                                                mandatory, single, lookup\n"
+"attr:  org-type                                                                mandatory, single\n"
+"attr:  descr                                                                   optional,  multiple\n"
+"attr:  address                                                                 mandatory, multiple\n"
+"attr:  phone                                                                   optional,  multiple\n"
+"attr:  fax-no                                                                  optional,  multiple\n"
+"attr:  e-mail           syntax(email),                                         mandatory, multiple, lookup\n"
+"attr:  trouble                                                                 optional,  multiple\n"
+CMN_ATTRS
+"attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
+"attr:  admin-c                                                                 optional, multiple, lookup\n"
+"attr:  tech-c                                                                  optional, multiple, lookup\n"
+"attr:  ref-nfy          syntax(email),                                         optional, multiple, lookup\n"
+"attr:  mnt-ref          syntax(list of rpsl_word),                             optional, multiple, lookup\n"
+"attr:  abuse-mailbox    syntax(email),                                         optional, multiple, lookup\n"
+;
 
 void Schema::addClass(AttrClass *clss) {
    classes[lastClass++] = clss;
