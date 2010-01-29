@@ -1,0 +1,54 @@
+rx.c
+rx.h
+Regex.cc
+Regex.h
+	The Regex class depends on rx.c.  The Regex class is only used in
+	src/irr/ripewhoisc.cc:344.  So, by rewriting 3 lines of code, we can
+	eliminate 11200 lines in this directory.  The function Regex::OK()
+	is just lulz.
+
+SymbolConjunctPtr.Bag.cc
+SymbolConjunctPtr.SplayBag.cc
+SymbolConjunctPtr.SplayNode.cc
+
+	class SymbolConjunctPtrSplayBag depends on:
+		SymbolConjunctPtrSplayNode
+		SymbolConjunctPtrBag
+		SymbolConjunctPtr
+
+	class SymbolConjunctPtrBag depends on:
+		SymbolConjunctPtr
+
+	class SymbolConjunctPtrSplayNode depends on:
+		SymbolConjunctPtr
+	
+	These classes provide core support for src/normalform
+
+NormalTermPtr.DLList.cc
+NormalTermPtr.DLList.h
+NormalTermPtr.defs.h
+	This class provides core support for src/normalform
+
+unsigned.Plex.cc
+unsigned.Plex.h
+	class unsignedPlex is a parent class of unsignedXPlex
+	class unsignedIChunk used throughout unsignedXPlex
+
+unsigned.XPlex.cc
+unsigned.XPlex.h
+	unsignedXPlex provides support to unsignedOXPSet
+
+unsigned.Set.cc
+unsigned.Set.h
+	class unsignedSet is a parent class of unsignedOXPSet
+
+unsigned.OXPSet.cc
+unsigned.OXPSet.h
+	class unsignedOXPSet is a parent class of SetOfUInt, which is
+	used throughout the entire system
+
+CacheKey.CacheValue.AVLMap.cc
+CacheKey.CacheValue.Map.cc
+	class CacheKeyCacheValueMap is parent class to CacheKeyCacheValueAVLMap
+	class CacheKeyCacheValueAVLMap is parent class to class Cache in
+	irr/cache.*
