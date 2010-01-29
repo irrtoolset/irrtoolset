@@ -16,13 +16,11 @@ FTP and WWW SITES
         http://irrtoolset.isc.org/
 
 INSTALLATION
-        0. To install you need an ISO C++ compiler (such as g++ from
-           GCC version 3.3.2) and GNU Make.
+        0. To install you need the GNU C++ compiler, libtool, bison, flex.
 
      You will need Bison and Flex if you're going to change the RPSL grammar.
 
-	   The development platform is a linux PC using gcc-2.95.3 and 
-	   libstdc++-2.9.0.
+	   The development platform is a mac running snow leopard (gcc-4.2.1)
 
 	1. unzip and untar the distribution file
 	2. in the irrtoolset directory, type `./configure' to configure the
