@@ -5,8 +5,7 @@ rtconfig_SOURCES = rtconfig.cc f_cisco.cc f_junos.cc \
 
 nodist_rtconfig_SOURCES = command.l.cc command.y.cc command.y.hh
 
-man1_MANS = rtconfig.1
-dist_man_MANS = $(man1_MANS)
+dist_man1_MANS = rtconfig.1
 
 MAINTAINERCLEANFILES = $(nodist_rtconfig_SOURCES)
 CLEANFILES = *~ *.bak
