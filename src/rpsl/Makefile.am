@@ -9,8 +9,7 @@ librpsl_la_SOURCES = \
 
 nodist_librpsl_la_SOURCES = object_log.l.cc rpsl.l.cc rpsl.y.cc rpsl.y.hh
 
-man1_MANS = irrtoolset-errors.1
-dist_man_MANS = $(man1_MANS)
+dist_man1_MANS = irrtoolset-errors.1
 
 MAINTAINERCLEANFILES = $(nodist_librpsl_la_SOURCES)
 CLEANFILES = *~ *.bak
