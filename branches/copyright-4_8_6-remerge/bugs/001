@@ -1,0 +1,28 @@
+id: 001
+summary: display policy from IRR for myAS and peerAS
+owner: katie
+status: closed
+priority: high
+program: aoe
+module(s): aoe, irr
+reported: unknown
+closed: unknown
+
+detail:
+
+Display IRR policy for AS and PeerAS.
+PeerAS is selected from the Peer List (on the left).
+
+No policies from IRR where diplayed for AS and PeerAS. The problem
+was in AutNumImportIterator/AutNumExportIterator constructor;
+AutNumImportExportIterator::isMatching had errors; and never returned 'true'
+value; object for AutNumImportExportIterator was never created. fixed by
+implementing the proper search in the function isMatching(PolicyExpr
+*policy). There also was a bug with resolving the peers from peering-sets and as
+-sets. I'm not 100% sure the idea of expansion is correct, but it is implemented
+ now.
+
+changed:
+irr/autnum.hh           bool AutNumImportExportIterator::isMatching(PolicyExpr * policy)
+aoe/aoe.cc              int AoeApplication::getASInfoFromServer(void)
+
