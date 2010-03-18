@@ -57,7 +57,7 @@
 #include "config.h"
 #include <cstdio>
 #include "SymbolConjunct.hh"
-#include "dataset/SymbolConjunctPtr.SplayBag.h"
+#include "gnug++/SymbolConjunctPtr.SplayBag.h"
 #include "rpsl/rpsl.hh"
 
 typedef class SymbolConjunctPtrSplayBag BagOfSymbolConjunct;

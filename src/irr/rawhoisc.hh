@@ -61,7 +61,7 @@
 
 #include "irr.hh"
 #include "birdwhoisc.hh"
-#include "irrutil/Error.hh"
+#include "util/Error.hh"
 
 class RAWhoisClient : public IRR { 
 // Whois Client that talks to RAWhoisd server
@@ -86,6 +86,10 @@ private:
 
    // Response allocates enough space to hold the result
    int  Response(char *&response);
+
+   // do a Query and Response, returning the AXX and CXX lines
+   // in addition to the the response.
+   int TotalResponse (char *&response);
 
    // do a Query and Response
    int  QueryResponse(char *&response, const char *format, ...);
@@ -132,13 +136,17 @@ public:
 
    void SetSources(const char *_sources = dflt_sources);
 
+   // Modified by wlee@isi.edu
+   //   char *GetSources(void);
+   const char *GetSources(void);
+
    void GetVersion();
 
    // PendingData() returns true if there is data available for reading
    int  PendingData(); 
 
    virtual bool getAutNum(char *as,          char *&text, int &len);
-   virtual bool getSet(SymID sname, const char *clss, char *&text, int &len);
+   virtual bool getSet(SymID sname, char *clss, char *&text, int &len);
    virtual bool getRoute(char *rt, char *as, char *&text, int &len);
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len);
    virtual bool expandASSet(SymID asset,     SetOfUInt    *result);
@@ -147,11 +155,24 @@ public:
    virtual bool expandRSSet(SymID rsset,     MPPrefixRanges *result);
    virtual bool expandRtrSet(SymID rsset,    MPPrefixRanges *result);
 
+   // Added by wlee@isi.edu for roe basically
+   void setFullObjectFlag(bool onoff) {
+     if (onoff)
+       QueryKillResponse("!ufo=1");
+     else
+       QueryKillResponse("!ufo=0");
+   }
    void setFastResponseFlag(bool onoff) {
      if (onoff)
        QueryKillResponse("!uF=1");
      else
        QueryKillResponse("!uF=0");
+   }
+   int getSourceOrigin(char *&buffer, const char *rt) {
+     return QueryResponse(buffer, "!r%s,o", rt);
+   }
+   int getSourceOrigin(char *&buffer) {
+     return Response(buffer);
    }
    void querySourceOrigin(const char *rt) {
      Query("!r%s,o", rt);

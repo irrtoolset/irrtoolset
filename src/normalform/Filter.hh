@@ -60,8 +60,8 @@ extern "C" {
 #include <sys/types.h>
 }
 
-#include "dataset/Pix.h"
-#include "irrutil/debug.hh"
+#include "gnug++/Pix.h"
+#include "util/debug.hh"
 
 // base type for any filter
 class NEFilter {

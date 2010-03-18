@@ -55,14 +55,20 @@
 #include "config.h"
 #include <iostream>
 #include "NE.hh"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "irr/irr.hh"
 #include "irr/classes.hh"
 #include "rpsl/schema.hh"
-#include "dataset/SetOfUInt.hh"
-#include "dataset/prefixranges.hh"
+#include "gnug++/SetOfUInt.hh"
+#include "gnu/prefixranges.hh"
 
 using namespace std;
+
+#define DBG_REDUCE 3
+#define DBG_REDUCE_DETAIL 4
+#define DBG_OR 5
+#define DBG_NOT 6
+#define DBG_AND 7
 
 CLASS_DEBUG_MEMORY_CC(NormalExpression);
 
@@ -141,10 +147,10 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 	 return ne;
 
       ne2 = evaluate(((FilterOR *) ptree)->f2, peerAS, expand);
-      Debug(Channel(DBG_NE_OR) << "op1: " << *ne << "\n");
-      Debug(Channel(DBG_NE_OR) << "op2: " << *ne2 << "\n");
+      Debug(Channel(DBG_OR) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_OR) << "op2: " << *ne2 << "\n");
       ne->do_or(*ne2);
-      Debug(Channel(DBG_NE_OR) << "or:  " << *ne << "\n");
+      Debug(Channel(DBG_OR) << "or:  " << *ne << "\n");
       delete ne2;
 
       return ne;
@@ -156,10 +162,10 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 	 return ne;
 
       ne2 = evaluate(((FilterAND *) ptree)->f2, peerAS, expand);
-      Debug(Channel(DBG_NE_AND) << "op1: " << *ne << "\n");
-      Debug(Channel(DBG_NE_AND) << "op2: " << *ne2 << "\n");
+      Debug(Channel(DBG_AND) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_AND) << "op2: " << *ne2 << "\n");
       ne->do_and(*ne2);
-      Debug(Channel(DBG_NE_AND) << "and: " << *ne << "\n");
+      Debug(Channel(DBG_AND) << "and: " << *ne << "\n");
       delete ne2;
 
       return ne;
@@ -167,19 +173,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
    if (typeid(*ptree) == typeid(FilterNOT)) {
       ne = evaluate(((FilterNOT *) ptree)->f1, peerAS, expand);
-      Debug(Channel(DBG_NE_NOT) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
       ne->do_not();
-      Debug(Channel(DBG_NE_NOT) << "not: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "not: " << *ne << "\n");
       return ne;
    }
 
    if (typeid(*ptree) == typeid(FilterMS)) {
       ne = evaluate(((FilterMS *) ptree)->f1, peerAS, expand);
-      Debug(Channel(DBG_NE_NOT) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
       ne->makeMoreSpecific(((FilterMS *) ptree)->code,
 			   ((FilterMS *) ptree)->n,
 			   ((FilterMS *) ptree)->m);
-      Debug(Channel(DBG_NE_NOT) << "ms: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "ms: " << *ne << "\n");
       return ne;
    }
 
@@ -349,15 +355,13 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    if (typeid(*ptree) == typeid(FilterAFI)) {
    
       ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
-      Debug(Channel(DBG_NE_AFI) << "op1: " << *ne << "\n");
-
       if (ne->is_any() == NEITHER &&
           ((ne->singleton_flag == NormalTerm::PRFX) || (ne->singleton_flag == NormalTerm::IPV6_PRFX) ||
            (ne->singleton_flag == -1))) {
         ne->restrict((FilterAFI *) ptree);
       }
-
-      Debug(Channel(DBG_NE_AFI) << "afi: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "op1: " << *ne << "\n");
+      Debug(Channel(DBG_NOT) << "afi: " << *ne << "\n");
       return ne;
 
    }
@@ -406,7 +410,7 @@ ostream& operator<<(ostream& stream, NormalExpression& ne) {
 	 stream << "(" << *term << ")";
 	 ne.terms.next(i);
 	 if (i)
-	    stream << " OR ";
+	    stream << "\n OR ";
       }
    }
    return stream;
@@ -429,7 +433,7 @@ void NormalExpression::reduce() {
 	    nextpixj = pixj;
 	    terms.next(nextpixj);
 
-	    Debug(Channel(DBG_NE_REDUCE_DETAIL) << *this << "\n");
+	    Debug(Channel(DBG_REDUCE_DETAIL) << *this << "\n");
 	    
 	    j = term->find_diff(*otherterm); // returns -1 if more than 1 diff
 	    if (j >= 0) { 
@@ -454,7 +458,7 @@ void NormalExpression::reduce() {
 	       }
 	    }
 	 }
-	 Debug(Channel(DBG_NE_REDUCE) << *this << "\n");
+	 Debug(Channel(DBG_REDUCE) << *this << "\n");
       }
    }
 }
@@ -497,6 +501,8 @@ void NormalExpression::do_or(NormalExpression &other) {
    // add his terms to my terms
    terms.join(other.terms);
 
+   Debug(Channel(DBG_OR) << *this << "\n");
+ 
    // get rid of duplicate terms
    reduce();
 }
@@ -584,26 +590,23 @@ void NormalExpression::do_and(NormalExpression &other) {
 }
 
 void NormalExpression::restrict(FilterAFI *af) {
-   /* this wasn't thought out so well, needs serious rework */
 
    NormalTerm *term = new NormalTerm;
    NormalExpression *ne = new NormalExpression (*this);
    become_empty();
-   this->singleton_flag = ne->singleton_flag;
 
    for (term = ne->first(); term ; term = ne->next()) {
-     if (term->prfx_set.universal() && term->ipv6_prfx_set.universal()) {
-       /* neither a IPv4 or an IPv6 prefix set, e.g. an AS path */
-       *this += term;
-     } else if (term->prfx_set.universal()) { // v6
+     if (term->prfx_set.universal()) { // v6
        term->ipv6_prfx_set.restrict(af->afi_list);   
        if (! term->ipv6_prfx_set.isEmpty()) {
          *this += term;
+         this->singleton_flag = NormalTerm::IPV6_PRFX;
        }
      } else if (term->ipv6_prfx_set.universal()) {
        term->prfx_set.restrict(af->afi_list);   
        if (! term->prfx_set.isEmpty()) {
          *this += term;
+         this->singleton_flag = NormalTerm::PRFX;
        }
      }
    }
@@ -647,7 +650,7 @@ void NormalExpression::do_not() {
 	 }
       }
 
-      Debug(Channel(DBG_NE_NOT) << tmpexp << "\n"); 
+      Debug(Channel(DBG_NOT) << tmpexp << "\n"); 
       result.do_and(tmpexp);
       tmpexp.terms.clear(); // this also free's elements' memory
    }

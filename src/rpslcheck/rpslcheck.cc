@@ -55,13 +55,14 @@
 #include <config.h>
 #include <iostream>
 #include "rpsl/object.hh"
-#include "irrutil/rusage.hh"
-#include "irrutil/debug.hh"
-#include "irrutil/trace.hh"
-#include "irrutil/Argv.hh"
-#include "irrutil/version.hh"
+#include "util/rusage.hh"
+#include "util/debug.hh"
+#include "util/trace.hh"
+#include "util/Argv.hh"
+#include "util/version.hh"
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
+#include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
 
 using namespace std;
@@ -69,13 +70,12 @@ using namespace std;
 Rusage ru;
 bool opt_stats                   = false;
 bool opt_rusage                  = false;
-char *opt_prompt                 = (char *)"rpslcheck> ";
+char *opt_prompt                 = "rpslcheck> ";
 bool opt_echo                    = false;
-bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
 bool opt_debug_rpsl              = false;
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
 int start_tracing(char *dst, char *key, char *nextArg) {
    if (nextArg) {
@@ -106,9 +106,6 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      IRR_COMMAND_LINE_OPTIONS,
 
-     {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
-      "print AS numbers in asdot format."},
-
      {"-rusage", ARGV_BOOL, (char *) NULL,           (char *) &opt_rusage,
       "On termination print resource usage"},
      {"-stats", ARGV_BOOL, (char *) NULL,            (char *) &opt_stats,
@@ -120,10 +117,10 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      {"-echo", ARGV_BOOL, (char *) NULL,           (char *) &opt_echo,
       "Echo each object parsed"},
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
      {"-debug_rpsl", ARGV_BOOL, (char *) NULL,     (char *) &opt_debug_rpsl,
       "Turn on bison debugging. Intended for developers."},
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
@@ -147,18 +144,18 @@ void init_and_set_options (int argc, char **argv, char **envp) {
 }
 
 
-int main(int argc, char **argv, char **envp) {
+main(int argc, char **argv, char **envp) {
    schema.initialize();
    init_and_set_options(argc, argv, envp);
    schema.beHarsh();
 
    // opt_echo = 1;
 
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
    extern int rpsldebug;
    if (opt_debug_rpsl)
       rpsldebug = 1;
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
    Object *o;
    bool code = true;
@@ -166,15 +163,7 @@ int main(int argc, char **argv, char **envp) {
    
    while (opt_my_as || cin ) {
        if (opt_my_as) {
-          // if the first two characters of the ASN are "as", then ignore them
-          if (strcasestr(opt_my_as, "as") == opt_my_as)
-            opt_my_as += 2;
-
-          const char *dot = strchr(opt_my_as,'.');
-          if (dot)
-             myAS = atoi(opt_my_as)<<16 | atoi(dot+1);
-          else
-	     myAS = atoi(opt_my_as);
+	  myAS = atoi(opt_my_as + 2);
 	  const AutNum *autnum = irr->getAutNum(myAS);
           if (!autnum)	{
           	std::cerr << "Error: no object for AS " << myAS << std::endl;

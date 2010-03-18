@@ -65,7 +65,7 @@ extern "C" {
 #include "FilterOfSymbol.hh"
 #include "FilterOfASPath.hh"
 #include "FilterOfCommunity.hh"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 
 class NormalTerm {
 public:

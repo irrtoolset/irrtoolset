@@ -56,8 +56,8 @@
 
 #include "config.h"
 #include <iostream>
-#include "dataset/unsigned.OXPSet.h"
-#include "rpsl/List.hh"
+#include "gnug++/unsigned.OXPSet.h"
+#include "util/List.hh"
 
 class Item;
 

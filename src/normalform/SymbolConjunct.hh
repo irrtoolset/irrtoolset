@@ -60,8 +60,8 @@ extern "C" {
 #include <sys/types.h>
 }
 
-#include "dataset/SetOfSymID.hh"
-#include "irrutil/debug.hh"
+#include "gnu/SetOfSymID.hh"
+#include "util/debug.hh"
 #include "rpsl/symbols.hh"
 
 

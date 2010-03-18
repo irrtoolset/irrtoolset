@@ -57,8 +57,8 @@
 #include "config.h"
 #include <cstdio>
 #include <sys/types.h>
-#include "Stack.hh"
-#include "rpsl/List.hh"
+#include "util/Stack.hh"
+#include "util/List.hh"
 #include "rpsl/prefix.hh"
 
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
@@ -70,7 +70,7 @@
 extern u_int64_t bits[];
 extern u_int masks[];
 
-#include "FixedSizeAllocator.hh"
+#include "util/FixedSizeAllocator.hh"
 
 extern FixedSizeAllocator RadixTreeAllocator;
 
@@ -242,6 +242,7 @@ public:
       PrefixRangeIterator(const RadixSet *s) : itr(s->root) {}
       bool first(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
       bool next(u_int &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      // Added by wlee@isi.edu for roe
       bool first(PrefixRange &pr) {
 	u_int _addr, _leng, _start, _end;
 	bool b = first(_addr, _leng, _start, _end);
@@ -323,6 +324,7 @@ public:
       root = root->makeMoreSpecific(code, n, m);
    }
 
+   // Added by wlee@isi.edu, used by roe
    void insert(const PrefixRange &pr) {
      u_int n = pr.get_n();
      u_int m = pr.get_m();

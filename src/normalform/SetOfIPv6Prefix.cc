@@ -54,7 +54,7 @@
 #pragma implementation
 
 #include "config.h"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "SetOfIPv6Prefix.hh"
 #include <cstdio>
 #include <cassert>

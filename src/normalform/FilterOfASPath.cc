@@ -52,7 +52,7 @@
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
 #include "config.h"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "FilterOfASPath.hh"
 #include <cstdio>
 #include <ostream>

@@ -54,7 +54,7 @@
 #include "config.h"
 #include <iostream>
 #include "NT.hh"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 
 using namespace std;
 

@@ -57,8 +57,8 @@
 #define AUTNUM_H
 
 #include "rpsl/object.hh"
-#include "dataset/SetOfUInt.hh"
-#include "rpsl/List.hh"
+#include "gnug++/SetOfUInt.hh"
+#include "util/List.hh"
 #include "rpsl/schema.hh"
 #include "irr/irr.hh"
 #include "rpsl/prefix.hh"
@@ -116,6 +116,8 @@ public:
    }
 
    void gatherPeerings();
+   // Added by wlee@isi.edu
+   void removePeer(ASt peerAS);
    ASt asno(void) const;
 };
 
@@ -271,6 +273,7 @@ private:
    const MPPrefix *peerIP;
    const MPPrefix *ip;
 
+// Made it protected by wlee
 protected:      
    virtual bool isMatching(Attr *attr) {
       return isPeeringMatching(((AttrDefault *) attr)->peering, 
@@ -280,7 +283,7 @@ protected:
 public:
    AutNumDefaultIterator(const AutNum *an,
 			 const ASt _peerAS = INVALID_AS, 
-			 const char *attrib = "default",
+       const char *attrib = "default",
 			 const MPPrefix *_peerIP = NULL, 
 			 const MPPrefix *_ip = NULL):
      AttrIterator<AttrDefault>(an, attrib), 
@@ -307,6 +310,15 @@ protected:
 	for (ListIterator<PolicyPeeringAction> j(*(i->peeringActionList)); j; ++j)	
           // isPeeringMatching for extracting AS from peering-sets and as-sets as peerings
 	  if (j->peering && isPeeringMatching(j->peering, NULL, peerAS, NULL, NULL)) return true;
+
+       // never returned true!
+/*#if 0
+	  if (j()->peering && j()->peering->peerAS == peerAS) return true;
+
+
+#else
+      ;
+#endif */
     }
     else
       if (typeid(*policy) == typeid(PolicyRefine))
@@ -366,7 +378,7 @@ private:
 public:
    AutNumSelector(const AutNum *an, const char *attrib, SymID pset,
                   const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip,
-                  const char *fProtName = "BGP4", const char *iProtName = "BGP4"):
+                  char *fProtName = "BGP4", char *iProtName = "BGP4"):
       current(NULL), afi_list(new ItemList) {
       AttrIterator<AttrType> itr(an, attrib);
       const AttrType *import;
@@ -383,11 +395,9 @@ public:
                afi_list->merge(*tmp_afi_list);
                delete list;
                delete tmp_afi_list;
-               tmp_afi_list = new ItemList;
             }
          }
       }
-      delete tmp_afi_list;
    }
 
    FilterAction *first() {
@@ -416,6 +426,7 @@ private:
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
+         FilterAction *filterAction;
          PolicyTerm   *pt = (PolicyTerm *) policy;
          PolicyFactor *pf;
          PolicyPeeringAction *pa;
@@ -708,5 +719,62 @@ public:
         return current;
       }
 };
+
+
+class PeeringSetIterator {
+private:
+      SortedList<Peering> *peerings;
+      Peering *current;
+
+public:
+      PeeringSetIterator(const PeeringSet *prngSet) {
+        peerings = new SortedList<Peering>;
+        for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));   
+          else 
+             assert(0);
+        }
+        for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));
+          else
+             assert(0);
+        }
+      }
+  Peering *first() {
+      current = peerings->head();
+      return current;
+   }
+
+  Peering *next() {
+      if (current)
+         current = peerings->next(current);
+      return current;
+   }
+};
+
 
 #endif   // AUTNUM_H

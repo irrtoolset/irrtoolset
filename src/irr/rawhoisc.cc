@@ -76,10 +76,20 @@ extern "C" {
 
 #include "rawhoisc.hh"
 #include "route.hh"
-#include "irrutil/trace.hh"
+#include "util/trace.hh"
 #include "rpsl/object_log.hh"
 
 extern "C" {
+#ifndef HAVE_DECL_CONNECT
+extern int connect(...);
+#endif // HAVE_DECL_CONNECT
+#ifndef HAVE_DECL_SOCKET
+extern int socket(...);
+#endif // HAVE_DECL_SOCKET
+#ifndef HAVE_DECL_GETHOSTBYNAME
+extern struct hostent *gethostbyname(...);
+#endif // HAVE_DECL_GETHOSTBYNAME
+
 #ifdef DEFINE_HTONS_WITH_ELLIPSIS
 extern u_short htons(...);
 #else  // DEFINE_HTONS_WITH_ELLIPSIS
@@ -127,6 +137,12 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    server_sockaddr.sin_port = htons((u_short) port);
    
    sock = socket(AF_INET, SOCK_STREAM, 0);
+/*
+   // Set keep alive option for the socket -- wlee@isi.edu
+   int on = 1;
+   if (setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, (void *)&on, sizeof(on)) < 0)
+     error.warning("Warning: setsockopt SO_KEEPALIVE failed!\n");
+*/
    if (sock < 0)
       error.Die("Error: socket() failed.\n");
 
@@ -210,6 +226,12 @@ void RAWhoisClient::SetSources(const char *_sources) {
 
    if (err)
       error.error("Error: current source setting is %s.\n", current_sources);
+}
+
+const char *RAWhoisClient::GetSources(void) {
+   if (! _is_open)
+      Open();
+   return current_sources;
 }
 
 #ifndef TRUE
@@ -364,6 +386,64 @@ int RAWhoisClient::Response(char *&response) {
    return count;
 }
 
+// rusty - this function was added to read an irrserver response, 
+// including the initial 'A' and following 'C' lines.  used by relayd
+// to cache responses from the the server.
+int RAWhoisClient::TotalResponse(char *&response) { 
+   if (!_is_open)
+      Open();
+   if (error())
+       return 0;
+
+   char buffer[1024]; 
+
+   // Read the "A<byte-count>" line
+   if (!fgets(buffer, sizeof(buffer), in)) {
+       error ("fgets() failed.");
+       return 0;
+   }
+
+   if (*buffer == 'D') { // key not found error
+       response = new char[strlen(buffer)];
+       strcpy (response, buffer);
+   } else if (*buffer == 'C') { // returned success
+       response = new char[strlen (buffer) + 1];
+       strcpy (response, buffer);
+   } else if (*buffer != 'A') { // we are expecting a byte-count line
+       response = new char[strlen (buffer) + 1];
+       strcpy (response, buffer);
+   }
+
+   if (*buffer != 'A')
+       return (strlen (response));
+
+   // AXXX + body + return_code & extra, if any
+   int len = strlen (buffer);
+   int count = atoi(buffer + 1);
+   response = new char[len + count + 80];
+
+   strcpy (response, buffer);
+   if (fread((char *) &response[len], 1, count, in) != count) {
+       error ("fread() failed.");
+       return 0;
+   }
+
+   len += count;
+   response[len] = '\0';
+
+   // Read the return code line
+   if (!fgets(buffer, sizeof(buffer), in)) {
+      error ("fgets() failed.");
+      return 0; 
+   }
+
+   strcpy ((char *) &response[len], buffer);
+   len += strlen (buffer);
+   response[len] = '\0';
+
+   return (error()) ? 0 : len;	// rusty: 0 or count
+}
+
 void RAWhoisClient::WriteQuery(const char *format, va_list ap) {
    vsprintf(last_query, format, ap);
 
@@ -436,7 +516,7 @@ bool RAWhoisClient::getAutNum(char *as,   char *&text, int &len) {
    return len;
 }
 
-bool RAWhoisClient::getSet(SymID sname, const char *clss, char *&text, int &len) {
+bool RAWhoisClient::getSet(SymID sname, char *clss, char *&text, int &len) {
    len = QueryResponse(text, "!m%s,%s", clss, sname);
    return len;
 }
@@ -477,66 +557,27 @@ bool RAWhoisClient::expandAS(char *as,       MPPrefixRanges *result) {
 }
 
 bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
-  Set *set = NULL;
-
-  if (queryCache(asset, set)) {
-    AttrGenericIterator<Item> itr(set, "members");
-    for (Item *pt = itr.first(); pt; pt = itr.next())
-      if (typeid(*pt) == typeid(ItemASNAME)) { // ASNAME (aka as-set)
-        const SetOfUInt *tmp = IRR::expandASSet(((ItemASNAME *)pt)->name);
-        if (tmp) 
-          *result |= *(SetOfUInt *) tmp;
-      } else if (typeid(*pt) == typeid(ItemASNO)) {
-        result->add(((ItemASNO *)pt)->asno);
-      } else {
-        cerr << "WARNING: irrd/rawhoisd cannot resolve as-set " << asset << "!";
-        cerr << "Unknown element found in as-set definition!\n";
-      }
-      if (set)
-        delete [] set;
-  } else {
-    char *response;
-    if (!QueryResponse(response, "!i%s,1", asset))
-      return false;
-    for (char *word = strtok(response, " \t\n"); 
-         word; 
-         word = strtok(NULL, " \t\n"))
-      result->add(atoi(word+2));
-    if (response)
-      delete [] response;
-  }
-
+  char *response;
+  if (!QueryResponse(response, "!i%s,1", asset)) return false;
+  for (char *word = strtok(response, " \t\n"); 
+       word; 
+       word = strtok(NULL, " \t\n"))
+    result->add(atoi(word+2));
+  if (response)
+     delete [] response;
   return true;
 }
 
 bool RAWhoisClient::expandRSSet(SymID rsset, MPPrefixRanges *result) {
-  Set *set = NULL;
-
-  if (queryCache(rsset, set)) {
-    AttrGenericIterator<Item> itr(set, "members");
-    for (Item *pt = itr.first(); pt; pt = itr.next()) {
-      expandItem(pt, result);
-    }
-    AttrGenericIterator<Item> itr1(set, "mp-members");
-    for (Item *pt = itr1.first(); pt; pt = itr1.next()) {
-      expandItem(pt, result);
-    }
-
-    if (set)
-      delete [] set;
-  } else {
-    char *response;
-    if (!QueryResponse(response, "!i%s,1", rsset))
-      return false;
-    for (char *word = strtok(response, " \t\n"); 
-         word; 
-         word = strtok(NULL, " \t\n"))
-      result->push_back(MPPrefix(word));
-    if (response)
-      delete [] response;
-  }
-
-  return true;  
+  char *response;
+  if (!QueryResponse(response, "!i%s,1", rsset)) return false;
+  for (char *word = strtok(response, " \t\n"); 
+       word; 
+       word = strtok(NULL, " \t\n"))
+    result->push_back(MPPrefix(word));
+  if (response)
+     delete [] response;
+  return true;
 }
 
 bool RAWhoisClient::expandRtrSet(SymID sname, MPPrefixRanges *result) {

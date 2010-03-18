@@ -53,7 +53,7 @@
 
 #include "config.h"
 #include "Filter.hh"
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include <ostream>
 
 using namespace std;

@@ -65,6 +65,9 @@
 
 class FilterOfASPath : public NEFilter {
 public:
+   friend class BccConfig;
+   friend class GatedConfig;
+   friend class RSdConfig;
    friend class JunosConfig;
 
    FilterOfASPath() {

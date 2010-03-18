@@ -60,7 +60,7 @@
 #include <iostream>
 #include <cassert>
 #include "RadixSet.hh"
-#include "dataset/prefixranges.hh"
+#include "gnu/prefixranges.hh"
 #include "rpsl/rpsl_item.hh"
 
 // the following set class can perform set complement operation 
@@ -69,6 +69,9 @@ class SetOfPrefix {
    friend class RtConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
+   friend class GatedConfig;
+   friend class RsdConfig;
+   friend class BccConfig;
 
 public:
    SetOfPrefix() : members() {

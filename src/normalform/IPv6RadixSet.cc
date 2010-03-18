@@ -868,6 +868,7 @@ void IPv6RadixTree::print() const {
       return;
 
    static int offset = 1;
+   char buffer[64];
 
 //   cout << setw(8) << setfill('0') << hex << rngs << dec << setfill(' ') 
 //	<< setw(offset) << " " << int2quad(buffer, addr) << "/" << leng << "\n";

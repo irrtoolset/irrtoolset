@@ -74,11 +74,12 @@ extern void add_history (char *);
 
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "irrutil/debug.hh"
-#include "irrutil/trace.hh"
-#include "irrutil/rusage.hh"
-#include "irrutil/Argv.hh"
-#include "irrutil/version.hh"
+#include "irr/ripewhoisc.hh"
+#include "util/debug.hh"
+#include "util/trace.hh"
+#include "util/rusage.hh"
+#include "util/Argv.hh"
+#include "util/version.hh"
 #include "rpsl/schema.hh"
 #include "normalform/NE.hh"
 #include "re2dfa/regexp_nf.hh"
@@ -94,27 +95,26 @@ using namespace std;
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
-char *opt_prompt                 = (char *)"peval> ";
+char *opt_prompt                 = "peval> ";
 int  opt_expand                  = EXPAND_ALL;
 int  opt_symbolic                = 0;
-bool opt_asdot                   = false;
 
 const int SIZE = 8*1024;
 char base[SIZE] = "peval: ";
 char temp[SIZE];
 char safe_base[SIZE];
-char *irrfilter;
+char *filter;
 char *cut;
 
 void evaluate() {
    if (opt_expand & EXPAND_ASSets)
       regexp_nf::expandASSets();
 
-   strcat(irrfilter, "\n\n");
+   strcat(filter, "\n\n");
    // Was: safe_base = base;
    memcpy(safe_base, base, SIZE);
 
-   cut = strstr(irrfilter, "afi");
+   cut = strstr(filter, "afi");
    if (cut && isspace(*(cut+3))) {
      strcat (temp, "mp-");
      strcat (temp, base);
@@ -207,7 +207,7 @@ int skipAll(char *dst, char *key, char *nextArg) {
 int expression(char *dst, char *key, char *nextArg) {
    if (!nextArg) return 0;
 
-   strcpy(irrfilter, nextArg);
+   strcpy(filter, nextArg);
    return 1;
 }
 
@@ -227,9 +227,6 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "Prompt"},
 
       IRR_COMMAND_LINE_OPTIONS,
-
-      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
-       "print AS numbers in asdot format."},
 
       // peval specific arguments
       {"-symbolic",  ARGV_CONSTANT, (char *)1, (char *)&opt_symbolic, 
@@ -266,7 +263,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
    // the first one is the expression
    switch (argc) {
    case 2:
-      strcpy(irrfilter, argv[1]);
+      strcpy(filter, argv[1]);
       break;
    case 1:
       break;
@@ -275,7 +272,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       exit(-1);
    }
 
-   if (*irrfilter) {
+   if (*filter) {
       evaluate();
       exit(0);
    }
@@ -312,9 +309,9 @@ rl_gets (char *prompt)
 }
 #endif // HAVE_READLINE
 
-int main (int argc, char **argv, char **envp) {
+main (int argc, char **argv, char **envp) {
    int newSize = strlen(base);
-   irrfilter = base + newSize;
+   filter = base + newSize;
    newSize = SIZE - newSize - 3;
 
    schema.initialize();
@@ -325,12 +322,12 @@ int main (int argc, char **argv, char **envp) {
       char *line = rl_gets(opt_prompt);
       if (!line)
 	 break;
-      strncpy(irrfilter, line, newSize);
+      strncpy(filter, line, newSize);
       evaluate();
 #else // HAVE_READLINE
       if (opt_prompt)
 	 cout << opt_prompt;
-      if (cin.getline(irrfilter, newSize))
+      if (cin.getline(filter, newSize))
 	 evaluate();
       else
 	 break;

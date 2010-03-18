@@ -52,13 +52,11 @@
 #include "config.h"
 #include <cstdio>
 #include <sys/types.h>
-#include "Stack.hh"
-#include "rpsl/List.hh"
+#include "util/Stack.hh"
+#include "util/List.hh"
 #include "rpsl/prefix.hh"
 
-#ifndef foreachchild
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
-#endif //foreachchild
 
 #ifndef u_int64_t
 #define u_int64_t unsigned long long int
@@ -68,7 +66,7 @@
 #define u_int unsigned int
 #endif
 
-#include "FixedSizeAllocator.hh"
+#include "util/FixedSizeAllocator.hh"
 
 extern FixedSizeAllocator IPv6RadixTreeAllocator;
 extern ip_v6word_t ipv6masks[];
@@ -243,6 +241,23 @@ public:
       PrefixRangeIterator(const IPv6RadixSet *s) : itr(s->root) {}
       bool first(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
       bool next(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      // Added by wlee@isi.edu for roe
+/*
+      bool first(PrefixRange &pr) {
+	u_int _addr, _leng, _start, _end;
+	bool b = first(_addr, _leng, _start, _end);
+	pr = PrefixRange(_addr, _leng, 
+			 (unsigned char)_start, (unsigned char)_end);
+	return b;
+      }
+      bool next(PrefixRange &pr) {
+	u_int _addr, _leng, _start, _end;
+	bool b = next(_addr, _leng, _start, _end);
+	pr = PrefixRange(_addr, _leng, 
+			 (unsigned char)_start, (unsigned char)_end);
+	return b;
+      }
+*/
    };
 
    class SortedPrefixRangeIterator {
@@ -280,10 +295,14 @@ public:
 
    IPv6RadixSet(const IPv6RadixSet &b) {
       if (b.root) {
-         root = new IPv6RadixTree(*b.root);
-      } else {
-         root = (IPv6RadixTree *) NULL;
-      }
+	 root = new IPv6RadixTree(*b.root);
+   }
+      else {
+	 root = (IPv6RadixTree *) NULL;
+   }
+
+    // DEBUG
+    //cout << "created IPv6RadixSet " << *this << endl;
    }
 
    ~IPv6RadixSet() {
@@ -314,6 +333,23 @@ public:
       root = root->makeMoreSpecific(code, n, m);
    }
 
+   // Added by wlee@isi.edu, used by roe
+/*
+   void insert(const PrefixRange &pr) {
+     u_int n = pr.get_n();
+     u_int m = pr.get_m();
+     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
+                        (~(u_int64_t)0 << (32 - m));
+     insert(pr.get_ipaddr(), pr.get_length(), range);
+   }
+   bool contains(PrefixRange &pr) const {
+     u_int n = pr.get_n();
+     u_int m = pr.get_m();
+     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
+                        (~(u_int64_t)0 << (32 - m));
+     return contains(pr.get_ipaddr(), pr.get_length(), range);
+   }
+*/
    void clear() {
       if (root) {
 	 delete root;

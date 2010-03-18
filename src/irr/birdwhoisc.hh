@@ -57,8 +57,9 @@
 
 #include "config.h"
 #include "irr/irr.hh"
-#include "irrutil/net.hh"
-#include "dataset/SetOfUInt.hh"
+#include "util/net.hh"
+#include "util/buffer.hh"
+#include "gnug++/SetOfUInt.hh"
 #include <cassert>
 
 
@@ -74,7 +75,7 @@ class BirdWhoisClient : public IRR, public Socket {
 
   protected:
     virtual bool getAutNum(char *as,          char *&text, int &len);
-    virtual bool getSet(SymID sname, const char *clss, char *&text, int &len);
+    virtual bool getSet(SymID sname, char *clss, char *&text, int &len);
     virtual bool getRoute(char *rt, char *as, char *&text, int &len);
     virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len);
     virtual bool expandASSet(SymID asset,     SetOfUInt    *result);
@@ -93,6 +94,9 @@ class BirdWhoisClient : public IRR, public Socket {
 		      const char *_sources = dflt_sources);
     virtual void Close(void);
 
+    // For compatibility reasons mostly for roe
+    int getSourceOrigin(char *&buffer, const char *rt);
+    int getSourceOrigin(char *&buffer);
     void querySourceOrigin(const char *rt);
     bool readReady(void) {
        return (response && response->size > 0) || Socket::readReady();

@@ -60,8 +60,8 @@ extern "C" {
 #include <sys/types.h>
 }
 #include "NT.hh"
-#include "dataset/NormalTermPtr.DLList.h"
-#include "irrutil/debug.hh"
+#include "gnug++/NormalTermPtr.DLList.h"
+#include "util/debug.hh"
 #include "rpsl/rpsl_filter.hh"
 
 const unsigned int EXPAND_AS_MACROS         = 0x000001;

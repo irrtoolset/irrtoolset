@@ -56,8 +56,8 @@
 #include <cassert>
 #include "config.h"
 #include "SetOfSymbol.hh"
-#include "dataset/SetOfUInt.hh"
-#include "irrutil/debug.hh"
+#include "gnug++/SetOfUInt.hh"
+#include "util/debug.hh"
 
 using namespace std;
 
@@ -68,7 +68,7 @@ SetOfSymbol::SetOfSymbol(SetOfSymbol &a) {
 }
 
 ostream& operator<<(ostream& stream, SetOfSymbol& set) {
-   Pix i;
+   Pix i, k;
    SymbolConjunctPtr conjunct;
 
    for (i = set.conjuncts.first(); i;  ) {
@@ -133,6 +133,9 @@ void SetOfSymbol::reduce() {
 }
 
 void SetOfSymbol::operator &= (SetOfSymbol& b) { // intersection
+   SymbolConjunctPtr conjunct;
+   Pix i;
+
    if (empty() || b._universal)
       return;
 
@@ -205,7 +208,7 @@ void SetOfSymbol::operator |= (SetOfSymbol& b) { // union
 
 void SetOfSymbol::operator ~  () { // complement
    SymbolConjunctPtr conjunct;
-   Pix i;
+   Pix i, j;
    SetOfSymbol tmp, tmp2;
 
    if (_universal) {
@@ -268,7 +271,7 @@ void SetOfSymbol::operator =  (const SetOfUInt& b) { // assignment
 
 void SetOfSymbol::add(ASt as) {
    char buffer[64];
-   asnum_string(buffer, as);
+   sprintf(buffer, "AS%d", as);
    add(symbols.symID(buffer));
 }
 
