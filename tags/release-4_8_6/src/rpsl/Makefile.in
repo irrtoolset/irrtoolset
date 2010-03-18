@@ -1,0 +1,116 @@
+# $Id$
+
+GOAL		= librpsl.a
+
+SRCDIRS		= gnu		\
+	          rpsl
+
+SUBDIRS		= $(SRCDIRS)
+
+OBJECTS 	= rpsl/object.o rpsl/rpsl_attr.o rpsl/schema.o rpsl/rpsl_item.o rpsl/prefix.o rpsl/afi.o rpsl/rpsl_filter.o rpsl/rpsl_policy.o rpsl/symbols.o rpsl/rpsl.y.o rpsl/rpsl.l.o rpsl/rptype.o rpsl/regexp.o rpsl/schema_rpsl.o rpsl/rangelist.o rpsl/object_log.l.o gnu/PrefixRange.Plex.o gnu/PrefixRange.XPlex.o gnu/SymID.Set.o gnu/SymID.VHSet.o
+
+#-------------------------------------------------------------------
+# Paths
+srcdir	    	= @srcdir@
+top_srcdir  	= @top_srcdir@
+prefix      	= @prefix@
+exec_prefix 	= @exec_prefix@
+bindir      	= @bindir@
+mandir      	= @mandir@
+man1dir     	= $(mandir)/man1
+man8dir     	= $(mandir)/man8
+
+# Programs
+@SET_MAKE@
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @CXX@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# Other variables
+DEFINES  	= @DEFS@
+CFLAGS   	= @CFLAGS@
+CPPFLAGS 	= @CPPFLAGS@
+LDFLAGS  	= @LDFLAGS@
+CXXFLAGS 	= @CXXFLAGS@
+LIBS   		= @all_LIBRARIES@ @LIBS@ @EXTRA_LIBS@
+PACKAGE		= @PACKAGE@
+VERSION		= @VERSION@
+DIST_COMMON	= Makefile.in
+DISTFILES	= $(DIST_COMMON)
+
+default: all
+
+# Implicit Rules
+.y.o:
+
+.c.o:
+	@echo Compiling: `basename $<`
+	@$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	@echo Compiling: `basename $<`
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.SUFFIXES: .cc
+
+# Making the distribution
+distdir:
+	@for file in `cd $(srcdir) && echo $(DISTFILES)`; do \
+	  test -f $(distdir)/$$file \
+	  || ln $(srcdir)/$$file $(distdir)/$$file 2> /dev/null \
+	  || cp -p $(srcdir)/$$file $(distdir)/$$file; \
+	done
+	@for subdir in $(SUBDIRS); do		\
+	  test -d $(distdir)/$$subdir		\
+	  || mkdir $(distdir)/$$subdir		\
+	  || exit 1;				\
+	  chmod 777 $(distdir)/$$subdir;	\
+	  (cd $$subdir && $(MAKE) distdir=../$(distdir)/$$subdir distdir) \
+	    || exit 1; \
+	done
+
+# Other explicit Rules
+all: dosrcs
+	@echo "Creating library archive: $(GOAL)"
+	ar ruv $(GOAL) $(OBJECTS)
+	@$(RANLIB) $(GOAL)
+
+dosrcs:
+	@echo "CFLAGS=" $(CFLAGS)
+	@echo "CXXFLAGS=" $(CXXFLAGS)
+	@for subdir in $(SRCDIRS); do            	\
+	        (cd $$subdir && $(MAKE) $(MFLAGS) all)  \
+	         || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+
+
+clean:
+	@for subdir in $(SUBDIRS); do            	 \
+	        (cd $$subdir && $(MAKE) $(MFLAGS) clean); \
+	done
+	rm -f core *.o *~ $(GOAL)
+
+mostlyclean:
+	@for subdir in $(SUBDIRS); do            	 	\
+	        (cd $$subdir && $(MAKE) $(MFLAGS) mostlyclean);	\
+	done
+	rm -f core *.o *~
+
+depend:
+	@for subdir in $(SUBDIRS); do            	 	\
+	        (cd $$subdir && $(MAKE) $(MFLAGS) depend); 	\
+	done
+
+tags:
+	find `pwd` -regex '.*\.[chyl][ch]?$$' | xargs etags -t
+
+list:
+	find `pwd` -name \*.hh -or -name \*.cc -or -name \*.c -or -name \*.h -or -name \*.y 

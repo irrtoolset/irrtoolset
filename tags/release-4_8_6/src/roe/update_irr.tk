@@ -1,0 +1,102 @@
+#  $Id$
+# Copyright (c) 2001,2002                        RIPE NCC
+#
+# All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation, and that the name of the author not be
+# used in advertising or publicity pertaining to distribution of the
+# software without specific, written prior permission.
+#
+# THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+# ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+# AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+#
+#  Copyright (c) 1994 by the University of Southern California
+#  All rights reserved.
+#
+#    Permission is hereby granted, free of charge, to any person obtaining a copy
+#    of this software and associated documentation files (the "Software"), to deal
+#    in the Software without restriction, including without limitation the rights
+#    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#    copies of the Software, and to permit persons to whom the Software is
+#    furnished to do so, subject to the following conditions:
+#
+#    The above copyright notice and this permission notice shall be included in
+#    all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#    THE SOFTWARE.
+#
+#  Questions concerning this software should be directed to
+#  ratoolset@isi.edu.
+#
+#  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+
+
+proc update_irr_setup {source mnt_by} {
+    toplevel .update_irr_$source\_$mnt_by
+    wm title .update_irr_$source\_$mnt_by \
+	    "Update IRR (Source: $source Mnt-by: $mnt_by)"
+
+    frame .update_irr_$source\_$mnt_by.cmd
+    pack  .update_irr_$source\_$mnt_by.cmd -side top -anchor w -fill x -expand 1
+    label .update_irr_$source\_$mnt_by.cmd.label -text {} -bd 2
+    pack  .update_irr_$source\_$mnt_by.cmd.label -side left -anchor w
+    entry .update_irr_$source\_$mnt_by.cmd.entry -relief sunken -bd 2 -width 30
+    pack  .update_irr_$source\_$mnt_by.cmd.entry \
+	    -side left -anchor w -fill x -expand 1
+
+    frame .update_irr_$source\_$mnt_by.body -bd 2 -relief raised
+    pack  .update_irr_$source\_$mnt_by.body -side top -anchor w -fill both -expand 1
+
+    
+    label .update_irr_$source\_$mnt_by.body.label \
+	    -text "Please type any authorization keywords that may be required for source: $source mnt-by: $mnt_by" -bd 2
+    pack  .update_irr_$source\_$mnt_by.body.label -side top -anchor w
+    text  .update_irr_$source\_$mnt_by.body.text  \
+	    -relief sunken -bd 2 -width 80 -height 32 \
+	    -yscrollcommand ".update_irr_$source\_$mnt_by.body.yscroll set"
+
+    pack  .update_irr_$source\_$mnt_by.body.text  \
+	    -side left -fill both -expand true -anchor nw 
+    scrollbar .update_irr_$source\_$mnt_by.body.yscroll -command ".update_irr_$source\_$mnt_by.body.text yview"
+    pack .update_irr_$source\_$mnt_by.body.yscroll -side left -fill y
+
+    button .update_irr_$source\_$mnt_by.apply -border 1 -text Update \
+	    -command "update_irr_apply $source $mnt_by"
+    pack .update_irr_$source\_$mnt_by.apply -side left -padx 2 -pady 2 -ipadx 2
+
+    button .update_irr_$source\_$mnt_by.cancel -text Cancel \
+	    -command "destroy .update_irr_$source\_$mnt_by"
+    pack .update_irr_$source\_$mnt_by.cancel -side left -pady 2 -ipadx 2
+
+    label .update_irr_$source\_$mnt_by.status_label -text {} -bd 2
+    pack  .update_irr_$source\_$mnt_by.status_label -side right -anchor w
+
+}
+
+proc update_irr_apply {source mnt_by} {
+    set command [.update_irr_$source\_$mnt_by.cmd.entry get]
+    if [catch {open "| $command" w} file] {
+	.update_irr_$source\_$mnt_by.status_label \
+	   configure -text {Could not open pipe...}
+	focus .update_irr_$source\_$mnt_by.cmd.entry
+    } else {
+	puts $file [.update_irr_$source\_$mnt_by.body.text get 1.0 end]
+	close $file
+	destroy .update_irr_$source\_$mnt_by
+    }
+}

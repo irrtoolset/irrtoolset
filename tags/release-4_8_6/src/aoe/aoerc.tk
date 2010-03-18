@@ -1,0 +1,146 @@
+#  $Id$
+# Copyright (c) 2001,2002                        RIPE NCC
+#
+# All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation, and that the name of the author not be
+# used in advertising or publicity pertaining to distribution of the
+# software without specific, written prior permission.
+#
+# THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+# ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+# AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+#
+#  Copyright (c) 1994 by the University of Southern California
+#  All rights reserved.
+#
+#    Permission is hereby granted, free of charge, to any person obtaining a copy
+#    of this software and associated documentation files (the "Software"), to deal
+#    in the Software without restriction, including without limitation the rights
+#    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#    copies of the Software, and to permit persons to whom the Software is
+#    furnished to do so, subject to the following conditions:
+#
+#    The above copyright notice and this permission notice shall be included in
+#    all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#    THE SOFTWARE.
+#
+#  Questions concerning this software should be directed to
+#  irrtoolset@cs.usc.edu.
+#
+#  Author(s): WeeSan Lee <wlee@ISI.EDU>
+
+# Printing command
+set printCommand	{enscript -G}
+
+# IRR update commands
+set IRR_Update(Registries)	{ANS CANET MCI RADB RIPE}
+set IRR_Update(Command,Selection)	{3}
+set IRR_Update(Command,ANS)	{mail auto-dbm@ans.net}
+set IRR_Update(Command,CANET)	{mail auto-dbm@canet.net}
+set IRR_Update(Command,MCI)	{mail auto-rr@mci.net}
+set IRR_Update(Command,RADB)	{mail auto-dbm@radb.ra.net}
+set IRR_Update(Command,RIPE)	{mail auto-dbm@ripe.net}
+
+# For Policy Templates
+set PolicyTemplate(Total)	{5}
+set PolicyTemplate(0,Description)	{Peer is a Provider}
+set PolicyTemplate(0,import)	{from $PeerAS 
+        action pref = 10 
+        accept ANY AND NOT {0.0.0.0/0}}
+set PolicyTemplate(0,export)	{to $PeerAS 
+        announce $MyAS}
+set PolicyTemplate(1,Description)	{Peer is a Customer}
+set PolicyTemplate(1,import)	{from $PeerAS 
+        action pref = 10 
+        accept $PeerAS}
+set PolicyTemplate(1,export)	{to $PeerAS 
+        announce ANY AND NOT {0.0.0.0/0}}
+set PolicyTemplate(2,Description)	{Peer is a Transit AS}
+set PolicyTemplate(2,import)	{from $PeerAS 
+        action pref = 10 
+        accept ANY AND NOT {0.0.0.0/0}}
+set PolicyTemplate(2,export)	{to $PeerAS 
+        announce ANY AND NOT {0.0.0.0/0}}
+set PolicyTemplate(3,Description)	{Peer is a Non-transit AS}
+set PolicyTemplate(3,import)	{from $PeerAS 
+        action pref = 10 
+        accept $PeerAS}
+set PolicyTemplate(3,export)	{to $PeerAS 
+        announce $MyAS}
+set PolicyTemplate(4,Description)	{Peer is a Non-transit AS (AS_PATH)}
+set PolicyTemplate(4,import)	{from $PeerAS 
+        action pref = 10 
+        accept <$PeerAS$>}
+set PolicyTemplate(4,export)	{to $PeerAS 
+        announce <$MyAS$>}
+
+# For the changed field
+if [info exists env(USER)] {
+  set User $env(USER)
+} elseif [info exists env(LOGNAME)] {
+  set User $env(LOGNAME)
+} else {
+  set User unknown
+}
+if [info exists env(HOSTNAME)] {
+  set Hostname $env(HOSTNAME)
+} elseif [info exists env(HOST)] {
+  set Hostname $env(HOST)
+} else {
+  set Hostname [exec hostname]
+}
+set Email "$User@$Hostname"
+set yyyy [lindex [exec date] 5]
+set yy   [exec date +%y]
+set mm   [exec date +%m]
+set dd   [exec date +%d]
+# For convenient
+set YYYY $yyyy
+set YY   $yy
+set MM   $mm
+set DD   $dd
+set ChangedField(Mode)	{1}
+set ChangedField(Template)	{changed:      $Email $yyyy$mm$dd}
+
+# For New menu option
+set AutNumTemplate(Line,Total)	{9}
+set AutNumTemplate(Line,0)	{aut-num:      AS<no>}
+set AutNumTemplate(Line,1)	{as-name:      ASN-<name>}
+set AutNumTemplate(Line,2)	{descr:        description goes here}
+set AutNumTemplate(Line,3)	{admin-c:      $User}
+set AutNumTemplate(Line,4)	{tech-c:       $User}
+set AutNumTemplate(Line,5)	{notify:       $Email}
+set AutNumTemplate(Line,6)	{mnt-by:       MAINT-<name>}
+set AutNumTemplate(Line,7)	{$ChangedField(Template)}
+set AutNumTemplate(Line,8)	{source:       RADB}
+
+# For color syntax
+set ColorSyntax(Mode)	{1}
+set ColorSyntax(Keywords)	{ any as-any rs-any peeras 
+                                  and or not
+                                  atomic from to at action accept announce 
+                                  except refine networks into 
+                                  inbound outbound 
+}
+set ColorSyntax(Color,Keywords)	{Yellow}
+set ColorSyntax(Color,Attributes)	{DeepPink}
+set ColorSyntax(Color,Values)	{Blue}
+
+# Misc
+set tmpFile	"/tmp/aoe.[pid]"
