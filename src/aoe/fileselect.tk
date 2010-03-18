@@ -358,7 +358,7 @@ proc j:parse_args {arglist} {
 
 
 # ----------------------------------------------------------------------------
-# $Log$
+# $Log: fileselect.tk,v $
 # Revision 4.8  2002/03/27 13:56:38  katie
 # bugfix version, aoe up
 #
