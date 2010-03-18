@@ -52,7 +52,7 @@
 
 #ifndef lint
 static const char rcsid[] =
-    "@(#) $Header$ (LBL)";
+    "@(#) $Header: /proj/cvs/prod/IRRToolset/src/prtraceroute/ifaddrlist.c,v 4.9 2002/04/09 11:48:47 katie Exp $ (LBL)";
 #endif
 
 #include "config.h"

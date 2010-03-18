@@ -37,7 +37,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header$ (LBL)
+ * @(#) $Header: /proj/cvs/prod/IRRToolset/src/prtraceroute/ifaddrlist.h,v 4.9 2002/04/09 11:48:47 katie Exp $ (LBL)
  */
 
 struct ifaddrlist {
