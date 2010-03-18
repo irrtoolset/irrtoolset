@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
@@ -57,8 +51,8 @@
 #define AUTNUM_H
 
 #include "rpsl/object.hh"
-#include "dataset/SetOfUInt.hh"
-#include "rpsl/List.hh"
+#include "gnug++/SetOfUInt.hh"
+#include "util/List.hh"
 #include "rpsl/schema.hh"
 #include "irr/irr.hh"
 #include "rpsl/prefix.hh"
@@ -116,6 +110,8 @@ public:
    }
 
    void gatherPeerings();
+   // Added by wlee@isi.edu
+   void removePeer(ASt peerAS);
    ASt asno(void) const;
 };
 
@@ -271,6 +267,7 @@ private:
    const MPPrefix *peerIP;
    const MPPrefix *ip;
 
+// Made it protected by wlee
 protected:      
    virtual bool isMatching(Attr *attr) {
       return isPeeringMatching(((AttrDefault *) attr)->peering, 
@@ -280,7 +277,7 @@ protected:
 public:
    AutNumDefaultIterator(const AutNum *an,
 			 const ASt _peerAS = INVALID_AS, 
-			 const char *attrib = "default",
+       const char *attrib = "default",
 			 const MPPrefix *_peerIP = NULL, 
 			 const MPPrefix *_ip = NULL):
      AttrIterator<AttrDefault>(an, attrib), 
@@ -307,6 +304,15 @@ protected:
 	for (ListIterator<PolicyPeeringAction> j(*(i->peeringActionList)); j; ++j)	
           // isPeeringMatching for extracting AS from peering-sets and as-sets as peerings
 	  if (j->peering && isPeeringMatching(j->peering, NULL, peerAS, NULL, NULL)) return true;
+
+       // never returned true!
+/*#if 0
+	  if (j()->peering && j()->peering->peerAS == peerAS) return true;
+
+
+#else
+      ;
+#endif */
     }
     else
       if (typeid(*policy) == typeid(PolicyRefine))
@@ -366,7 +372,7 @@ private:
 public:
    AutNumSelector(const AutNum *an, const char *attrib, SymID pset,
                   const ASt peerAS, const MPPrefix *peerIP, const MPPrefix *ip,
-                  const char *fProtName = "BGP4", const char *iProtName = "BGP4"):
+                  char *fProtName = "BGP4", char *iProtName = "BGP4"):
       current(NULL), afi_list(new ItemList) {
       AttrIterator<AttrType> itr(an, attrib);
       const AttrType *import;
@@ -383,11 +389,9 @@ public:
                afi_list->merge(*tmp_afi_list);
                delete list;
                delete tmp_afi_list;
-               tmp_afi_list = new ItemList;
             }
          }
       }
-      delete tmp_afi_list;
    }
 
    FilterAction *first() {
@@ -416,6 +420,7 @@ private:
                                   Filter **combinedFilter = NULL) {
       if (typeid(*policy) == typeid(PolicyTerm)) {
          List<FilterAction> *list = new List<FilterAction>;
+         FilterAction *filterAction;
          PolicyTerm   *pt = (PolicyTerm *) policy;
          PolicyFactor *pf;
          PolicyPeeringAction *pa;
@@ -708,5 +713,62 @@ public:
         return current;
       }
 };
+
+
+class PeeringSetIterator {
+private:
+      SortedList<Peering> *peerings;
+      Peering *current;
+
+public:
+      PeeringSetIterator(const PeeringSet *prngSet) {
+        peerings = new SortedList<Peering>;
+        for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));   
+          else 
+             assert(0);
+        }
+        for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
+          if (itr()->peering->prngSet)  {
+            const PeeringSet *set = irr->getPeeringSet(itr()->peering->prngSet);
+            PeeringSetIterator *itr1 = new PeeringSetIterator((PeeringSet *) set);
+            peerings->spliceNoDups(*(itr1->peerings));
+          }
+          else if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->localRtrs) == typeid(FilterRouter)
+             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+               peerings->insertSortedNoDups(new Peering(
+                                            ((FilterASNO *) itr()->peering->peerASes)->asno,
+                                            *(((FilterRouter *) itr()->peering->peerRtrs)->ip),
+                                            *(((FilterRouter *) itr()->peering->localRtrs)->ip)
+                                           ));
+          else
+             assert(0);
+        }
+      }
+  Peering *first() {
+      current = peerings->head();
+      return current;
+   }
+
+  Peering *next() {
+      if (current)
+         current = peerings->next(current);
+      return current;
+   }
+};
+
 
 #endif   // AUTNUM_H

@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
@@ -56,9 +50,9 @@
 #include <cassert>
 #include <map>
 
-#include "irrutil/debug.hh"
+#include "util/debug.hh"
 #include "regexp_nf.hh"
-#include "dataset/SetOfUInt.hh"
+#include "gnug++/SetOfUInt.hh"
 #include "irr/irr.hh"
 
 using namespace std;
@@ -399,8 +393,21 @@ void regexp_nf::do_and(regexp_nf &b) {
 
    rd_fm *m3 = rd_intersect_dfa(m, b.m);
 
-   do_and_terms(b);
-   b.become_empty();
+#if 0   
+   if (rd_equal_dfa(m, m3)) // intersection is same as us
+      ;
+   else if (rd_equal_dfa(b.m, m3)) { // intersection is same as b
+      rclist.clear();
+      rclist.splice(b.rclist);
+      b.become_empty();
+   } else { // intersection is new!
+      do_and_terms(b);
+      b.become_empty();
+   }
+#else
+      do_and_terms(b);
+      b.become_empty();
+#endif
 
    rd_free_dfa(m); /* works with dfa too */ 
    m = m3;
@@ -451,7 +458,7 @@ void regexp_nf::do_not() {
 
    // complement terms
    regexp_nf tmp, tmp2;
-   RegexpConjunct *rc1, *rc2;
+   RegexpConjunct *rc1, *rc2, *rc3;
    RegexpConjunct::ReInt *ri1, *ri2;
 
    tmp.become_universal();
@@ -579,8 +586,8 @@ regexp* regexp_nf::construct() const {
    // check for empty string
    if (RD_ACCEPTS_EMPTY_STRING(m))
       return buildQuestion(fmtore_map[int2(&start, &final)]);
-
-   return fmtore_map[int2(&start, &final)];
+   else
+      return fmtore_map[int2(&start, &final)];
 }
 
 regexp* regexp_nf::buildCat(regexp *l, regexp *r) const {
@@ -687,3 +694,32 @@ regexp* regexp_nf::buildQuestion(regexp *l) const {
    regexp_question* re = new regexp_question(l);
    return re;
 }
+
+inline rd_state *rd_next_state(rd_fm *fm, rd_state *rs, ASt as) {
+   rd_arc	*ra;		/* Current arc we're at */
+
+   RDQ_LIST_START(&(rs->rs_arcs), rs, ra, rd_arc) {
+      if (ra->ra_low <= as && as <= ra->ra_high)
+	 return ra->ra_to;
+      if (ra->ra_low > as) // note that the list is sorted
+	 return NULL;
+   } RDQ_LIST_END(&(rs->rs_arcs), rs, ra, rd_arc);
+
+   return NULL;
+}
+
+bool regexp_nf::match(List<ItemASNO> & path) {
+   rd_state	* rs;		// Current state 
+   dfa();
+
+   rs = m->rf_start;
+   for (ItemASNO * asln = path.head(); asln;
+                    asln = path.next(asln)) {    
+     rs = rd_next_state(m, rs, asln->asno);
+     if (!rs || (rs->rs_flags & RSF_REJECT)) {
+       return false;
+     }
+   }
+  return true;
+}
+

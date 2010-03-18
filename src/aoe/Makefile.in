@@ -1,0 +1,195 @@
+#  $Id$
+# Copyright (c) 2001,2002                        RIPE NCC
+#
+# All Rights Reserved
+#
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for any purpose and without fee is hereby granted,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation, and that the name of the author not be
+# used in advertising or publicity pertaining to distribution of the
+# software without specific, written prior permission.
+#
+# THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+# ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+# AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#
+#
+#  Copyright (c) 1994 by the University of Southern California
+#  All rights reserved.
+#
+#    Permission is hereby granted, free of charge, to any person obtaining a copy
+#    of this software and associated documentation files (the "Software"), to deal
+#    in the Software without restriction, including without limitation the rights
+#    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#    copies of the Software, and to permit persons to whom the Software is
+#    furnished to do so, subject to the following conditions:
+#
+#    The above copyright notice and this permission notice shall be included in
+#    all copies or substantial portions of the Software.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#    THE SOFTWARE.
+#
+#  Questions concerning this software should be directed to 
+#  irrtoolset@cs.usc.edu.
+#
+#  Author(s): WeeSan Lee <wlee@ISI.EDU>
+
+GOAL   = aoe
+
+OBJS   = aoe.o  as_peer.o  bgp_aspath.o  bgp_dump.l.o  \
+	 fileselect.tk.o layout.tk.o  utils.tk.o  aoerc.tk.o \
+	 TclApp.o  TclButton.o  TclCheckButton.o  TclCmd.o  \
+	 TclEntry.o  TclLabel.o  \
+	 TclList.o  TclRadioButton.o  TclText.o  TclToggleButton.o  \
+	 TclVar.o 
+SRCS   = aoe.cc as_peer.cc bgp_aspath.cc bgp_dump.l.cc \
+	 fileselect.tk.cc layout.tk.cc utils.tk.cc aoerc.tk.cc \
+	 TclApp.cc TclButton.cc TclCheckButton.cc TclCmd.cc \
+	 TclEntry.cc TclLabel.cc \
+	 TclList.cc TclRadioButton.cc TclText.cc TclToggleButton.cc \
+	 TclVar.cc
+HFILES = aoe.hh as_peer.hh bgp_aspath.hh \
+	 TclApp.hh TclButton.hh TclCheckButton.hh TclCmd.hh \
+	 TclEntry.hh TclLabel.hh \
+	 TclList.hh TclRadioButton.hh TclText.hh TclToggleButton.hh \
+	 TclVar.hh TclObj.hh 
+
+TKFILES = layout.tk fileselect.tk utils.tk aoerc.tk
+
+REQUIRES = normalform irr re2dfa rpsl Core gnug++ util
+
+LIBS 	 = $(REQUIRES:%=-L../%) $(REQUIRES:%=-l%) \
+	   @LD_SWITCH_X_SITE@ @LD_TCL_TK_LIBS@ -lX11 \
+           @EXTRA_LIBS@
+
+# directories
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+VPATH		= @srcdir@
+INCDIRS		= -I$(srcdir) -I. -I$(top_srcdir)/src -I.. @all_INCDIRS@ @EXTRA_INCLUDE_DIRS@ @C_SWITCH_X_SITE@
+
+# programs
+@SET_MAKE@
+SHELL           = /bin/sh
+RANLIB          = @RANLIB@
+CC              = @CC@
+CXX             = @CXX@
+BISON           = @YACC@
+FLEX            = @LEX@
+LD              = @LD@
+PERL            = @PERL_PATH@
+INSTALL         = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# The default location for installation.
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+mandir      = @mandir@
+man1dir     = $(mandir)/man1
+man3dir     = $(mandir)/man3
+
+DEFINES  = @DEFS@
+CFLAGS   = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS  = @LDFLAGS@
+CXXFLAGS = @CXXFLAGS@
+
+default: all
+
+# Implicit rules
+%.y.cc %.y.hh: %.y
+	@echo Compiling: `basename $<`
+	$(BISON) -d -p `basename $< .y` $<
+	mv y.tab.c `basename $<`.cc
+	mv y.tab.h `basename $<`.hh
+
+%.l.cc: %.l
+	@echo Compiling: `basename $<`
+	$(FLEX) -P`basename $< .l` $<
+	mv lex.`basename $< .l`.c `basename $<`.cc
+
+.c.o:
+	@echo Compiling: `basename $<`
+	@$(CC)  -c $(CPPFLAGS) $(CFLAGS) $(DEFINES) $(INCDIRS) $<
+
+.cc.o:
+	@echo Compiling: `basename $<`
+	@$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $<
+
+# Transformations applied to each line of the file:
+#       eliminate blank lines
+#       eliminate lines that are only comments
+#       eliminate tab characters
+#       eliminate leading white space characters
+#       Convert preexisting backslash into double backslash.
+#       Precede preexisting double quote (") with backslash.
+#       Add backslash, n, backslash to the end of each line.
+
+%.tk.cc: %.tk
+	@echo "converting $*.tk to $*.tk.cc"
+	@echo "/* this file was machine generated from $*.tk */" > $<.cc
+	@echo "/* on `date` by $$USER */" >> $<.cc
+	@echo "" >> $<.cc
+	@echo 'static char foo[] = {' >> $<.cc
+	@sed -e '/^$$/d'             \
+	    -e '/^[     ]*#/d'       \
+	    -e "s/\\(.\\)/'\\1',/g"  \
+	    -e 's/\\/\\\\/g'         \
+	    -e 's/$$/0x0a,/'         \
+	    $< >> $<.cc
+	@echo '0x0 };' >> $<.cc
+	@echo "" >> $<.cc
+	@echo "/* This indirection is needed to fool damaged linker */" >> $<.cc
+	@echo "" >> $<.cc
+	@echo 'char *$*_tk = foo;' >> $<.cc
+
+.SUFFIXES: .cc .tk
+
+#
+# No need to make changes below
+#
+# Explicit rules
+all: $(GOAL)
+
+$(GOAL): $(OBJS) dolibs
+	$(LD) $(CFLAGS) -o $(GOAL) $(OBJS) $(LIBS)
+
+dolibs:
+	@ cd ..; $(MAKE) $(MFLAGS) dolibs
+
+clean:
+	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh *.tk.cc $(GOAL)
+
+mostlyclean:
+	rm -f core *.o *~ *.y.cc *.y.hh *.l.cc *.l.hh *.tk.cc
+
+# make dependencies
+depend: ${SRCS}
+	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(DEFINES) $(INCDIRS) $^ >makedep
+	echo '/^# DO NOT DELETE THIS LINE/+1,$$d' >eddep
+	echo '$$r makedep' >>eddep
+	echo 'w' >>eddep
+	cp Makefile Makefile.bak
+	ed - Makefile < eddep
+	rm eddep makedep
+	echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
+	echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
+	echo '# see make depend above' >> Makefile
+
+# DO NOT DELETE THIS LINE
+# DEPENDENCIES MUST END AT END OF FILE
+# IF YOU PUT STUFF HERE IT WILL GO AWAY
+# see make depend above

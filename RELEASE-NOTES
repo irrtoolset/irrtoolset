@@ -1,12 +1,6 @@
 Release Notes for IRRToolSet
 ****************************
 
-Version 5.0.0
-
-Substantial reorganisation of package.  Only rtconfig, peval and rpslcheck survived. 
-For further information on changes for 5.0.0, please consult the irrtoolset
-wiki on http://irrtoolset.isc.org/
-
 Version 4.8.5:
 
 Improved support for compilation on 64-bit environments.

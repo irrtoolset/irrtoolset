@@ -21,44 +21,36 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 
 #include "config.h"
 #include <cstdio>
 #include <sys/types.h>
-#include "Stack.hh"
-#include "rpsl/List.hh"
+#include "util/Stack.hh"
+#include "util/List.hh"
 #include "rpsl/prefix.hh"
 
-#ifndef foreachchild
 #define foreachchild(x) for (int x = 0; x < 2; ++x)
-#endif //foreachchild
 
 #ifndef u_int64_t
 #define u_int64_t unsigned long long int
@@ -68,7 +60,7 @@
 #define u_int unsigned int
 #endif
 
-#include "FixedSizeAllocator.hh"
+#include "util/FixedSizeAllocator.hh"
 
 extern FixedSizeAllocator IPv6RadixTreeAllocator;
 extern ip_v6word_t ipv6masks[];
@@ -243,6 +235,23 @@ public:
       PrefixRangeIterator(const IPv6RadixSet *s) : itr(s->root) {}
       bool first(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
       bool next(ipv6_addr_t &_addr, u_int &_leng, u_int &_start, u_int &_end);
+      // Added by wlee@isi.edu for roe
+/*
+      bool first(PrefixRange &pr) {
+	u_int _addr, _leng, _start, _end;
+	bool b = first(_addr, _leng, _start, _end);
+	pr = PrefixRange(_addr, _leng, 
+			 (unsigned char)_start, (unsigned char)_end);
+	return b;
+      }
+      bool next(PrefixRange &pr) {
+	u_int _addr, _leng, _start, _end;
+	bool b = next(_addr, _leng, _start, _end);
+	pr = PrefixRange(_addr, _leng, 
+			 (unsigned char)_start, (unsigned char)_end);
+	return b;
+      }
+*/
    };
 
    class SortedPrefixRangeIterator {
@@ -280,10 +289,14 @@ public:
 
    IPv6RadixSet(const IPv6RadixSet &b) {
       if (b.root) {
-         root = new IPv6RadixTree(*b.root);
-      } else {
-         root = (IPv6RadixTree *) NULL;
-      }
+	 root = new IPv6RadixTree(*b.root);
+   }
+      else {
+	 root = (IPv6RadixTree *) NULL;
+   }
+
+    // DEBUG
+    //cout << "created IPv6RadixSet " << *this << endl;
    }
 
    ~IPv6RadixSet() {
@@ -314,6 +327,23 @@ public:
       root = root->makeMoreSpecific(code, n, m);
    }
 
+   // Added by wlee@isi.edu, used by roe
+/*
+   void insert(const PrefixRange &pr) {
+     u_int n = pr.get_n();
+     u_int m = pr.get_m();
+     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
+                        (~(u_int64_t)0 << (32 - m));
+     insert(pr.get_ipaddr(), pr.get_length(), range);
+   }
+   bool contains(PrefixRange &pr) const {
+     u_int n = pr.get_n();
+     u_int m = pr.get_m();
+     u_int64_t range = ~(~(u_int64_t)0 << (33 - n)) & 
+                        (~(u_int64_t)0 << (32 - m));
+     return contains(pr.get_ipaddr(), pr.get_length(), range);
+   }
+*/
    void clear() {
       if (root) {
 	 delete root;

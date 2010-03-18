@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
@@ -61,7 +55,7 @@
 
 #include "irr.hh"
 #include "birdwhoisc.hh"
-#include "irrutil/Error.hh"
+#include "util/Error.hh"
 
 class RAWhoisClient : public IRR { 
 // Whois Client that talks to RAWhoisd server
@@ -86,6 +80,10 @@ private:
 
    // Response allocates enough space to hold the result
    int  Response(char *&response);
+
+   // do a Query and Response, returning the AXX and CXX lines
+   // in addition to the the response.
+   int TotalResponse (char *&response);
 
    // do a Query and Response
    int  QueryResponse(char *&response, const char *format, ...);
@@ -132,13 +130,17 @@ public:
 
    void SetSources(const char *_sources = dflt_sources);
 
+   // Modified by wlee@isi.edu
+   //   char *GetSources(void);
+   const char *GetSources(void);
+
    void GetVersion();
 
    // PendingData() returns true if there is data available for reading
    int  PendingData(); 
 
    virtual bool getAutNum(char *as,          char *&text, int &len);
-   virtual bool getSet(SymID sname, const char *clss, char *&text, int &len);
+   virtual bool getSet(SymID sname, char *clss, char *&text, int &len);
    virtual bool getRoute(char *rt, char *as, char *&text, int &len);
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len);
    virtual bool expandASSet(SymID asset,     SetOfUInt    *result);
@@ -147,11 +149,24 @@ public:
    virtual bool expandRSSet(SymID rsset,     MPPrefixRanges *result);
    virtual bool expandRtrSet(SymID rsset,    MPPrefixRanges *result);
 
+   // Added by wlee@isi.edu for roe basically
+   void setFullObjectFlag(bool onoff) {
+     if (onoff)
+       QueryKillResponse("!ufo=1");
+     else
+       QueryKillResponse("!ufo=0");
+   }
    void setFastResponseFlag(bool onoff) {
      if (onoff)
        QueryKillResponse("!uF=1");
      else
        QueryKillResponse("!uF=0");
+   }
+   int getSourceOrigin(char *&buffer, const char *rt) {
+     return QueryResponse(buffer, "!r%s,o", rt);
+   }
+   int getSourceOrigin(char *&buffer) {
+     return Response(buffer);
    }
    void querySourceOrigin(const char *rt) {
      Query("!r%s,o", rt);

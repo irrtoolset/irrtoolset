@@ -23,9 +23,23 @@
  * RSd release 0.1:
  * Copyright (c) 1995 University of Southern California and/or
  * the International Business Machines Corporation.
- * All rights reserved. Refer to Particulars at the end of this file.
- * Portions of this code may fall under other copyrights; refer to
- * copyright notices at the end of this file.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
  * 
  * Author: Ramesh Govindan, ISI
  *
@@ -39,10 +53,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <strings.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -140,7 +150,7 @@ void debugging_hack() {
 void
 rd_init()
 {
-    static int  first = 1;	/* Identifies code segments entered once */
+    static    	 first = 1;	/* Identifies code segments entered once */
     int i;			/* Current loop index */
 
     for (i = 0; i < RD_MAXASPSTATES; i++) {
@@ -175,7 +185,7 @@ typedef struct _rd_dq  rd_rhead;	/* Ditto */
 
 #define RD_ALLOC_RANGE(r) {					\
     (r) = (rd_range *) malloc(sizeof (rd_range));		\
-    bzero((void *) (r), sizeof (rd_range));			\
+    bzero((caddr_t) (r), sizeof (rd_range));			\
     RDQ_INIT(&(r)->ra_arcs, (r));				\
 }
 
@@ -613,6 +623,7 @@ rd_fm *
 rd_concatenate(rd_fm *fm1,	/* To this fm.... */
 	       rd_fm *fm2)	/* ... concatenate this fm */
 {
+    rd_dq	*rq;		/* Current linked list element */
     rd_state	*rs;		/* Current state we're at */
     rd_state	*start;		/* Start state of fm2 */
     rd_arc	*ra;		/* Current arc we're at */
@@ -1110,6 +1121,43 @@ rd_ntod(rd_fm* nfa)
 
 
 /*
+ * rd_complete_dfa completes all the arcs in a DFA. This is needed
+ * where the traditional ntod->minimize route is not taken.
+ */
+
+void
+rd_complete_dfa(rd_fm *dfa)
+{
+    rd_state	*rs;		/* Current state in loop */
+    rd_arc	*ra;		/* Reject state arc */
+    rd_state	*rej;		/* Reject state */
+    int		rjc;		/* Count of arcs pointing to rej */
+
+    RD_ALLOC_DFA_STATE(rej);
+    rjc = 0;
+
+    RDQ_LIST_START(&(dfa->rf_states), dfa, rs, rd_state) {
+	rjc += rd_complete_arcs(&(rs->rs_arcs), rej);
+    } RDQ_LIST_END(&(dfa->rf_states), dfa, rs, rd_state);
+
+    if (rjc) {
+	RD_ALLOC_ARC(ra, 0, 0);
+	ra->ra_low = 0;
+	ra->ra_high = MAX_AS;
+	ra->ra_to = rej;
+	rej->rs_flags |= RSF_REJECT;
+	RDQ_INSERT_BEFORE(&(rej->rs_arcs), &(ra->ra_arcs));
+	RDQ_INSERT_BEFORE(&(dfa->rf_states), &(rej->rs_states));
+    } else {
+	RD_FREE_STATE(rej);
+    }
+
+    return;
+}
+
+
+
+/*
  * Myhill-Nerode minimization. See Hopcroft and Ullmann for a
  * detailed description of this algorithm.
  */
@@ -1420,6 +1468,7 @@ rd_minimize(rd_fm *dfa)
 	rd_merge_arcs(&(rs->rs_arcs));
     } RDQ_LIST_END(&(dfa->rf_states), dfa, rs, rd_state);
 
+    // Added by wlee@isi.edu according to Ramesh's suggestion
     RD_FREE_NOTSAME();
 
     return; 	/* Phew! */
@@ -1538,6 +1587,7 @@ rd_print_dfa(rd_fm *fm)
 rd_fm *rd_empty_string_machine() {
     register rd_fm *rf;			/* The singleton machine */
     register rd_state *rs;		/* A state of the singleton machine */
+    register rd_range *ra;		/* Current element of range list */
 
     RD_ALLOC_FM(rf);
     
@@ -1557,6 +1607,7 @@ rd_fm *rd_empty_string_machine() {
 rd_fm *rd_empty_set_machine() {
     register rd_fm *rf;			/* The singleton machine */
     register rd_state *rs;		/* A state of the singleton machine */
+    register rd_range *ra;		/* Current element of range list */
 
     RD_ALLOC_FM(rf);
     
@@ -1787,9 +1838,11 @@ rd_fm *rd_intersect_dfa(rd_fm *fm1, rd_fm *fm2) {
 
   RDQ_UNLINK_LIST_FREE_ELMS(&(rd_intersect_map.dll), &rd_intersect_map);
 
-   rd_init();
-   rd_dton(fm3);
-   fm3 = rd_ntod(fm3);
+ /*  rd_reachable_dfa(fm3); */
+/*   rd_complete_dfa(fm3); */
+  rd_init();
+     rd_dton(fm3);
+     fm3 = rd_ntod(fm3);
    rd_minimize(fm3);
 
    return fm3;
@@ -1805,6 +1858,57 @@ typedef struct _rd_single {
     (s) = (rd_single *) malloc(sizeof (rd_single));		\
     bzero((caddr_t) (s), sizeof (rd_single));			\
     RDQ_INIT(&((s)->dll), (s));			   	        \
+}
+
+void rd_reachable_dfa(rd_fm *fm) {
+   rd_state *stt, *stt2;
+   rd_arc *arc;
+
+   rd_single reachable;
+   rd_single *rd_s, *rd_s2;
+
+   RDQ_INIT(&(reachable.dll), &reachable);
+   RD_ALLOC_SINGLE(rd_s);
+   rd_s->first = fm->rf_start;
+   /* mark start state */
+   fm->rf_start->rs_flags |= RSF_MARKED;
+
+   RDQ_INSERT_BEFORE(&(reachable.dll), &(rd_s->dll));
+
+   for (rd_s = reachable.dll.rq_forw->rq_self; 
+	rd_s != &reachable; 
+	rd_s = rd_s->dll.rq_forw->rq_self) {
+      stt = rd_s->first; /* stt is a reachable states */
+
+      /* travers the arcs of stt, a reachable states
+	 and add more reachable states if arcs go to unmarked states */
+      RDQ_LIST_START(&(stt->rs_arcs), stt, arc, rd_arc) {
+	 
+	 if (! (arc->ra_to->rs_flags & RSF_MARKED)) {
+	    arc->ra_to->rs_flags |= RSF_MARKED;
+	    RD_ALLOC_SINGLE(rd_s2);
+	    rd_s2->first = arc->ra_to;
+	    RDQ_INSERT_BEFORE(&(reachable.dll), &(rd_s2->dll));
+	 }
+
+      } RDQ_LIST_END(&(stt->rs_arcs), stt, arc, rd_arc)
+   }
+
+   /* delete unreachable states, i.e. not marked */
+   for (stt = fm->rf_states.rq_forw->rq_self; stt != (rd_state *) fm; )
+      if (! (stt->rs_flags & RSF_MARKED)) {
+	 stt2 = stt;
+	 stt = stt->rs_states.rq_forw->rq_self;
+	 RDQ_UNLINK(&(stt2->rs_states));
+	 if (RD_IS_FINAL(stt2))
+	    RDQ_UNLINK(&(stt2->rs_final));
+	 RDQ_UNLINK_LIST_FREE_ELMS(&(stt2->rs_arcs), stt2);
+	 RD_FREE_STATE(stt2);
+      } else
+	 stt = stt->rs_states.rq_forw->rq_self;
+
+   RDQ_UNLINK_LIST_FREE_ELMS(&(reachable.dll), &reachable);
+
 }
 
 int rd_equal_dfa(rd_fm *fm1, rd_fm *fm2) {
@@ -1861,43 +1965,6 @@ rd_fm *rd_make_eol(rd_fm *fm) {
    return fm;
 }
 
-/*  */
-
-/* 
- * Copyright (c) 1994 by the University of Southern California
- * and/or the International Business Machines Corporation.
- * All rights reserved.
- *
- * Permission to use, copy, modify, and distribute this software and
- * its documentation in source and binary forms for lawful
- * non-commercial purposes and without fee is hereby granted, provided
- * that the above copyright notice appear in all copies and that both
- * the copyright notice and this permission notice appear in supporting
- * documentation, and that any documentation, advertising materials,
- * and other materials related to such distribution and use acknowledge
- * that the software was developed by the University of Southern
- * California, Information Sciences Institute and/or the International
- * Business Machines Corporation.  The name of the USC or IBM may not
- * be used to endorse or promote products derived from this software
- * without specific prior written permission.
- *
- * NEITHER THE UNIVERSITY OF SOUTHERN CALIFORNIA NOR INTERNATIONAL
- * BUSINESS MACHINES CORPORATION MAKES ANY REPRESENTATIONS ABOUT
- * THE SUITABILITY OF THIS SOFTWARE FOR ANY PURPOSE.  THIS SOFTWARE IS
- * PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND 
- * NON-INFRINGEMENT.
- *
- * IN NO EVENT SHALL USC, IBM, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT,
- * TORT, OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH,
- * THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * Questions concerning this software should be directed to 
- * ratoolset@isi.edu.
- *
- */
 
 
 

@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 //	       Katie Petrusha <katie@ripe.net>
@@ -55,13 +49,14 @@
 #include <config.h>
 #include <iostream>
 #include "rpsl/object.hh"
-#include "irrutil/rusage.hh"
-#include "irrutil/debug.hh"
-#include "irrutil/trace.hh"
-#include "irrutil/Argv.hh"
-#include "irrutil/version.hh"
+#include "util/rusage.hh"
+#include "util/debug.hh"
+#include "util/trace.hh"
+#include "util/Argv.hh"
+#include "util/version.hh"
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
+#include "irr/ripewhoisc.hh"
 #include "rpsl/schema.hh"
 
 using namespace std;
@@ -69,13 +64,12 @@ using namespace std;
 Rusage ru;
 bool opt_stats                   = false;
 bool opt_rusage                  = false;
-char *opt_prompt                 = (char *)"rpslcheck> ";
+char *opt_prompt                 = "rpslcheck> ";
 bool opt_echo                    = false;
-bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
 bool opt_debug_rpsl              = false;
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
 int start_tracing(char *dst, char *key, char *nextArg) {
    if (nextArg) {
@@ -106,9 +100,6 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      IRR_COMMAND_LINE_OPTIONS,
 
-     {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
-      "print AS numbers in asdot format."},
-
      {"-rusage", ARGV_BOOL, (char *) NULL,           (char *) &opt_rusage,
       "On termination print resource usage"},
      {"-stats", ARGV_BOOL, (char *) NULL,            (char *) &opt_stats,
@@ -120,10 +111,10 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      
      {"-echo", ARGV_BOOL, (char *) NULL,           (char *) &opt_echo,
       "Echo each object parsed"},
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
      {"-debug_rpsl", ARGV_BOOL, (char *) NULL,     (char *) &opt_debug_rpsl,
       "Turn on bison debugging. Intended for developers."},
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
@@ -147,18 +138,18 @@ void init_and_set_options (int argc, char **argv, char **envp) {
 }
 
 
-int main(int argc, char **argv, char **envp) {
+main(int argc, char **argv, char **envp) {
    schema.initialize();
    init_and_set_options(argc, argv, envp);
    schema.beHarsh();
 
    // opt_echo = 1;
 
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
    extern int rpsldebug;
    if (opt_debug_rpsl)
       rpsldebug = 1;
-#endif // ENABLE_DEBUG
+#endif // DEBUG
 
    Object *o;
    bool code = true;
@@ -166,15 +157,7 @@ int main(int argc, char **argv, char **envp) {
    
    while (opt_my_as || cin ) {
        if (opt_my_as) {
-          // if the first two characters of the ASN are "as", then ignore them
-          if (strcasestr(opt_my_as, "as") == opt_my_as)
-            opt_my_as += 2;
-
-          const char *dot = strchr(opt_my_as,'.');
-          if (dot)
-             myAS = atoi(opt_my_as)<<16 | atoi(dot+1);
-          else
-	     myAS = atoi(opt_my_as);
+	  myAS = atoi(opt_my_as + 2);
 	  const AutNum *autnum = irr->getAutNum(myAS);
           if (!autnum)	{
           	std::cerr << "Error: no object for AS " << myAS << std::endl;

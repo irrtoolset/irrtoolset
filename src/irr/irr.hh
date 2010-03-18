@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
@@ -56,8 +50,8 @@
 
 #include "config.h"
 #include "rpsl/object.hh"
-#include "dataset/SetOfUInt.hh"
-#include "dataset/prefixranges.hh"
+#include "gnug++/SetOfUInt.hh"
+#include "gnu/prefixranges.hh"
 #include "rpsl/prefix.hh"
 #include "classes.hh"
 
@@ -86,6 +80,7 @@ protected:
    int      port;
 
 public:
+   // Added by wlee@isi.edu
    IRR(void) {
      strcpy(host, dflt_host);
      strcpy(sources, dflt_sources);
@@ -96,13 +91,20 @@ public:
 		     const int _port = dflt_port, 
 		     const char *_sources = dflt_sources) = 0;
    virtual void Close() = 0;
+   // Modified by wlee@isi.edu
+   //  virtual void SetSources(char *s) {}
    virtual void SetSources(const char *_sources = dflt_sources) {
      strcpy(sources, _sources);
    }
 
+   // Added by wlee@isi.edu
+   virtual const char *GetSources(void) { 
+     return sources;
+   }
+
    // get objects
    const AutNum     *getAutNum(ASt as);
-   const Set        *getSet(SymID asset, const char *clss);
+   const Set        *getSet(SymID asset, char *clss);
    const ASSet      *getASSet(SymID asset);
    const RSSet      *getRSSet(SymID rsset);
    const RtrSet     *getRtrSet(SymID rtrset);
@@ -110,6 +112,7 @@ public:
    const PeeringSet *getPeeringSet(SymID set);
    const InetRtr    *getInetRtr(SymID inetRtr);
    void getRoute(Route *&route, Prefix *rt, ASt as);
+   // Added by wlee
    void getRoute(Route *&route, char *rt, ASt as);
 
    // expand sets
@@ -143,8 +146,13 @@ public:
    static void handleEnvironmentVariables(char **envp);
    static IRR *newClient();
 
+   // Added by wlee@isi.edu 
+   // For compatibility reasons, mostly for roe
 public:
+   virtual void setFullObjectFlag(bool onoff) {}
    virtual void setFastResponseFlag(bool onoff) {}
+   virtual int getSourceOrigin(char *&buffer, const char *rt) = 0;
+   virtual int getSourceOrigin(char *&buffer) = 0;
    virtual void querySourceOrigin(const char *rt) = 0;
    virtual bool readReady(void) = 0;
 
@@ -161,7 +169,7 @@ protected:
    // using new char[size]
    // and set the len to strlen(text)
    virtual bool getAutNum(char *as,          char *&text, int &len) = 0;
-   virtual bool getSet(SymID sname, const char *clss, char *&text, int &len) = 0;
+   virtual bool getSet(SymID sname, char *clss, char *&text, int &len) = 0;
    virtual bool getRoute(char *rt, char *as, char *&text, int &len) = 0;
    virtual bool getInetRtr(SymID inetrtr,    char *&text, int &len) = 0;
 
@@ -178,12 +186,8 @@ protected:
    bool         isIndirectMember(Object *o, 
 			   AttrGenericIterator<ItemWORD> &mbrs_by_ref);
 
-  // next method is used by RAWhoisClient to query the SetCache
-  bool queryCache(SymID setID, Set *&set);
-
-
 private:
-   static void initCache(char *objectText, int objectLength, const char *clss);
+   static void initCache(char *objectText, int objectLength, char *clss);
 };
 
 struct ProtocolName {

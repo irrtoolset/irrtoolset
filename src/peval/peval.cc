@@ -22,32 +22,26 @@
 //  Copyright (c) 1994 by the University of Southern California
 //  All rights reserved.
 //
-//  Permission to use, copy, modify, and distribute this software and its
-//  documentation in source and binary forms for lawful non-commercial
-//  purposes and without fee is hereby granted, provided that the above
-//  copyright notice appear in all copies and that both the copyright
-//  notice and this permission notice appear in supporting documentation,
-//  and that any documentation, advertising materials, and other materials
-//  related to such distribution and use acknowledge that the software was
-//  developed by the University of Southern California, Information
-//  Sciences Institute. The name of the USC may not be used to endorse or
-//  promote products derived from this software without specific prior
-//  written permission.
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
 //
-//  THE UNIVERSITY OF SOUTHERN CALIFORNIA DOES NOT MAKE ANY
-//  REPRESENTATIONS ABOUT THE SUITABILITY OF THIS SOFTWARE FOR ANY
-//  PURPOSE.  THIS SOFTWARE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR
-//  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
-//  TITLE, AND NON-INFRINGEMENT.
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
 //
-//  IN NO EVENT SHALL USC, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
-//  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT, TORT,
-//  OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH, THE USE
-//  OR PERFORMANCE OF THIS SOFTWARE.
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
 //
 //  Questions concerning this software should be directed to 
-//  ratoolset@isi.edu.
+//  irrtoolset@cs.usc.edu.
 //
 //  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
 
@@ -74,11 +68,12 @@ extern void add_history (char *);
 
 #include "irr/irr.hh"
 #include "irr/rawhoisc.hh"
-#include "irrutil/debug.hh"
-#include "irrutil/trace.hh"
-#include "irrutil/rusage.hh"
-#include "irrutil/Argv.hh"
-#include "irrutil/version.hh"
+#include "irr/ripewhoisc.hh"
+#include "util/debug.hh"
+#include "util/trace.hh"
+#include "util/rusage.hh"
+#include "util/Argv.hh"
+#include "util/version.hh"
 #include "rpsl/schema.hh"
 #include "normalform/NE.hh"
 #include "re2dfa/regexp_nf.hh"
@@ -94,27 +89,26 @@ using namespace std;
 bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
-char *opt_prompt                 = (char *)"peval> ";
+char *opt_prompt                 = "peval> ";
 int  opt_expand                  = EXPAND_ALL;
 int  opt_symbolic                = 0;
-bool opt_asdot                   = false;
 
 const int SIZE = 8*1024;
 char base[SIZE] = "peval: ";
 char temp[SIZE];
 char safe_base[SIZE];
-char *irrfilter;
+char *filter;
 char *cut;
 
 void evaluate() {
    if (opt_expand & EXPAND_ASSets)
       regexp_nf::expandASSets();
 
-   strcat(irrfilter, "\n\n");
+   strcat(filter, "\n\n");
    // Was: safe_base = base;
    memcpy(safe_base, base, SIZE);
 
-   cut = strstr(irrfilter, "afi");
+   cut = strstr(filter, "afi");
    if (cut && isspace(*(cut+3))) {
      strcat (temp, "mp-");
      strcat (temp, base);
@@ -207,7 +201,7 @@ int skipAll(char *dst, char *key, char *nextArg) {
 int expression(char *dst, char *key, char *nextArg) {
    if (!nextArg) return 0;
 
-   strcpy(irrfilter, nextArg);
+   strcpy(filter, nextArg);
    return 1;
 }
 
@@ -227,9 +221,6 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "Prompt"},
 
       IRR_COMMAND_LINE_OPTIONS,
-
-      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
-       "print AS numbers in asdot format."},
 
       // peval specific arguments
       {"-symbolic",  ARGV_CONSTANT, (char *)1, (char *)&opt_symbolic, 
@@ -266,7 +257,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
    // the first one is the expression
    switch (argc) {
    case 2:
-      strcpy(irrfilter, argv[1]);
+      strcpy(filter, argv[1]);
       break;
    case 1:
       break;
@@ -275,7 +266,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       exit(-1);
    }
 
-   if (*irrfilter) {
+   if (*filter) {
       evaluate();
       exit(0);
    }
@@ -312,9 +303,9 @@ rl_gets (char *prompt)
 }
 #endif // HAVE_READLINE
 
-int main (int argc, char **argv, char **envp) {
+main (int argc, char **argv, char **envp) {
    int newSize = strlen(base);
-   irrfilter = base + newSize;
+   filter = base + newSize;
    newSize = SIZE - newSize - 3;
 
    schema.initialize();
@@ -325,12 +316,12 @@ int main (int argc, char **argv, char **envp) {
       char *line = rl_gets(opt_prompt);
       if (!line)
 	 break;
-      strncpy(irrfilter, line, newSize);
+      strncpy(filter, line, newSize);
       evaluate();
 #else // HAVE_READLINE
       if (opt_prompt)
 	 cout << opt_prompt;
-      if (cin.getline(irrfilter, newSize))
+      if (cin.getline(filter, newSize))
 	 evaluate();
       else
 	 break;
