@@ -1,0 +1,607 @@
+* fix f_junos.cc to make export and import token names consistent. Thanks to
+  Stan Barber.
+* Support for 4 byte ASNs. Many thanks to S.P.Zeidler for this.
+* Makefile now honors DESTDIR. Thanks to Kaj Niemi for the patch.
+* @RtConfig fix for IPv6. Thanks to Nick Hilliard for the report and
+  to Timo Koehler for the patch.
+* Fix when an IOS as-path list from an RPSL as-set contains more
+  than one AS number. Thanks to Hagen Boehm for the patch.
+* Compile fix for Solaris 9 and other systems that do not have
+  stdint.h defined. Thanks to Hagen Boehm for reporting the problem.
+* Fix for core dump on Solaris. Thanks to Matthew Moyle-Croft for the
+  report and to S.P.Zeidler for the fix.
+* Fix for invalid RtConfig output on Cisco when specifying family.
+  Thanks to Daryl Collins for the report and to S.P.Zeidler for the
+  fix.
+* Cache file support when "irrd" protocol is used. Thanks to Hagen
+  Boehm for the implementation.
+* Build fixes for OS X.
+* Build fix for gcc 4.2 (default on Debian and Ubuntu these days).
+* Explicit check for flex and bison in configure.
+
+4.8.5
+
+Bug fix for RPSLng queries on IRRd servers.
+
+Better support for 64-bit compilation.
+
+Integrated a number of fixes from the NetBSD port as proposed by 
+Havard Eidnes.
+
+* Numerous compiler fixes:
+  o src/config.h.in is amended to conditionally define __P(x).  Use
+    __P() instead of _G_ARGS() in various places.
+  o Many, many files are patched to replace occurrances of _G_uint32_t
+    with uint32_t. The former is in the host compiler implementation's
+    name space, and as far as I know, a library writer has no business
+    assuming anything about the types defined in that name space
+    (names starting with a single underscore character).
+  o Instead of including <_G_config.h>, use <config.h>, and add
+    includes of e.g. <sys/types.h> where needed.
+  o A few troublesome casts removed which newer C++ compilers balk at.
+
+* JunOS support enabled & fixed
+
+* Portability to Dragonfly BSD (treat as FreeBSD)
+
+* Bugfix for Cisco export
+
+4.8.4
+
+* A number of runtime problems which caused crashes were reported, and
+  these have been fixed. Thanks to Hagen Boehm for discovering them.
+
+4.8.3
+
+A set of patches collected by Hagen Boehm was applied:
+
+* whois.apnic.net server problem
+  APNIC's whois server (RIPE NCC software with RPSS functions
+  disabled) has changed syntax of some embedded comments in a way that
+  violates the protocol assumptions in IRRToolSet 4.8.2
+  (required/allowed "empty lines" ~ "\n\n" in the context of "%"
+  comment lines. This problem seems to be around since APNIC switched
+  to a database version supporting IPv6/RPSLng).
+  Thanks to Hagen Boehm.
+
+* ASnnn embedded in AS-Set AS-xxxx doesn't resolve properly (prefix
+  loss)
+  We are seeing cases where resolving to route-sets (a) an ASnnn and
+  (b) an AS-set AS-xxxx which includes ASnnn as a member lists some
+  prefixes as members of ASnnn but NOT as members of AS-xxxx (Which
+  turns something like "125.16.0.0/14^14-24" into some thousand
+  separately listed 125.16.x.y/n^n-n or 125.16.x.y/n^m-m that don't
+  combine into any 125.16.x.y/n^m-l unless m=l).
+  Thanks to Hagen Boehm.
+
+* multi protocol filter problem 
+  prefix filter consisting of ipv4 and ipv6 prefixes get not resolved
+  properly.  Either only prefixes of a single protocol get resolved
+  (e.g. only ipv4) or the route-set contains ANY. The first case was
+  observed when resolving an "ASxxxx" filter, the latter case when
+  resolving an "ASxxxx ASyyyy" filter, where both ASxxxx and ASyyyy
+  contained ipv4 and ipv6 prefixes.
+  Thanks to Hagen Boehm.
+
+* due to an uninitialized integer the irrd client showed erroneous
+  behavior when processing responses to "selected source" queries
+  (!s-lc).  This bug led to the closing of the session before an
+  object query could be sent out.
+  Thanks to Hagen Boehm.
+
+* flex scanner token interpretation error.
+  Due to missing tests on uninitialised values, missing
+  NULL-termination on strings and bad memory allocation the flex
+  scanner didn't work correctly and sometimes returned a wrong
+  interpretation when reading a dotted "afi" value, e.g.
+  "ipv6.unicast". Such values were interpreted as a DNS Token
+  (TKN_DNS) instead of an afi Token (TKN_AFI). The incorrect
+  interpretations irritated the bison parser and led to a system
+  crash. 
+  Thanks to Hagen Boehm.
+
+* After patching IRRTS 4.8.2 with the C&W patches repairing the
+  missing JunOS route-set filter support, the tool-set didn't compile
+  correctly anymore.
+  Thanks to Hagen Boehm.
+
+* IRRToolSet 4.8.2 doesn't support functionality of the
+  -cisco_empty_lists flag anymore. Setting the -cisco_empty_lists flag
+  hence has no effect. The patch restores the functionality.
+  Thanks to Hagen Boehm.
+
+* JunOS route filters aren't generated as compact as it is
+  the case for Cisco IOS. Furthermore the JunOS route filter
+  generation triggered by setting the -cisco_empty_lists flag doesn't
+  create correct route filters. The patch makes JunOS route filters as
+  compact as Cisco IOS route filters and repairs the JunOS route
+  filters that are generated only when setting the -cisco_empty_lists
+  flag.
+  Thanks to Hagen Boehm.
+
+* With RPSLng key-word "ANY" now can have different
+  semantic interpretations: It can be the value of an Address Family
+  (afi value) or it can be an rpsl_word. In some cases the lex scanner
+  misinterprets "ANY" as afi value and returns TKN_AFI although the
+  bison parser rules expect an rpsl_word (eg. TKN_WORD or KEYW_ANY).
+  Thanks to Hagen Boehm.
+
+* The man pages of RtConfig and peval do not obviously
+  document that the "-f" option, used for specifying a cache file, can
+  be used repeatedly to specify more than one cache file. In the peval
+  man page this option is not even mentioned!
+  Furthermore the cache file parsing process does not alert when a
+  cache object can't be identified.
+  The patch adds documentation to the respective man pages and
+  augments the code dealing with cache object handling.
+  Thanks to Hagen Boehm.
+
+* any "more specific operator" (i.e. ^+, ^-, ^N and ^N-M) does not
+  work or does not work correctly when being applied on an IPv6
+  route-set expression.
+  Thanks to Hagen Boehm.
+
+* A collection of patches from NetBSD.
+  Thanks to Petra Zeidler.
+
+* A few changes were made to allow the code to compile with the
+  lastest version of g++.
+
+Version 4.8.1:
+
+This release contains prototypes of RPSLng-aware tools from
+IRRToolSet: peval, rpslcheck and now RtConfig is added.
+
+* RPSLng dictionary implemented according to the latest RPSLng draft:
+  http://www.ietf.org/internet-drafts/draft-blunk-rpslng-01.txt
+
+* Tools have been tested to work with RIPE whois software. They will
+  work also with irrd in most of the cases, as soon as irrd is updated
+  to handle RPSLng-related objects. Separated patch for this may be
+  necessary and will be available later.
+
+* peval now accepts both RPSL and RPSLng filters (extended to support
+  ipv6) for peval, the syntax for evaluation of mp-filter is:
+  afi <afi_list> <mp-filter>
+  results will be restricted to address familiy(ies) from <afi_list>.
+
+* RtConfig has got a new command: '@RtConfig v6networks', which works
+  symmetrically with '@RtConfig networks'. Other RtConfig commands
+  have been modified to handle RPSLng.
+
+
+4.8.2
+
+* GCC-3.x compatible (tested with 3.3.2, 3.2.1 and 3.2) 
+  Thanks to Glen Turner, Tony Li, and all others who have contributed the patches.
+
+* draft-blunk-rpslng-07.txt implemented
+
+* peval now handles multicast prefixes
+
+* bugfixes in peval, RtConfig, rpslcheck
+
+4.8.1
+  
+* RPSLng dictionary implemented for RtConfig (cisco format only).
+  other configuration file formats are underway.
+
+* The tools work with irrd too in most of the cases (see RELEASE-NOTES)
+
+* import/export/default in aut-num are now treated as a partial case of corresponding mp-attributes.
+  While having multiple attributes, the same logic applies for peering/action/filter selection.
+
+* almost all RtConfig commands have been modified to support RPSLng, 1 new command added:
+  "@RtConfig v6networks"
+
+4.8.0
+
+* RPSLng dictionary implemented
+* only for peval, rpslcheck
+
+4.7.3
+
+* bugfixes & new in RtConfig, fixes in prpath, rpslcheck, libirr.
+* man pages updated
+* configure script patched for NetBSD (thanks to Jeff Rizzo (riz@equinix.com) for the patch)
+* '-V RAToolSet' switch for whois queries using ripe whois is changed to '-V IRRToolSet<version>'
+
+4.7.2
+* various bugfixes in aoe: it is RIPE compliant, bug fixed, 
+  error reporting improved.
+* some bugs in RtConfig, roe and prpath fixed
+
+4.7.1
+* various bug fixes
+
+4.7.0
+* Added support for the new ripe server, please use -protocol ripe for it.
+ For the perl based old ripe server, please use -protocol ripe_perl
+ Note that the new ripe server support is at best beta quality. 
+ Please watch out for and report any problems.
+* ~*/~+ rpsl as path regular expressions are now supported for cisco configs.
+  These lead to shorter regular expressions.
+* If you are hitting cisco line limitation, you can force * and + to be
+ interpreted as ~*, and ~+ which will shorten the config lines by using
+ -cisco_force_tilda command line option. (i.e. without modifying your
+ aut-num in IRR).
+* We try to generate less parenthesis in as paths for ciscos.
+* The limitation with JunOS as path printing regarding [^ ] operator is
+ now removed. The JunOS can now handle all RPSL as path expressions. I
+ did not implement ~*, ~+ in JunOS since they do not have a line length
+ limitation. If your aut-num has ~*/~+, they are treated as if */+
+ respectively .
+* JunOS access lists are now compressed correctly (if turned on).
+* bug fixes in map name format
+* many other bug fixes
+
+4.6.3
+* portability fixes
+
+4.6.2
+* bug fixes
+
+4.6.1
+* CIDRAdvisor was core dumping if given an AS number who had no routes. 
+* prtraceroute has problems on DU converting from FQDN to IP numbers.
+* documented the "-protocol {irrd|bird|ripe}" option in the man pages
+
+4.6.0
+* junos support. RtConfig can now generate Juniper router
+  configurations. The supported feature set is equivalent to the cisco
+  feature set with less limitations. Please consider the generated config
+  files beta quality, and manually check for errors before deploying to
+  routers till we clean up any bugs that may show up. Please read the
+  RtConfig man page for details.
+* We now map rpsl pref values to gated/rsd pref values
+  carefully. Gated/RSd can only handle 0-255 as a preference. We map the
+  smallest preference the user used to 0, next smalles to 1, and so on...
+* setting next-hop in a route map is now supported.
+* several minor bug fixes.
+* Digital Unix portability improvements. Still not perfect.
+
+4.5.2
+* an rsd bug fix
+
+4.5.1
+* Lost of bug fixes
+* @RtConfig printSuperPrefixRanges <format> filter <filter>
+  This command is same as the "printPrefixRanges" command, except it
+  compresses more aggresively. The %n and %m information is lost.  But, %D,
+  a set of dont care bits representing different %n-%m ranges are provided.
+
+4.5.0
+* bay router is now officially supported, use -config bcc
+  kudos to Srivathsan Srinivasagopalan <vathsan@BayNetworks.COM>
+  and Giovanni S Marzot <gmarzot@BayNetworks.COM>
+* now compiles cleanly with egcs 2.95.*
+* couple of minor bug fixes
+
+4.4.4
+* bug fix in gated/rsd aspath filter generation
+
+4.4.3
+* fixed the prpath/prtraceroute/cidradvisor bug for real
+
+4.4.2
+* Put a workaround to prpath/prtraceroute/cidradvisor that ignores
+  routes with prefix lengths < 6. This causes as numbers to be AS1800 for
+  all addresses, only with recent irrd.
+
+4.4.1
+* two new commands:
+              @RtConfig printPrefixes <format> filter <filter>
+                     <format> is a quoted string, and <filter> is
+                     an RPSL filter over AS numbers, AS set names
+                     and  route set names using operators AND, OR
+                     and NOT.  This command instruct RtConfig  to
+                     print  the  prefixes in <filter> using <for-
+                     mat>.  The <format> can contain the  follow-
+                     ing escape sequences:
+                           %p  prefix
+                           %l  length
+                           %L  32-length
+                           %n  n
+                           %m  m
+                           %k  mask
+                           %K  inverse of mask (i.e. ~mask)
+                           %%  %
+                           \n  carriage return
+                           \t  tab
+                     Example, use:
+              @RtConfig printPrefixes "net %p \tmask %k\n" filter AS1
+
+              @RtConfig printPrefixRanges <format> filter <filter>
+                     This command is same as the  "printPrefixes"
+                     command, except the consecutive address pre-
+                     fixes are compressed into a  single  address
+                     prefix range.
+* CIDRAdvisor is now ported to RPSL.
+
+4.4.0
+* 100% RPSL compliant!
+*               -cisco_skip_route_maps
+                     This option only  affects  cisco  configura-
+                     tions.   This  option instructs RtConfig not
+                     to print route maps, hence  it  only  prints
+                     access lists.
+* @RtConfig access_list filter <filter>
+              @RtConfig access_list filter <filter>
+                     <filter> is an RPSL filter over AS  numbers,
+                     AS set names and route set names using oper-
+                     ators  AND,  OR  and  NOT.    This   command
+                     instruct RtConfig to generate an access list
+                     for <filter>.
+  E.g. @RtConfig access_list filter AS1 or AS6
+  Note that no neighbor or map statements are generated.
+* @RtConfig aspath_access_list filter <filter>
+              @RtConfig aspath_access_list filter <filter>
+                     <filter> is an RPSL filter over AS path reg-
+                     ular expressions using operators AND, OR and
+                     NOT.  This command instruct RtConfig to gen-
+                     erate an as path access list for <filter>.
+  E.g. @RtConfig aspath_access_list filter <^AS286 .* AS-EUNET$>
+  Note that no neighbor or map statements are generated.
+* One command router configuration "@RtConfig configureRouter rtr.isp.net"
+              @RtConfig configureRouter <inet-rtr-name>
+                     <inet-rtr-name> is the DNS name of an  inet-
+                     rtr  object. This command will use the named
+                     inet-rtr object, and  configure  import  and
+                     export  policies  for each of the BGP4 peers
+                     of the router (using the peer attribute).
+* Use %d in map name as peer's AS number or to make it unique
+              @RtConfig set cisco_map_name = <map-name>
+                     <map-name> is a quoted string.  This command
+                     instruct  RtConfig  to use <map-name> as the
+                     name for the route maps generated.   If  the
+                     <map-name>  contains %d, it will be replaced
+                     by the peer's AS number.  If it  contains  a
+                     second %d, it will be replaced by an integer
+                     that is incremented each time a new  map  is
+                     generated (to ensure unique map names).  The
+                     default cisco_map_name is "MyMap_%d_%d".
+* peval has now new option
+              -compressed
+                     Print  prefix  lists using the more specific
+                     operators.  Otherwise,  an  expression  like
+                     128.9.0.0/16^24  will result in 256 prefixes
+                     being printed.
+* peering group configuration
+              @RtConfig importGroup <ASN-1> <peering-set-name>
+              @RtConfig exportGroup <ASN-1> <peering-set-name>
+                     <peering-set-name> is a name  of  a  peering
+                     set object.  This command instructs RtConfig
+                     to generate import  (export)  filters  where
+                     <ASN-1> is importing (exporting) routes from
+                     (to) the peers  listed  in  <peering-set-name>.
+                     The  aut-num  object for <ASN-1> should have
+                     an import (export) attribute using the peer-
+                     ing set's name.
+* prtraceroute is now ported to rpsl. (Thanks to John Mehringer).
+* IRR file cache (-f option) can now have aut-num, as-set, route-set and
+  inet-rtr objects.
+* Much better error reporting using ^^^ pointers.
+* RtConfig option -force_match_ip_inbound is deleted and its behaviour is
+  now the default. Use the new option -no_match_ip_inbound to restore the
+  old behaviour. 
+* RtConfig will split very long "ip as-path access-list" lines over
+  multiple lines.
+
+  Splitting is activated if an "ip as-path" line longer than 250 characters
+  is generated. (Cisco line length limit is 256).
+  
+  We search for the longest as number sequence in the expression
+  (i.e. (ddd|ddd|...|ddd)) which is not inside the scope of a * or +
+  operator and split that one into multiple lines.
+  
+  If there are multiple candidates for split, we only split the longest
+  one. Splitting all candidates would be safer. 
+  
+  In short:
+     <^AS286+ .* AS-EUNET$>	is splittable,
+     <^AS286+ .* AS-EUNET*$>	is NOT splittable,
+     <^AS286+ .* AS-EUNET+$>	is NOT splittable,
+     <^AS286+ .* AS-EUNET AS-EUNET$>	is splittable
+  
+  In the last example, the splitted lines will still be too long.
+  Let me know if any of you have as-path policy of this sort. It is more 
+  work to split all splittable stuff, but it can be done.
+* Fix for Cisco's fix of their prefix list access list bug.
+* filter-set, peering-set, rtr-set classes are now recognized.
+* RAToolSet no longer has a hidden list of IRR databases, if a -s option
+  is not specified at the command line, it will use whatever the default
+  is at the server. This should make no difference for those of you that
+  use RADB. For others, watch out for surprises.
+
+4.3.3
+* RAToolSet now defaults to rpsl.merit.edu port 43 protocol IRRd
+
+4.3.2
+* bug fixes (solaris long long int bug, and aspath prepend bug)
+
+4.3.1
+* draft-ietf-rps-rpsl-v2-00 compliant
+* examples under tests directory updated for v4 syntax
+* got rid of -c option while connecting to RIPE-based server
+
+4.3.0
+* aoe, roe and prpath are back
+* a very brief library documentation is included
+* bug fixes
+* compressing cisco access lists are now the default. To disable, please
+  use the -cisco_no_compress_acls option.
+
+4.2.0
+* bug fixes
+* gated and rsd support in RtConfig (this part is alpha code).
+
+4.1.0
+* Structured import and export with braces, semicolons, except and refine
+  is implemented. They can be arbitrarily nested.
+* PeerAS can now be used in prefix or as-path filters.
+* @RtConfig static2bgp <ASN-1> <rtr-1>
+  See man page.
+* All community methods now work, cisco can not handle the delete method
+  though. 
+* New option -cisco_use_prefix_lists
+  This option only  affects  cisco  configurations.  This option instructs
+  RtConfig to output prefix-lists which yield higher performace than
+  access-lists. This flag implies -cisco_compress_acls.
+* Media local range 169.254.0.0/16^+ is now in the martians list.
+* ^+, ^-, ^n, ^n-m can now be used with as numbers, rs-set and as-set
+  names. e.g. AS226^+, RS-PRIVATE^19
+* more control over acl numbers used. Check the man page for:
+     @RtConfig set cisco_prefix_acl_no = 500
+     @RtConfig set cisco_aspath_acl_no = 1500
+     @RtConfig set cisco_community_acl_no = 3500
+* There is also a new option -f <filename> where the file contains an
+  aut-num object. RAToolSet uses the object's definition in the file
+  instead of the one in IRR. This is mainly useful for testing. This
+  option  may disappear in the future.
+* roe/aoe is broken. They will be fixed in 4.1.1.
+* Bugs fixed.
+
+4.0.3
+* Bugs fixed.
+
+4.0.2
+* Bug fixes
+* Peval now has command line history (if you have gnu readline/history
+libs)
+
+4.0.1
+* Bug fixes
+
+4.0.0
+* rpsl is implemented.
+* in your templates, IP addresses should no longer have /32. i.e. use:
+	@RtConfig export AS2764 203.63.80.17 AS1221 139.130.49.81
+	not                                 /32                  /32
+* as path and community access lists are now cached
+* if you do not have a policy for a neighbor, RtConfig will generate a
+  config file which imports no routes from that neighbor. Previously, it
+  just ignored the RtConfig command for that neighbor.
+* Please read README.v4 for things to watch for.
+
+3.5.7
+* Portability improved. Warnings during compilation is now avoided.
+* In printing packet filters the prefix 0.0.0.0/0 is ignored.
+* The following lists are also sorted:
+	cisco packet filters
+	cisco default statements
+	gated prefix list policy filters
+	rsd prefix list policy filters
+* RtConfig now accepts the following command:
+	@RtConfig outbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>
+  Same as pkt_filter but using as-out instead of as-in. Please see the man 
+  page.
+
+3.5.6 
+* A new radix tree implementation is in place. So
+  -cisco_compress_acls now works and resulting access lists are
+  sorted.
+* RtConfig now accepts the following command:
+	@RtConfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>
+  Man page has the details. This is useful for filtering data packets 
+  whose source address does not belong to your customers 
+  (e.g. smurf packets).
+
+3.5.5
+* RtConfig now accepts the following commands.
+     @RtConfig set cisco_map_first_no = 5
+     @RtConfig set cisco_map_increment_by = 10
+  Man page has the details. This is useful for inserting other statements 
+  to the route maps.
+* Bug fixed: RtConfig failed on expressions like "accept AS1 OR <AS1>".
+* Bug fixed: Our radix tree based set implementation turned out to be
+  very bugy and consumed enormous resources. I rolled back our old set
+  implementation that used splay trees. This means, access lists will
+  no longer be sorted:-( Also, -compressACLS will not work. 
+* aoe now has a revert button, when pressed it re-reads the object from IRR.
+
+3.5.4
+* RAToolSet has been modified to adapt Tcl/Tk 8.0 by changing it's
+  naming convention.  This will make roe and aoe taking the advantage of
+  newest Tcl/Tk in terms of speed.
+* A multi-homed's bug on prtraceroute has been fixed by checking out
+  the interfaces from the kernel.  Linux and Solaris porting have also been
+  integrated.  
+* RAToolSet installation script has been improved so that it will
+  create directories if they do not exist.  This will smooth the
+  installation process without any human interference.  
+* RtConfig has been enhanced to generate compressed ACLs for Cisco
+  routers.  This will shorten the ACLs and hence use less memory on Cisco
+  routers.
+
+3.5.3
+* Radix trie has been added for RtConfig so that sorted access list 
+  will be generated.
+* Balloon help for roe has been added to show the range of each address prefix.
+* Bugs fixed for roe from being crashed. 
+* aoe has different resource file (~/.aoerc) format.  Users should delete
+  the old one and let aoe generates a new one.
+* aoe provides template for the "changed:" field and appends/replaces
+  it automatically.
+* Bug fixed for prtraceroute from being crashed in Solaris.  Thanks
+  Bob Coggeshall for pointing it out.
+* Clean up all the memory leaking problems.
+
+3.5.1
+* This version contains a couple of minor bugs fixed for RtConfig.  Thanks
+  "David M. Meyer" <meyer@network-services.uoregon.edu> for pointing them
+  out.
+
+3.5.0
+* This version contains the beta release of aoe, Autonomous System
+  Object Editor:
+     aoe simplifies the creation of aut-num objects by employing some
+     heuristics to add and modify as-in and as-out attributes.  For
+     example, given a BGP dump from a router inside your AS, aoe
+     parses the AS_PATH attributes in the BGP dump, and determines the
+     peer ASes, and the import policies for each peer AS.  A template
+     based mechanism is provided for users to create their own
+     heuristics to augment the heuristics that we provide.  aoe can
+     register the aut-num object in the IRR after editing is done.
+* RtConfig has couple of new features:
+        -supress_martian option
+        -@RtConfig networks commands
+        -@RtConfig default commands
+* There are also some minor bug fixes.
+
+3.4.0
+* This version has man pages for all tools. There are new tools, quite a
+  few improvements and bug fixes. Since there are so many changes please
+  regard this version as alpha.
+* Here are the list of tools:
+    peval                 improvements and bug fixes
+    pmatch                more options
+    prpath                more options
+    RtConfig              improvements and bug fixes
+    CIDRAdvisor           completely rewritten with all new options
+    prcheck               no changes
+    roe                   no changes
+    relayd                new tool
+    prtraceroute          new tool
+
+2.9
+* peval now has registers. register store the results of previous
+  evaluations. To enable, one needs to use either -registers option or
+  -config option of peval. E.g.
+	./peval -registers
+	peval> set $a AS1
+	peval> $a
+	((AS1))
+* code has been reorganized. gnu libraries is now all in one sub directory
+  parse tree node* code has been cleaned and sped up.
+* autoconf tested on sunos solaris alpha/osf ultrix
+2.8
+* yyparse now parses the stdin. Peval used to read stdin and pass it to
+  yyparse.
+* When debugging is enabled (w/ -DDEBUG), execution is no longer slowed
+  down if debugging is not enabled at run time with -D command line option.
+* The extended/original attribute interaction as discussed in IETF July 95
+  has been implemented.
+* Better error/warning messages:
+	Warning: aut-num object of AS690 has no as-out line for peer AS3561.
+	Warning: Community COMM has no registered routes or does not exist.
+* RtConfig now supports RSd configuration file format.
