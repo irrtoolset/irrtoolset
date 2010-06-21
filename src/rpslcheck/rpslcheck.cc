@@ -161,7 +161,7 @@ int main(int argc, char **argv, char **envp) {
    while (opt_my_as || cin ) {
        if (opt_my_as) {
           // if the first two characters of the ASN are "as", then ignore them
-          if (strcasestr(opt_my_as, "as") == opt_my_as)
+          if (tolower(opt_my_as[0]) == 'a' && tolower(opt_my_as[1]) == 's')
             opt_my_as += 2;
 
           const char *dot = strchr(opt_my_as,'.');
