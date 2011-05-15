@@ -234,6 +234,8 @@ CMN_ATTRS
 "attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single\n"
 "attr:  export-comps     syntax(special, filter),                         optional,  single\n"
 "attr:  holes            syntax(ListOfIPv4Prefix),                              optional,  multiple\n"
+"attr:  pingable                                                                optional,  multiple\n"
+"attr:  ping-hdl         syntax(list of rpsl_word),                             optional,  multiple\n"
 CMN_ATTRS
 "attr:  descr                                                                   mandatory, multiple\n"
 "attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
@@ -255,6 +257,8 @@ CMN_ATTRS
 "attr:  aggr-mtd         syntax(special, aggr-mtd),                             optional,  single\n"
 "attr:  export-comps     syntax(special, v6_filter),                         optional,  single\n"
 "attr:  holes            syntax(ListOfIPv6Prefix),                              optional,  multiple\n"
+"attr:  pingable                                                                optional,  multiple\n"
+"attr:  ping-hdl         syntax(list of rpsl_word),                             optional,  multiple\n"
 CMN_ATTRS
 "attr:  descr                                                                   mandatory, multiple\n"
 "attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
