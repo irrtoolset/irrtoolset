@@ -375,6 +375,7 @@ CMN_ATTRS
 "attr:  country                                                                 mandatory, multiple\n"
 "attr:  rev-srv                                                                 optional,  multiple, lookup\n"
 "attr:  status                                                                  mandatory, single\n"
+"attr:  assignment-size                                                         optional, single\n"
 "attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
 CMN_ATTRS
 "attr:  descr                                                                   mandatory, multiple\n"
