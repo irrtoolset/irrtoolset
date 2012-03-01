@@ -444,7 +444,7 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
   */
 
    while ((j <= 7) && (i[j] != 0)) {
-     sprintf(buffer + strlen(buffer), "%X", i[j]); 
+     sprintf(buffer + strlen(buffer), "%x", i[j]); 
      if (j != 7)
        sprintf(buffer + strlen(buffer), ":");
      j++;
@@ -460,7 +460,7 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
    }
 
    while (j <= 7) {
-     sprintf(buffer + strlen(buffer), "%X", i[j]);
+     sprintf(buffer + strlen(buffer), "%x", i[j]);
      if (j != 7)
       sprintf(buffer + strlen(buffer), ":");
      j++;
