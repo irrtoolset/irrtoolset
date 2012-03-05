@@ -55,6 +55,8 @@
 #include <sys/types.h>
 #include <algorithm>
 #include <iterator>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 using namespace std;
 
@@ -413,60 +415,44 @@ IPv6PrefixRange MulticastIPv6PrefixRange("ff00::/8^8-128");
 
 /* IPv6 stuff */
 
+int check_big_endian()
+{
+   unsigned long onebit = 1;
+   return !(*((char *)(&onebit)));
+}
+                        
 // ipv6_addr_t to string - pointers should be provided
 char* ipv62hex(ipv6_addr_t *ip, char *buffer){
-   unsigned int i[8];
-   int j = 0;
+   unsigned char i[16];
+   int j;
 
    ip_v6word_t high = ip->high;
    ip_v6word_t low = ip->low;
 
-   i[0] = (high >> 48) & 0xFFFF;
-   i[1] = (high >> 32) & 0xFFFF;
-   i[2] = (high >> 16) & 0xFFFF;
-   i[3] = high & 0xFFFF;
-   i[4] = (low >> 48) & 0xFFFF;
-   i[5] = (low >> 32) & 0xFFFF;
-   i[6] = (low >> 16) & 0xFFFF;
-   i[7] = low & 0xFFFF;
+   /* irrtoolset was written before inet_ntop() and friends were written. 
+      inet_ntop() expects big-endian layout, but ip_v6word_t uses the
+      machine architecture and is not endian-clean, so on little-endian
+      machines we need to do a byte-swap.  This is done in two bits because
+      the integer value of ip_v6word_t is private.  The endian check is done
+      in runtime; compile-time checks of endianness are a broken concept due
+      to complications like cross-compilation, fat binaries with
+      mixed-architecture sections and mixed endian chips.  */
 
-   memset(buffer, 0, strlen(buffer));
- 
-
-   // do non-compressed
-
-  /* while (j <= 7) {
-     sprintf(buffer + strlen(buffer), "%X", i[j]); 
-     if (j != 7)
-       sprintf(buffer + strlen(buffer), ":");
-     j++;
-   }
-  */
-
-   while ((j <= 7) && (i[j] != 0)) {
-     sprintf(buffer + strlen(buffer), "%x", i[j]); 
-     if (j != 7)
-       sprintf(buffer + strlen(buffer), ":");
-     j++;
+   if (check_big_endian()) {
+      memcpy(i, ip, 16);
+   } else {
+      // assume little endian here.  If you're running on a pdp, you have
+      // bigger problems.
+      for (j = 0; j < 7; j++) {
+         i[j]   =  (high >> (7-j)*8) & 0xFF;
+         i[j+8] =  (low  >> (7-j)*8) & 0xFF;
+      }
    }
 
-   if (i[j] == 0) {
-     while ((j <= 7) && (i[j] == 0)) {
-       if (j == 0)
-         sprintf(buffer + strlen(buffer), ":");
-       j++;
-     }
-     sprintf(buffer + strlen(buffer), ":");
-   }
+   memset(buffer, 0, IPV6_LENGTH);
+   inet_ntop (AF_INET6, &i, buffer, IPV6_LENGTH);
 
-   while (j <= 7) {
-     sprintf(buffer + strlen(buffer), "%x", i[j]);
-     if (j != 7)
-      sprintf(buffer + strlen(buffer), ":");
-     j++;
-   } 
-   return(buffer);
-
+   return (buffer);
 }
 
 // string to ipv6_addr_t - pointers should be provided
