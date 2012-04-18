@@ -363,6 +363,8 @@ CMN_ATTRS
 "attr:  status                                                                  mandatory, single\n"
 "attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
 CMN_ATTRS
+"attr:  geoloc                                                                  optional, single\n"
+"attr:  language                                                                optional, single\n"
 "attr:  descr                                                                   mandatory, multiple\n"
 "attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
 "attr:  mnt-routes       syntax(special, mnt-routes),                           optional,  multiple, lookup\n"
@@ -378,6 +380,8 @@ CMN_ATTRS
 "attr:  assignment-size                                                         optional, single\n"
 "attr:  mnt-lower        syntax(ListOfrpsl_word),                               optional,  multiple\n"
 CMN_ATTRS
+"attr:  geoloc                                                                  optional, single\n"
+"attr:  language                                                                optional, single\n"
 "attr:  descr                                                                   mandatory, multiple\n"
 "attr:  mnt-by           syntax(list of rpsl_word),                             optional,  multiple, lookup\n"
 "attr:  mnt-routes       syntax(special, mnt-routes6),                          optional,  multiple, lookup\n"
