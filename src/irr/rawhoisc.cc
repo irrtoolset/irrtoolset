@@ -556,7 +556,7 @@ ASt RAWhoisClient::getOrigin(char *format, ...)
   char *result = NULL;
   int len;
   setFastResponseFlag(false);
-  if (len = QueryResponse(result, "!r%s,l", buffer)) {
+  if ((len = QueryResponse(result, "!r%s,l", buffer))) {
      Buffer b(result, len);
      List<Object> log;
      extern void objectLog(const Buffer &buf, List<Object> &log);

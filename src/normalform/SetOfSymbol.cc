@@ -149,7 +149,7 @@ void SetOfSymbol::splice(SetOfSymbol& b) {
    Pix i;
    SymbolConjunct *conjunct;
    // append conjuncts of b into conjuncts of *this
-   while (i = b.conjuncts.first()) {
+   while ((i = b.conjuncts.first())) {
       conjunct = b.conjuncts(i);
       b.conjuncts.del_this(i);
       conjuncts.add(conjunct);

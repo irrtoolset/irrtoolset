@@ -176,16 +176,15 @@ void PrefixRange::parse(const char *name)
   unsigned int i1, i2, i3, i4, uiLength = 0, uiN = 0, uiM = 0;
   char ch = ' ';
 
-  const char *p;
   if (strstr(name, "^+"))
     // Inclusive more specific operation
     sscanf(name, "%u.%u.%u.%u/%u^%c", &i1, &i2, &i3, &i4, &uiLength, &ch);
-  else if (p = strstr(name, "^-"))
+  else if (strstr(name, "^-"))
      sscanf(name, "%u.%u.%u.%u/%u^%c", &i1, &i2, &i3, &i4, &uiLength, &ch);
-  else if (p = strchr(name, '-')) 
+  else if (strchr(name, '-')) 
      sscanf(name, "%u.%u.%u.%u/%u^%u-%u", 
 	    &i1, &i2, &i3, &i4, &uiLength, &uiN, &uiM);
-  else if (p = strchr(name, '^')) {
+  else if (strchr(name, '^')) {
      sscanf(name, "%u.%u.%u.%u/%u^%u", 
 	    &i1, &i2, &i3, &i4, &uiLength, &uiN);
      uiM = uiN;
@@ -573,7 +572,7 @@ void IPv6PrefixRange::parse(const char *name)
   ipaddr = (ipv6_addr_t *) calloc (sizeof(ipv6_addr_t),1);
   ipv6_addr_t t = *ipaddr;
 
-  if (slash = strstr (name, "/")) {
+  if ((slash = strstr (name, "/"))) {
     strncat (address, name, strlen (name) - strlen(slash));
     //printf ("original: %s\n", name);
     //printf ("address part: %s\n", address);

@@ -366,21 +366,21 @@ void FilterOfCommunity::NegateCommunityConjunct(CommunityConjunct *cp) {
       conjuncts.append(cp2);
    }
    // handle p, easy
-   while (pi = cp->p->first()) {
+   while ((pi = cp->p->first())) {
       cp2 = new CommunityConjunct;
       cp2->n->add((*cp->p)(pi));
       conjuncts.append(cp2);
       cp->p->del((*cp->p)(pi));
    }
    // handle n, easy
-   while (pi = cp->n->first()) {
+   while ((pi = cp->n->first())) {
       cp2 = new CommunityConjunct;
       cp2->p->add((*cp->n)(pi));
       conjuncts.append(cp2);
       cp->n->del((*cp->n)(pi));
    }
    // handle ne, easy
-   while (CSptr = cp->ne.head()) {
+   while ((CSptr = cp->ne.head())) {
       cp2 = new CommunityConjunct;
       cp2->pe = CSptr;
       conjuncts.append(cp2);

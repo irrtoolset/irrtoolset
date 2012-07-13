@@ -60,8 +60,8 @@
 %x SKIP_OBJECT
 %x POLICYMODE
 
-/*%option nodefault /* */
-/*%option debug /* */
+/*%option nodefault */
+/*%option debug */
 %option case-insensitive
 
 ENDOBJECT      ^[ \t\r]*\n
