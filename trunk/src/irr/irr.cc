@@ -308,20 +308,13 @@ const AutNum *IRR::getAutNum(ASt as) {
    AutNum *result = NULL;
 
    if (! AutNumCache.query(as, result)) {
-      asnum_string_dot(buffer, as); // try asdotted
+      asnum_string_plain(buffer, as);	// IRRDBs don't like asdot
       if (getAutNum(buffer, text, len)) {
-	 Buffer b(text, len);
-	 result = new AutNum(b);
-	 AutNumCache.add(as, result);
-      } else {
-         asnum_string_plain(buffer, as); // try asplain before giving up
-         if (getAutNum(buffer, text, len)) {
-	    Buffer b(text, len);
-	    result = new AutNum(b);
-	    AutNumCache.add(as, result);
-         } else
-	    AutNumCache.add(as, NULL); // a negative object
-      }
+         Buffer b(text, len);
+         result = new AutNum(b);
+         AutNumCache.add(as, result);
+      } else
+         AutNumCache.add(as, NULL); // a negative object
    }
 
    return result;
@@ -368,7 +361,7 @@ void IRR::getRoute(Route *&route, Prefix *rt, ASt as) {
    char *text;
    int  len;
 
-   asnum_string_dot(buffer, as);
+   asnum_string_plain(buffer, as);
    if (getRoute(rt->get_text(), buffer, text, len)) {
       Buffer b(text, len);
       route = new Route(b);
@@ -381,18 +374,12 @@ void IRR::getRoute(Route *&route, char *rt, ASt as)
   char *text;
   int  len;
 
-  asnum_string_dot(buffer, as);
+  asnum_string_plain(buffer, as);
   if (getRoute(rt, buffer, text, len)) {
      Buffer b(text, len);
      route = new Route(b);
-  } else {
-     asnum_string_plain(buffer, as);
-     if (getRoute(rt, buffer, text, len)) {
-        Buffer b(text, len);
-        route = new Route(b);
-     } else
-        route = NULL;
-  }
+  } else
+     route = NULL;
 }
 
 const InetRtr *IRR::getInetRtr(SymID inetRtr)
@@ -425,14 +412,11 @@ const MPPrefixRanges *IRR::expandAS(ASt as) {
       // we insert the set to the cache before expanding
       // this is needed to avoid recursion if sets are recursively defined
       expandASCache.add(as, result);
-      asnum_string_dot(buffer, as); // try asdotted
+      asnum_string_plain(buffer, as);
       if (!expandAS(buffer, result)) {
-         asnum_string_plain(buffer, as); // that failed, try asplained
-         if (!expandAS(buffer, result)) {
-            expandASCache.nullify(as);
-            delete result;
-            result = NULL; // A negative cache
-         }
+         expandASCache.nullify(as);
+         delete result;
+         result = NULL; // A negative cache
       }
    }
 
