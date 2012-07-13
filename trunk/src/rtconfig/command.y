@@ -223,7 +223,7 @@ import_group_line: KW_IMPORT_GROUP TKN_ASNUM TKN_WORD {
 
 print_prefixes_line: KW_PRINT_PREFIXES TKN_STR TKN_FILTER {
    char *p = $2;
-   while (p = strchr(p, '\\')) {
+   while ((p = strchr(p, '\\'))) {
       if (*(p+1) == 'n') {
 	 *p = '%';
 	 *(p+1) = '\n';
@@ -238,7 +238,7 @@ print_prefixes_line: KW_PRINT_PREFIXES TKN_STR TKN_FILTER {
 
 print_prefix_ranges_line: KW_PRINT_PREFIX_RANGES TKN_STR TKN_FILTER {
    char *p = $2;
-   while (p = strchr(p, '\\')) {
+   while ((p = strchr(p, '\\'))) {
       if (*(p+1) == 'n') {
 	 *p = '%';
 	 *(p+1) = '\n';
@@ -253,7 +253,7 @@ print_prefix_ranges_line: KW_PRINT_PREFIX_RANGES TKN_STR TKN_FILTER {
 
 print_super_prefix_ranges_line: KW_PRINT_SUPER_PREFIX_RANGES TKN_STR TKN_FILTER {
    char *p = $2;
-   while (p = strchr(p, '\\')) {
+   while ((p = strchr(p, '\\'))) {
       if (*(p+1) == 'n') {
 	 *p = '%';
 	 *(p+1) = '\n';

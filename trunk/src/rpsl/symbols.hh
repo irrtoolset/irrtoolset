@@ -87,7 +87,7 @@ public:
       char *nname=strdup(name);	
 
       strupr(nname);
-      if (r = symset.seek((char *) nname))
+      if ((r = symset.seek((char *) nname)))
 	 return symset(r);
 
       if (len == -1)

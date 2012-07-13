@@ -591,7 +591,7 @@ void RtConfig::printPrefixes_(SetOfPrefix& nets, char *fmt) {
 	ok = itr.next(addr, leng)) {
       start = end = leng;
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
 	 *percent = 0;
 	 cout << format;
 	 *percent = '%';
@@ -650,7 +650,7 @@ void RtConfig::printPrefixes_(SetOfIPv6Prefix& nets, char *fmt) {
         ok = itr.next(addr, leng)) {
       start = end = leng;
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
          *percent = 0;
          cout << format;
          *percent = '%';
@@ -719,7 +719,7 @@ void RtConfig::printPrefixRanges_(SetOfPrefix& nets, char *fmt) {
 	ok;
 	ok = itr.next(addr, leng, start, end)) {
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
 	 *percent = 0;
 	 cout << format;
 	 *percent = '%';
@@ -777,7 +777,7 @@ void RtConfig::printPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt) {
         ok;
         ok = itr.next(addr, leng, start, end)) {
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
          *percent = 0;
          cout << format;
          *percent = '%';
@@ -845,7 +845,7 @@ void RtConfig::printSuperPrefixRanges_(SetOfPrefix& nets, char *fmt) {
 	ok;
 	ok = itr.next(addr, leng, rngs)) {
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
 	 *percent = 0;
 	 cout << format;
 	 *percent = '%';
@@ -899,7 +899,7 @@ void RtConfig::printSuperPrefixRanges_(SetOfIPv6Prefix& nets, char *fmt) {
         ok;
         ok = itr.next(addr, leng, rngs)) {
       format = p;
-      while (percent = strchr(format, '%')) {
+      while ((percent = strchr(format, '%'))) {
          *percent = 0;
          cout << format;
          *percent = '%';

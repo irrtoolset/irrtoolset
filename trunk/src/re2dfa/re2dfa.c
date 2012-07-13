@@ -1733,7 +1733,7 @@ rd_state *rd_intersect_map_find(register rd_state *stt1,
    for (triple = rd_intersect_map.dll.rq_forw->rq_self; 
 	triple != &rd_intersect_map
 	   && (triple->first < stt1 
-	       || triple->first == stt1 && triple->second < stt2); 
+	       || (triple->first == stt1 && triple->second < stt2)); 
 	triple = triple->dll.rq_forw->rq_self)
 	   ;
 

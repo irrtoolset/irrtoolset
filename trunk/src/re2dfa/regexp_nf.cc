@@ -477,7 +477,7 @@ struct int2 {
 
    struct less {
       int operator() (const int2& a, const int2& b) const {
-	 return a.i <  b.i ||  a.i == b.i && a.j <  b.j;
+	 return a.i <  b.i || (a.i == b.i && a.j <  b.j);
       }
    };
 };
