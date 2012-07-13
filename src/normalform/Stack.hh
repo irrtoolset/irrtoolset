@@ -93,7 +93,7 @@ template <class TYPE>
 class BoundedStack : BoundedQueue<TYPE> {
 public:
    BoundedStack(int size) : BoundedQueue<TYPE>(size) {}
-   void push(TYPE elt) { enq(elt); }
+   void push(TYPE elt) { this->enq(elt); }
    TYPE pop() { return this->q[--(this->last)]; }
    int getPosition() { return this->last; }
    void setPosition(int pos) { this->last = pos; }

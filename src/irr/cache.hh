@@ -48,6 +48,7 @@
 #ifndef CACHE_H
 #define CACHE_H
 
+#include <unistd.h>
 #include "dataset/CacheKey.CacheValue.AVLMap.h"
 
 template <class K, class V>
