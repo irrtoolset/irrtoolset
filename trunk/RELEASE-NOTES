@@ -1,6 +1,25 @@
 Release Notes for IRRToolSet
 ****************************
 
+Version 5.0.1
+
+* don't barf on pingable: and ping-hdl: attributes (RFC 5943)
+
+* don't barf on inet6num: assignment-size (RIPE policy proposal 2010-06)
+
+* RFC 5952 requires that ipv6 addresses be presented in lower case.
+
+* ipv6 addresses are now printed in optimised format.
+
+* added geoloc: and language: fields to both inetnum: and inet6num: objects.
+
+* compilation fixes for g++ 4.7 / debian wheeze
+
+* stop talking asdot to IRRDBs.  none of the IRRs supports asdot since ~2010
+
+* silence a bunch of warnings for clang 3.0
+
+
 Version 5.0.0
 
 Substantial reorganisation of package.  Only rtconfig, peval and rpslcheck survived. 
