@@ -442,7 +442,7 @@ char* ipv62hex(ipv6_addr_t *ip, char *buffer){
    } else {
       // assume little endian here.  If you're running on a pdp, you have
       // bigger problems.
-      for (j = 0; j < 7; j++) {
+      for (j = 0; j <= 7; j++) {
          i[j]   =  (high >> (7-j)*8) & 0xFF;
          i[j+8] =  (low  >> (7-j)*8) & 0xFF;
       }
