@@ -1714,12 +1714,12 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << *itr()->peering->peerASes << endl;
+              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
      for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << *itr()->peering->peerASes << endl;
+              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
 
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
@@ -1810,12 +1810,12 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << *itr()->peering->peerASes << endl;
+              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
      for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << *itr()->peering->peerASes << endl;
+              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
 
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
