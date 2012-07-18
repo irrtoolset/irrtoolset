@@ -19,6 +19,7 @@ Version 5.0.1
 
 * silence a bunch of warnings for clang 3.0
 
+* fix AS output for rpslcheck
 
 Version 5.0.0
 
