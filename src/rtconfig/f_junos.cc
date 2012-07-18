@@ -1225,7 +1225,7 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
-	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "            peer-as " << ((FilterASNO *)itr()->peering->peerASes)->asno <<";\n"
 	      << "         }\n";
       }
    }   
@@ -1233,7 +1233,7 @@ void JunosConfig::exportGroup(ASt asno, char * pset) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
-	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "            peer-as " << ((FilterASNO *)itr()->peering->peerASes)->asno <<";\n"
 	      << "         }\n";
       }
    }   
@@ -1327,7 +1327,7 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
-	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "            peer-as " << ((FilterASNO *)itr()->peering->peerASes)->asno <<";\n"
 	      << "         }\n";
       }
    }   
@@ -1335,7 +1335,7 @@ void JunosConfig::importGroup(ASt asno, char * pset) {
       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
 	  && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
 	 cout << "         neighbor " << *itr()->peering->peerRtrs << " {\n"
-	      << "            peer-as " << *itr()->peering->peerASes <<";\n"
+	      << "            peer-as " << ((FilterASNO *)itr()->peering->peerASes)->asno <<";\n"
 	      << "         }\n";
       }
    }   

@@ -128,8 +128,6 @@ ostream &PolicyPeering::print(ostream &out) const {
    if (prngSet)
       out << prngSet;
    else {
-      if (typeid(*peerASes) == typeid(FilterASNO))
-         out << "AS";
       out << *peerASes;
       if (peerRtrs)
 	 out << " " << *peerRtrs;
