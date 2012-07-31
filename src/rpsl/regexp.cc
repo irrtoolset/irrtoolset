@@ -90,11 +90,12 @@ ostream& operator<<(ostream& os, regexp_symbol& rs) {
    if (!rs.asnumbers.empty() || rs.asSets.empty())
       os << rs.asnumbers;
    
-   if (!rs.asnumbers.empty() && !rs.asSets.empty())
+   if (!rs.asnumbers.empty() && !rs.asSets.empty()) {
       if (rs.asnumbers.useOrList)
 	 os << "|";
       else
 	 os << " ";
+   }
 
    for (Pix p = rs.asSets.first(); p; ) {
       os << rs.asSets(p);
@@ -105,11 +106,12 @@ ostream& operator<<(ostream& os, regexp_symbol& rs) {
 	 os << " ";
    }
    
-   if (put_brackets)
+   if (put_brackets) {
       if (rs.asnumbers.useOrList)
 	 os << ")";
       else
 	 os << "]";
+   }
 
    if (rs.complemented && rs.asnumbers.useOrList)
       rs.asnumbers.complement();

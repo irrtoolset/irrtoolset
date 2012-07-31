@@ -79,12 +79,14 @@ ostream& operator<<(ostream& stream, NormalTerm& nt) {
 int NormalTerm::find_diff(NormalTerm &other) {
    int diff = FILTER_COUNT;
 
-   for (int i = 0; i < FILTER_COUNT; i++)
-      if (!((*this)[i] == other[i]))
+   for (int i = 0; i < FILTER_COUNT; i++) {
+      if (!((*this)[i] == other[i])) {
 	 if (diff == FILTER_COUNT)
 	    diff = i;
 	 else 
 	    return -1;       // there are differences in more than one index
+      }
+   }
 
    // *this and other are different only on the set indexed by diff
    // or identical if diff == FILTER_COUNT
