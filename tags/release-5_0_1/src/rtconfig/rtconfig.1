@@ -1,0 +1,504 @@
+.\"// $Id$
+.\"// Copyright (c) 2001,2002                        RIPE NCC
+.\"//
+.\"// All Rights Reserved
+.\"//
+.\"// Permission to use, copy, modify, and distribute this software and its
+.\"// documentation for any purpose and without fee is hereby granted,
+.\"// provided that the above copyright notice appear in all copies and that
+.\"// both that copyright notice and this permission notice appear in
+.\"// supporting documentation, and that the name of the author not be
+.\"// used in advertising or publicity pertaining to distribution of the
+.\"// software without specific, written prior permission.
+.\"//
+.\"// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+.\"// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+.\"// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+.\"// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\"// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"// 
+.\"//  Copyright (c) 1994 by the University of Southern California
+.\"//  and/or the International Business Machines Corporation.
+.\"//  All rights reserved.
+.\"//
+.\"//    Permission is hereby granted, free of charge, to any person obtaining a copy
+.\"//    of this software and associated documentation files (the "Software"), to deal
+.\"//    in the Software without restriction, including without limitation the rights
+.\"//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+.\"//    copies of the Software, and to permit persons to whom the Software is
+.\"//    furnished to do so, subject to the following conditions:
+.\"//
+.\"//    The above copyright notice and this permission notice shall be included in
+.\"//    all copies or substantial portions of the Software.
+.\"//
+.\"//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\"//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\"//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\"//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\"//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+.\"//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+.\"//    THE SOFTWARE.
+.\"//
+.\"//  Questions concerning this software should be directed to 
+.\"//  irrtoolset@lists.isc.org
+.\"//
+.\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"//             Katie Petrusha <katie@ripe.net>
+.\"
+.\"
+.TH rtconfig 1 local
+.SH NAME
+rtconfig
+.SH SYNOPSIS
+.B rtconfig
+.RI [ flags ]
+.SH DESCRIPTION
+.PP
+rtconfig analyzes the routing policies registered 
+in the Internet Routing Registry (IRR)
+and produces router configuration files. 
+It currently supports cisco and junos router configuration file
+formats. 
+rtconfig reads lines form the standard input,
+and prints them to the standard output,
+except for the lines that start with "@rtconfig"
+which instruct rtconfig to perform special operation
+(please see "rtconfig Commands" Section below).
+rtconfig establishes a whois connection to query IRR.
+.SH IRRToolSet COMMON OPTIONS
+.RS
+.IP -help
+Print summary of command-line options and abort.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> 
+(if compiled with ENABLE_DEBUG defined).
+.IP "\-version"
+Print the version number and quit.
+.IP "\-h <host-name>"
+Establish a whois connection to host <host-name>.
+The default is whois.radb.net.
+.IP "\-p <port-no>"
+Establish an whois connection to port <port-no>.
+The default is 43.
+.IP "\-protocol <protocol>"
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd) or ripe(bird). The default is irrd.
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>.
+If an object is defined in multiple sources in <source-list>,
+rtconfig uses the definition first encountered in <source-list>
+from left to right.
+.IP "\-f <file-name>" 
+IRR cache file. You can have any RPSL object in this file, except route
+objects. 
+They will override these objects in IRR.
+This option is intended for private objects, or to test new public objects 
+before publishing. You can specify more than one cache file by specifying this
+option repeatedly.
+.IP \-rusage
+Print resource usage upon completion.
+.IP "\-prompt <new-prompt>"
+Change the prompt to <new-prompt> when invoked interactively. By default
+the prompt is "rtconfig>\ ".
+.IP "\-ignore_errors"
+Do not print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-report_errors"
+Print error and warning messages due to communication to the
+database server or parsing policy objects.
+.RE
+.SH OTHER OPTIONS
+.RS
+.IP "\-config <config-format>"
+Produce router configuration in <config-format>
+which is either cisco (default) or junos.
+.IP \-no_match_ip_inbound
+In older Cisco IOS versions, 
+in-bound route maps did not support ip access-list matches.
+Use of this option causes rtconfig to use distribute-lists to overcome
+this limitation.
+.IP \-asdot
+Print AS numbers as asdot, i.e. in "X.Y" format;
+the default is to use RFC-5396 recommended "asplain" format.
+.IP \-disable_access_list_cache
+rtconfig caches the access-lists (and in the future ip as-path
+access-lists and route-maps) that it generates so that the same
+access-list number can be reused instead of generating a new access list.
+If you do not want rtconfig to consume much memory,
+\-disable_access_list_cache option can be used to turn off this feature.
+However,
+if you are short on memory on your cisco box, 
+you should leave this feature enabled.
+.IP "\-supress_martian"
+Deprecated.  Properly maintained martian and bogon lists are visible in both
+the RIPE and Merit whois servers (e.g. "fltr-bogons", "fltr-unallocated" and
+"fltr-martian" objects), and can be referenced using standard RPSL.
+.IP "\-cisco_no_compress_acls"
+This option only affects cisco configurations.
+This option is used to disable combining multiple cisco access list lines
+into a single line using wildcards whenever possible.
+.IP "\-cisco_use_prefix_lists"
+This option only affects cisco configurations.
+This option instructs rtconfig to output prefix-lists which yield higher 
+performace than access-lists. This flag implies -cisco_compress_acls.
+.IP "\-cisco_eliminate_dup_map_parts"
+This option only affects cisco configurations.
+This option instructs rtconfig to eliminate a later map part if its filter
+is covered by earlier map parts.
+.IP "\-cisco_skip_route_maps"
+This option only affects cisco configurations.
+This option instructs rtconfig not to print route maps, 
+hence it only prints access lists.
+.IP "\-cisco_force_tilda"
+This option only affects cisco configurations. It forces * and + operators
+in AS path regular expressions to be interpreted as ~* and ~+ operators.
+This is useful if you get as path access lists with real long lines, it
+will force them to multiple lines.
+.IP "\-cisco_empty_lists"
+This option only affects Cisco configurations. It forces interpreting ANY/NOT ANY prefix filters as universal/empty set of prefixes, and produces access lists for them. By default only warning is issued.
+.IP \-cisco_no_default_afi 
+Causes rtconfig not to assume that ipv4.unicast is the router's default 
+address family. IPv4 peers will then have ipv4.unicast explicitly activated 
+and policy will be set in ipv4.unicast address family. Useful when the router 
+is configured with "no bgp default ipv4-unicast". 
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the IRR host to connect.
+.IP IRR_PORT
+Specifies the IRR port number to connect.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH rtconfig COMMANDS
+.PP
+rtconfig copies standard input to standard output 
+except when it encounters rtconfig commands on the standard input.
+All rtconfig commands start with "@rtconfig" at the beginning of a line.
+Currently the following commands are implemented:
+.RS
+.IP "@rtconfig import <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+<ASN-1> and <ASN-2> are AS numbers preceded with string "AS". For
+example, AS number 1 is specified as "AS1".
+<rtr-1> and <rtr-2> are ip addresses in prefix notation. For
+example, the router with address 128.9.128.9 is specified as "128.9.128.9".
+This command instructs rtconfig to generate import filters
+where 
+<rtr-1> in <ASN-1> is importing routes from
+<rtr-2> in <ASN-2>.
+The appropriate filters are generated 
+by considering 
+the import/mp-import lines for <ASN-2>-<rtr-1>-<rtr-2>
+in the aut-num object for <ASN-1>.
+.IP "@rtconfig export <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+The arguments of the export command are the same as the import command.
+This command instructs rtconfig to generate export filters
+where 
+<rtr-1> in <ASN-1> is exporting routes to
+<rtr-2> in <ASN-2>.
+The appropriate filters are generated 
+by considering 
+the export/mp-export lines for <ASN-2>-<rtr-1>-<rtr-2>
+in the aut-num object for <ASN-1>.
+.IP "@rtconfig configureRouter <inet-rtr-name>"
+<inet-rtr-name> is the DNS name of an inet-rtr object.
+This command will use the named inet-rtr object,
+and configure import/mp-import and export/mp-export policies
+for each of the BGP4 peers of the router 
+(using the peer attribute).
+.IP "@rtconfig importGroup <ASN-1> <peering-set-name>"
+.IP "@rtconfig exportGroup <ASN-1> <peering-set-name>"
+<peering-set-name> is a name of a peering set object.
+This command instructs rtconfig to generate import/mp-import (export/mp-export) filters
+where 
+<ASN-1> is importing (exporting) routes from (to) the peers listed in 
+<peering-set-name>.
+The aut-num object for <ASN-1>
+should have an import/mp-import (export/mp-export) attribute using the peering set's name.
+.IP "@rtconfig static2bgp <ASN-1> <rtr-1>"
+This command instructs rtconfig to generate inject filters
+where 
+<rtr-1> in <ASN-1> is injecting static routes into BGP4.
+The appropriate filters are generated 
+by considering 
+the import/mp-import policies of <ASN-1>
+where "protocol STATIC" or "protocol STATIC into BGP4" is used.
+.IP "@rtconfig set sources = <source-list>"
+<source-list> is string containing comma separated list of sources to
+consider.
+This command instruct rtconfig to change the list of sources considered.
+.IP "@rtconfig access_list filter <filter>"
+<filter> is an RPSL filter over AS numbers, AS set names and route set
+names using operators AND, OR and NOT.
+This command instruct rtconfig to generate an access list for <filter>.
+<mp-filter> is also accepted.
+.IP "@rtconfig aspath_access_list filter <filter>"
+<filter> is an RPSL filter over AS path regular expressions using
+operators AND, OR and NOT. 
+This command instruct rtconfig to generate an as path access list for <filter>.
+.IP "@rtconfig printPrefixes <format> filter <filter>"
+<format> is a quoted string, and
+<filter> is an RPSL filter over AS numbers, AS set names and route set
+names using operators AND, OR and NOT, <mp-filter> is also accepted.
+This command instruct rtconfig to print the prefixes in <filter> using
+<format>.
+The <format> can contain the following escape sequences:
+.nf
+      %p	prefix
+      %l	length
+      %L	32-length
+      %n	n   (%p/%l^%n-%m, e.g. 128.9.0.0/16^24-32)
+      %m	m
+      %k	mask
+      %K	inverse of mask (i.e. ~mask)
+      %%	%
+      \\n	carriage return
+      \\t	tab
+.fi
+Example, use:
+.nf
+   @rtconfig printPrefixes "net %p \\tmask %k\\n" filter AS1
+.fi
+.IP "@rtconfig printPrefixRanges <format> filter <filter>"
+This command is same as the "printPrefixes" command,
+except the consecutive address prefixes are compressed into a single
+address prefix range. <mp-filter> is also accepted.
+.IP "@rtconfig printSuperPrefixRanges <format> filter <filter>"
+This command is same as the "printPrefixRanges" command,
+except it compresses more aggresively. The %n and %m information is
+lost. But,
+%D, a set of dont care bits representing different %n-%m ranges are
+provided. <mp-filter> is also accepted.
+.RE
+.PP
+Cisco specific commands:
+.RS
+.IP "@rtconfig set cisco_map_name = <map-name>"
+<map-name> is a quoted string.
+This command instruct rtconfig to use <map-name> as the name for the route
+maps generated. 
+If the <map-name> contains %d, 
+it will be replaced by the peer's AS number.
+If it contains a second %d,
+it will be replaced by an integer that is incremented each time a new
+map is generated (to ensure unique map names).
+The default cisco_map_name is "MyMap_%d_%d".
+.IP "@rtconfig set cisco_map_first_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to use <no> as the first number of a newly
+generated route map.
+If missing, 1 is used.
+.IP "@rtconfig set cisco_map_increment_by = <no>"
+<no> is an integer.
+This command instruct rtconfig to increment route map numbers by <no>. 
+If missing, successive route maps are numbered by increments of 1.
+.IP "@rtconfig set cisco_prefix_acl_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering prefix access lists at <no>.
+.IP "@rtconfig set cisco_aspath_acl_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering aspath access lists at <no>.
+.IP "@rtconfig set cisco_pktfilter_acl_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
+.IP "@rtconfig set cisco_community_acl_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering community access lists at <no>.
+.IP "@rtconfig set cisco_access_list_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering all access lists at <no>.
+.IP "@rtconfig set cisco_max_preference = <no>"
+<no> is an integer defaulting to 1000.
+This command instruct rtconfig to start using preferences from <no> (most
+preferred) and counting down from there.
+.IP "@rtconfig networks <ASN-1>"
+<ASN-1> is an AS number preceded with string "AS". 
+For each route registered with origin <ASN-1>,
+a network statement of the form "network <prefix> mask <mask>" is generated.
+.IP "@rtconfig v6networks <ASN-1>"
+<ASN-1> is an AS number preceded with string "AS".
+For each route6 registered with origin <ASN-1>,
+a network statement of the form "network <prefix> mask <mask>" is generated.
+.IP "@rtconfig default <ASN-1> <ASN-2>"
+<ASN-1> and <ASN-2> are AS numbers preceded with string "AS". 
+This command instructs rtconfig to generate "ip default-network" statements
+where <ASN-1> is defaulting to <ASN-2>.
+The appropriate statements are generated 
+for the network addresses listed in
+the default attribute for <ASN-2> in the aut-num object of <ASN-1>.
+.IP "@rtconfig inbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+The arguments of the inbound_pkt_filter command are the same as the import command.
+This command instructs rtconfig to generate packet filters
+where 
+<rtr-1> in <ASN-1> is going to drop data packets 
+that are received from <rtr-2> in <ASN-2>,
+but do not have source addresses 
+inside the address prefixes imported from this peer.
+The appropriate filters are generated 
+by considering 
+the import lines for <ASN-2>-<rtr-1>-<rtr-2>
+in the aut-num object for <ASN-1>.
+The filter is applied to the interface <if-name> in the inbound direction.
+The <if-name> is a string and must be enclosed in double quotes.
+.IP "@rtconfig pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+An alias for inbound_pkt_filter.  Now deprecated.
+.IP "@rtconfig outbound_pkt_filter <if-name> <ASN-1> <rtr-1> <ASN-2> <rtr-2>"
+Same as the pkt_filter command,
+except
+the appropriate filters are generated 
+by considering 
+the export lines for <ASN-2>-<rtr-1>-<rtr-2>
+in the aut-num object for <ASN-1>.
+The filter is applied to the interface <if-name> in the outbound direction.
+.RE
+.PP
+Junos specific commands:
+.RS
+.IP "@rtconfig set junos_policy_name = <policy-name>"
+<policy-name> is a quoted string.
+This command instruct rtconfig to use <policy-name> as the name for the
+policy statements generated. 
+If the <policy-name> contains %d, 
+it will be replaced by the peer's AS number.
+If it contains a second %d,
+it will be replaced by an integer that is incremented each time a new
+map is generated (to ensure unique map names).
+The default junos_map_name is "policy_%d_%d".
+.IP "@rtconfig networks <ASN-1>"
+<ASN-1> is an AS number preceded with string "AS". 
+For each route registered with origin <ASN-1>,
+a network statement of the form "network <prefix> mask <mask>" is
+generated. This needs to be Juniperized.
+.RE
+.SH EXAMPLES
+.PP
+Here is an example input file:
+.nf
+	!
+	version 10.3
+	!
+	interface Ethernet0/0
+	 ip address 198.32.4.1 255.255.255.0
+	!
+	router bgp 4550
+	 neighbor 198.32.4.25 remote-as 4551
+	!
+	@rtconfig set cisco_map_name = "mymap"
+	@rtconfig set cisco_access_list_no = 500
+	@rtconfig import AS4550 198.32.4.1 AS4551 198.32.4.25
+	!
+	end
+.fi
+.PP
+Please see the tests directory in the distribution for more examples.
+.SH LIMITATIONS
+.PP
+Cisco Configuration Generation:
+.PP
+.RS
+Policies in IRR which has as-path regular expressions containing [,]
+are only converted if (1) it is not a negated set,
+(2) it does not contain ranges with more than 10 numbers in the range.
+The following examples are not converted:
+.nf
+	[^ AS1]
+	[AS1-AS11]
+.fi
+The first one is not converted because it is a negated set. The second one
+is not converted because AS1-AS11 contains 11 numbers.
+The following examples are converted:
+.nf
+	[AS1 AS56 AS100]
+	[AS1-AS10]
+	[AS5 AS100-AS105 AS200 AS300-AS307]
+.fi
+Note that the last example contains 16 numbers which is more than 10. This
+is converted since no single range (AS100-AS105 or AS300-AS307) contains
+more than 10 numbers.
+.RE
+.SH ERROR AND WARNING MESSAGES
+.PP
+Error in template file
+.RS
+.PP
+Wrong rtconfig command, syntax or arguments to rtconfig command.
+.PP
+.RE
+Error: config file format <config_format> is not supported...
+.RS
+.PP
+Unknown config format specified. Supported formats are:
+cisco, junos.
+.PP
+.RE
+Error: no object for router: <router_name>
+.RS
+.PP
+inet-rtr object cannot be found in the specified IRR for specified source. It can be a typo or a real error, and the object is non-existent.
+.PP
+.RE
+Error: no object for AS <as_number>
+.RS
+.PP
+aut-num object cannot be found in the specified IRR for specified source. It can be a typo or a real error, and the object is non-existent.
+.PP
+.RE
+Unknown operator: 
+.RS
+.PP
+Syntax error in format specification, check the description of the printPrefixes command.
+.PP
+.RE
+Error: Badly formed prefix filter
+.RS
+.PP
+Syntax error in prefix filter specification.
+See RFC [2622] (Address prefix filters)
+.PP
+.RE
+Error: Badly formed AS_path filter
+.RS
+.PP
+Syntax error in AS_path filter specification.
+See RFC [2622] (AS_path filters)
+.PP
+.RE
+Warning: filter matches ANY/NOT ANY
+.RS
+.PP
+Filter is empty or universal, i.e. matches none or all prefixes respectively.
+.PP
+.RE
+Warning: AS <as_no> has no import(export) policy for AS <peer_as> <peer_IP> at <local_IP>
+.RS
+.PP
+The matching import(export) policy cannot be found in the aut-num object for <as_no>, for peering aut-num <peer_as> with <peer_IP> at <local_IP> address. It can be a typo or your policy is incomplete. Check your aut-num object.
+.PP
+.RE
+Warning: AS <as_no> has no default policy for AS <peer_as>
+.RS
+.PP
+The matching default policy cannot be found int the aut-num object for <as_no>
+.PP
+.RE
+Warning: unimplemented method <rp_attr>.<method>
+.PP
+.RS
+.PP
+Unimplemented method for this rp_attribute is specified. This error indicates that method is correctly specified in RPSL dictionary, but has no actual implementation for rtconfig.
+.PP
+.RE
+.PP
+For more error descriptions, please see
+.B
+irrtoolset-errors 
+manual page.
+.SH AUTHORS AND CONTRIBUTORS
+Cengiz Alaettinoglu <cengiz@isi.edu>
+Katie Petrusha <katie@ripe.net>

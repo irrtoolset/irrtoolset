@@ -1,0 +1,14 @@
+id: 015
+summary: the -ddd at the beginning of a junos as path expression 
+owner: cengiz
+status: closed
+priority: high
+program: RtConfig
+module(s): rpsl
+reported: unknown
+closed: unknown
+
+detail:
+
+
+
