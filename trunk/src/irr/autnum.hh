@@ -435,12 +435,13 @@ private:
                   if (!combinedFilter)
                      break;
                }
-               if (combinedFilter)
+               if (combinedFilter) {
                   if (*combinedFilter)
                      *combinedFilter = 
                         new FilterOR(*combinedFilter, (Filter *) pf->filter->dup());
                   else
                      *combinedFilter = (Filter *) pf->filter->dup();
+               }
             }
          }
          

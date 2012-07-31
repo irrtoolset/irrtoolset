@@ -172,7 +172,7 @@ void CommunityConjunct::reduce() {
 void CommunityConjunct::do_and(CommunityConjunct &b) {
    // assume *this and b are both simplified 
 
-   if (! pe->empty() && ! b.pe->empty())
+   if (! pe->empty() && ! b.pe->empty()) {
       if (*pe == *b.pe) {
 	 b.make_empty();
 	 return;
@@ -182,6 +182,7 @@ void CommunityConjunct::do_and(CommunityConjunct &b) {
 	 make_empty();
 	 return;
       }
+   }
 
    if (!pe->empty()) { // note that b.pe has to be empty
       p = b.p;

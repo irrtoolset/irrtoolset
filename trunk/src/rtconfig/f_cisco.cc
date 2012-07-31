@@ -470,14 +470,16 @@ void CiscoConfig::printREASno(ostream& out, const RangeList &no) {
       out << "_";
       pi = no.ranges.head();
       put_par = ! no.ranges.isSingleton() || pi->high != pi->low || inTilda;
-      if (put_par)
-	 if (reSplittable)
+      if (put_par) {
+	 if (reSplittable) {
 	    if (inTilda)
 	       out << "&";
 	    else
 	       out << "@";
-	 else
+	 } else {
 	    out << "("; 
+         }
+      }
 
       for (; pi; pi = no.ranges.next(pi)) {
 	 for (int i = pi->low; i <= pi->high; ++i) {
@@ -1152,13 +1154,14 @@ bool CiscoConfig::printNeighbor(int import,
       cout << indent << " neighbor " << neighbor 
 	   << " route-map " << mapName << " " << direction << "\n";
    
-   if (import && ! forcedInboundMatchIP && prefixListGenerated)
+   if (import && ! forcedInboundMatchIP && prefixListGenerated) {
       if (usePrefixLists)
 	 cout << indent << " neighbor " << neighbor
 	      << " prefix-list pl" << distributeListNo << " in\n";
       else
 	 cout << indent << " neighbor " << neighbor
 	      << " distribute-list " << distributeListNo << " in\n";
+   }
 
    if (afi_activate)
       cout << " exit\n"; // exit address-family config mode

@@ -234,11 +234,12 @@ Item *RPTypeWord::typeCast(const Item  *item) const {
       return new ItemWORD(strdup(((ItemPRNGNAME *) item)->name));
    if (typeid(*item) == typeid(ItemFLTRNAME))
       return new ItemWORD(strdup(((ItemFLTRNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemBOOLEAN))
+   if (typeid(*item) == typeid(ItemBOOLEAN)) {
       if (((ItemBOOLEAN *) item)->i)
 	 return new ItemWORD(strdup("true"));
       else
 	 return new ItemWORD(strdup("false"));
+   }
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
       asnum_string(buffer, ((ItemASNO *) item)->asno);
@@ -316,11 +317,12 @@ Item *RPTypeEnum::typeCast(const Item  *item) const {
       w = new ItemWORD(strdup(((ItemPRNGNAME *) item)->name));
    if (typeid(*item) == typeid(ItemFLTRNAME))
       w = new ItemWORD(strdup(((ItemFLTRNAME *) item)->name));
-   if (typeid(*item) == typeid(ItemBOOLEAN))
+   if (typeid(*item) == typeid(ItemBOOLEAN)) {
       if (((ItemBOOLEAN *) item)->i)
 	 w = new ItemWORD(strdup("true"));
       else
 	 w = new ItemWORD(strdup("false"));
+   }
    if (typeid(*item) == typeid(ItemASNO)) {
       char buffer[64];
       asnum_string(buffer, ((ItemASNO *) item)->asno);

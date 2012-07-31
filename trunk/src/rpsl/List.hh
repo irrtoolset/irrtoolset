@@ -496,7 +496,6 @@ public:
    // do a sorted merge
    void splice(List<T>& l) {
       ListNode *t;
-      ListNode *e = this->forw;
       while (!l.isEmpty()) {
 	 t = l.forw;
 	 t->__unlink__();
