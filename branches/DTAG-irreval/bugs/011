@@ -1,0 +1,14 @@
+id: 011
+summary: spontaneous resizing of application window. 
+owner: katie
+status: closed
+priority: low
+program: roe
+module(s): roe
+reported: unknown
+closed: unknown
+
+detail:
+
+fixed for roe.
+

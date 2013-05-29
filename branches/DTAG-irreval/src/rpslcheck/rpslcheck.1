@@ -1,0 +1,139 @@
+.\"// $Id$
+.\"// Copyright (c) 2001,2002                        RIPE NCC
+.\"//
+.\"// All Rights Reserved
+.\"//
+.\"// Permission to use, copy, modify, and distribute this software and its
+.\"// documentation for any purpose and without fee is hereby granted,
+.\"// provided that the above copyright notice appear in all copies and that
+.\"// both that copyright notice and this permission notice appear in
+.\"// supporting documentation, and that the name of the author not be
+.\"// used in advertising or publicity pertaining to distribution of the
+.\"// software without specific, written prior permission.
+.\"//
+.\"// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+.\"// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+.\"// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+.\"// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\"// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"// 
+.\"//  Copyright (c) 1994 by the University of Southern California
+.\"//  and/or the International Business Machines Corporation.
+.\"//  All rights reserved.
+.\"//
+.\"//    Permission is hereby granted, free of charge, to any person obtaining a copy
+.\"//    of this software and associated documentation files (the "Software"), to deal
+.\"//    in the Software without restriction, including without limitation the rights
+.\"//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+.\"//    copies of the Software, and to permit persons to whom the Software is
+.\"//    furnished to do so, subject to the following conditions:
+.\"//
+.\"//    The above copyright notice and this permission notice shall be included in
+.\"//    all copies or substantial portions of the Software.
+.\"//
+.\"//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\"//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\"//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\"//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\"//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+.\"//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+.\"//    THE SOFTWARE.
+.\"//
+.\"//  Questions concerning this software should be directed to 
+.\"//  irrtoolset@lists.isc.org.
+.\"//
+.\"//  Author(s): Cengiz Alaettinoglu <cengiz@isi.edu>
+.\"//             Katie Petrusha <katie@ripe.net>
+.\"
+.\"
+.TH rpslcheck 1 local
+.SH NAME
+rpslcheck -- an RPSL syntax checker
+.SH SYNOPSIS
+.B rpslcheck
+.RI [ flags ]
+.SH DESCRIPTION
+.PP
+rpslcheck syntax-checks an RPSL object. If the object passes rpslcheck's syntax check it will not cause errors to any of the tools in IRRToolSet, such as rtconfig. However, the syntax constraints of a particular IRR can differ from the ones in RPSL.
+.PP
+The input can be supplied via "-as <ASnum>" option (only AS-numbers). If no option is specified the object is expected on standard input. The input can contain multiple objects.
+.SH IRRToolSet COMMON OPTIONS
+.RS
+.IP -help
+Print summary of command-line options and exit.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> 
+(if compiled with ENABLE_DEBUG defined).
+.IP "\-version"
+Print the version number and quit.
+.IP "\-h <host-name>"
+Establish a whois connection to host <host-name>.
+The default is whois.radb.net
+.IP "\-p <port-no>"
+Establish a whois connection to port <port-no>.
+The default is 43.
+.IP "\-protocol <protocol>"
+Use the <protocol> to connect to the IRR server. <protocol> can be irrd(rawhoisd) or ripe(bird). The default is irrd.
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>.
+If an object is defined in multiple sources in <source-list>,
+rpslcheck uses the definition first encountered in <source-list>
+from left to right.
+.IP \-rusage
+Print resource usage upon completion.
+.IP "\-ignore_errors"
+Do not print error and warning messages due to communication to the
+database server or parsing policy objects.
+.IP "\-report_errors"
+Print error and warning messages due to communication to the
+database server or parsing policy objects.
+.RE
+.SH OTHER OPTIONS
+.RS
+.IP "\-as <as-no>"
+Syntax check the aut-num object for <as-no>. 
+If this option is not supplied, stdin is parsed.
+.IP "\-echo"
+Print the aut-num object before matching.
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the IRR host to connect.
+.IP IRR_PORT
+Specifies the IRR port number to connect.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH EXAMPLES
+.PP
+.nf
+	% ./rpslcheck < as226.txt
+	Congratulations no errors were found in parsing AS226	
+	% rpslcheck -as AS3130
+	Congratulations no errors were found in parsing AS3130
+	% rpslcheck -as AS86
+	Error: *it: AS701 192.41.177.6/32 192.41.177.249 (pref=MED) ANY
+	Error:                            ^^^^^^^^^^^^^^
+.fi
+.PP
+.SH ERROR AND WARNING MESSAGES
+Error: no object for AS <as_no>
+.RS
+.PP
+Aut-num object for <as_no> is not found in specified IRR for specified source. You could have mistyped the source, hostname or AS-number, or perhaps the object does not exist.
+.PP
+.RE
+For more error descriptions, please see
+.B
+irrtoolset-errors
+manual page.
+.SH AUTHORS
+Cengiz Alaettinoglu <cengiz@isi.edu>
+Katie Petrusha <katie@ripe.net>

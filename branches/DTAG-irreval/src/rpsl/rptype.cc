@@ -1,0 +1,523 @@
+//  $Id$
+// Copyright (c) 2001,2002                        RIPE NCC
+//
+// All Rights Reserved
+//
+// Permission to use, copy, modify, and distribute this software and its
+// documentation for any purpose and without fee is hereby granted,
+// provided that the above copyright notice appear in all copies and that
+// both that copyright notice and this permission notice appear in
+// supporting documentation, and that the name of the author not be
+// used in advertising or publicity pertaining to distribution of the
+// software without specific, written prior permission.
+//
+// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+//
+//
+//  Copyright (c) 1994 by the University of Southern California
+//  All rights reserved.
+//
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//    THE SOFTWARE.
+//
+//  Questions concerning this software should be directed to 
+//  irrtoolset@cs.usc.edu.
+//
+//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+
+#include "config.h"
+#include <cstring>
+#include <cstdarg>
+#include <cstdio>
+#include <typeinfo>
+#include "List.hh"
+#include <strings.h>
+
+class Attribute;
+#include "rptype.hh"
+#include "schema.hh"
+
+////////////////////////////// RPType ////////////////////
+
+RPType *RPType::newRPType(const char *name) {
+   if (!strcasecmp(name, "integer"))
+      return new RPTypeInt;
+   if (!strcasecmp(name, "date"))
+      return new RPTypeDate;
+   if (!strcasecmp(name, "real"))
+      return new RPTypeReal;
+   if (!strcasecmp(name, "rpsl_word"))
+      return new RPTypeWord;
+   if (!strcasecmp(name, "as_number"))
+      return new RPTypeASNumber;
+   if (!strcasecmp(name, "ipv4_address"))
+      return new RPTypeIPv4Address;
+   if (!strcasecmp(name, "address_prefix"))
+      return new RPTypeIPv4Prefix;
+   if (!strcasecmp(name, "address_prefix_range"))
+      return new RPTypeIPv4PrefixRange;
+   if (!strcasecmp(name, "ipv6_address"))
+      return new RPTypeIPv6Address;
+   if (!strcasecmp(name, "ipv6_address_prefix"))
+      return new RPTypeIPv6Prefix;
+   if (!strcasecmp(name, "ipv6_address_prefix_range"))
+      return new RPTypeIPv6PrefixRange;
+   if (!strcasecmp(name, "connection"))
+      return new RPTypeConnection;
+   if (!strcasecmp(name, "dns_name"))
+      return new RPTypeDNSName;
+   if (!strcasecmp(name, "filter"))
+      return new RPTypeFilter;
+   if (!strcasecmp(name, "as_set_name"))
+      return new RPTypeASName;
+   if (!strcasecmp(name, "route_set_name"))
+      return new RPTypeRSName;
+   if (!strcasecmp(name, "rtr_set_name"))
+      return new RPTypeRtrsName;
+   if (!strcasecmp(name, "peering_set_name"))
+      return new RPTypePrngName;
+   if (!strcasecmp(name, "filter_set_name"))
+      return new RPTypeFltrName;
+   if (!strcasecmp(name, "string"))
+      return new RPTypeString;
+   if (!strcasecmp(name, "time_stamp"))
+      return new RPTypeTimeStamp;
+   if (!strcasecmp(name, "boolean"))
+      return new RPTypeBoolean;
+   if (!strcasecmp(name, "free_text"))
+      return new RPTypeFreeText;
+   if (!strcasecmp(name, "email"))
+      return new RPTypeEMail;
+
+   return schema.searchTypedef(name)->dup();
+}
+
+RPType *RPType::newRPType(const char *name, long long int min, long long int max) {
+   if (!strcasecmp(name, "integer"))
+      return new RPTypeInt(min, max);
+   if (!strcasecmp(name, "real"))
+      return new RPTypeReal(min, max);
+
+   return NULL;
+}
+
+RPType *RPType::newRPType(const char *name, double min, double max) {
+   if (!strcasecmp(name, "real"))
+      return new RPTypeReal(min, max);
+
+   return NULL;
+}
+
+RPType *RPType::newRPType(const char *name, List<WordNode> *words) {
+   if (!strcasecmp(name, "enum"))
+      return new RPTypeEnum(words);
+
+   return NULL;
+}
+
+RPType *RPType::newRPType(const char *name, List<RPTypeNode> *types) {
+   if (types && !types->isEmpty())
+      if (!strcasecmp(name, "union"))
+	 return new RPTypeUnion(types);
+
+   return NULL;
+}
+
+bool RPType::validate(const Item *item) const {
+   return false;
+}
+Item *RPType::typeCast(const Item *item) const {
+   return NULL;
+}
+bool RPType::validate(ItemList *list) const {
+   if (! list->isSingleton())
+      return false;
+   if (validate(list->head()))
+      return true;
+   
+   Item *w = typeCast(list->head());
+   if (!w)
+      return false;
+   
+   list->clear();
+   list->append(w);
+
+   return true;
+}
+
+////////////////////////////// RPTypeInt ////////////////////
+
+bool RPTypeInt::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemINT) 
+	   && min <= ((ItemINT *) item)->i
+	   && max >= ((ItemINT *) item)->i);
+}
+
+////////////////////////////// RPTypeDate ////////////////////
+
+bool RPTypeDate::validate(const Item *item) const {
+   static int days[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+   if (typeid(*item) != typeid(ItemINT))
+      return false;
+
+   int year = ((ItemINT *) item)->i / 10000;
+   int month = (((ItemINT *) item)->i % 10000) / 100;
+   int day = ((ItemINT *) item)->i % 100;
+   return (year >= 1990 
+	   && month >= 01 && month <= 12
+	   && day >= 01 && day <= days[month - 1]);
+}
+
+////////////////////////////// RPTypeReal ////////////////////
+
+bool RPTypeReal::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemREAL) 
+	   && min <= ((ItemREAL *) item)->real
+	   && max >= ((ItemREAL *) item)->real);
+}
+
+Item *RPTypeReal::typeCast(const Item  *item) const {
+   if (typeid(*item) == typeid(ItemINT)  
+       && min <= ((ItemINT *) item)->i
+       && max >= ((ItemINT *) item)->i)
+      return new ItemREAL(((ItemINT *) item)->i);
+
+   return NULL;
+}
+
+////////////////////////////// RPTypeString ////////////////////
+
+bool RPTypeString::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemSTRING));
+}
+
+////////////////////////////// RPTypeTimeStamp ////////////////////
+
+bool RPTypeTimeStamp::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemTimeStamp));
+}
+
+////////////////////////////// RPTypeWORD ////////////////////
+
+bool RPTypeWord::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemWORD));
+}
+Item *RPTypeWord::typeCast(const Item  *item) const {
+   if (typeid(*item) == typeid(ItemASNAME))
+      return new ItemWORD(strdup(((ItemASNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRSNAME))
+      return new ItemWORD(strdup(((ItemRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRTRSNAME))
+      return new ItemWORD(strdup(((ItemRTRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemPRNGNAME))
+      return new ItemWORD(strdup(((ItemPRNGNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemFLTRNAME))
+      return new ItemWORD(strdup(((ItemFLTRNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemBOOLEAN)) {
+      if (((ItemBOOLEAN *) item)->i)
+	 return new ItemWORD(strdup("true"));
+      else
+	 return new ItemWORD(strdup("false"));
+   }
+   if (typeid(*item) == typeid(ItemASNO)) {
+      char buffer[64];
+      asnum_string(buffer, ((ItemASNO *) item)->asno);
+      return new ItemWORD(strdup(buffer));
+   }
+
+   return NULL;
+}
+
+////////////////////////////// RPTypeASName ////////////////////
+
+bool RPTypeASName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemASNAME));
+}
+
+////////////////////////////// RPTypeRSName ////////////////////
+
+bool RPTypeRSName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemRSNAME));
+}
+
+////////////////////////////// RPTypeRTRSName ////////////////////
+
+bool RPTypeRtrsName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemRTRSNAME));
+}
+
+////////////////////////////// RPTypePrngName ////////////////////
+
+bool RPTypePrngName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRNGNAME));
+}
+
+////////////////////////////// RPTypeFltrName ////////////////////
+
+bool RPTypeFltrName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemFLTRNAME));
+}
+
+////////////////////////////// RPTypeEMail ////////////////////
+
+bool RPTypeEMail::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemEMAIL));
+}
+
+////////////////////////////// RPTypeFreeText ////////////////////
+
+bool RPTypeFreeText::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemFREETEXT));
+}
+
+////////////////////////////// RPTypeEnum ////////////////////
+
+bool RPTypeEnum::validate(const Item *item) const {
+   if (typeid(*item) != typeid(ItemWORD))
+	 return false;
+   
+   for (WordNode* p = words->head(); p; p = words->next(p))
+	 if (!strcasecmp(((ItemWORD *) item)->word, p->word))
+	    return true;
+
+   return false;
+}
+
+Item *RPTypeEnum::typeCast(const Item  *item) const {
+   ItemWORD *w = NULL;
+
+   if (typeid(*item) == typeid(ItemASNAME))
+      w = new ItemWORD(strdup(((ItemASNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRSNAME))
+      w = new ItemWORD(strdup(((ItemRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRTRSNAME))
+      w = new ItemWORD(strdup(((ItemRTRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemPRNGNAME))
+      w = new ItemWORD(strdup(((ItemPRNGNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemFLTRNAME))
+      w = new ItemWORD(strdup(((ItemFLTRNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemBOOLEAN)) {
+      if (((ItemBOOLEAN *) item)->i)
+	 w = new ItemWORD(strdup("true"));
+      else
+	 w = new ItemWORD(strdup("false"));
+   }
+   if (typeid(*item) == typeid(ItemASNO)) {
+      char buffer[64];
+      asnum_string(buffer, ((ItemASNO *) item)->asno);
+      w = new ItemWORD(strdup(buffer));
+   }
+
+   if (w && validate(w))
+      return w;
+   if (w)
+      delete w;
+
+   return NULL;
+}
+
+////////////////////////////// RPTypeBoolean ////////////////////
+
+bool RPTypeBoolean::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemBOOLEAN));
+}
+
+////////////////////////////// RPTypeASNumber ////////////////////
+
+bool RPTypeASNumber::validate(const Item *item) const {
+   return ((typeid(*item) == typeid(ItemASNO)));
+}
+
+////////////////////////////// RPTypeIPv4Address ////////////////////
+
+bool RPTypeIPv4Address::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemIPV4));
+}
+
+////////////////////////////// RPTypeIPv4Prefix ////////////////////
+
+bool RPTypeIPv4Prefix::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV4));
+}
+
+////////////////////////////// RPTypeIPv4PrefixRange ////////////////////
+
+bool RPTypeIPv4PrefixRange::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV4Range));
+}
+
+Item *RPTypeIPv4PrefixRange::typeCast(const Item *item) const {
+   if (typeid(*item) == typeid(ItemPRFXV4))
+      return new ItemPRFXV4Range
+	 (new PrefixRange(*((ItemPRFXV4 *) item)->prfxv4));
+   return NULL;
+}
+
+////////////////////////////// RPTypeIPv6Address ////////////////////
+
+bool RPTypeIPv6Address::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemIPV6));
+}
+
+////////////////////////////// RPTypeIPv6Prefix ////////////////////
+
+bool RPTypeIPv6Prefix::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV6));
+}
+
+////////////////////////////// RPTypeIPv6PrefixRange ////////////////////
+
+bool RPTypeIPv6PrefixRange::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemPRFXV6Range));
+}
+
+Item *RPTypeIPv6PrefixRange::typeCast(const Item *item) const {
+   if (typeid(*item) == typeid(ItemPRFXV6))
+      return new ItemPRFXV6Range
+         (new IPv6PrefixRange(*((ItemPRFXV6 *) item)->prfxv6));
+   return NULL;
+}
+
+
+////////////////////////////// RPTypeConnection ////////////////////
+
+bool RPTypeConnection::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemConnection));
+}
+
+////////////////////////////// RPTypeDNSName ////////////////////
+
+bool RPTypeDNSName::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemDNS));
+}
+
+////////////////////////////// RPTypeFilter ////////////////////
+
+bool RPTypeFilter::validate(const Item *item) const {
+   return (typeid(*item) == typeid(ItemFilter));
+}
+
+Item *RPTypeFilter::typeCast(const Item  *item) const {
+   if (typeid(*item) == typeid(ItemASNAME))
+      return new ItemFilter(new FilterASNAME(((ItemASNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRSNAME))
+      return new ItemFilter(new FilterRSNAME(((ItemRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemRTRSNAME))
+      return new ItemFilter(new FilterRTRSNAME(((ItemRTRSNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemFLTRNAME))
+      return new ItemFilter(new FilterFLTRNAME(((ItemFLTRNAME *) item)->name));
+   if (typeid(*item) == typeid(ItemASNO))
+      return new ItemFilter(new FilterASNO(((ItemASNO *) item)->asno));
+
+   return NULL;
+}
+
+////////////////////////////// RPTypeUnion ////////////////////
+
+bool RPTypeUnion::validate(const Item *item) const {
+   for (RPTypeNode* p = types->head(); p; p = types->next(p))
+      if (p->type->validate(item))
+	 return true;
+   
+   return false;
+}
+
+Item *RPTypeUnion::typeCast(const Item *item) const {
+   Item *w;
+   for (RPTypeNode* p = types->head(); p; p = types->next(p)) {
+      w = p->type->typeCast(item);
+      if (w)
+	 return w;
+   }
+   
+   return NULL;
+}
+
+const char *RPTypeUnion::name() {
+   if (!_name) {
+      char buffer[1024];
+      strcpy(buffer, "union ");
+      for (RPTypeNode *n = types->head(); n; ) {
+	 strcat(buffer, n->type->name());
+	 n = types->next(n);
+	 if (n)
+	    strcat(buffer, ", ");
+      }
+      _name = strdup(buffer);
+   }   
+   return _name;
+}
+
+////////////////////////////// RPTypeRange ////////////////////
+
+bool RPTypeRange::validate(const Item *item) const {
+   if (typeid(*item) == typeid(ItemRange))
+      return type->validate(((ItemRange*) item)->begin)
+	 && type->validate(((ItemRange*) item)->end)
+	 && (*((ItemRange*) item)->begin) <= (*((ItemRange*) item)->end);
+   return false;
+}
+
+Item *RPTypeRange::typeCast(const Item *item) const {
+   Item *w = NULL;
+
+   if (type->validate(item))
+      w = item->dup();
+   else
+      w = type->typeCast(item);
+
+   if (w)
+      return new ItemRange(w, w->dup());
+   
+   return NULL;
+}
+
+////////////////////////////// RPTypeList ////////////////////
+
+bool RPTypeList::validate(const Item *item) const {
+   if (typeid(*item) == typeid(ItemList))
+      return validate((ItemList*) item);
+   return false;
+}
+bool RPTypeList::validate(ItemList *l) const {
+   Item *w;
+
+   if (! (min_elms <= l->size() && l->size() <= max_elms))
+      return false;
+
+   for (Item *item = l->head(); item; item = l->next(item))
+      if (! type->validate(item)) {
+	 w = type->typeCast(item);
+	 if (w) {
+	    l->insertAfter(item, w);
+	    l->remove(item);
+	    delete item;
+	    item = w;
+	 } else
+	    return false;
+      }
+
+   return true;
+}
+
