@@ -40,114 +40,66 @@
 //    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //    THE SOFTWARE.
 //
-//  Questions concerning this software should be directed to 
+//  Questions concerning this software should be directed to
 //  irrtoolset@cs.usc.edu.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//  Author(s): Hagen Boehm <hboehm@brutus.nic.dtag.de>
 
-#ifndef FilterOfASPath_H
-#define FilterOfASPath_H
+#include "f_base.hh"
+#include "normalform/SetOfPrefix.hh"
+#include "normalform/SetOfIPv6Prefix.hh"
 
-#include "config.h"
-#include "Filter.hh"
-#include "re2dfa/regexp_nf.hh"
+// option initializing
+bool BaseConfig::useAclCaches = false;
+bool BaseConfig::forceTilda = false;
+bool BaseConfig::singleRouteFilter = true;
 
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
-#endif // TRUE
+void BaseConfig::calculateNegation(SetOfPrefix& nets) {
+  // this method should be used by IOSXRConfig and RPSLConfig only!
+  // It is used to work out negation of an IPv4 prefix set which
+  // is needed to define an IOS XR or RPSL representation of the Set.
+  RadixSet inv;
+  u_int64_t _rngs = ~(u_int64_t)0;
+  inv.insert(0, 0, _rngs);
+  inv -= nets.members;
+  nets.members = inv;
+  nets.not_ = false;
+}
 
-class FilterOfASPath : public NEFilter {
-public:
-   friend class JunosConfig;
-   friend class JUNOSConfig;
+void BaseConfig::calculateNegation(SetOfIPv6Prefix& nets) {
+  // this method should be used by IOSXRConfig and RPSLConfig only!
+  // It is used to work out negation of an IPv6 prefix set which
+  // is needed to define an IOS XR or RPSL representation of the Set.
+  IPv6RadixSet inv;
+  ipv6_addr_t _rngs = ipv6_addr_t(~0, ~0, true);
+  inv.insert(ipv6_addr_t((ip_v6word_t)0,(ip_v6word_t)0), 0, _rngs);
+  inv -= nets.members;
+  nets.members = inv;
+  nets.not_ = false;
+}
 
-   FilterOfASPath() {
-      re = new regexp_nf(new regexp_empty_set);
-   };
-   ~FilterOfASPath() {
-      if (re)
-        delete re;
-   }
-   FilterOfASPath(const FilterOfASPath& other) { 
-      re = other.re->dup_nf(); 
-   }
+void BaseConfig::printASNDottedNotation(ostream &out, ASt asn) {
+  // this method is used to print 32bit decimal AS number in AS dotted
+  // decimal notation.
+  int ms = asn >> 16;
+  int ls = asn & 0xffff;
 
-   virtual int isEmpty() {
-      return re->isEmpty();
-   }
+  out << ms << "\\." << ls;
+}
 
-   virtual int is_universal() {
-      return re->is_universal();
-   }
-
-   virtual int is_empty() {
-      return re->isEmpty();
-   }
-
-   virtual int is_empty_str() {
-      return re->isEmptyStr();
-   }
-
-   virtual void make_universal() {
-      re->become_universal();
-   }
-
-   virtual void make_empty() {
-      re->become_empty();
-   }
-
-   void compile(regexp *r, ASt peerAS) { 
-      delete re;
-      re = new regexp_nf(r->dup(), peerAS);
-   }
-
-   virtual void operator ~ () { // complement
-      re->do_not();
-   }
-
-   void operator |= (FilterOfASPath& b) { // union
-      re->do_or(*b.re); // makes b empty
-   }
-
-   void operator &= (FilterOfASPath& b) { // intersection
-      re->do_and(*b.re); // makes b empty
-   }
-
-   int  operator == (FilterOfASPath& b) { // equivalance
-      return *re == *b.re;
-   }
-
-   void operator =  (FilterOfASPath& b) { // assignment
-      delete re;
-      re = b.re->dup_nf();
-   }
-
-   // below is an ugly trick
-   virtual void operator |= (NEFilter& b) {
-      *this |= (FilterOfASPath&) b;
-   }
-   virtual void operator &= (NEFilter& b) {
-      *this &= (FilterOfASPath&) b;
-   }
-   virtual int  operator == (NEFilter& b) {
-      return (*this == (FilterOfASPath&) b);
-   }
-   virtual void operator =  (NEFilter& b) {
-      *this = (FilterOfASPath&) b;
-   }
-
-   virtual void do_print (std::ostream& stream);
-
-   CLASS_DEBUG_MEMORY_HH(FilterOfASPath);
-
-    operator regexp_nf&() {
-      return *re;
-   }
-
-private:
-   regexp_nf *re;
-};
-
-
-#endif   // FilterOfASPath_H
+void BaseConfig::setCompression (int complvl) {
+  switch (complvl) {
+  case COMP_NONE:
+    compression = COMP_NONE;
+    break;
+  case COMP_NORMAL:
+    compression = COMP_NORMAL;
+    break;
+  case COMP_SUPER:
+    compression = COMP_SUPER;
+    break;
+  default:
+    compression = COMP_NORMAL;
+    cerr << "Error: unknown or undefined level of prefix compression! Using COMP_NORMAL\n" << endl;
+  }
+}

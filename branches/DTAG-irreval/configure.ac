@@ -26,7 +26,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([irrtoolset], [5.0.1], [irrtoolset@lists.isc.org])
+AC_INIT([irrtoolset], [5.0.1/28], [irrtoolset@lists.isc.org])
 AC_CONFIG_SRCDIR([RELEASE-NOTES])
 AC_CONFIG_HEADERS([src/config.h])
 
@@ -79,7 +79,7 @@ AC_TRY_COMPILE([
 #include <sys/socket.h>
 ], [
 	int sock;
-    	struct sockaddr socknew;	
+	struct sockaddr socknew;	
 	int addrlen = 5;
 	int newsock = accept (sock, &socknew, (socklen_t *) &addrlen);
 ], [AC_DEFINE([ACCEPT_USES_SOCKLEN_T], [], [accept() uses type (socklen_t *) as parameter]) 
@@ -106,16 +106,50 @@ AC_MSG_CHECKING(whether to enable development debugging)
 AC_ARG_ENABLE([debug], [  --enable-debug          turn on debugging],
 if eval "test x$enable_debug = xyes"; then
 	AC_DEFINE([ENABLE_DEBUG], [1], [enable debugging stuff for development purposes])
-	CFLAGS=
-	CXXLAGS=
-	OPTFLAGS="-fno-inline -g -O"
-else
-	OPTFLAGS=""
+	OPTFLAGS="${OPTFLAGS} -fno-inline -g -O"
 fi
-,
-OPTFLAGS=""
 )
 AC_MSG_RESULT(${enable_debug})
+
+dnl enable diagnostics
+AC_MSG_CHECKING(whether to enable error diagnostics and termination)
+AC_ARG_ENABLE([diag], [  --enable-diag           turn on error diagnostics and termination],
+if eval "test x$enable_diag = xyes"; then
+	AC_DEFINE([ENABLE_DIAG], [1], [enable error diagnostics and termination])
+	OPTFLAGS="${OPTFLAGS} -DDIAG"
+fi
+)
+AC_MSG_RESULT(${enable_diag})
+
+dnl enable DTAG special handling
+AC_MSG_CHECKING(whether to enable special handling for the DTAG)
+AC_ARG_ENABLE([dtag], [  --enable-dtag           turn on DTAG special handling],
+if eval "test x$enable_dtag = xyes"; then
+	AC_DEFINE([ENABLE_DTAG], [1], [enable DTAG special handling])
+	OPTFLAGS="${OPTFLAGS} -DDTAG"
+fi
+)
+AC_MSG_RESULT(${enable_dtag})
+
+dnl enable new RIPE client
+AC_MSG_CHECKING(whether to enable the new RIPE client)
+AC_ARG_ENABLE([ripe], [  --enable-ripe           turn on the new RIPE client],
+if eval "test x$enable_ripe = xyes"; then
+	AC_DEFINE([ENABLE_RIPE], [1], [enable the new RIPE client])
+	OPTFLAGS="${OPTFLAGS} -DRIPE"
+fi
+)
+AC_MSG_RESULT(${enable_ripe})
+
+dnl enable RPKI extensions
+AC_MSG_CHECKING(whether to enable RPKI extensions)
+AC_ARG_ENABLE([rpki], [  --enable-rpki           turn on RPKI extensions],
+if eval "test x$enable_rpki = xyes"; then
+	AC_DEFINE([ENABLE_RPKI], [1], [enable RPKI extensions])
+	OPTFLAGS="${OPTFLAGS} -DRPKI"
+fi
+)
+AC_MSG_RESULT(${enable_rpki})
 
 case "${host_os}" in
 	# Solaris needs extra libs for its socket api
@@ -168,6 +202,7 @@ CFLAGS="${CFLAGS} ${OPTFLAGS}"
 dnl spit out configuration files 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/irreval/Makefile
                  src/rtconfig/Makefile
                  src/dataset/Makefile
                  src/irr/Makefile

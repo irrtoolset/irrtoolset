@@ -91,6 +91,9 @@ Rusage ru(clog, &opt_rusage);
 char *opt_prompt                 = (char *)"peval> ";
 int  opt_expand                  = EXPAND_ALL;
 int  opt_symbolic                = 0;
+#ifdef DTAG
+bool opt_asn16                   = false;
+#endif /* DTAG */
 bool opt_asdot                   = false;
 
 const int SIZE = 8*1024;
@@ -221,6 +224,11 @@ void init_and_set_options (int argc, char **argv, char **envp) {
        "Prompt"},
 
       IRR_COMMAND_LINE_OPTIONS,
+
+#ifdef DTAG
+      {"-asn16", ARGV_BOOL, (char *) NULL, (char *) &opt_asn16,
+       "translate 32bit AS numbers into AS23456."},
+#endif /* DTAG */
 
       {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
        "print AS numbers in asdot format."},

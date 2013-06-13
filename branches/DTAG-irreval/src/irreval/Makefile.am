@@ -21,8 +21,13 @@
 #
 #  Author(s): Nick Hilliard <nick@foobar.org>
 
-noinst_LTLIBRARIES = libirr.la
-libirr_la_SOURCES = autnum.cc birdwhoisc.cc cache_value.cc irr.cc rawhoisc.cc ripewhoisc.cc route.cc \
-                   autnum.hh birdwhoisc.hh cache.hh cache_value.hh classes.hh irr.hh rawhoisc.hh ripewhoisc.hh route.hh
+bin_PROGRAMS = irreval
+
+irreval_SOURCES = irreval.cc f_base.cc f_ios.cc f_iosxr.cc f_junos.cc f_rpsl.cc \
+                  irreval.hh f_base.hh f_ios.hh f_iosxr.hh f_junos.hh f_rpsl.hh
+
+dist_man1_MANS = irreval.1 irreval-errors.1
+
+LDADD = ../libirrtoolset.la @EXTRA_LIBS@
 
 CLEANFILES = *~ *.bak

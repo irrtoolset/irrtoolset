@@ -58,6 +58,11 @@ class RangeList {
 friend class regexp_nf;
 friend class CiscoConfig;
 friend class JunosConfig;
+friend class IOSConfig;
+friend class IOSXRConfig;
+friend class JUNOSConfig;
+friend class RPSLConfig;
+
 public:
    static const char *prefix_str;
    static bool  useOrList;

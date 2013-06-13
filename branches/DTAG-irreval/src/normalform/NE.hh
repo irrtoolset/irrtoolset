@@ -155,6 +155,14 @@ private:
    NormalTermPtrDLList terms;	
    
    Pix i;
+#ifdef DIAG
+   static int recursion_level;  // when a Filter is evaluated via method "evaluate"
+                                // this variable indicates the level of recursive
+                                // calls of method "evaluate". It is needed to
+                                // detect termination of the recursion in case that
+                                // an error occurred during evaluation.
+   static bool warning;         // indicates that a warning was reported by the IRR
+#endif /* DIAG */
    void reduce();
 
 public:

@@ -40,114 +40,60 @@
 //    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //    THE SOFTWARE.
 //
-//  Questions concerning this software should be directed to 
+//  Questions concerning this software should be directed to
 //  irrtoolset@cs.usc.edu.
 //
-//  Author(s): Cengiz Alaettinoglu <cengiz@ISI.EDU>
+//  Author(s): Hagen Boehm <hboehm@brutus.nic.dtag.de>
 
-#ifndef FilterOfASPath_H
-#define FilterOfASPath_H
+#ifndef RPSLCONFIG_H
+#define RPSLCONFIG_H
 
-#include "config.h"
-#include "Filter.hh"
-#include "re2dfa/regexp_nf.hh"
+#include "f_base.hh"
+#include "normalform/SetOfPrefix.hh"
+#include "normalform/SetOfIPv6Prefix.hh"
+#include "normalform/FilterOfSymbol.hh"
 
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
-#endif // TRUE
-
-class FilterOfASPath : public NEFilter {
+class RPSLConfig : public BaseConfig {
 public:
-   friend class JunosConfig;
-   friend class JUNOSConfig;
-
-   FilterOfASPath() {
-      re = new regexp_nf(new regexp_empty_set);
-   };
-   ~FilterOfASPath() {
-      if (re)
-        delete re;
-   }
-   FilterOfASPath(const FilterOfASPath& other) { 
-      re = other.re->dup_nf(); 
+   RPSLConfig() : BaseConfig() {
+      printHeader = true;
+      rpslExpr = "";
+      for (int i=0; i<=65535; i++) {
+        disjunction[i] = false;
+        cterm[i] = true;
+      }  
    }
 
-   virtual int isEmpty() {
-      return re->isEmpty();
-   }
-
-   virtual int is_universal() {
-      return re->is_universal();
-   }
-
-   virtual int is_empty() {
-      return re->isEmpty();
-   }
-
-   virtual int is_empty_str() {
-      return re->isEmptyStr();
-   }
-
-   virtual void make_universal() {
-      re->become_universal();
-   }
-
-   virtual void make_empty() {
-      re->become_empty();
-   }
-
-   void compile(regexp *r, ASt peerAS) { 
-      delete re;
-      re = new regexp_nf(r->dup(), peerAS);
-   }
-
-   virtual void operator ~ () { // complement
-      re->do_not();
-   }
-
-   void operator |= (FilterOfASPath& b) { // union
-      re->do_or(*b.re); // makes b empty
-   }
-
-   void operator &= (FilterOfASPath& b) { // intersection
-      re->do_and(*b.re); // makes b empty
-   }
-
-   int  operator == (FilterOfASPath& b) { // equivalance
-      return *re == *b.re;
-   }
-
-   void operator =  (FilterOfASPath& b) { // assignment
-      delete re;
-      re = b.re->dup_nf();
-   }
-
-   // below is an ugly trick
-   virtual void operator |= (NEFilter& b) {
-      *this |= (FilterOfASPath&) b;
-   }
-   virtual void operator &= (NEFilter& b) {
-      *this &= (FilterOfASPath&) b;
-   }
-   virtual int  operator == (NEFilter& b) {
-      return (*this == (FilterOfASPath&) b);
-   }
-   virtual void operator =  (NEFilter& b) {
-      *this = (FilterOfASPath&) b;
-   }
-
-   virtual void do_print (std::ostream& stream);
-
-   CLASS_DEBUG_MEMORY_HH(FilterOfASPath);
-
-    operator regexp_nf&() {
-      return *re;
-   }
+public:
+   void setRPSLExpr(const char *expr);
+   void printASSet(FilterOfSymbol symbs);
+   void rsWrapUp(void);
 
 private:
-   regexp_nf *re;
+   void printAccessList(SetOfPrefix& nets);
+   void printAccessList(SetOfIPv6Prefix& nets);
+   void printAspathAccessList(FilterOfASPath& path);
+
+   LOf2Ints *printRoutes(SetOfPrefix& nets);
+   LOf2Ints *printRoutes(SetOfIPv6Prefix& nets);
+   LOf2Ints *printASPaths(regexp_nf& path);
+
+   void printREASno(std::ostream& out, const RangeList &no);
+   int  printRE_(std::ostream& os, const regexp& r);
+   void printRE(std::ostream& os, const regexp& r, int aclID, bool permit);
+
+   void printIPv4Line(const char *ipAddr, int l, const char *spPtr);
+   void printIPv6Line(const char *ipAddr, int l);
+   u_int64_t printIPv4Line(const char *ipAddr, int l, int s, int e, const char *spPtr);
+   void printIPv6Line(const char *ipAddr, int l, int s, int e);
+   void printHeaderLines(const char *setType, const char *setName);
+
+private:
+   const char *rpslExpr;
+   bool printHeader;
+   bool disjunction[65536];
+   bool cterm[65536];
+   bool literal[65536];
 };
 
-
-#endif   // FilterOfASPath_H
+#endif   // RPSLCONFIG_H

@@ -202,6 +202,9 @@ void Object::reportErrors(ostream &ostrm) {
 
    ostrm << errors;
    ostrm << "\n";
+#ifdef DIAG
+   exit(-1);
+#endif /* DIAG */
 }
 
 #ifdef ENABLE_DEBUG

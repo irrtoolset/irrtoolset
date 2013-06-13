@@ -43,6 +43,9 @@
 //  irrtoolset@cs.usc.edu.
 //
 
+#ifndef IPV6RADIXTREE_H
+#define IPV6RADIXTREE_H
+
 #include "config.h"
 #include <cstdio>
 #include <sys/types.h>
@@ -365,3 +368,4 @@ public:
    friend std::ostream& operator<<(std::ostream&, const IPv6RadixSet &set);
 };
 
+#endif // IPV6RADIXTREE_H

@@ -71,6 +71,7 @@ extern "C" {
 #include "rawhoisc.hh"
 #include "route.hh"
 #include "irrutil/trace.hh"
+#include "irrutil/version.hh"
 #include "rpsl/object_log.hh"
 
 extern "C" {
@@ -112,26 +113,163 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    strcpy(sources, _sources);
    port = _port;
 
-   hp = gethostbyname(host);
-   if (!hp)
-      error.Die("Error: gethostbyname(%s) failed.\n", host);
+   if (use_proxy_connection) {
+     // Open connection via a Proxy
+     char proxybuf[BUFFER_SIZE + 1];
+     int length = 0;
 
-   server_sockaddr.sin_family = AF_INET;
-   memcpy((char *) &(server_sockaddr.sin_addr.s_addr), hp->h_addr, hp->h_length);
-   server_sockaddr.sin_port = htons((u_short) port);
-   
-   sock = socket(AF_INET, SOCK_STREAM, 0);
-   if (sock < 0)
-      error.Die("Error: socket() failed.\n");
+     Trace(TR_WHOIS_QUERY) << "Whois: Open " << host << ":" << port
+                           << " via proxy " << proxy_host << ":" << proxy_port
+			   << " source=" << _sources
+			   << " protocol=" << protocolName[dflt_protocol].name
+			   << endl;
 
-   if (connect(sock, (struct sockaddr *) &server_sockaddr, 
-	       sizeof(server_sockaddr)) < 0)
-      error.Die("Error: connect() failed.\n");
+     hp = gethostbyname(proxy_host);
+     if (!hp)
+#ifdef DIAG
+         die_error("Proxy address translation failed!", 0);
+#else
+         error.Die("Error: proxy address translation failed.\n");
+#endif /* DIAG */
 
-   in  = fdopen(sock, "r");
-   out = fdopen(sock, "w");
+     server_sockaddr.sin_family = AF_INET;
+     memcpy((char *) &(server_sockaddr.sin_addr.s_addr), hp->h_addr, hp->h_length);
+     server_sockaddr.sin_port = htons((u_short) proxy_port);
+
+     sock = socket(AF_INET, SOCK_STREAM, 0);
+
+     if (sock < 0)
+#ifdef DIAG
+         die_error("Proxy socket creation failed!", 0);
+#else
+         error.Die("Error: socket() failed.\n");
+#endif /* DIAG */
+
+     if (connect(sock, (struct sockaddr *) &server_sockaddr, sizeof(server_sockaddr)) < 0) {
+#ifdef DIAG
+         err_msg = new char[1024];
+         sprintf(err_msg, "Connect process to proxy %s on port %d failed!", proxy_host, proxy_port);
+         die_error(err_msg, 0);
+#else
+         error.Die("Error: connect() failed.\n");
+#endif /* DIAG */
+     }
+
+     in  = fdopen(sock, "r");
+#ifdef DIAG
+     if (in == NULL)
+    	 die_error("Opening proxy socket for reading failed!", 0);
+#endif /* DIAG */
+     out = fdopen(sock, "w");
+#ifdef DIAG
+     if (out == NULL)
+    	 die_error("Opening proxy socket for writing failed!", 0);
+#endif /* DIAG */
+     _is_open = 1;
+
+     sprintf(proxybuf, "CONNECT %s:%d HTTP/1.1\nUser-Agent: %s %s\n\n", host, port, ProjectGoal, ProjectVersion);
+     length = strlen(proxybuf);
+
+     if (fwrite(proxybuf, 1, length, out) != length) {
+#ifdef DIAG
+		err_msg = new char[1024];
+		sprintf(err_msg, "Connection request to proxy %s on port %d could not be sent!", proxy_host, proxy_port);
+		die_error(err_msg, 0);
+#else
+	    error.Die("Error: Connection request to proxy %s on port %d could not be sent!\n", proxy_host, proxy_port);
+#endif /* DIAG */
+     }
+     fflush(out);
+
+     *proxybuf = '\0';
+     fgets(proxybuf, BUFFER_SIZE, in);
+     if (ferror(in)) {
+#ifdef DIAG
+       err_msg = new char[1024];
+       sprintf(err_msg, "Connection response from proxy %s on port %d could not be read!", proxy_host, proxy_port);
+       die_error(err_msg, 0);
+#else
+	   error.Die("Error: Connection response from proxy %s on port %d could not be read!\n", proxy_host, proxy_port);
+#endif /* DIAG */
+     }
+
+     if (0 == memcmp(proxybuf, "HTTP/1.0 ", 9) || 0 == memcmp(proxybuf, "HTTP/1.1 ", 9)) {
+       // got an HTTP response!
+       char *proxybufptr = proxybuf + 9;
+       if (0 != memcmp(proxybufptr, "200 ", 4)) {
+         // Proxy response is NOT an "ok"!
+         char *lf = strchr(proxybuf, '\n');
+         if (lf != NULL) {
+           lf++; *lf = '\0';
+         }
+#ifdef DIAG
+         err_msg = new char[BUFFER_SIZE + strlen(proxybuf)];
+         sprintf(err_msg, "Connect process via proxy %s on port %d failed! Proxy reported:\n%s", proxy_host, proxy_port, proxybuf);
+         die_error(err_msg, 0);
+#else
+	     error.Die("Error: Connect process via proxy %s on port %d failed! Proxy reported:\n%s\n", proxy_host, proxy_port, proxybuf);
+#endif /* DIAG */
+       } else {
+         // Proxy response is an "ok"! We don't need the rest, so clear "in" stream now.
+         fseek(in, 0, SEEK_END);
+       }
+     } else {
+       // unknown response from Proxy
+#ifdef DIAG
+       err_msg = new char[BUFFER_SIZE + strlen(proxybuf)];
+       sprintf(err_msg, "Connect process via proxy %s on port %d failed! Unexpected response:\n%s", proxy_host, proxy_port, proxybuf);
+       die_error(err_msg, 0);
+#else
+	   error.Die("Error: Connect process via proxy %s on port %d failed! Unexpected response:\n%s\n", proxy_host, proxy_port, proxybuf);
+#endif /* DIAG */
+     }
+   } else {
+     // Open connection directly
+     Trace(TR_WHOIS_QUERY) << "Whois: Open " << _host << ":" << _port
+			   << " source=" << _sources
+			   << " protocol=" << protocolName[dflt_protocol].name
+			   << endl;
+
+     hp = gethostbyname(host);
+     if (!hp)
+#ifdef DIAG
+         die_error("Host address translation failed!", 0);
+#else
+         error.Die("Error: gethostbyname(%s) failed.\n", host);
+#endif /* DIAG */
+
+     server_sockaddr.sin_family = AF_INET;
+     memcpy((char *) &(server_sockaddr.sin_addr.s_addr), hp->h_addr, hp->h_length);
+     server_sockaddr.sin_port = htons((u_short) port);
+
+     sock = socket(AF_INET, SOCK_STREAM, 0);
+     if (sock < 0)
+#ifdef DIAG
+        die_error("Socket creation failed!", 0);
+#else
+        error.Die("Error: socket() failed.\n");
+#endif /* DIAG */
+
+     if (connect(sock, (struct sockaddr *) &server_sockaddr, sizeof(server_sockaddr)) < 0)
+#ifdef DIAG
+        die_error("Connect process failed!", 0);
+#else
+        error.Die("Error: connect() failed.\n");
+#endif /* DIAG */
+
+     in  = fdopen(sock, "r");
+#ifdef DIAG
+     if (in == NULL)
+    	die_error("Opening socket for reading failed!", 0);
+#endif /* DIAG */
+     out = fdopen(sock, "w");
+#ifdef DIAG
+     if (out == NULL)
+    	die_error("Opening socket for writing failed!", 0);
+#endif /* DIAG */
+   }
+
    _is_open = 1;
-
    fwrite("!!\n", 1, 3, out);  // keep the connection open
    fflush(out);
 
@@ -193,13 +331,23 @@ void RAWhoisClient::SetSources(const char *_sources) {
    Trace(TR_WHOIS_QUERY) << "Whois: SetSources " << sources << endl;
 
    if (QueryKillResponse("!s%s", sources) == 0) {
-      err = 1;
-      error.error("Error: setting source to %s failed.\n", sources);
+#ifdef DIAG
+	   die_error(err_msg, err_occ);
+#else
+	   err = 1;
+	   error.error("Error: setting source to %s failed.\n", sources);
+#endif /* DIAG */
    }
 
    if (current_sources) 
       delete [] current_sources;
+#ifdef DIAG
+   if (QueryResponse(current_sources, "!s-lc") == 0) {
+     die_error(err_msg, err_occ);
+   }
+#else
    QueryResponse(current_sources, "!s-lc");
+#endif /* DIAG */
    current_sources[strlen(current_sources) - 1] = 0; // chop \n
 
    if (err)
@@ -245,28 +393,63 @@ int RAWhoisClient::Response(char *&response) {
 
    // Read the "A<byte-count>" line
    if (! fgets(buffer, sizeof(buffer), in)) {
+#ifdef DIAG
+      err_occ = 2;
+      err_msg = new char[strlen(last_query) + 128];
+      sprintf(err_msg, "Reading response header for query \"%s\" failed!", last_query);
+      return 0;
+#else
       error.Die("Error: fgets() failed: no answer\n");
       return 0;
+#endif /* DIAG */
    }
 
    if (!is_rpslng()) // one-liners
      Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
 
    if (*buffer == 'D') { // key not found error
+#ifdef DIAG
+      if (irr_warnings) {
+         err_msg = new char[strlen(last_query) + 128];
+         sprintf(err_msg, "Key not found for query \"%s\"", last_query);
+         warn_error();
+      }
+      extractRPSLInfo(last_query);
+      return 0;
+#else
       error.warning("Warning: key not found error for query %s.\n", last_query);
       return 0;
+#endif /* DIAG */
    }
    if (*buffer == 'C') { // returned success
       response = new char[1];
       *response = 0;
       return 1;
    }
-   if (buffer[0] == 'F') { // some other query error
+#ifdef DIAG
+   if (*buffer == 'E') { // failure: multiple copies of key in database
+      err_occ = 2;
+      err_msg = new char[strlen(last_query) + 128];
+      sprintf(err_msg, "Multiple copies of key found in database for query \"%s\"", last_query);
       return 0;
    }
+#endif /* DIAG */
+   if (buffer[0] == 'F') { // some other query error
+#ifdef DIAG
+      err_occ = 2;
+      err_msg = new char[strlen(last_query) + strlen(buffer) + 128];
+      sprintf(err_msg, "Server reported error in response for query \"%s\": %s", last_query, buffer);
+      return 0;
+#else
+      return 0;
+#endif /* DIAG */
+   }
    if (*buffer != 'A' && !is_rpslng()) { // we are expecting a byte-count line
+#ifdef DIAG
+#else
       error.Die("Warning: no byte count error for query %s.\n", last_query);
       return 0;
+#endif /* DIAG */
    }
    /*
     * If we sent an RIPE-style query (as we do for *some* RPSLng queries), 
@@ -334,22 +517,45 @@ int RAWhoisClient::Response(char *&response) {
    response = new char[count + 1];
 
    if (fread(response, 1, count, in) != count)
+#ifdef DIAG
+   {
+	   err_occ = 2;
+	   err_msg = new char[strlen(last_query) + 128];
+	   sprintf(err_msg, "Reading response body for query \"%s\" failed!", last_query);
+	   return 0;
+   }
+#else
       error.Die("Error: fread() failed.\n");
+#endif /* DIAG */
    response[count] = 0;
 
    Trace(TR_WHOIS_RESPONSE) << "Whois: Response\n" << response << endl;
 
    // Read the return code line
    if (!fgets(buffer, sizeof(buffer), in)) {
+#ifdef DIAG
+       err_occ = 2;
+       err_msg = new char[strlen(last_query) + 128];
+       sprintf(err_msg, "Reading response termination line for query \"%s\" failed!", last_query);
+       return 0;
+#else
       error.Die("Error: fgets() failed.\n");
       return 0;
+#endif /* DIAG */
    }
 
    Trace(TR_WHOIS_RESPONSE) << "Whois: Response " << buffer << endl;
 
    if (*buffer != 'C') {
+#ifdef DIAG
+      err_occ = 2;
+      err_msg = new char[strlen(last_query) + 128];
+      sprintf(err_msg, "Response did not terminate correctly for query \"%s\"", last_query);
+      return 0;
+#else
       error.Die("Warning: no end of data line error for query %s.\n", 
 		    last_query);
+#endif /* DIAG */
       delete [] response;
       response = NULL;
       return 0;
@@ -371,7 +577,17 @@ void RAWhoisClient::WriteQuery(const char *format, va_list ap) {
 
    //   if (! fwrite(last_query, 1, length, out))
    if (fwrite(last_query, 1, length, out) != length)
+#ifdef DIAG
+   {
+	  last_query[length - 1] = '\0';
+	  err_occ = 1;
+	  delete err_msg;
+	  err_msg = new char[length + 24];
+	  sprintf(err_msg, "Sending query \"%s\" failed!", last_query);
+   }
+#else
       error.fatal("Error: fwrite() failed.\n");
+#endif /* DIAG */
 
    fflush(out);
 
@@ -483,7 +699,7 @@ bool RAWhoisClient::expandASSet(SymID asset, SetOfUInt *result) {
       } else if (typeid(*pt) == typeid(ItemASNO)) {
         result->add(((ItemASNO *)pt)->asno);
       } else {
-        cerr << "WARNING: irrd/rawhoisd cannot resolve as-set " << asset << "!";
+        cerr << "Warning: irrd/rawhoisd cannot resolve as-set " << asset << "!";
         cerr << "Unknown element found in as-set definition!\n";
       }
       if (set)

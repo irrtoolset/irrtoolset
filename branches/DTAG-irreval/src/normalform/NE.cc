@@ -60,6 +60,20 @@ using namespace std;
 
 CLASS_DEBUG_MEMORY_CC(NormalExpression);
 
+#ifdef DIAG
+int NormalExpression::recursion_level = 0;
+bool NormalExpression::warning = false;
+
+#define INC_RECURSION_LEVEL recursion_level++;
+#define DEC_RECURSION_LEVEL recursion_level--;
+
+#else
+
+#define INC_RECURSION_LEVEL
+#define DEC_RECURSION_LEVEL
+
+#endif /* DIAG */
+
 NormalExpression::NormalExpression(NormalExpression& a) {
    singleton_flag = a.singleton_flag;
    for (Pix i = a.terms.first(); i; a.terms.next(i))
@@ -130,11 +144,41 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    NormalTerm *nt;
 
    if (typeid(*ptree) == typeid(FilterOR)) {
+      INC_RECURSION_LEVEL
       ne  = evaluate(((FilterOR *) ptree)->f1, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       if (ne->is_universal())
 	 return ne;
 
+      INC_RECURSION_LEVEL
       ne2 = evaluate(((FilterOR *) ptree)->f2, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       Debug(Channel(DBG_NE_OR) << "op1: " << *ne << "\n");
       Debug(Channel(DBG_NE_OR) << "op2: " << *ne2 << "\n");
       ne->do_or(*ne2);
@@ -145,11 +189,41 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    }
 
    if (typeid(*ptree) == typeid(FilterAND)) {
+      INC_RECURSION_LEVEL
       ne  = evaluate(((FilterAND *) ptree)->f1, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       if (ne->isEmpty())
 	 return ne;
 
+      INC_RECURSION_LEVEL
       ne2 = evaluate(((FilterAND *) ptree)->f2, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       Debug(Channel(DBG_NE_AND) << "op1: " << *ne << "\n");
       Debug(Channel(DBG_NE_AND) << "op2: " << *ne2 << "\n");
       ne->do_and(*ne2);
@@ -160,7 +234,22 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    }
 
    if (typeid(*ptree) == typeid(FilterNOT)) {
+      INC_RECURSION_LEVEL
       ne = evaluate(((FilterNOT *) ptree)->f1, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       Debug(Channel(DBG_NE_NOT) << "op1: " << *ne << "\n");
       ne->do_not();
       Debug(Channel(DBG_NE_NOT) << "not: " << *ne << "\n");
@@ -182,6 +271,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
       if (expand & EXPAND_AS) {
 	      const MPPrefixRanges *s = irr->expandAS(((FilterASNO *) ptree)->asno);
+#ifdef DIAG
+          if(irr->err_occ) {
+          	irr->die_error(irr->err_msg, irr->err_occ, false);
+          	cerr << "Filter: AS" << ((FilterASNO *) ptree)->asno << endl;
+          	if (!recursion_level) exit(1);
+          	return ne;
+          }
+          if (irr->warn_occ) {
+          	cerr << "Filter: AS" << ((FilterASNO *) ptree)->asno << endl;
+          	irr->clear_warning();
+          	if (recursion_level) warning = true;
+          }
+#endif /* DIAG */
       	if (!s || s->empty())
 	        return ne;
         FilterMPPRFXList *list = new FilterMPPRFXList(*s);
@@ -202,6 +304,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
       if (expand & EXPAND_AS) {
 	      const MPPrefixRanges *s = irr->expandAS(peerAS);
+#ifdef DIAG
+		  if (irr->err_occ) {
+			irr->die_error(irr->err_msg, irr->err_occ, false);
+			cerr << "Filter: AS" << peerAS << endl;
+			if (!recursion_level) exit(1);
+			return ne;
+		  }
+		  if (irr->warn_occ) {
+			cerr << "Filter: AS" << peerAS << endl;
+			irr->clear_warning();
+			if (recursion_level) warning = true;
+		  }
+#endif /* DIAG */
 	      if (!s || s->empty())
 	        return ne;
         FilterMPPRFXList *list = new FilterMPPRFXList(*s);
@@ -224,6 +339,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
       if (expand & EXPAND_AS_MACROS) {
 	      const SetOfUInt *s = irr->expandASSet(name);
+#ifdef DIAG
+         if (irr->err_occ) {
+           irr->die_error(irr->err_msg, irr->err_occ, false);
+           cerr << "Filter: " << ((FilterASNAME *) ptree)->asname << endl;
+           if (!recursion_level) exit(1);
+           return ne;
+         }
+         if (irr->warn_occ) {
+           cerr << "Filter: " << ((FilterASNAME *) ptree)->asname << endl;
+           irr->clear_warning();
+           if (recursion_level) warning = true;
+         }
+#endif /* DIAG */
 	      if (!s || s->isEmpty()) {
 	         return ne;
         }
@@ -236,7 +364,24 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 	          sr = irr->expandAS((*s)(p));
 	          if (sr)
               full->append_list(sr);
-	        }
+#ifdef DIAG
+               if (irr->err_occ) {
+                 ASt as_number = (ASt)((*s)(p));
+                 irr->die_error(irr->err_msg, irr->err_occ, false);
+                 cerr << "Filter: AS" << as_number << endl;
+                 cerr << "Filter: " << ((FilterASNAME *) ptree)->asname << endl;
+                 if (!recursion_level) exit(1);
+                 return ne;
+               }
+               if (irr->warn_occ) {
+                 ASt as_number = (ASt)((*s)(p));
+                 cerr << "Filter: AS" << as_number << endl;
+                 cerr << "Filter: " << ((FilterASNAME *) ptree)->asname << endl;
+                 irr->clear_warning();
+                 if (recursion_level) warning = true;
+               }
+#endif /* DIAG */
+	    }
 
 	        if (full->empty()) {
 	          return ne;
@@ -274,6 +419,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
       if (expand & EXPAND_COMMUNITIES) {
 	      const MPPrefixRanges *s = irr->expandRSSet(name);
+#ifdef DIAG
+        if (irr->err_occ) {
+          irr->die_error(irr->err_msg, irr->err_occ, false);
+          cerr << "Filter: " << ((FilterRSNAME *) ptree)->rsname << endl;
+          if (!recursion_level) exit(1);
+          return ne;
+        }
+        if (irr->warn_occ) {
+          cerr << "Filter: " << ((FilterRSNAME *) ptree)->rsname << endl;
+          irr->clear_warning();
+          if (recursion_level) warning = true;
+        }        
+#endif /* DIAG */
      	  if (!s || s->empty())
 	        return ne;
         FilterMPPRFXList *list = new FilterMPPRFXList(*s);
@@ -298,6 +456,19 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
    if (typeid(*ptree) == typeid(FilterFLTRNAME)) {
       SymID name = symbols.resolvePeerAS(((FilterFLTRNAME *) ptree)->fltrname, peerAS);
       const FilterSet *fset = irr->getFilterSet(name);
+#ifdef DIAG
+      if (irr->err_occ) {
+        irr->die_error(irr->err_msg, irr->err_occ, false);
+        cerr << "Filter: " << ((FilterFLTRNAME *) ptree)->fltrname << endl;
+        if (!recursion_level) exit(1);
+        return ne;
+      }
+      if (irr->warn_occ) {
+        cerr << "Filter: " << ((FilterFLTRNAME *) ptree)->fltrname << endl;
+        irr->clear_warning();
+        if (recursion_level) warning = true;
+      }        
+#endif /* DIAG */
       if (fset) {
       	 AttrIterator<AttrFilter> itr(fset, "filter");
 	       if (itr) {
@@ -341,8 +512,22 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
 
 
    if (typeid(*ptree) == typeid(FilterAFI)) {
-   
+      INC_RECURSION_LEVEL
       ne = evaluate(((FilterAFI *) ptree)->f, peerAS, expand);
+      DEC_RECURSION_LEVEL
+#ifdef DIAG
+      if (irr->err_occ || warning) {
+        cerr << "Filter: ";
+        ptree->print(cerr);
+        cerr << endl;
+        if (irr->err_occ) {
+          if (!recursion_level) exit(1);
+          else return ne;
+        } else {
+          if (!recursion_level) warning = false;
+        }
+      }
+#endif /* DIAG */
       Debug(Channel(DBG_NE_AFI) << "op1: " << *ne << "\n");
 
       if (ne->is_any() == NEITHER &&

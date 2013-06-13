@@ -63,16 +63,51 @@ extern void collectIfAddr(void *result, const Object *o);
 extern void collectPrefix(void *result, const Object *o);
 
 class IRR {
+   friend class RPSLConfig;
+
 public:
    enum PROTOCOL { rawhoisd, ripe, bird, unknown = -1 };
+
+#ifdef DIAG
+   char *last_query;
+
+   // indicates that an error occurred when queriing the IRR
+   // 0 == no error occurred
+   // 1 == query error occurred
+   // 2 == response error occurred
+   int err_occ;
+
+   // indicates that an error occurred when queriing the IRR
+   // but the error shall be treated as warning
+   bool warn_occ;
+
+   // if "err_occ" or "warn_occ" is true this array carries the related error message.
+   char *err_msg;
+#endif /* DIAG */
 
 protected:
    static char        buffer[128];   // temporary buffer for format conversion
    static char const *dflt_host;    
    static char const *dflt_sources;
+   static char const *proxy_host;
+   static int         proxy_port;
    static int         dflt_port;
    static PROTOCOL    dflt_protocol;
    static bool        ignore_errors;
+   static bool        use_proxy_connection;
+#ifdef DIAG
+   static bool        irr_warnings;
+   static Buffer       rpslInfo;
+#endif /* DIAG */
+#ifdef RPKI
+   static char const *rpkiSymbolFormat;
+   static int         rpkiExpansionMode;
+#endif /* RPKI */
+#ifdef RIPE
+   static int         responseRetries;
+   static int         responseTimeout;
+#endif /* RIPE */
+
    // Moved from RAWhoisClient
    static char     protocol[64];
    char     host[64];
@@ -84,6 +119,11 @@ public:
      strcpy(host, dflt_host);
      strcpy(sources, dflt_sources);
      port = dflt_port;
+#ifdef DIAG
+     err_occ = 0;
+     warn_occ = false;
+     err_msg = new char[0];
+#endif /* DIAG */
    }
    // connection management
    virtual void Open(const char *_host = dflt_host, 
@@ -117,22 +157,52 @@ public:
 
    // options
    static void SetDefaultHost(const char *_host);
+   static void SetProxyHost(const char *_proxyHost);
    static void SetDefaultSources(const char *_sources);
    static void SetDefaultPort(const int _port);
+   static void SetProxyPort(const int _proxyPort);
    static void SetDefaultProtocol(const char *_protocol);
    static PROTOCOL GetProtocol(void) {
      return dflt_protocol;
    }
    static void initCache(const char *filename); // read objects from filename
 
+#ifdef RPKI
+   // RPKI functionality
+   static void  initRPKICache(const char *filename);
+   static void  setRPKISymbolFormat(const char *format);
+   static void  setRPKIExpansionMode(const char *mode);
+#endif /* RPKI */
+
+#ifdef RIPE
+   static void setResponseRetries(const int num);
+   static void setResponseTimeout(const int sec);
+#endif /* RIPE */
+
    // the following interface is used by ParseArgv
    static int ArgvHost     (char *dst, char *key, const char *_nextArg);
+   static int ArgvProxyHost(char *dst, char *key, const char *_nextArg);
    static int ArgvSources  (char *dst, char *key, const char *_nextArg);
    static int ArgvPort     (char *dst, char *key, const char *_nextArg);
+   static int ArgvProxyPort(char *dst, char *key, const char *_nextArg);
    static int ArgvInitCache(char *dst, char *key, const char *_nextArg);
    static int ArgvProtocol(char *dst, char *key, const char *_nextArg);
    static int ReportErrors(char *dst, char *key, const char *_nextArg);
    static int IgnoreErrors(char *dst, char *key, const char *_nextArg);
+#ifdef DIAG
+   static int DBWarnings(char *dst, char *key, const char *_nextArg);
+#endif /* DIAG */
+
+#ifdef RPKI
+   static int ArgvInitRPKICache(char *dst, char *key, const char *_nextArg);
+   static int ArgvRPKISymbolFormat(char *dst, char *key, const char *_nextArg);
+   static int ArgvRPKIExpansionMode(char *dst, char *key, const char *_nextArg);
+#endif /* RPKI */
+
+#ifdef RIPE
+   static int ArgvResponseRetries(char *dst, char *key, const char *_nextArg);
+   static int ArgvResponseTimeout(char *dst, char *key, const char *_nextArg);
+#endif /* RIPE */
 
    static void handleEnvironmentVariables(char **envp);
    static IRR *newClient();
@@ -146,6 +216,12 @@ public:
    // If the route is not found, an one-level less specific route will be used
 public:
    virtual ASt getOrigin(char *format, ...) = 0;
+
+#ifdef DIAG
+   void die_error(const char *txt, int type, bool die = true);
+   void warn_error(void);
+   void clear_warning(void);
+#endif /* DIAG */
 
 protected:
    // the following to be implemented by RAWhoisC and BirdWhoisC
@@ -172,12 +248,17 @@ protected:
    bool         isIndirectMember(Object *o, 
 			   AttrGenericIterator<ItemWORD> &mbrs_by_ref);
 
+#ifdef DIAG
+  // the following method is used to extract some info when the query/response process revealed
+  // problems. In this case the RPSL object name is stored in a buffer that is used by RPSLConfig
+  static void extractRPSLInfo(char *query);
+#endif /* DIAG */
   // next method is used by RAWhoisClient to query the SetCache
   bool queryCache(SymID setID, Set *&set);
 
 
 private:
-   static void initCache(char *objectText, int objectLength, const char *clss);
+   static void initCache(char *objectText, int objectLength, const char *clss, const char *fname);
 };
 
 struct ProtocolName {
@@ -190,20 +271,65 @@ extern ProtocolName protocolName[];
 
 //////// Command line options ///////////////////////////////////////////
 
+#ifdef RPKI
+#define IRR_CACHE_COMMAND_LINE_OPTIONS \
+	{"-f", ARGV_FUNC, (char *) &IRR::ArgvInitCache, (char *) NULL,\
+	 "A file name containing only RPSL aut-num objects"},\
+	{"-rf", ARGV_FUNC, (char *) &IRR::ArgvInitRPKICache, (char *) NULL,\
+	 "A file name containing only RPKI expansion AS objects"},\
+	{"-rs", ARGV_FUNC, (char *) &IRR::ArgvRPKISymbolFormat, (char *) NULL,\
+	 "Symbolname format for RPKI searching route-set objects"},\
+	{"-re", ARGV_FUNC, (char *) &IRR::ArgvRPKIExpansionMode, (char *) NULL,\
+	 "Expansion mode for route-sets: first, rpki, rpsl or all (default)"}
+#else
+#define IRR_CACHE_COMMAND_LINE_OPTIONS \
+	{"-f", ARGV_FUNC, (char *) &IRR::ArgvInitCache, (char *) NULL,\
+	"A file name containing only RPSL aut-num objects"}
+#endif /* RPKI */
+
+#ifdef RIPE
+#define IRR_WHOIS_COMMAND_LINE_OPTIONS \
+	{"-protocol", ARGV_FUNC, (char *)&IRR::ArgvProtocol, (char *) NULL,\
+	 "Protocol to be used to connect to the server"},\
+	{"-retries", ARGV_FUNC, (char *) &IRR::ArgvResponseRetries, (char *) NULL,\
+	 "maximum number of retries on response timeouts (RIPE: default 7)"},\
+	{"-timeout", ARGV_FUNC, (char *) &IRR::ArgvResponseTimeout, (char *) NULL,\
+	 "number of seconds for response timeout (RIPE: default 3)"}
+#else
+#define IRR_WHOIS_COMMAND_LINE_OPTIONS \
+	{"-protocol", ARGV_FUNC, (char *)&IRR::ArgvProtocol, (char *) NULL,\
+	 "Protocol to be used to connect to the server"}
+#endif /* RIPE */
+
+#ifdef DIAG
+#define IRR_ERROR_COMMAND_LINE_OPTIONS \
+	{"-db_warnings", ARGV_FUNC, (char *)&IRR::DBWarnings, (char *) NULL,\
+	 "Print warning messages if errors occurred during IRR inquiry"},\
+	{"-ignore_errors", ARGV_FUNC, (char *)&IRR::IgnoreErrors, (char *) NULL,\
+	 "Ignore IRR error and warning messages"},\
+	{"-report_errors", ARGV_FUNC, (char *)&IRR::ReportErrors, (char *) NULL,\
+	 "Print IRR error and warning messages"}
+#else
+#define IRR_ERROR_COMMAND_LINE_OPTIONS \
+	{"-ignore_errors", ARGV_FUNC, (char *)&IRR::IgnoreErrors, (char *) NULL,\
+	 "Ignore IRR error and warning messages"},\
+	{"-report_errors", ARGV_FUNC, (char *)&IRR::ReportErrors, (char *) NULL,\
+	 "Print IRR error and warning messages"}
+#endif /* DIAG */
+
 #define IRR_COMMAND_LINE_OPTIONS \
-     {"-h", ARGV_FUNC, (char *) &IRR::ArgvHost,      (char *) NULL,\
-      "Host name of the RAWhoisd server"},\
-     {"-p", ARGV_FUNC, (char *) &IRR::ArgvPort,      (char *) NULL,\
-      "Port number of the RAWhoisd server"},\
-     {"-s", ARGV_FUNC, (char *) &IRR::ArgvSources,   (char *) NULL,\
-      "Order of databases"},\
-     {"-f", ARGV_FUNC, (char *) &IRR::ArgvInitCache, (char *) NULL,\
-      "A file name containing only RPSL aut-num objects"},\
-     {"-protocol", ARGV_FUNC, (char *)&IRR::ArgvProtocol, (char *)NULL,\
-      "Protocol to be used to connect to the server"},\
-     {"-ignore_errors", ARGV_FUNC, (char *)&IRR::IgnoreErrors, (char *)NULL,\
-      "Ignore IRR error and warning messages"},\
-     {"-report_errors", ARGV_FUNC, (char *)&IRR::ReportErrors, (char *)NULL,\
-      "Print IRR error and warning messages"}
+	{"-h", ARGV_FUNC, (char *) &IRR::ArgvHost, (char *) NULL,\
+	 "Host name of the RAWhoisd server"},\
+	{"-p", ARGV_FUNC, (char *) &IRR::ArgvPort, (char *) NULL,\
+	 "Port number of the RAWhoisd server"},\
+	{"-proxy_host", ARGV_FUNC, (char *) &IRR::ArgvProxyHost, (char *) NULL,\
+	 "Proxy to use when tunneling RAWhoisd server communication"},\
+	{"-proxy_port", ARGV_FUNC, (char *) &IRR::ArgvProxyPort, (char *) NULL,\
+	 "Proxy port number to use when tunneling RAWhoisd server communication"},\
+	{"-s", ARGV_FUNC, (char *) &IRR::ArgvSources,   (char *) NULL,\
+	 "Order of databases"},\
+	IRR_CACHE_COMMAND_LINE_OPTIONS,\
+	IRR_WHOIS_COMMAND_LINE_OPTIONS,\
+	IRR_ERROR_COMMAND_LINE_OPTIONS
 
 #endif // _IRR_HH

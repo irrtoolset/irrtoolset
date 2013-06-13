@@ -26,7 +26,7 @@
 #  Author(s): Nick Hilliard <nick@foobar.org>
 
 SUBDIRS= 	dataset irr normalform re2dfa rpsl irrutil . \
-		peval rpslcheck rtconfig
+			peval rpslcheck rtconfig irreval
 
 INCLUDES=	-I@top_srcdir@/
 
