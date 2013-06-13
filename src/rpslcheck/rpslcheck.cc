@@ -65,6 +65,9 @@ bool opt_stats                   = false;
 bool opt_rusage                  = false;
 char *opt_prompt                 = (char *)"rpslcheck> ";
 bool opt_echo                    = false;
+#ifdef DTAG
+bool opt_asn16                   = false;
+#endif /* DTAG */
 bool opt_asdot                   = false;
 char *opt_my_as			 = NULL;
 #ifdef ENABLE_DEBUG
@@ -99,6 +102,11 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Show version"},
      
      IRR_COMMAND_LINE_OPTIONS,
+
+#ifdef DTAG
+     {"-asn16", ARGV_BOOL, (char *) NULL, (char *) &opt_asn16,
+      "translate 32bit AS numbers into AS23456."},
+#endif /* DTAG */
 
      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
       "print AS numbers in asdot format."},
@@ -161,8 +169,14 @@ int main(int argc, char **argv, char **envp) {
    while (opt_my_as || cin ) {
        if (opt_my_as) {
           // if the first two characters of the ASN are "as", then ignore them
+#ifdef DTAG
+          while (isspace(*opt_my_as) && *opt_my_as != '\0') opt_my_as++;
+          if (strncasecmp(opt_my_as, "as", 2) == 0)
+            opt_my_as += 2;
+#else
           if (strcasestr(opt_my_as, "as") == opt_my_as)
             opt_my_as += 2;
+#endif /* DTAG */
 
           const char *dot = strchr(opt_my_as,'.');
           if (dot)

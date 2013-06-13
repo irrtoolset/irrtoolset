@@ -46,6 +46,9 @@
 
 #pragma interface
 
+#ifndef SETOFIPV6PREFIX_H
+#define SETOFIPV6PREFIX_H
+
 
 #include "config.h"
 #include <iostream>
@@ -61,6 +64,12 @@ class SetOfIPv6Prefix {
    friend class RtConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
+   friend class IRReval;
+   friend class BaseConfig;
+   friend class IOSConfig;
+   friend class IOSXRConfig;
+   friend class JUNOSConfig;
+   friend class RPSLConfig;
 
 public:
    SetOfIPv6Prefix() : members() {
@@ -128,6 +137,38 @@ public:
 
 
      void restrict(ItemList *afi_list) {
+#ifdef DTAG
+	 bool makeUnicast = false;
+	 bool makeMulticast = false;
+
+	 for (Item *afi_item = afi_list->head(); afi_item; afi_item = afi_list->next(afi_item)) {
+	   if (((ItemAFI *) afi_item)->is_Matching("ipv6.unicast"))
+		 makeUnicast = true;
+	   else if (((ItemAFI *) afi_item)->is_Matching("ipv6.multicast"))
+		 makeMulticast = true;
+	 }
+
+	 if (!makeUnicast && !makeMulticast) { // ipv6 is not used!
+	   clear();
+	   return;
+	 }
+
+	 if ((makeUnicast && makeMulticast) || isEmpty()) // nothing to restrict
+	   return;
+
+	 // create multicast set
+	 SetOfIPv6Prefix *res = new SetOfIPv6Prefix();
+	 res->members.insert(*(MulticastIPv6PrefixRange.get_ipaddr()), MulticastIPv6PrefixRange.get_length(),
+						   MulticastIPv6PrefixRange.get_range());
+
+	 if (makeUnicast) // create unicast set
+	   ~*res;
+
+	 // now restrict prefixes to multicast or unicast
+	 *this &= *res;
+
+	 delete res;
+#else
      // create multicast set
      SetOfIPv6Prefix *multicast = new SetOfIPv6Prefix();
      multicast->members.insert(*(MulticastIPv6PrefixRange.get_ipaddr()),
@@ -160,7 +201,7 @@ public:
      delete res;
      delete multicast;
      delete unicast;
-
+#endif /* DTAG */
    }
 
 
@@ -171,4 +212,4 @@ private:
 
 };
 
-
+#endif // SETOFIPV6PREFIX_H

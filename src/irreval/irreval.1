@@ -1,0 +1,243 @@
+.\"// Copyright (c) 2001,2002                        RIPE NCC
+.\"//
+.\"// All Rights Reserved
+.\"//
+.\"// Permission to use, copy, modify, and distribute this software and its
+.\"// documentation for any purpose and without fee is hereby granted,
+.\"// provided that the above copyright notice appear in all copies and that
+.\"// both that copyright notice and this permission notice appear in
+.\"// supporting documentation, and that the name of the author not be
+.\"// used in advertising or publicity pertaining to distribution of the
+.\"// software without specific, written prior permission.
+.\"//
+.\"// THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+.\"// ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS; IN NO EVENT SHALL
+.\"// AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+.\"// DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+.\"// AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+.\"// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+.\"//
+.\"// 
+.\"//  Copyright (c) 1994 by the University of Southern California
+.\"//  and/or the International Business Machines Corporation.
+.\"//  All rights reserved.
+.\"//
+.\"//    Permission is hereby granted, free of charge, to any person obtaining a copy
+.\"//    of this software and associated documentation files (the "Software"), to deal
+.\"//    in the Software without restriction, including without limitation the rights
+.\"//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+.\"//    copies of the Software, and to permit persons to whom the Software is
+.\"//    furnished to do so, subject to the following conditions:
+.\"//
+.\"//    The above copyright notice and this permission notice shall be included in
+.\"//    all copies or substantial portions of the Software.
+.\"//
+.\"//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+.\"//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+.\"//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+.\"//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+.\"//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+.\"//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+.\"//    THE SOFTWARE.
+.\"//
+.\"//  Questions concerning this software should be directed to 
+.\"//  irrtoolset@lists.isc.org
+.\"//
+.\"
+.TH irreval 1 local
+.SH NAME
+irreval
+.SH SYNOPSIS
+.B irreval
+.RI [ options ]
+.SH DESCRIPTION
+.PP
+irreval analyzes RPSL route- and as-set expressions by resolving the expressions
+and querying the Internet Routing Registry (IRR) for the content of the single
+route- or as-sets the expressions are composed of. After a successful resolution
+irreval generates route filters from the content in vendor specific languages
+for use in router configuration files. It supports Cisco IOS, Cisco IOS XR and
+Juniper JunOS language formats. In addition it can produce RPSL route- or as-set
+objects that list the content of the analyzed expression.
+
+irreval reads lines form the standard input, and prints them to the standard
+output. Input lines must comply with the input syntax documented in
+"irreval COMMANDS" (Section below).
+
+irreval supports IRR communication with ripe and irrd servers for querying RPSL
+objects. Like RtConfig it provides support for IRR Cache files as well. In
+addition it can tunnel IRR database communication through a Web proxy supporting
+HTTP1.1. This feature is of interest when irreval is employed on systems who have
+limited access to the Internet.
+
+.SH IRRToolSet COMMON OPTIONS
+.RS
+.IP -help
+Print summary of command-line options and abort.
+.IP "\-T [whois_query | whois_response | input | all]"
+Trace the argument. Useful for debugging.
+.IP "\-D <integer>"
+Print debugging messages of debug channel <integer> (if compiled with DEBUG
+defined).
+.IP "\-version"
+Print version number and quit.
+.IP "\-h <host-name>"
+Establish a whois connection to host <host-name>. Default is "whois.radb.net".
+.IP "\-p <port-no>"
+Establish a whois connection to port <port-no>. Default is "43".
+.IP "\-protocol <protocol>"
+Use protocol <protocol> when communicating with the IRR server. The value of
+<protocol> can be "irrd" or "ripe". Default is "irrd".
+.IP "\-proxy_host <phost-name>"
+Tunnel IRR database communication through Web proxy <phost-name>. The Web proxy
+must implement HTTP1.1 to understand the "CONNECT" command. Tunneling is done
+according to the Internet draft "Tunneling TCP based protocols through Web proxy
+servers" by Ari Luotonen.
+.IP "\-proxy_port <phost-port>"
+Establish a Web proxy tunnel on proxy port <phost-port>. This option is
+meaningful in combination with -proxy_host only. Default is "8086".
+.IP "\-s <source-list>"
+Consider the sources specified in the comma separated <source-list>. If an object
+is defined in multiple sources in <source-list>, irreval uses the definition
+first encountered in <source-list> from left to right.
+.IP "\-f <file-name>" 
+Use IRR cache file <file-name>. You can specify a number of private RPSL
+route-set or as-set objects in <file-name> to be used in the production of route
+filters. When resolving objects irreval will look up the IRR cache file at first.
+If the object can not be found in the cache, the IRR database is queried. An IRR
+cache file is useful when you want to keep private copies of published objects or
+to test the content of new objects when producing route filters. You can specify
+more than one IRR cache file by specifying this option repeatedly.
+.IP "\-prompt <new-prompt>"
+Change the prompt to <new-prompt> when invoked interactively. By default the
+prompt is "irreval>\ ".
+.IP "\-db_warnings"
+Print error and warning messages regarding IRR database communication errors and
+problems occurring when resolving RPSL route-set or as-set expressions. In the
+latter case it allows to trace back those parts of the RPSL expressions that
+could not be resolved properly due to e.g. missing database entries.
+.RE
+.SH RPKI OPTIONS
+.RS
+.IP "\-rf <file-name>" 
+A file <file-name> containing only RPKI expansion AS objects. Such a file can be 
+generated by the RPKI executable "print_roa" with a prefixed "AS" in each line:
+
+   AS<asnum plain> <prefix-range> [ <prefix-range> ... ]
+
+The AS objects are stored in an additional RPKI cache.
+.IP "\-rs <symbol-name>" 
+Symbol name format for RPKI searching route-set objects. This symbol name must 
+contain the format string "%u" for including the actual AS number.
+.IP "\-re <expansion-mode>" 
+Expansion mode for route-sets: first, rpki, rpsl or all (default). The option controls 
+the search algorithm in the RPKI and RPSL cache:
+
+   first - retrieve only the first occurrent
+   rpki  - search in the RPKI cache only
+   rpsl  - search in the RPSL cache only
+   all   - retrieve all
+.RE
+.SH OTHER OPTIONS
+.RS
+.IP "\-d <directory-path>"
+Directory for all RPKI and RPSL files with no path.
+.IP "\-config <config-format>"
+Produce route filter in <config-format> which is either "ios" (for Cisco's IOS),
+"iosxr" (for Cisco's IOS XR), "junos" (for Juniper's JunOS) or "rpsl" (for RPSL
+objects). By default "rpsl" is used.
+.IP "\-compression <comp-level>"
+Set the level of prefix aggregation to <comp-level>. <comp-level> is applied when
+printing prefixes in case a prefix-list or route-set is generated. <comp-level>
+can be either "none" (for no compression), "normal" (for prefix range aggregation
+without losses) and "super" (for strong prefix aggregation with loss of more
+specifics). By default it's "normal".
+.IP "\-asn16"
+If this option is specified all 32bit AS numbers are mapped to AS23456 at parsing time
+and do not appear in as-path filters.
+.IP "\-asdot"
+32bit AS numbers are mapped to the "dotted" notation (AS16.AS16).
+.IP "\-asn32"
+Enable 32bit AS numbers in the production of as-path filters (default).
+.RE
+.SH ENVIRONMENT VARIABLES
+.RS
+.IP IRR_HOST
+Specifies the IRR host to connect to.
+.IP IRR_PORT
+Specifies the IRR port number to connect to.
+.IP IRR_SOURCES
+Specifies the source list (comma separated) to consider.
+.IP IRR_PROTOCOL
+Specifies the IRR protocol to use when connecting to an IRR host.
+.IP IRR_PROXY_HOST
+Specifies Web proxy to use for tunneling IRR communication. If set, all IRR
+database communication is tunneled through the proxy. If not set, communication
+is accomplished directly with the database.
+.IP IRR_PROXY_PORT
+Specifies port of Web proxy to use for tunneling IRR communication. (has no
+meaning if no Web proxy is specified)
+.RE
+.PP
+Command line options take precedence over environment variables.
+.SH irreval COMMANDS
+.PP
+Additional options can be placed in the first input line;
+all options (except "\-help", "\-version", "\-T" and "\-D") are allowed.
+.PP
+.RS
+example: @IRReval -config ios -asn16 -f peer.cache
+.RE
+.PP
+
+Processing of input lines in irreval depends on the selected configuration format.
+When configuration format is "ios", "iosxr" or "junos", standard input is copied
+to standard output except when the input line is an irreval command. All irreval
+commands start with "@IRReval" at the beginning of a line.
+When configuration format is "rpsl" irreval only processes input lines that comply
+with a particular syntax. If this syntax is not met, an error message is generated
+and the program aborts. The configuration format can be set in <config-format>
+specified with option "\-config".
+
+Currently the following irreval commands are implemented:
+.PP
+.RS
+@IRReval prefix-list <name> <expression>
+.RE
+.PP
+generates a prefix-list in the specified vendor language, where <name> is a single
+alpha-numeric word used as the name of the prefix-list and <expression> is an RPSL
+route-set expression that is to be resolved.
+.PP
+.RS
+@IRReval as-path <name> <expression>
+.RE
+.PP
+generates an as-path list in the specified vendor language, where <name> is the
+identifier of the as-path list and <expression> is an RPSL as-set expression that
+is to be resolved. When configuration format is "ios" or "junos" <name> must be a
+positive Integer. For "iosxr" it can be any single alpha-numeric word.
+.PP
+When configuration format is "rpsl" the syntax allowed is:
+.PP
+.RS
+route-set <name> <expression>
+.RE
+.PP
+which generates an RPSL route-set object where <name> is a single alpha-numeric
+word used as the route-set object's name, and <expression> is an RPSL route-set
+expression that is to be resolved and used as the route-set object's content.
+.PP
+.RS
+as-set <name> <expression>
+.RE
+.PP
+which generates an RPSL as-set object where <name> is a single alpha-numeric word
+used as the as-set object's name, and <expression> is an RPSL as-set expression
+that is to be resolved and used as the as-set object's content.
+.RE
+.SH ERROR AND WARNING MESSAGES
+.PP
+For error descriptions, please see
+.B
+irreval-errors manual page.

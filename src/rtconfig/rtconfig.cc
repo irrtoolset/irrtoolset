@@ -80,6 +80,9 @@ bool opt_rusage                  = false;
 Rusage ru(clog, &opt_rusage);
 
 char *opt_prompt                 = (char *)"rtconfig> ";
+#ifdef DTAG
+bool opt_asn16                   = false;
+#endif /* DTAG */
 bool opt_asdot                   = false;
 
 bool         RtConfig::supressMartians          = false;
@@ -168,6 +171,11 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "Prompt"},
      
      IRR_COMMAND_LINE_OPTIONS,
+
+#ifdef DTAG
+     {"-asn16", ARGV_BOOL, (char *) NULL, (char *) &opt_asn16,
+      "translate 32bit AS numbers into AS23456."},
+#endif /* DTAG */
 
      {"-asdot", ARGV_BOOL, (char *) NULL, (char *) &opt_asdot,
       "print AS numbers in asdot format."},
@@ -390,7 +398,7 @@ void RtConfig::printPrefixes(char *filter, char *fmt) {
                   nets->not_ = true;
                printPrefixes_(*nets, fmt);
              } else {
-               cerr << "WARNING: unknown afi value! Can't print prefixes for filter \"" << filter << "\"" << endl;
+               cerr << "Warning: unknown afi value! Can't print prefixes for filter \"" << filter << "\"" << endl;
              }
            } else {
              // ipv4 prefix list
@@ -464,7 +472,7 @@ void RtConfig::printPrefixRanges(char *filter, char *fmt) {
                   nets->not_ = true;
                printPrefixRanges_(*nets, fmt);
              } else {
-               cerr << "WARNING: unknown afi value! Can't print prefix ranges for filter \"" << filter << "\"" << endl;
+               cerr << "Warning: unknown afi value! Can't print prefix ranges for filter \"" << filter << "\"" << endl;
              }
            } else {
              // ipv4 prefix list
@@ -537,7 +545,7 @@ void RtConfig::printSuperPrefixRanges(char *filter, char *fmt) {
                   nets->not_ = true;
                printSuperPrefixRanges_(*nets, fmt);
              } else {
-               cerr << "WARNING: unknown afi value! Can't print super prefix ranges for filter \"" << filter << "\"" << endl;
+               cerr << "Warning: unknown afi value! Can't print super prefix ranges for filter \"" << filter << "\"" << endl;
              }
            } else {
              // ipv4 prefix list
@@ -986,7 +994,7 @@ void RtConfig::accessList(char *filter) {
                  nets->not_ = true;
                printAccessList(*nets);
              } else {
-               cerr << "WARNING: unknown afi value! Can't print configuration for filter \"" << filter << "\"" << endl;
+               cerr << "Warning: unknown afi value! Can't print configuration for filter \"" << filter << "\"" << endl;
              }
            } else {
              // ipv4 prefix list

@@ -47,8 +47,8 @@
 
 #pragma interface
 
-#ifndef SetOfPrefix_H
-#define SetOfPrefix_H
+#ifndef SETOFPREFIX_H
+#define SETOFPREFIX_H
 
 #include "config.h"
 #include <iostream>
@@ -63,6 +63,12 @@ class SetOfPrefix {
    friend class RtConfig;
    friend class CiscoConfig;
    friend class JunosConfig;
+   friend class IRReval;
+   friend class BaseConfig;
+   friend class IOSConfig;
+   friend class IOSXRConfig;
+   friend class JUNOSConfig;
+   friend class RPSLConfig;
 
 public:
    SetOfPrefix() : members() {
@@ -124,6 +130,37 @@ public:
    }
 
    void restrict(ItemList *afi_list) {
+#ifdef DTAG
+	 bool makeUnicast = false;
+	 bool makeMulticast = false;
+
+	 for (Item *afi_item = afi_list->head(); afi_item; afi_item = afi_list->next(afi_item)) {
+	   if (((ItemAFI *) afi_item)->is_Matching("ipv4.unicast"))
+		 makeUnicast = true;
+	   else if (((ItemAFI *) afi_item)->is_Matching("ipv4.multicast"))
+		 makeMulticast = true;
+	 }
+
+	 if (!makeUnicast && !makeMulticast) { // ipv4 is not used!
+	   clear();
+	   return;
+	 }
+
+	 if (makeUnicast && makeMulticast) // nothing to restrict
+	   return;
+
+	 // create multicast set
+	 SetOfPrefix *res = new SetOfPrefix();
+	 res->members.insert(MulticastPrefixRange.get_ipaddr(), MulticastPrefixRange.get_length(), MulticastPrefixRange.get_range());
+
+	 if (makeUnicast) // create unicast set
+	   ~*res;
+
+	 // now restrict prefix set to multicast or unicast
+	 *this &= *res;
+
+	 delete res;
+#else
      // create multicast set
      SetOfPrefix *multicast = new SetOfPrefix();
      multicast->members.insert(MulticastPrefixRange.get_ipaddr(), 
@@ -155,7 +192,7 @@ public:
      delete res;
      delete multicast;
      delete unicast;
-
+#endif /* DTAG */
    }
 
 private:
@@ -165,5 +202,4 @@ private:
 
 };
 
-
-#endif // SetOfPrefix_H
+#endif // SETOFPREFIX_H

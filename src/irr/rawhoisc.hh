@@ -68,7 +68,9 @@ protected:
    FILE *in;
    FILE *out;
 
+#ifndef DIAG
    char last_query[256];
+#endif /* DIAG */
 
 // Made them all private to make sure no applications would use them directly,
 // instead, some common APIs should be used to enforce various whois clients
@@ -102,6 +104,9 @@ public:
       _is_open = 0;
       version = 0;
       current_sources = NULL;
+#ifdef DIAG
+      last_query = new char[1024];
+#endif /* DIAG */
    };
    ~RAWhoisClient() {
       if (_is_open)

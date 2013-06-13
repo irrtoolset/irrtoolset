@@ -1,6 +1,22 @@
 Release Notes for IRRToolSet
 ****************************
 
+Version 5.0.1/28
+
+* reintegration of the DTAG fixes since version 4.8.4.
+
+* application 'irreval' added, more information on the man page.
+
+* new configuration options implemented:
+     --enable-diag     error diagnostics and error termination
+     --enable-dtag     turn on DTAG special handling
+     --enable-ripe     include new RIPE client
+     --enable-rpki     RPKI extension
+  this options generate compiler definitions DIAG, DTAG, RIPE and RPKI.
+
+* connection via proxy for tunneling RAWhoisd server communication.
+
+
 Version 5.0.1
 
 * don't barf on pingable: and ping-hdl: attributes (RFC 5943)

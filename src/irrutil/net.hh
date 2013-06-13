@@ -142,6 +142,7 @@ class Timer {
 	tv.tv_usec = t.tv_usec;
     }
 
+    struct timeval *gettimeval () { return &tv; }
     void gettimeofday () { ::gettimeofday(&tv, &tz); }
 
     double delta (Timer &tt) {
@@ -357,6 +358,9 @@ class Socket {
     
     int write (char *buf, int len);
     int read  (char *buf, int len);
+#ifdef RIPE
+    int wait_for_reply (char *buffer, int size, int timeout);
+#endif /* RIPE */
 
     struct sockaddr_in *get_socknew () {
 	return (struct sockaddr_in *) &socknew;

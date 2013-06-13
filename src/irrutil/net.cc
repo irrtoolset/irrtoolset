@@ -198,3 +198,21 @@ Socket::read (char *buf, int len)
     }
     return c;
 }
+
+#ifdef RIPE
+int 
+Socket::wait_for_reply (char *buffer, int size = MAXPACKETLEN, int seconds = 0)
+{
+    fd_set fds;
+    FD_ZERO (&fds);
+    FD_SET  (sock, &fds);
+    Timer timeout(seconds);
+    int c = select (sock+1, &fds, (fd_set *) NULL, (fd_set *) NULL, timeout.gettimeval());
+    if (c > 0) {
+        c = recvfrom ((char *)buffer, 1024);
+    }
+    if (c < 0) 
+        error.fatal ("Socket.wait_for_reply");
+    return c;      // < 0 = count; 0 = timeout; > 0 = system err
+}
+#endif /* RIPE */

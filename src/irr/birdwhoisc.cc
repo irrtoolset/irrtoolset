@@ -27,6 +27,9 @@ using namespace std;
 BirdWhoisClient::BirdWhoisClient(void) : response(NULL),
   Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
+#ifdef DIAG
+  last_query = new char[0];
+#endif /* DIAG */
   Open(dflt_host, dflt_port, dflt_sources);
 }
 
@@ -35,32 +38,132 @@ BirdWhoisClient::BirdWhoisClient(const char *host,
 				 const char *sources) :
   response(NULL), Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
- Open(host, port, sources);
+#ifdef DIAG
+  last_query = new char[0];
+#endif /* DIAG */
+  Open(host, port, sources);
 }
 
 void BirdWhoisClient::Open(const char *_host,
                            const int _port,
                            const char *_sources)
 {
-  //Trace(TR_WHOIS_QUERY) << getsock() 
-  //  			  << " - Whois: Open " << _host << ":" << _port 
-  Trace(TR_WHOIS_QUERY) << "Whois: Open " << _host << ":" << _port 
-			<< " source=" << _sources 
-			<< " protocol=" << protocolName[dflt_protocol].name
-			<< endl;
+	if (use_proxy_connection) {
+		// Open connection via a Proxy
 
-  ipAddr cServer(_host);
-  set_dstInaddr(cServer.getInaddr());
-  setPort(_port);
-  if (connect() < 0) 
-    {
-    cerr << "Connection to " << _host << ":" << _port << " failed!" << endl;
-    exit(1);
-    }
-  // whois server stuff rather than the socket stuff
-  strcpy(host, _host);
-  strcpy(sources, _sources);
-  port = _port;  
+		Trace(TR_WHOIS_QUERY) << "Whois: Open " << _host << ":" << _port
+				<< " via proxy " << proxy_host << ":" << proxy_port
+				<< " source=" << _sources << " protocol="
+				<< protocolName[dflt_protocol].name << endl;
+
+		char proxybuf[BUFFER_SIZE + 1];
+		char proxyrsp[BUFFER_SIZE + 1];
+		ipAddr cServer(proxy_host);
+		set_dstInaddr(cServer.getInaddr());
+		setPort(proxy_port);
+
+		if (connect() < 0) {
+#ifdef DIAG
+			err_msg = new char[1024];
+			sprintf(err_msg, "Connect process to proxy %s on port %d failed!",
+					proxy_host, proxy_port);
+			die_error(err_msg, 0);
+#else
+		    cerr << "Connection to proxy " << proxy_host << " on port " << proxy_port << " failed!" << endl;
+		    exit(1);
+#endif /* DIAG */
+		}
+
+		sprintf(proxybuf, "CONNECT %s:%d HTTP/1.1\nUser-Agent: %s %s\n\n", _host, _port, ProjectGoal, ProjectVersion);
+
+		if (Socket::write(proxybuf, strlen(proxybuf)) < 0) {
+#ifdef DIAG
+			err_msg = new char[1024];
+			sprintf(err_msg, "Connection request to proxy %s on port %d could not be sent!", proxy_host, proxy_port);
+			die_error(err_msg, 0);
+#else
+		    cerr << "Connection request to proxy " << proxy_host
+		    	 << " on port " << proxy_port << " could not be sent!" << endl;
+		    exit(1);
+#endif /* DIAG */
+		}
+		if (Socket::read(proxyrsp, BUFFER_SIZE) < 0) {
+#ifdef DIAG
+			err_msg = new char[1024];
+			sprintf(err_msg, "Connection response from proxy %s on port %d could not be read!", proxy_host, proxy_port);
+			die_error(err_msg, 0);
+#else
+		    cerr << "Connection response from proxy " << proxy_host
+		    	 << " on port " << proxy_port << " could not be read!" << endl;
+		    exit(1);
+#endif /* DIAG */
+		}
+
+		if (0 == memcmp(proxyrsp, "HTTP/1.0 ", 9)
+				|| 0 == memcmp(proxyrsp, "HTTP/1.1 ", 9)) {
+			// got an HTTP response!
+			char *respbufptr = proxyrsp + 9;
+			if (0 != memcmp(respbufptr, "200 ", 4)) {
+				// Proxy response is NOT an "ok"!
+				char *lf = strchr(proxyrsp, '\n');
+				if (lf != NULL) {
+					lf++;
+					*lf = '\0';
+				}
+#ifdef DIAG
+				err_msg = new char[BUFFER_SIZE + strlen(proxyrsp)];
+				sprintf(err_msg,
+						"Connect process via proxy %s on port %d failed! Proxy reported:\n%s",
+						proxy_host, proxy_port, proxyrsp);
+				die_error(err_msg, 0);
+#else
+				cerr << "Connect process via proxy " << proxy_host
+					 << " on port " << proxy_port << " failed! Proxy reported:" << endl;
+				cerr << proxyrsp << endl;
+				exit(1);
+#endif /* DIAG */
+			} else {
+				// Proxy response is an "ok"! We don't need the rest, so clear response buffer now.
+				*proxyrsp = '\0';
+			}
+		} else {
+#ifdef DIAG
+			// unknown response from Proxy
+			err_msg = new char[BUFFER_SIZE + strlen(proxyrsp)];
+			sprintf(err_msg,
+					"Connect process via proxy %s on port %d failed! Unexpected response:\n%s",
+					proxy_host, proxy_port, proxyrsp);
+			die_error(err_msg, 0);
+#else
+			cerr << "Connect process via proxy " << proxy_host
+				 << " on port " << proxy_port << " failed! Unexpected response:" << endl;
+			cerr << proxyrsp << endl;
+			exit(1);
+#endif /* DIAG */
+		}
+	} else {
+		// Open connection directly
+
+		Trace(TR_WHOIS_QUERY) << "Whois: Open " << _host << ":" << _port
+				<< " source=" << _sources << " protocol="
+				<< protocolName[dflt_protocol].name << endl;
+
+		ipAddr cServer(_host);
+		set_dstInaddr(cServer.getInaddr());
+		setPort(_port);
+		if (connect() < 0) {
+#ifdef DIAG
+			die_error("Connect process failed!", 0);
+#else
+		    cerr << "Connection to " << _host << ":" << _port << " failed!" << endl;
+		    exit(1);
+#endif /* DIAG */
+		}
+	}
+	// whois server stuff rather than the socket stuff
+	strcpy(host, _host);
+	strcpy(sources, _sources);
+	port = _port;
 }
 
 void BirdWhoisClient::Close()
@@ -84,6 +187,14 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
 
   int iLen = strlen(pzcBuffer);
 
+#ifdef DIAG
+  delete last_query;
+  last_query = new char[iLen+1];
+  *last_query = '\0';
+  strcat(last_query, pzcBuffer);
+  last_query[iLen-1] = '\0';
+#endif /* DIAG */
+
   Trace(TR_WHOIS_QUERY) << "Whois: WriteQuery " 
 			<< pzcBuffer
 			<< " ("
@@ -92,7 +203,17 @@ bool BirdWhoisClient::sendQuery(const char *pzcQuery, ...)
 			<< endl;
 
   // Send out the query out of wire
+#ifdef DIAG
+  if (write(pzcBuffer, iLen) < 0) {
+     err_occ = 1;
+     delete err_msg;
+     err_msg = new char[iLen + 128];
+     sprintf(err_msg, "Sending query \"%s\" failed!", last_query);
+     return false;
+  }
+#else
   if (write(pzcBuffer, iLen) < 0) return false;
+#endif /* DIAG */
   return true;
 }
 
@@ -159,6 +280,11 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
       response->size += bytesRead;
 
       if (bytesRead <= 0) {
+#ifdef DIAG
+          err_occ = 2;
+          err_msg = new char[strlen(last_query) + 128];
+          sprintf(err_msg, "Reading response for query \"%s\" failed!", last_query);
+#endif /* DIAG */
 	 delete response;
 	 response=NULL;
 	 return false;
@@ -176,6 +302,14 @@ bool BirdWhoisClient::getResponse(char *&text, int &len) {
    }
    stripRipeComments(*result);
    if (result->size == 0) {
+#ifdef DIAG
+	  if (irr_warnings) {
+		  err_msg = new char[strlen(last_query) + 35];
+		  sprintf(err_msg, "No data in response for query \"%s\"!", last_query);
+		  warn_error();
+	  }
+	  extractRPSLInfo(last_query);
+#endif /* DIAG */
      delete response;
      response=NULL;
      Trace(TR_WHOIS_RESPONSE) << "TROPOS WARNING: query response was empty!\n" << flush;

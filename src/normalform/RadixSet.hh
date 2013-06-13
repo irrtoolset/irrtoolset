@@ -365,4 +365,4 @@ public:
    friend std::ostream& operator<<(std::ostream&, const RadixSet &set);
 };
 
-#endif   // RADIXTREE_H
+#endif // RADIXTREE_H
