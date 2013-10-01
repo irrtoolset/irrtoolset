@@ -1,6 +1,13 @@
 Release Notes for IRRToolSet
 ****************************
 
+Version 5.0.1/29
+
+* New environment variable "IRR_SYMBOL_FORMAT" added
+
+* Subversion keyword replacement (Id) in RPSL output removed
+
+
 Version 5.0.1/28
 
 * reintegration of the DTAG fixes since version 4.8.4.

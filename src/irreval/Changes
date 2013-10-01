@@ -1,3 +1,11 @@
+5.0.1/29
+
+* New environment variable "IRR_SYMBOL_FORMAT" for option "-rs"
+  (Symbolname format for RPKI searching route-set objects) added
+
+* Subversion keyword replacement (Id) in RPSL output removed
+
+
 5.0.1/28
 
 * Option "-junos_single_routefilter" removed and set to default

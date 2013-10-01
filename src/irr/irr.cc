@@ -297,6 +297,12 @@ void IRR::handleEnvironmentVariables(char **envp) {
 	 SetProxyPort(atoi(*p + 15));
          continue;
       }
+#ifdef RPKI
+      if (strncmp(*p, "IRR_SYMBOL_FORMAT=", 18) == 0)  {
+	 setRPKISymbolFormat(*p + 18);
+         continue;
+      }
+#endif /* RPKI */
    }
 }
 
@@ -560,10 +566,11 @@ void IRR::setRPKISymbolFormat(const char *format) {
 		rpkiSymbolFormat = format;
 	}
 	else {
-		cerr << "Error: missing '%u' in RPKI symbol format \"" << format << "\", searching disabled" << endl;
 #ifdef DIAG
+	    cerr << "Error: missing '%u' in RPKI symbol format \"" << format << "\"" << endl;
 	    exit(-1);
 #else
+		cerr << "Warning: missing '%u' in RPKI symbol format \"" << format << "\", searching disabled" << endl;
 		rpkiSymbolFormat = "";
 #endif /* DIAG */
 	}
