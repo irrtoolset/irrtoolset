@@ -1,6 +1,13 @@
 Release Notes for IRRToolSet
 ****************************
 
+5.0.1/29
+
+* New environment variable "IRR_SYMBOL_FORMAT" added
+
+* Subversion keyword replacement (Id) in RPSL output removed
+
+
 5.0.1/28
 
 * Option "-junos_single_routefilter" removed

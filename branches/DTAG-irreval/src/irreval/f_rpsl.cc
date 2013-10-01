@@ -103,7 +103,7 @@ void RPSLConfig::printHeaderLines(const char *setType, const char *setName) {
    cout << "descr:\t\tgenerated for: " << rpslExpr << "\n";
    cout << "remarks:\tgenerated from IRR      " << timeStamp;
    cout << "remarks:\tprogram used:  " << ProjectGoal << "  (" << ProjectVersion << ")" << endl;
-   cout << "remarks:\t$Id$\n";
+   cout << "remarks:\t" << "$" << "Id" << "$\n";
    cout << "remarks:\tsources: ";
    if (strcmp(IRR::dflt_sources, "") != 0)
       cout << IRR::dflt_sources << endl;
