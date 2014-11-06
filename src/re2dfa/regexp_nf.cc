@@ -135,7 +135,7 @@ ostream& operator<<(ostream& s, const regexp_nf& rs) {
    
 ////////////////////////////// re2nfa ////////////////////
 
-rd_fm *regexp_nf::do_tildaplus_as(rd_fm *result, int as, bool star) const {
+rd_fm *regexp_nf::do_tildaplus_as(rd_fm *result, ASt as, bool star) const {
    rd_dq *rdr = rd_alloc_range_list_empty();
    rd_insert_range(rdr, rd_alloc_range(as, as));
    rd_fm* m;
@@ -154,15 +154,15 @@ rd_fm *regexp_nf::do_tildaplus_as(rd_fm *result, int as, bool star) const {
 
 rd_fm *regexp_nf::do_tildaplus(regexp_symbol *sym, ASt peerAS, bool star) const {
    RangeList::Range *r;
-   int i;
+   ASt as;
    assert(!sym->complemented);
       
    rd_fm *result = NULL;
    for (r = sym->asnumbers.ranges.head(); 
 	r; 
 	r = sym->asnumbers.ranges.next(r))
-      for (i = r->low; i <= r->high; ++i)
-	 result = do_tildaplus_as(result, i, star);
+      for (as = r->low; as <= r->high; ++as)
+	 result = do_tildaplus_as(result, as, star);
 
    for (Pix p = sym->asSets.first(); 
 	p; 
@@ -179,7 +179,7 @@ rd_fm *regexp_nf::do_tildaplus(regexp_symbol *sym, ASt peerAS, bool star) const 
       
 	 if (as_set) {
 	    for (Pix pi = as_set->first(); pi; as_set->next(pi)) {
-	       int as1 = (*as_set)(pi);
+	       ASt as1 = (*as_set)(pi);
 	       result = do_tildaplus_as(result, as1, star);
 	       if (expand_as_macros)
 		  sym->asnumbers.add(as1, as1);
@@ -264,7 +264,7 @@ rd_fm* regexp_nf::re2nfa(regexp *re, ASt peerAS) const {
       
 	    if (as_set) {
 	       for (Pix pi = as_set->first(); pi; as_set->next(pi)) {
-		  int as1 = (*as_set)(pi);
+		  ASt as1 = (*as_set)(pi);
 		  rd_insert_range(rdr, rd_alloc_range(as1, as1));
 		  if (expand_as_macros)
 		     (((regexp_symbol *) re)->asnumbers).add(as1, as1);

@@ -52,7 +52,7 @@
 #include <iostream>
 #include "List.hh"
 
-#define RANGE_TOP 65535
+#define RANGE_TOP ~(unsigned int)0
 
 class RangeList {
 friend class regexp_nf;
@@ -69,7 +69,7 @@ public:
       
       Range()               {}
       Range(const Range& r) : low(r.low), high(r.high) {}
-      Range(int l, int h)   : low(l),     high(h)      {}
+      Range(unsigned int l, unsigned int h)   : low(l),     high(h)      {}
 
       bool operator==(const Range &b) const {
 	 return low == b.low && high == b.high;
@@ -83,10 +83,10 @@ private:
    List<Range> ranges;
 
 public:
-   RangeList(int low) {
+   RangeList(unsigned int low) {
       ranges.prepend(new Range(low, low));
    }
-   RangeList(int low, int high) {
+   RangeList(unsigned int low, unsigned int high) {
       ranges.prepend(new Range(low, high));
    }
    RangeList(const RangeList& n) {
@@ -106,12 +106,12 @@ public:
       return *this;
    }   
 
-   void add(int low) {
+   void add(unsigned int low) {
       add(low, low);
    }
-   void add(int low, int high) {
+   void add(unsigned int low, unsigned int high) {
       if (low > high) {
-	 int tmp = low;
+	 unsigned int tmp = low;
 	 low = high;
 	 high = tmp;
       }

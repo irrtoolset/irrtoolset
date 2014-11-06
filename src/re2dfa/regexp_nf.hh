@@ -166,7 +166,7 @@ private:
    rd_fm* dfa(ASt peerAS = RE_INVALID_AS);
    rd_fm* re2nfa(regexp *re, ASt peerAS) const;
    void do_and_terms(regexp_nf &b);	// destroys b's terms
-   rd_fm *do_tildaplus_as(rd_fm *result, int as, bool star) const;
+   rd_fm *do_tildaplus_as(rd_fm *result, ASt as, bool star) const;
    rd_fm *do_tildaplus(regexp_symbol *sym, ASt peerAS, bool star) const;
 };
 

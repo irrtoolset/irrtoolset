@@ -48,7 +48,7 @@
 
 #include "config.h"
 
-#define MAX_AS 65535
+#define MAX_AS ~(unsigned int)0-1
 
 /*
  * The following is a compile time limit on the number of NFA states

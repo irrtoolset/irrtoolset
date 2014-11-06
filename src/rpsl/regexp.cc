@@ -55,8 +55,8 @@
 using namespace std;
 
 // Static members
-int regexp_symbol::MIN_AS = 0;
-int regexp_symbol::MAX_AS = RANGE_TOP;
+ASt regexp_symbol::MIN_AS = 0;
+ASt regexp_symbol::MAX_AS = RANGE_TOP;
 
 ////////////////////////////// output ////////////////////
 

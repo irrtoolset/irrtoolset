@@ -142,8 +142,8 @@ class regexp_symbol : public regexp {
 REGEXP_FRIENDS
 friend std::ostream& operator<<(std::ostream& os, regexp_symbol& r);
 public:
-   static int MIN_AS;
-   static int MAX_AS;
+   static ASt MIN_AS;
+   static ASt MAX_AS;
 
 private:
    RangeList asnumbers;
@@ -157,11 +157,11 @@ public:
    // ~regexp_symbol() {   } // compiler is OK
    // regexp_symbol(const regexp_symbol& s) {assert(0);} // compiler is OK
 
-   regexp_symbol(int as1) {
+   regexp_symbol(unsigned int as1) {
       complemented = 0;
       asnumbers.add(as1, as1);
    }
-   regexp_symbol(int as1, int as2) {
+   regexp_symbol(unsigned int as1, unsigned int as2) {
       complemented = 0;
       asnumbers.add(as1, as2);
    }
@@ -170,10 +170,10 @@ public:
       asSets.add(asset);
    }
 
-   void add(int as1) {
+   void add(unsigned int as1) {
       asnumbers.add(as1, as1);
    }
-   void add(int as1, int as2) {
+   void add(unsigned int as1, unsigned int as2) {
       asnumbers.add(as1, as2);
    }
    void add(SymID asset) {
