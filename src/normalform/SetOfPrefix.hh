@@ -62,6 +62,7 @@
 class SetOfPrefix {
    friend class RtConfig;
    friend class CiscoConfig;
+   friend class CiscoXRConfig;
    friend class JunosConfig;
 
 public:

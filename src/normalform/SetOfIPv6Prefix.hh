@@ -60,6 +60,7 @@
 class SetOfIPv6Prefix {
    friend class RtConfig;
    friend class CiscoConfig;
+   friend class CiscoXRConfig;
    friend class JunosConfig;
 
 public:
