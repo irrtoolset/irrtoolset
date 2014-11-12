@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/irrtoolset/irrtoolset.svg)](https://travis-ci.org/irrtoolset/irrtoolset)
+
 This is the README file for the IRRToolSet
 
 MAILING LIST
@@ -14,6 +16,8 @@ FTP and WWW SITES
         ftp://ftp.isc.org/isc/IRRToolSet
 
         http://irrtoolset.isc.org/
+        
+        https://github.com/irrtoolset/irrtoolset
 
 INSTALLATION
         0. To install you need the GNU C++ compiler, libtool, bison, flex.
