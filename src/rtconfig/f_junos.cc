@@ -114,7 +114,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 	if (nets.negated())
 		allow_flag = false;
 
-   cout << "   policy-statement prefix-list-" << aclID << " {\n"
+   cout << "   replace: policy-statement prefix-list-" << aclID << " {\n"
     << "      term prefixes {\n";
 
    IPv6RadixSet::SortedPrefixIterator itr(&nets.members);
@@ -170,7 +170,7 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
 
    char buffer[64];
 
-   cout << "   policy-statement prefix-list-" << aclID << " {\n"
+   cout << "   replace: policy-statement prefix-list-" << aclID << " {\n"
        << "      term prefixes {\n";
 
    if (nets.members.isEmpty()) {
@@ -388,7 +388,7 @@ ListOf2Ints* JunosConfig::printASPaths(FilterOfASPath &path) {
    regexp_nf::RegexpConjunct *rc;
    regexp_nf::RegexpConjunct::ReInt *ri;
 
-   cout << "   as-path as-path-" << aclID << " \"";
+   cout << "   replace: as-path as-path-" << aclID << " \"";
 
    if (path.re->rclist.size() == 1) {
       rc = path.re->rclist.head(); 
@@ -462,7 +462,7 @@ int JunosConfig::printCommunitySet(ostream &os, CommunitySet *set, bool exact) {
    int id = communityMgr2.newID();
    result->add(id, id);
 
-   os << "   community community-" << id << " members ";
+   os << "   replace: community community-" << id << " members ";
    if (exact)
       os << "^";
    else
@@ -500,7 +500,7 @@ ListOf2Ints *JunosConfig::printCommunities(FilterOfCommunity& cm) {
    int aclID = communityMgr.newID();
    result->add(aclID, aclID);
 
-   lastCout << "   policy-statement community-pol-" << aclID << " {\n";
+   lastCout << "   replace: policy-statement community-pol-" << aclID << " {\n";
 
    // now print the communities
    // first print the conjuncts which are only positives
@@ -789,6 +789,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
       if (printRouteMap) {
 	 for (asp = aspath_acls->head(); asp; asp = aspath_acls->next(asp)) {
 	    for (cmp = comm_acls->head(); cmp; cmp = comm_acls->next(cmp)) {
+               if (routeMapID == 1) cout << "   replace: ";
 	       cout << "   policy-statement " << mapName << " {\n";
 	       for (prp = prfx_acls->head(); prp; prp =prfx_acls->next(prp)) {
 		  cout << "      term " << mapName << "-term-" << routeMapID << " {\n"
