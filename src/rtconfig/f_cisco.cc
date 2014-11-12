@@ -811,7 +811,7 @@ inline void CiscoConfig::printCommunity(ostream &os, unsigned int i) {
    else {
       int high = i >> 16;
       int low  = i & 0xFFFF;
-      if (high == 0 || high == 0xFFFF)
+      if (high == 0xFFFF)
 	 os << i;
       else
 	 os << high << ":" << low;
