@@ -405,8 +405,19 @@ void RtConfig::printPrefixes(char *filter, char *fmt) {
            if (nt->prfx_set.is_universal() && nt->ipv6_prfx_set.is_universal())
              cerr << "Error: badly formed prefix filter \"" << filter << "\"\n";
          for (NormalTerm *nt = ne->first(); nt; nt = ne->next()) {
-           printPrefixes_(nt->prfx_set, fmt);
-           printPrefixes_(nt->ipv6_prfx_set, fmt);
+           char *ptr = strstr(filter, "afi ");
+           if (ptr != NULL) {
+             ptr += 4;
+             while (isspace(*ptr)) {
+               ptr++;
+             }
+             if (strncmp(ptr, "ipv4", 4) == 0) { 
+               printPrefixes_(nt->prfx_set, fmt);
+             } 
+             if (strncmp(ptr, "ipv6", 4) == 0) {
+               printPrefixes_(nt->ipv6_prfx_set, fmt);
+             }
+           }
          }
        }
        delete ne;

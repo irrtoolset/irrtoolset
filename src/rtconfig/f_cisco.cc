@@ -1067,6 +1067,7 @@ int CiscoConfig::print(NormalExpression *ne,
 			         cout << " match ip address " << i << "\n";
                }
            }
+         if (afi->is_ipv6()) {
            for (prp = ipv6_prfx_acls->head(); prp; prp =ipv6_prfx_acls->next(prp)) {
              for (i = prp->start; i <= prp->end; i++) {
                if (usePrefixLists)
@@ -1076,6 +1077,7 @@ int CiscoConfig::print(NormalExpression *ne,
                cout << " match ipv6 address " << ipv6_acl << i << "\n";
                }
            }
+         }
            CiscoConfig::printActions(cout, actn, afi);
            cout << "exit\n"; // exit route map config mode 
          }
