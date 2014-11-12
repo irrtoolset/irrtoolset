@@ -128,11 +128,34 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
           << "\n      }\n   }\n\n";
    } else {
      cout << "         from {\n";
+   }
 
-     for (bool ok = itr.first(addr, leng); ok; ok = itr.next(addr, leng)) {
+   if (compressAcls) {
+      for (bool ok = itr.first(addr, leng, start, end);
+       ok;
+       ok = itr.next(addr, leng, start, end)) {
        cout << "            route-filter ";
        cout << ipv62hex(&addr, buffer) << "/" << leng;
-       cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+        if (start != leng) {
+          if (end != leng || start < leng)
+            cout << " prefix-length-range /" << start << "-/" << end;
+          else
+            cout << " prefix-length-range /" << start << "-/" << start;
+        } else {
+          if (end != leng) cout << " upto /" << end;
+          else cout << " exact";
+        }
+
+       cout  << returnPermitOrDeny(allow_flag) << "\n";
+      }
+
+   } else {
+       for (bool ok = itr.first(addr, leng, start, end); ok; ok = itr.next(addr, leng, start, end)) {
+         cout << "            route-filter ";
+         cout << ipv62hex(&addr, buffer) << "/" << leng;
+         cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+       }
+
      }
 
      cout << "         }\n"
@@ -144,7 +167,6 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
      cout << "      }\n"
           << "   }\n\n";
-   }
    
    return result;
 }
