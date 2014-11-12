@@ -1117,12 +1117,17 @@ bool CiscoConfig::printNeighbor(int import,
    // create bgp process 
    cout << "!\nrouter bgp " << asno << "\n!\n";
 
-   if (peerGroup)
-     cout << " neighbor "   << neighbor << " peer-group\n";
-   else 
+   if (peerGroup) {
+     cout << "template peer-policy " << neighbor <<"\n";
+     if (routeMapGenerated)
+       cout << " route-map " << mapName << " " << direction << "\n";
+     cout << " remove-private-as\n";
+     cout << "exit-peer-policy\n!\n";
+   } else {
      cout << " neighbor "   << neighbor << " remote-as " << peerAS << "\n";
+   }
 
-   if (afi_activate && !peerGroup) {
+   if (afi_activate ) {
      if (strcmp(filter_afi->name(),"ipv6") == 0) {
        cout << " address-family " << "ipv4" << endl;
        cout << indent <<" no neighbor " << neighbor << " activate\n"; 
@@ -1150,7 +1155,7 @@ bool CiscoConfig::printNeighbor(int import,
      // ought to handle afi any too, but that's not just done by naming it here
    }
 
-   if (routeMapGenerated) 
+   if (routeMapGenerated && !peerGroup)
       cout << indent << " neighbor " << neighbor 
 	   << " route-map " << mapName << " " << direction << "\n";
    
@@ -1713,40 +1718,35 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
    if (prngSet) {
      AutNumPeeringIterator aut_itr(autnum);
 
-     for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
-       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
-            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
-         cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
-     for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
-       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
-            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
-         cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
-
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
        ItemAFI *iafi = (ItemAFI *)afi;
        if (!iafi->is_default())
          afi_activate = true;
        const char *indent = (afi_activate) ? " " : "";
-       if (afi_activate)
-         cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
 
+       cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
        for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
          if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
+              && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
+           cout << " neighbor " << *itr()->peering->peerRtrs
+                << " remote-as " << *itr()->peering->peerASes << endl;
+         if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
-           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " peer-group " << pset << "\n";
+           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
+
          }
        }
+
+       cout << " address-family ipv6 unicast" << endl;
        for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
          if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
-           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " peer-group " << pset << "\n";
+           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }
 
@@ -1809,40 +1809,40 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
    if (prngSet) {
      AutNumPeeringIterator aut_itr(autnum);
 
-     for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++)
-       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
-            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
-         cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
-     for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
-       if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
-            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
-         cout << " neighbor " << *itr()->peering->peerRtrs  
-              << " remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
-
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
        ItemAFI *iafi = (ItemAFI *)afi;
        if (!iafi->is_default())
          afi_activate = true;
        const char *indent = (afi_activate) ? " " : "";
-       if (afi_activate)
-         cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
+       cout << " address-family " << iafi->name_afi() << " " << iafi->name_safi() << endl;
 
        for (AttrIterator<AttrPeering> itr(prngSet, "peering"); itr; itr++) {
          if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
+            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
+           cout << " neighbor " << *itr()->peering->peerRtrs
+                << " remote-as " << *itr()->peering->peerASes << endl;
+         }
+         if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
            cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " peer-group " << pset << "\n";
          }
        }
+
+       cout << " address-family ipv6 unicast" << endl;
        for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++) {
          if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
+            && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
+           cout << " neighbor " << *itr()->peering->peerRtrs
+                << " remote-as " << *itr()->peering->peerASes << endl;
+         }
+         if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
-           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " peer-group " << pset << "\n";
+           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }
 
