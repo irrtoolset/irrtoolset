@@ -61,6 +61,7 @@
    friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp_nf; \
    friend class CiscoConfig;\
+   friend class CiscoXRConfig;\
    friend class JunosConfig;
 
 class regexp { 

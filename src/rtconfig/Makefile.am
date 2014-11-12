@@ -23,8 +23,8 @@
 
 bin_PROGRAMS = rtconfig
 
-rtconfig_SOURCES = rtconfig.cc f_cisco.cc f_junos.cc \
-                   rtconfig.hh f_cisco.hh f_junos.hh
+rtconfig_SOURCES = rtconfig.cc f_cisco.cc f_ciscoxr.cc f_junos.cc \
+                   rtconfig.hh f_cisco.hh f_ciscoxr.hh f_junos.hh
 
 nodist_rtconfig_SOURCES = command.l.cc command.y.cc command.y.hh
 

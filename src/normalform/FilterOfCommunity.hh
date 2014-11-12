@@ -57,6 +57,7 @@
 class CommunityConjunct : public ListNode {
    friend class FilterOfCommunity;
    friend class CiscoConfig;
+   friend class CiscoXRConfig;
    friend class JunosConfig;
 private:
    // CommunityConjunct is an AND of the following 4 fields
@@ -115,6 +116,7 @@ public:
 class FilterOfCommunity : public NEFilter {
    friend class NormalTerm;
    friend class CiscoConfig;
+   friend class CiscoXRConfig;
    friend class JunosConfig;
 private:
    EQList<CommunityConjunct> conjuncts;

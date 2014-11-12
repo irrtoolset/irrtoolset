@@ -55,6 +55,7 @@
 #include <cstdarg>
 #include "rtconfig.hh"
 #include "f_cisco.hh"
+#include "f_ciscoxr.hh"
 #include "f_junos.hh" 
 #include "irr/irr.hh"
 #include "irrutil/trace.hh"
@@ -317,8 +318,11 @@ outbound_pkt_filter_line: KW_OUTBOUND_PKT_FILTER TKN_STR TKN_ASNUM TKN_IP TKN_AS
 
 cisco_map_name_line: KW_SET KW_CISCO_MAP_NAME '=' TKN_STR {
    strcpy(CiscoConfig::mapNameFormat, $4);
+   strcpy(CiscoXRConfig::mapNameFormat, $4);
    Trace(TR_INPUT) << "RtConfig: cisco_map_name '"
 		   << CiscoConfig::mapNameFormat << "'" << std::endl;
+   Trace(TR_INPUT) << "RtConfig: cisco_map_name '"
+		   << CiscoXRConfig::mapNameFormat << "'" << std::endl;
 }
 ;
 junos_policy_name_line: KW_SET KW_JUNOS_POLICY_NAME '=' TKN_STR {

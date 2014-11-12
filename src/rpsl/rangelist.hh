@@ -57,6 +57,7 @@
 class RangeList {
 friend class regexp_nf;
 friend class CiscoConfig;
+friend class CiscoXRConfig;
 friend class JunosConfig;
 public:
    static const char *prefix_str;
