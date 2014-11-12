@@ -366,7 +366,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
 | KW_SET KW_CISCO_COMMUNITY_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       communityMgr.setNextID($4);
-   Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
+   Trace(TR_INPUT) << "RtConfig: cisco_community_access_list_no '"
 		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_ACCESS_LIST_NO '=' TKN_INT {
@@ -378,7 +378,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
       ipv6prefixMgr.setNextID($4);
       ipv6pktFilterMgr.setNextID($4);
    }
-   Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
+   Trace(TR_INPUT) << "RtConfig: cisco_access_list_no '"
 		   << $4 << "'" << std::endl;
 }
 ;
