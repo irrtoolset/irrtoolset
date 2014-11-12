@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/irrtoolset/irrtoolset.svg)](https://travis-ci.org/irrtoolset/irrtoolset)
+
 This is the README file for the IRRToolSet
 
 MAILING LIST
@@ -14,13 +16,13 @@ FTP and WWW SITES
         ftp://ftp.isc.org/isc/IRRToolSet
 
         http://irrtoolset.isc.org/
+        
+        https://github.com/irrtoolset/irrtoolset
 
 INSTALLATION
         0. To install you need the GNU C++ compiler, libtool, bison, flex.
 
      You will need Bison and Flex if you're going to change the RPSL grammar.
-
-	   The development platform is a mac running snow leopard (gcc-4.2.1)
 
 	1. unzip and untar the distribution file
 	2. in the irrtoolset directory, type `./configure' to configure the
