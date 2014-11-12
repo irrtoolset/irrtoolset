@@ -65,6 +65,7 @@ extern "C" {
 #include "irrutil/version.hh"
 #include "re2dfa/regexp_nf.hh"
 #include "f_cisco.hh"
+#include "f_ciscoxr.hh"
 #include "f_junos.hh"
 #include "rpsl/schema.hh"
 #include "irr/classes.hh"
@@ -107,10 +108,12 @@ typedef struct {
 } config_format_type;
 
 CiscoConfig ciscoConfig;
+CiscoXRConfig ciscoxrConfig;
 JunosConfig junosConfig;
 
 config_format_type config_formats[] = {
    { "cisco",       &ciscoConfig },
+   { "ciscoxr",       &ciscoxrConfig },
    { "junos",       &junosConfig },
    { "", 0 }
 };
@@ -173,7 +176,7 @@ void init_and_set_options (int argc, char **argv, char **envp) {
       "print AS numbers in asdot format."},
 
      {"-config", ARGV_FUNC, (char *) &select_config_format, (char *) NULL, 
-      "Configuration format (junos, cisco)"},
+      "Configuration format (junos, cisco, ciscoxr)"},
      {"-no_match_ip_inbound", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::forcedInboundMatchIP,
       "Produce a match ip clause for inbound maps.\n\t\t\t\tCisco only."},
@@ -195,6 +198,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-cisco_use_prefix_lists", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::usePrefixLists,
       "Output new high performance prefix lists.\n\t\t\t\tCisco only."},
+//   {"-ciscoxr_use_prefix_lists", ARGV_BOOL, 
+//    (char *) NULL, (char *) &CiscoXRConfig::usePrefixLists,
+//    "Output new high performance prefix lists.\n\t\t\t\tCisco only."},
      {"-cisco_eliminate_dup_map_parts", ARGV_BOOL, 
       (char *) NULL, (char *) &CiscoConfig::eliminateDupMapParts,
       "Eliminate if a later map part is contained in an earlier map part.\n\t\t\t\tCisco only."},
