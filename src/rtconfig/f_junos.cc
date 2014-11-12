@@ -117,12 +117,14 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
    cout << "   policy-statement prefix-list-" << aclID << " {\n"
     << "      term prefixes {\n";
 
-   IPv6RadixSet::SortedPrefixIterator itr(&nets.members);
+   IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
+   u_int start;
+   u_int end;
    ipv6_addr_t addr;
    u_int leng;
    char buffer[256];
 
-   if (!itr.first(addr, leng)) {
+   if (!itr.first(addr, leng, start, end)) {
      cout << "          then "
           << returnPermitOrDeny(!allow_flag)
           << "\n      }\n   }\n\n";
