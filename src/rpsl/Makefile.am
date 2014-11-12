@@ -39,8 +39,6 @@ CLEANFILES = *~ *.bak
 
 schema_rpsl.cc: rpsl.y.cc
 
-object.cc: rpsl.y.cc
-
 # FIXME: dependency on lex / yacc sources
 object_log.l.cc:
 	$(LEX) object_log.l

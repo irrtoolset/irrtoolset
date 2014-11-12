@@ -83,7 +83,6 @@ void handleArgumentTypeError(char *attr, const char *method, int position,
 const AttrMethod *searchMethod(const AttrRPAttr *rp_attr, const char *method, ItemList *args);
 
 /* argument to yyparse result of parsing should be stored here */
-#define YYPARSE_PARAM object	
 #define yyschema schema
 #define enable_yy_parser_debugging enable_rpsl_parser_debugging
 
@@ -91,8 +90,8 @@ extern Object *current_object;
 
 %}
 
-%name-prefix="rpsl"
-%output="rpsl.y.cc"
+%name-prefix "rpsl"
+%output "rpsl.y.cc"
 
 %expect 1
 

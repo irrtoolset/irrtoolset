@@ -53,11 +53,11 @@
 #include <iomanip>
 
 #include "object.hh"
-#include "rpsl.y.hh"
 #include "schema.hh"
 
 using namespace std;
 
+extern int rpslparse(void);
 extern void rpsl_scan_object(Object *);
 
 Object::~Object() {

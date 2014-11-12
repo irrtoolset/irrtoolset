@@ -88,8 +88,8 @@ int xx_eof = 0;
    ASt as;
 }
 
-%name-prefix="command"
-%output="command.y.cc"
+%name-prefix "command"
+%output "command.y.cc"
 
 %token <ip>  TKN_IP
 %token <as>  TKN_ASNUM
