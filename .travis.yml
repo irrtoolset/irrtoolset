@@ -1,0 +1,10 @@
+language: cpp
+
+before_install:
+ - sudo apt-get update
+ - sudo apt-get install -y build-essential git libtool bison flex automake autoconf libreadline6-dev
+
+script:
+ - autoreconf --force
+ - ./configure
+ - make
