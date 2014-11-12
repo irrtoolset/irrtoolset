@@ -34,6 +34,9 @@ EXTRA_DIST = RELEASE-NOTES \
 	src/rtconfig/command.l src/rtconfig/command.y \
 	contrib tests
 
+README: README.md
+	grep -Fv "[Build Status]" $< > $@
+
 dist-hook:
 	rm -rf `find $(distdir)/contrib -name .svn`
 	rm -rf `find $(distdir)/tests -name .svn`
