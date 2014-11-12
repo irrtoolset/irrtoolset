@@ -417,9 +417,9 @@ void RtConfig::printPrefixes(char *filter, char *fmt) {
              while (isspace(*ptr)) {
                ptr++;
              }
-             if (strncmp(ptr, "ipv4", 4) == 0) { 
+             if (strncmp(ptr, "ipv4", 4) == 0) {
                printPrefixes_(nt->prfx_set, fmt);
-             } 
+             }
              if (strncmp(ptr, "ipv6", 4) == 0) {
                printPrefixes_(nt->ipv6_prfx_set, fmt);
              }
