@@ -78,12 +78,12 @@ bool CiscoConfig::printRouteMap = true;
 
 //////////////////////////// caches ////////////////////////////////
 
-AccessListManager<regexp_nf>         aspathMgr;
-AccessListManager<SetOfPrefix>       prefixMgr(100);
-AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(100);
-AccessListManager<SetOfPrefix>       pktFilterMgr(100);
-AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr(100);
-AccessListManager<FilterOfCommunity> communityMgr;
+AccessListManager<regexp_nf>         aspathMgr(50);
+AccessListManager<SetOfPrefix>       prefixMgr(150);
+AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(150);
+AccessListManager<SetOfPrefix>       pktFilterMgr(150);
+AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr(150);
+AccessListManager<FilterOfCommunity> communityMgr(50);
 
 /// access-list and prefix-list names
 char ipv6_acl[6] = "ipv6-";
