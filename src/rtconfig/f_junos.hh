@@ -113,7 +113,7 @@ private:
    inline void  printCommunity(std::ostream &os, unsigned int i);
    int          printCommunityList(std::ostream &os, ItemList *args);
    int          printCommunitySet(std::ostream &os, CommunitySet *set, bool exact);
-   void         printActions(std::ostream &os, PolicyActionList *action, ItemAFI *afi);
+   void         printActions(std::ostream &os, PolicyActionList *action, ItemAFI *afi,std::ostringstream &lastCout);
    void         printMartians();
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
    int          printDeclarations(NormalExpression *ne, PolicyActionList *actn, int import_flag);

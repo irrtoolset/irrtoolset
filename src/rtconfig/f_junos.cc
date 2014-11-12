@@ -107,7 +107,10 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 		return result;
 
 	result = ipv6prefixMgr.add(nets);
-	int aclID = ipv6prefixMgr.newID();
+
+	// also increment prefixMgr id to avoid v4 v's v6 duplicated policies
+	int aclID = prefixMgr.newID();
+	aclID = ipv6prefixMgr.newID();
 	result->add(aclID, aclID);
 
 	bool allow_flag = true;
@@ -161,7 +164,10 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfPrefix& nets) {
       return result;
 
    result = prefixMgr.add(nets);
-   int aclID = prefixMgr.newID();
+
+   // also increment ipv6prefixMgr id to avoid v4 v's v6 duplicated policies
+   int aclID = ipv6prefixMgr.newID();
+   aclID = prefixMgr.newID();
    result->add(aclID, aclID);
 
    bool allow_flag = true;
@@ -616,7 +622,7 @@ ListOf2Ints *JunosConfig::printCommunities(FilterOfCommunity& cm) {
    return result;
 }
 
-void JunosConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *afi) {
+void JunosConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *afi, ostringstream &lastCout) {
 #define UNIMPLEMENTED_METHOD \
    cerr << "Warning: unimplemented method " \
 	<< actn->rp_attr->name << "." << actn->rp_method->name << endl
@@ -676,19 +682,19 @@ void JunosConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       if (actn->rp_attr == dctn_rp_community) {
 	 if (actn->rp_method == dctn_rp_community_setop) {
 	    os << "            community set community-" 
-	       << printCommunityList(os, (ItemList *) actn->args->head())
+	       << printCommunityList(lastCout, (ItemList *) actn->args->head())
 	       << ";\n";
 	 } else if (actn->rp_method == dctn_rp_community_appendop) {
 	    os << "            community add community-"
-	       << printCommunityList(os, (ItemList *) actn->args->head())
+	       << printCommunityList(lastCout, (ItemList *) actn->args->head())
 	       << ";\n";
 	 } else if (actn->rp_method == dctn_rp_community_append) {
 	    os << "            community add community-"
-	       << printCommunityList(os, actn->args)
+	       << printCommunityList(lastCout, actn->args)
 	       << ";\n";
 	 } else if (actn->rp_method == dctn_rp_community_delete) {
 	    os << "            community delete community-"
-	       << printCommunityList(os, actn->args)
+	       << printCommunityList(lastCout, actn->args)
 	       << ";\n";
 	 } else
 	    UNIMPLEMENTED_METHOD;
@@ -747,6 +753,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 		       int import_flag, ItemAFI *afi) {
    int last = 0;
    static ListOf2Ints empty_list(1);
+   ostringstream lastCout;
 
    Debug(Channel(DBG_RTC_JUNOS) << "# ne: " << *ne << "\n");
 
@@ -809,12 +816,13 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 
 		  cout << "         }\n"
 		       << "         then {\n";
-		  JunosConfig::printActions(cout, actn, afi);
+		  JunosConfig::printActions(cout, actn, afi, lastCout);
 		  cout << "         }\n";
 		  cout << "      }\n";
 	       }
 	       cout << "   }\n\n";
 	    }
+            cout << lastCout.str() << "\n";
 	 }
       }
    }
