@@ -65,6 +65,7 @@ extern "C" {
    friend std::ostream& operator<<(std::ostream& os, const regexp& r); \
    friend class regexp; \
    friend class CiscoConfig;\
+   friend class CiscoXRConfig;\
    friend class JunosConfig;
 
 class regexp_nf : public regexp {
