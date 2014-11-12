@@ -209,6 +209,9 @@ void init_and_set_options (int argc, char **argv, char **envp) {
      {"-junos_no_compress_acls", ARGV_BOOL, 
       (char *) NULL, (char *) &JunosConfig::compressAcls,
       "Do not combine multiple route-filter lines into a single line whenever possible.\n\t\t\t\tJunos only."},
+     {"-junos_replace", ARGV_BOOL, 
+      (char *) NULL, (char *) &JunosConfig::load_replace,
+      "Output replace: statements to be used with \"load replace\" on Junos.\n\t\t\t\tJunos only."},
      {(char *) NULL, ARGV_END, (char *) NULL, (char *) NULL,
       (char *) NULL}
    };
