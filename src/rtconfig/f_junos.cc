@@ -751,7 +751,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
    Debug(Channel(DBG_RTC_JUNOS) << "# ne: " << *ne << "\n");
 
    if (ne->is_any() != NEITHER)
-      cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+      cerr << "Warning: filter \"" << mapName << "\" matches ANY/NOT ANY" << endl;
 
    if (ne->isEmpty()) 
       return last;

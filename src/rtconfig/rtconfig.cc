@@ -1027,7 +1027,7 @@ void RtConfig::aspathAccessList(char *filter) {
 	 NormalExpression::evaluate(itr()->filter, ~0);
 
       if (ne && ne->is_any() != NEITHER)
-        cerr << "Warning: filter matches ANY/NOT ANY" << endl;
+        cerr << "Warning: filter \"" << filter << "\" matches ANY/NOT ANY" << endl;
 
       if (ne && ne->singleton_flag == NormalTerm::AS_PATH)
 	 printAspathAccessList(ne->first()->as_path);
