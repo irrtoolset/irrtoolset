@@ -37,8 +37,4 @@ EXTRA_DIST = RELEASE-NOTES \
 README: README.md
 	grep -Fv "[Build Status]" $< > $@
 
-dist-hook:
-	rm -rf `find $(distdir)/contrib -name .svn`
-	rm -rf `find $(distdir)/tests -name .svn`
-
 CLEANFILES = *~ *.bak
