@@ -1,0 +1,43 @@
+# autotools
+
+Makefile
+Makefile.in
+
+autom4te.cache
+aclocal.m4
+compile
+configure
+depcomp
+install-sh
+missing
+stamp-h1
+libtool
+
+# autoconf generated
+
+.deps
+.libs
+*.o
+*.lo
+*.log
+*.la
+
+config.guess
+config.status
+config.sub
+ltmain.sh
+m4/*.m4
+src/config.h
+src/config.h.in
+
+# created by make
+src/peval/peval
+src/rpsl/object_log.l.cc
+src/rpsl/rpsl.l.cc
+src/rpsl/rpsl.y.cc
+src/rpsl/rpsl.y.hh
+src/rpslcheck/rpslcheck
+src/rtconfig/command.l.cc
+src/rtconfig/command.y.cc
+src/rtconfig/command.y.hh
+src/rtconfig/rtconfig
