@@ -116,10 +116,16 @@ int xx_eof = 0;
 %token <val> KW_CISCO_MAP_NAME
 %token <val> KW_JUNOS_POLICY_NAME
 %token <val> KW_CISCO_PREFIX_ACL_NO
+%token <val> KW_JUNOS_PREFIX_ACL_NO
 %token <val> KW_CISCO_ASPATH_ACL_NO
+%token <val> KW_JUNOS_ASPATH_ACL_NO
 %token <val> KW_CISCO_PKTFILTER_ACL_NO
+%token <val> KW_JUNOS_PKTFILTER_ACL_NO
 %token <val> KW_CISCO_COMMUNITY_ACL_NO
+%token <val> KW_JUNOS_COMMUNITY_ACL_NO
+%token <val> KW_JUNOS_COMMUNITY_SET_NO
 %token <val> KW_CISCO_ACCESS_LIST_NO
+%token <val> KW_JUNOS_ACCESS_LIST_NO
 %token <val> KW_SOURCE
 %token <val> KW_PREFERENCECEILING
 %token <val> KW_CISCO_MAX_PREFERENCE
@@ -174,6 +180,7 @@ input_line: import_line
 | cisco_map_inc_line
 | cisco_map_start_line
 | cisco_access_list_no_line
+| junos_access_list_no_line
 | preferenceCeiling_line
 | source_line
 ;
@@ -366,7 +373,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
 | KW_SET KW_CISCO_COMMUNITY_ACL_NO '=' TKN_INT {
    if ($4 > 0)
       communityMgr.setNextID($4);
-   Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
+   Trace(TR_INPUT) << "RtConfig: cisco_community_access_list_no '"
 		   << $4 << "'" << std::endl;
 }
 | KW_SET KW_CISCO_ACCESS_LIST_NO '=' TKN_INT {
@@ -378,7 +385,50 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
       ipv6prefixMgr.setNextID($4);
       ipv6pktFilterMgr.setNextID($4);
    }
-   Trace(TR_INPUT) << "RtConfig: cisco_pktfilter_access_list_no '"
+   Trace(TR_INPUT) << "RtConfig: cisco_access_list_no '"
+		   << $4 << "'" << std::endl;
+}
+;
+junos_access_list_no_line: KW_SET KW_JUNOS_PREFIX_ACL_NO '=' TKN_INT {
+   if ($4 > 0)
+      prefixMgr.setNextID($4);
+   Trace(TR_INPUT) << "RtConfig: junos_prefix_access_list_no '"
+		   << $4 << "'" << std::endl;
+}
+| KW_SET KW_JUNOS_ASPATH_ACL_NO '=' TKN_INT {
+   if ($4 > 0)
+      aspathMgr.setNextID($4);
+   Trace(TR_INPUT) << "RtConfig: junos_aspath_access_list_no '"
+		   << $4 << "'" << std::endl;
+}
+| KW_SET KW_JUNOS_PKTFILTER_ACL_NO '=' TKN_INT {
+   if ($4 > 0)
+      pktFilterMgr.setNextID($4);
+   Trace(TR_INPUT) << "RtConfig: junos_pktfilter_access_list_no '"
+		   << $4 << "'" << std::endl;
+}
+| KW_SET KW_JUNOS_COMMUNITY_ACL_NO '=' TKN_INT {
+   if ($4 > 0)
+      communityMgr.setNextID($4);
+   Trace(TR_INPUT) << "RtConfig: junos_community_access_list_no '"
+		   << $4 << "'" << std::endl;
+}
+| KW_SET KW_JUNOS_COMMUNITY_SET_NO '=' TKN_INT {
+   if ($4 > 0)
+      communityMgr2.setNextID($4);
+   Trace(TR_INPUT) << "RtConfig: junos_community_set_no '"
+		   << $4 << "'" << std::endl;
+}
+| KW_SET KW_JUNOS_ACCESS_LIST_NO '=' TKN_INT {
+   if ($4 > 0) {
+      communityMgr.setNextID($4);
+      pktFilterMgr.setNextID($4);
+      aspathMgr.setNextID($4);
+      prefixMgr.setNextID($4);
+      ipv6prefixMgr.setNextID($4);
+      ipv6pktFilterMgr.setNextID($4);
+   }
+   Trace(TR_INPUT) << "RtConfig: junos_pktfilter_access_list_no '"
 		   << $4 << "'" << std::endl;
 }
 ;
