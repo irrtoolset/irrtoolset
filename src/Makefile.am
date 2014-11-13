@@ -28,8 +28,6 @@
 SUBDIRS= 	dataset irr normalform re2dfa rpsl irrutil . \
 		peval rpslcheck rtconfig
 
-INCLUDES=	-I@top_srcdir@/
-
 noinst_LTLIBRARIES = libirrtoolset.la
 libirrtoolset_la_SOURCES =
 libirrtoolset_la_LIBADD= \

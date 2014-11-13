@@ -31,7 +31,7 @@ AC_CONFIG_SRCDIR([src/rpsl/rpsl.l])
 AC_CONFIG_HEADERS([src/config.h])
 
 # Fix up Automake and libtool
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign tar-ustar])
 
 # Checks for programs.
 AC_PROG_CXX
