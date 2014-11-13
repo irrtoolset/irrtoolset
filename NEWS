@@ -19,6 +19,12 @@ Substantial reorganisation of package.  Only rtconfig, peval and rpslcheck survi
 For further information on changes for 5.0.0, please consult the irrtoolset
 wiki on http://irrtoolset.isc.org/
 
+Moreover, IRRToolSet was switched to a new MIT style license, from a
+non-commercial license previously. Thanks to past author Cengiz Alaettinoglu
+and partial copyright holder, University of Southern California, for graciously
+arranging this.
+
+Miscellanous fixes:
 * fix f_junos.cc to make export and import token names consistent. Thanks to
   Stan Barber.
 * Support for 4 byte ASNs. Many thanks to S.P.Zeidler for this.
