@@ -1,3 +1,8 @@
+# misc
+*~
+*.bak
+*.orig
+
 # autotools
 
 Makefile
