@@ -232,21 +232,21 @@ where "protocol STATIC" or "protocol STATIC into BGP4" is used.
 .IP "@rtconfig set sources = <source-list>"
 <source-list> is string containing comma separated list of sources to
 consider.
-This command instruct rtconfig to change the list of sources considered.
+This command instructs rtconfig to change the list of sources considered.
 .IP "@rtconfig access_list filter <filter>"
 <filter> is an RPSL filter over AS numbers, AS set names and route set
 names using operators AND, OR and NOT.
-This command instruct rtconfig to generate an access list for <filter>.
+This command instructs rtconfig to generate an access list for <filter>.
 <mp-filter> is also accepted.
 .IP "@rtconfig aspath_access_list filter <filter>"
 <filter> is an RPSL filter over AS path regular expressions using
 operators AND, OR and NOT. 
-This command instruct rtconfig to generate an as path access list for <filter>.
+This command instructs rtconfig to generate an as path access list for <filter>.
 .IP "@rtconfig printPrefixes <format> filter <filter>"
 <format> is a quoted string, and
 <filter> is an RPSL filter over AS numbers, AS set names and route set
 names using operators AND, OR and NOT, <mp-filter> is also accepted.
-This command instruct rtconfig to print the prefixes in <filter> using
+This command instructs rtconfig to print the prefixes in <filter> using
 <format>.
 The <format> can contain the following escape sequences:
 .nf
@@ -281,7 +281,7 @@ Cisco specific commands:
 .RS
 .IP "@rtconfig set cisco_map_name = <map-name>"
 <map-name> is a quoted string.
-This command instruct rtconfig to use <map-name> as the name for the route
+This command instructs rtconfig to use <map-name> as the name for the route
 maps generated. 
 If the <map-name> contains %d, 
 it will be replaced by the peer's AS number.
@@ -291,38 +291,38 @@ map is generated (to ensure unique map names).
 The default cisco_map_name is "MyMap_%d_%d".
 .IP "@rtconfig set cisco_map_first_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to use <no> as the first number of a newly
+This command instructs rtconfig to use <no> as the first number of a newly
 generated route map.
 If missing, 1 is used.
 .IP "@rtconfig set cisco_map_increment_by = <no>"
 <no> is an integer.
-This command instruct rtconfig to increment route map numbers by <no>. 
+This command instructs rtconfig to increment route map numbers by <no>.
 If missing, successive route maps are numbered by increments of 1.
 .IP "@rtconfig set prefix_acl_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering prefix access lists at <no>.
+This command instructs rtconfig to start numbering prefix access lists at <no>.
 The older term "cisco_prefix_acl_no" is deprecated but kept as an alias.
 .IP "@rtconfig set aspath_acl_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering aspath access lists at <no>.
+This command instructs rtconfig to start numbering aspath access lists at <no>.
 The older term "cisco_aspath_acl_no" is deprecated but kept as an alias.
 .IP "@rtconfig set pktfilter_acl_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
+This command instructs rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
 The older term "cisco_pktfilter_acl_no" is deprecated but kept as an alias.
 .IP "@rtconfig set community_acl_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering community access lists at <no>.
+This command instructs rtconfig to start numbering community access lists at <no>.
 The older term "cisco_community_acl_no" is deprecated but kept as an alias.
 .IP "@rtconfig set community_set_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering community sets at <no>.
+This command instructs rtconfig to start numbering community sets at <no>.
 .IP "@rtconfig set cisco_access_list_no = <no>"
 <no> is an integer.
-This command instruct rtconfig to start numbering all access lists at <no>.
+This command instructs rtconfig to start numbering all access lists at <no>.
 .IP "@rtconfig set cisco_max_preference = <no>"
 <no> is an integer defaulting to 1000.
-This command instruct rtconfig to start using preferences from <no> (most
+This command instructs rtconfig to start using preferences from <no> (most
 preferred) and counting down from there.
 .IP "@rtconfig networks <ASN-1>"
 <ASN-1> is an AS number preceded with string "AS". 
@@ -369,7 +369,7 @@ Junos specific commands:
 .RS
 .IP "@rtconfig set junos_policy_name = <policy-name>"
 <policy-name> is a quoted string.
-This command instruct rtconfig to use <policy-name> as the name for the
+This command instructs rtconfig to use <policy-name> as the name for the
 policy statements generated. 
 If the <policy-name> contains %d, 
 it will be replaced by the peer's AS number.
