@@ -232,21 +232,24 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
 * only for peval, rpslcheck
 
 4.7.3
-
+-----
 * bugfixes & new in RtConfig, fixes in prpath, rpslcheck, libirr.
 * man pages updated
 * configure script patched for NetBSD (thanks to Jeff Rizzo (riz@equinix.com) for the patch)
 * '-V RAToolSet' switch for whois queries using ripe whois is changed to '-V IRRToolSet<version>'
 
 4.7.2
+-----
 * various bugfixes in aoe: it is RIPE compliant, bug fixed, 
   error reporting improved.
 * some bugs in RtConfig, roe and prpath fixed
 
 4.7.1
+-----
 * various bug fixes
 
 4.7.0
+-----
 * Added support for the new ripe server, please use -protocol ripe for it.
  For the perl based old ripe server, please use -protocol ripe_perl
  Note that the new ripe server support is at best beta quality. 
@@ -268,17 +271,21 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
 * many other bug fixes
 
 4.6.3
+-----
 * portability fixes
 
 4.6.2
+-----
 * bug fixes
 
 4.6.1
+-----
 * CIDRAdvisor was core dumping if given an AS number who had no routes. 
 * prtraceroute has problems on DU converting from FQDN to IP numbers.
 * documented the "-protocol {irrd|bird|ripe}" option in the man pages
 
 4.6.0
+-----
 * junos support. RtConfig can now generate Juniper router
   configurations. The supported feature set is equivalent to the cisco
   feature set with less limitations. Please consider the generated config
@@ -293,9 +300,11 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
 * Digital Unix portability improvements. Still not perfect.
 
 4.5.2
+-----
 * an rsd bug fix
 
 4.5.1
+-----
 * Lost of bug fixes
 * @RtConfig printSuperPrefixRanges <format> filter <filter>
   This command is same as the "printPrefixRanges" command, except it
@@ -303,6 +312,7 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
   a set of dont care bits representing different %n-%m ranges are provided.
 
 4.5.0
+-----
 * bay router is now officially supported, use -config bcc
   kudos to Srivathsan Srinivasagopalan <vathsan@BayNetworks.COM>
   and Giovanni S Marzot <gmarzot@BayNetworks.COM>
@@ -310,17 +320,21 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
 * couple of minor bug fixes
 
 4.4.4
+-----
 * bug fix in gated/rsd aspath filter generation
 
 4.4.3
+-----
 * fixed the prpath/prtraceroute/cidradvisor bug for real
 
 4.4.2
+-----
 * Put a workaround to prpath/prtraceroute/cidradvisor that ignores
   routes with prefix lengths < 6. This causes as numbers to be AS1800 for
   all addresses, only with recent irrd.
 
 4.4.1
+-----
 * two new commands:
               @RtConfig printPrefixes <format> filter <filter>
                      <format> is a quoted string, and <filter> is
@@ -351,6 +365,7 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
 * CIDRAdvisor is now ported to RPSL.
 
 4.4.0
+-----
 * 100% RPSL compliant!
 *               -cisco_skip_route_maps
                      This option only  affects  cisco  configura-
@@ -446,17 +461,21 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
   use RADB. For others, watch out for surprises.
 
 4.3.3
+-----
 * RAToolSet now defaults to rpsl.merit.edu port 43 protocol IRRd
 
 4.3.2
+-----
 * bug fixes (solaris long long int bug, and aspath prepend bug)
 
 4.3.1
+-----
 * draft-ietf-rps-rpsl-v2-00 compliant
 * examples under tests directory updated for v4 syntax
 * got rid of -c option while connecting to RIPE-based server
 
 4.3.0
+-----
 * aoe, roe and prpath are back
 * a very brief library documentation is included
 * bug fixes
@@ -464,10 +483,12 @@ IRRToolSet: peval, rpslcheck and now RtConfig is added.
   use the -cisco_no_compress_acls option.
 
 4.2.0
+-----
 * bug fixes
 * gated and rsd support in RtConfig (this part is alpha code).
 
 4.1.0
+-----
 * Structured import and export with braces, semicolons, except and refine
   is implemented. They can be arbitrarily nested.
 * PeerAS can now be used in prefix or as-path filters.
@@ -639,7 +660,9 @@ libs)
 * code has been reorganized. gnu libraries is now all in one sub directory
   parse tree node* code has been cleaned and sped up.
 * autoconf tested on sunos solaris alpha/osf ultrix
+
 2.8
+---
 * yyparse now parses the stdin. Peval used to read stdin and pass it to
   yyparse.
 * When debugging is enabled (w/ -DDEBUG), execution is no longer slowed
