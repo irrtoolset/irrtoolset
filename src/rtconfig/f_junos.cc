@@ -86,7 +86,7 @@ bool JunosConfig::exportStatics = false;
 //AccessListManager<SetOfPrefix>       prefixMgr(100);
 //AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(100);
 //AccessListManager<FilterOfCommunity> communityMgr;
-AccessListManager<CommunitySet>		 communityMgr2;
+AccessListManager<CommunitySet>		 communitySetMgr;
 //AccessListManager<SetOfPrefix>       pktFilterMgr(100);
 
 const char *JunosConfig::returnPermitOrDeny(bool allow_flag) {
@@ -470,11 +470,11 @@ int JunosConfig::printCommunitySet(ostream &os, CommunitySet *set, bool exact) {
 
    // check to see if we already printed an identical access list,
    set->mark = exact;
-   if (useAclCaches && (result = communityMgr2.search(*set)))
+   if (useAclCaches && (result = communitySetMgr.search(*set)))
       return result->head()->start;
 
-   result = communityMgr2.add(*set);
-   int id = communityMgr2.newID();
+   result = communitySetMgr.add(*set);
+   int id = communitySetMgr.newID();
    result->add(id, id);
 
    os << "   ";

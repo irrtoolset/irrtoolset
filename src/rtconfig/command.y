@@ -384,7 +384,7 @@ cisco_access_list_no_line: KW_SET KW_CISCO_PREFIX_ACL_NO '=' TKN_INT {
 }
 | KW_SET KW_COMMUNITY_SET_NO '=' TKN_INT {
    if ($4 > 0)
-      communityMgr2.setNextID($4);
+      communitySetMgr.setNextID($4);
    Trace(TR_INPUT) << "RtConfig: community_set_no '"
 		   << $4 << "'" << std::endl;
 }
