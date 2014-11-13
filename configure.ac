@@ -27,11 +27,11 @@
 
 AC_PREREQ([2.61])
 AC_INIT([irrtoolset], [5.0.1], [irrtoolset@lists.isc.org])
-AC_CONFIG_SRCDIR([RELEASE-NOTES])
+AC_CONFIG_SRCDIR([src/rpsl/rpsl.l])
 AC_CONFIG_HEADERS([src/config.h])
 
 # Fix up Automake and libtool
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 
 # Checks for programs.
 AC_PROG_CXX

@@ -29,12 +29,11 @@ SUBDIRS = src
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = RELEASE-NOTES \
+EXTRA_DIST = \
 	src/rpsl/object_log.l src/rpsl/rpsl.l src/rpsl/rpsl.y \
 	src/rtconfig/command.l src/rtconfig/command.y \
 	contrib tests
 
-README: README.md
-	grep -Fv "[Build Status]" $< > $@
+dist_doc_DATA = README.md NEWS AUTHORS COPYING
 
 CLEANFILES = *~ *.bak
