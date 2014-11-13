@@ -1,6 +1,11 @@
 Release Notes for IRRToolSet
 ****************************
 
+5.1.0 - 2014-NN-NN
+------------------
+* Starting with this release, IRRToolSet is going to follow a Semantic
+  Versioning scheme: http://semver.org/
+
 5.0.1
 -----
 * don't barf on pingable: and ping-hdl: attributes (RFC 5943)
