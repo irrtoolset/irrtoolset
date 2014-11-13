@@ -148,5 +148,6 @@ extern AccessListManager<SetOfPrefix>       prefixMgr;
 extern AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr;
 extern AccessListManager<SetOfPrefix>       pktFilterMgr;
 extern AccessListManager<FilterOfCommunity> communityMgr;
+extern AccessListManager<CommunitySet>      communityMgr2;
 
 #endif   // F_JUNOS_H
