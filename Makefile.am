@@ -31,8 +31,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = \
 	src/rpsl/object_log.l src/rpsl/rpsl.l src/rpsl/rpsl.y \
-	src/rtconfig/command.l src/rtconfig/command.y \
-	contrib tests
+	src/rtconfig/command.l src/rtconfig/command.y
 
 dist_doc_DATA = README.md NEWS AUTHORS COPYING
 
