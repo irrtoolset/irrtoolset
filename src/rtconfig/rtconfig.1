@@ -298,18 +298,25 @@ If missing, 1 is used.
 <no> is an integer.
 This command instruct rtconfig to increment route map numbers by <no>. 
 If missing, successive route maps are numbered by increments of 1.
-.IP "@rtconfig set cisco_prefix_acl_no = <no>"
+.IP "@rtconfig set prefix_acl_no = <no>"
 <no> is an integer.
 This command instruct rtconfig to start numbering prefix access lists at <no>.
-.IP "@rtconfig set cisco_aspath_acl_no = <no>"
+The older term "cisco_prefix_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set aspath_acl_no = <no>"
 <no> is an integer.
 This command instruct rtconfig to start numbering aspath access lists at <no>.
-.IP "@rtconfig set cisco_pktfilter_acl_no = <no>"
+The older term "cisco_aspath_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set pktfilter_acl_no = <no>"
 <no> is an integer.
 This command instruct rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
-.IP "@rtconfig set cisco_community_acl_no = <no>"
+The older term "cisco_pktfilter_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set community_acl_no = <no>"
 <no> is an integer.
 This command instruct rtconfig to start numbering community access lists at <no>.
+The older term "cisco_community_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set community_set_no = <no>"
+<no> is an integer.
+This command instruct rtconfig to start numbering community sets at <no>.
 .IP "@rtconfig set cisco_access_list_no = <no>"
 <no> is an integer.
 This command instruct rtconfig to start numbering all access lists at <no>.
