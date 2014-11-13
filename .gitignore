@@ -4,7 +4,6 @@
 *.orig
 
 # autotools
-
 Makefile
 Makefile.in
 
@@ -19,7 +18,6 @@ stamp-h1
 libtool
 
 # autoconf generated
-
 .deps
 .libs
 *.o
@@ -46,3 +44,6 @@ src/rtconfig/command.l.cc
 src/rtconfig/command.y.cc
 src/rtconfig/command.y.hh
 src/rtconfig/rtconfig
+
+# dist
+irrtoolset-*.tar.*
