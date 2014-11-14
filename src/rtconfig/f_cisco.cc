@@ -933,8 +933,8 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 	    printCommunityList(os, actn->args);
 	    os << " additive\n";
          } else if (actn->rp_method == dctn_rp_community_delete) {
-            int commlist = printCommunitySetList(os, actn->args);
-            os << " set comm-list" << commlist << "delete\n";
+            int commlist = printCommunitySetList(cout, actn->args);
+            os << " set comm-list " << commlist << " delete\n";
 	 } else
 	    UNIMPLEMENTED_METHOD;
 	 continue;
