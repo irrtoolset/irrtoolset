@@ -957,6 +957,7 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 	   << *actn->rp_attr << endl;
    }
 
+   os << "exit\n"; // exit route map config mode 
    os << delayoutput.str() << endl;
    delayoutput.str("");
 
@@ -1099,7 +1100,6 @@ int CiscoConfig::print(NormalExpression *ne,
              }
            }
            CiscoConfig::printActions(cout, actn, afi);
-           cout << "exit\n"; // exit route map config mode 
          }
 	      }
 	    }
