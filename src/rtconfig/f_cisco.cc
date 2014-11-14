@@ -84,6 +84,7 @@ AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(150);
 AccessListManager<SetOfPrefix>       pktFilterMgr(150);
 AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr(150);
 AccessListManager<FilterOfCommunity> communityMgr(50);
+AccessListManager<CommunitySet>      communitySetMgr(50);
 
 /// access-list and prefix-list names
 char ipv6_acl[6] = "ipv6-";
@@ -848,6 +849,18 @@ void CiscoConfig::printCommunityList(ostream &os, ItemList *args) {
    }
 }
 
+int CiscoConfig::printCommunitySetList(ostream &os, ItemList *args) {
+
+   int aclID = communityMgr.newID();
+   os << "!\nno ip community-list " << aclID << "\n";
+   os << "ip community-list " << aclID << " permit ";
+   CiscoConfig::printCommunityList(os, args);
+   cout << "\n";
+
+return aclID;
+}
+
+
 void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *afi) {
 #define UNIMPLEMENTED_METHOD \
    cerr << "Warning: unimplemented method " \
@@ -919,6 +932,9 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 	    os << " set community ";
 	    printCommunityList(os, actn->args);
 	    os << " additive\n";
+         } else if (actn->rp_method == dctn_rp_community_delete) {
+            int commlist = printCommunitySetList(os, actn->args);
+            os << " set comm-list" << commlist << "delete\n";
 	 } else
 	    UNIMPLEMENTED_METHOD;
 	 continue;
