@@ -1098,7 +1098,7 @@ int CiscoConfig::print(NormalExpression *ne,
                }
              }
            }
-           CiscoConfig::printActions(cout, actn, afi);
+           CiscoConfig::printActions(delayoutput, actn, afi);
            cout << "exit\n"; // exit route map config mode 
          }
 	      }
