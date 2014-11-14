@@ -872,7 +872,7 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       if (actn->rp_attr == dctn_rp_pref) {
 	 if (actn->rp_method == dctn_rp_pref_set) {
 	    int pref = ((ItemINT *) actn->args->head())->i;
-	    delayoutput << " set local-preference " << (preferenceCeiling-pref) << "\n";
+	    os << " set local-preference " << (preferenceCeiling-pref) << "\n";
 	 } else 
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -885,12 +885,12 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
         char buffer[32];
         IPAddr *ip = ((ItemIPV4 *) actn->args->head())->ipv4;
         ip->get_text(buffer);
-        delayoutput << " set ip next-hop " << buffer << "\n";
+        os << " set ip next-hop " << buffer << "\n";
       } else if (afi->is_ipv6() && (typeid(*(actn->args->head())) == typeid(ItemIPV6))) {
         char buffer[50];
         IPv6Addr *ip = ((ItemIPV6 *) actn->args->head())->ipv6;
         ip->get_text(buffer);
-        delayoutput << " set ipv6 next-hop " << buffer << "\n";
+        os << " set ipv6 next-hop " << buffer << "\n";
       } else {
         cout << "Warning: next-hop address family doesn't match protocol address family, ignoring next-hop..." << endl;
       }
@@ -902,7 +902,7 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       if (actn->rp_attr == dctn_rp_dpa) {
 	 if (actn->rp_method == dctn_rp_dpa_set) {
 	    int dpa = ((ItemINT *) actn->args->head())->i;
-	    delayoutput << " set dpa " << dpa << "\n";
+	    os << " set dpa " << dpa << "\n";
 	 } else 
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -912,9 +912,9 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 	 if (actn->rp_method == dctn_rp_med_set) {
 	    Item *item = actn->args->head();
 	    if (typeid(*item) == typeid(ItemINT))
-	       delayoutput << " set metric " << ((ItemINT *) item)->i << "\n";
+	       os << " set metric " << ((ItemINT *) item)->i << "\n";
 	    else
-	       delayoutput << " set metric-type internal\n";
+	       os << " set metric-type internal\n";
 	 } else 
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -922,20 +922,20 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 
       if (actn->rp_attr == dctn_rp_community) {
 	 if (actn->rp_method == dctn_rp_community_setop) {
-	    delayoutput << " set community ";
-	    printCommunityList(delayoutput, (ItemList *) actn->args->head());
-	    delayoutput << "\n";
+	    os << " set community ";
+	    printCommunityList(os, (ItemList *) actn->args->head());
+	    os << "\n";
 	 } else if (actn->rp_method == dctn_rp_community_appendop) {
-	    delayoutput << " set community ";
-	    printCommunityList(delayoutput, (ItemList *) actn->args->head());
-	    delayoutput << " additive\n";
+	    os << " set community ";
+	    printCommunityList(os, (ItemList *) actn->args->head());
+	    os << " additive\n";
 	 } else if (actn->rp_method == dctn_rp_community_append) {
-	    delayoutput << " set community ";
-	    printCommunityList(delayoutput, actn->args);
-	    delayoutput << " additive\n";
+	    os << " set community ";
+	    printCommunityList(os, actn->args);
+	    os << " additive\n";
          } else if (actn->rp_method == dctn_rp_community_delete) {
-            int commlist = printCommunitySetList(os, actn->args);
-            delayoutput << " set comm-list " << commlist << " delete\n";
+            int commlist = printCommunitySetList(delayoutput, actn->args);
+            os << " set comm-list " << commlist << " delete\n";
 	 } else
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -957,6 +957,9 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       cerr << "Warning: unimplemented attribute " 
 	   << *actn->rp_attr << endl;
    }
+
+   os << delayoutput.str() << endl;
+   delayoutput.str("");
 
 }
 
@@ -1096,9 +1099,7 @@ int CiscoConfig::print(NormalExpression *ne,
                }
              }
            }
-           CiscoConfig::printActions(delayoutput, actn, afi);
-           cout << delayoutput.str() << endl;
-           delayoutput.str("");
+           CiscoConfig::printActions(cout, actn, afi);
            cout << "exit\n"; // exit route map config mode 
          }
 	      }
