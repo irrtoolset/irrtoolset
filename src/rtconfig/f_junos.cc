@@ -86,7 +86,7 @@ bool JunosConfig::exportStatics = false;
 //AccessListManager<SetOfPrefix>       prefixMgr(100);
 //AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(100);
 //AccessListManager<FilterOfCommunity> communityMgr;
-AccessListManager<CommunitySet>      communitySetMgr;
+AccessListManager<CommunitySet>		communitySetMgr;
 //AccessListManager<SetOfPrefix>       pktFilterMgr(100);
 
 const char *JunosConfig::returnPermitOrDeny(bool allow_flag) {
