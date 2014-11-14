@@ -75,6 +75,7 @@ int  CiscoConfig::mapCount = 1;
 int  CiscoConfig::mapNumbersStartAt = 1;
 bool CiscoConfig::firstCommunityList = true;
 bool CiscoConfig::printRouteMap = true;
+ostringstream delayoutput;
 
 //////////////////////////// caches ////////////////////////////////
 
@@ -848,6 +849,18 @@ void CiscoConfig::printCommunityList(ostream &os, ItemList *args) {
    }
 }
 
+int CiscoConfig::printCommunitySetList(ostream &os, ItemList *args) {
+
+   int aclID = communityMgr.newID();
+   os << "!\nno ip community-list " << aclID << "\n";
+   os << "ip community-list " << aclID << " permit ";
+   CiscoConfig::printCommunityList(os, args);
+   os << "!\n";
+
+return aclID;
+}
+
+
 void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *afi) {
 #define UNIMPLEMENTED_METHOD \
    cerr << "Warning: unimplemented method " \
@@ -919,6 +932,9 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
 	    os << " set community ";
 	    printCommunityList(os, actn->args);
 	    os << " additive\n";
+         } else if (actn->rp_method == dctn_rp_community_delete) {
+            int commlist = printCommunitySetList(delayoutput, actn->args);
+            os << " set comm-list " << commlist << " delete\n";
 	 } else
 	    UNIMPLEMENTED_METHOD;
 	 continue;
@@ -940,6 +956,11 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
       cerr << "Warning: unimplemented attribute " 
 	   << *actn->rp_attr << endl;
    }
+
+   os << "exit\n"; // exit route map config mode 
+   os << delayoutput.str() << endl;
+   delayoutput.str("");
+
 }
 
 int CiscoConfig::print(NormalExpression *ne, 
@@ -1079,7 +1100,6 @@ int CiscoConfig::print(NormalExpression *ne,
              }
            }
            CiscoConfig::printActions(cout, actn, afi);
-           cout << "exit\n"; // exit route map config mode 
          }
 	      }
 	    }
