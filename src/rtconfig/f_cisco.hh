@@ -236,6 +236,5 @@ extern AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr;
 extern AccessListManager<SetOfPrefix>       pktFilterMgr;
 extern AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr;
 extern AccessListManager<FilterOfCommunity> communityMgr;
-extern AccessListManager<CommunitySet>      communitySetMgr;
 
 #endif   // F_CISCO_H

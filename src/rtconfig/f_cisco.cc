@@ -85,7 +85,6 @@ AccessListManager<SetOfIPv6Prefix>   ipv6prefixMgr(150);
 AccessListManager<SetOfPrefix>       pktFilterMgr(150);
 AccessListManager<SetOfIPv6Prefix>   ipv6pktFilterMgr(150);
 AccessListManager<FilterOfCommunity> communityMgr(50);
-AccessListManager<CommunitySet>      communitySetMgr(50);
 
 /// access-list and prefix-list names
 char ipv6_acl[6] = "ipv6-";
