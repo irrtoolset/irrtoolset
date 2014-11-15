@@ -14,8 +14,7 @@ configuration, routing policy analysis, and on-going maintenance.
 
 ### Website
 
-IRRToolSet's historical website can be found at http://irrtoolset.isc.org/.
-Nowadays up-to-date code and releases can be found on GitHub,
+IRRToolSet's website, up-to-date code and releases can be found at
 http://github.com/irrtoolset/irrtoolset.
 
 ### Bugs, patches & help
