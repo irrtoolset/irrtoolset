@@ -913,6 +913,9 @@ as_expr_term: as_expr_term OP_AND as_expr_factor {
 | as_expr_term KEYW_EXCEPT as_expr_factor {
    $$ = new FilterEXCEPT($1, $3);
 }
+| as_expr_term OP_AND OP_NOT as_expr_factor {
+   $$ = new FilterEXCEPT($1, $4);
+}
 | as_expr_factor
 ;
 
@@ -960,6 +963,10 @@ router_expr_term: router_expr_term OP_AND router_expr_factor {
 | router_expr_term KEYW_EXCEPT router_expr_factor {
    $$ = new FilterEXCEPT($1, $3);
 }
+| router_expr_term OP_AND OP_NOT router_expr_factor {
+   $$ = new FilterEXCEPT($1, $4);
+}
+
 | router_expr_factor
 ;
 
@@ -1705,6 +1712,9 @@ mp_router_expr_term: mp_router_expr_term OP_AND mp_router_expr_factor {
 }
 | mp_router_expr_term KEYW_EXCEPT mp_router_expr_factor {
    $$ = new FilterEXCEPT($1, $3);
+}
+| mp_router_expr_term OP_AND OP_NOT mp_router_expr_factor {
+   $$ = new FilterEXCEPT($1, $4);
 }
 | mp_router_expr_factor
 ;
