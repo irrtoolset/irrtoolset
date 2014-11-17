@@ -910,7 +910,7 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
       if (actn->rp_attr == dctn_rp_pref) {
 	 if (actn->rp_method == dctn_rp_pref_set) {
 	    int pref = ((ItemINT *) actn->args->head())->i;
-            for (int j=0; j < ifcount; j++) delayedout2 << " ";
+            for (int j=0; j < ifcount; j++) os << " ";
 	    os << "set local-preference " << (preferenceCeiling-pref) << endl;
 	 } else 
 	    UNIMPLEMENTED_METHOD;
@@ -924,13 +924,13 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
         char buffer[32];
         IPAddr *ip = ((ItemIPV4 *) actn->args->head())->ipv4;
         ip->get_text(buffer);
-        for (int j=0; j < ifcount; j++) delayedout2 << " ";
+        for (int j=0; j < ifcount; j++) os << " ";
         os << "set next-hop " << buffer << endl;
       } else if (afi->is_ipv6() && (typeid(*(actn->args->head())) == typeid(ItemIPV6))) {
         char buffer[50];
         IPv6Addr *ip = ((ItemIPV6 *) actn->args->head())->ipv6;
         ip->get_text(buffer);
-        for (int j=0; j < ifcount; j++) delayedout2 << " ";
+        for (int j=0; j < ifcount; j++) os << " ";
         os << "set next-hop " << buffer << endl;
       } else {
         delayedout2 << "Warning: next-hop address family doesn't match protocol address family, ignoring next-hop..." << endl;
@@ -952,8 +952,8 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
       if (actn->rp_attr == dctn_rp_med) {
 	 if (actn->rp_method == dctn_rp_med_set) {
 	    Item *item = actn->args->head();
+            for (int j=0; j < ifcount; j++) os << " ";
 	    if (typeid(*item) == typeid(ItemINT)) {
-               for (int j=0; j < ifcount; j++) os << " ";
 	       os << "set med " << ((ItemINT *) item)->i << endl;
 	    } else
 	       os << "set metric-type internal" << endl;
@@ -974,17 +974,17 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
 	    printCommunityList(delayedout3, (ItemList *) actn->args->head());
 //	    os << ")" << endl;
 	 } else if (actn->rp_method == dctn_rp_community_appendop) {
-            for (int j=0; j < ifcount; j++) delayedout2 << " ";
+            for (int j=0; j < ifcount; j++) os << " ";
 	    os << "set community (";
 	    printCommunityList(os, (ItemList *) actn->args->head());
 	    os << ") additive" << endl;
 	 } else if (actn->rp_method == dctn_rp_community_append) {
-            for (int j=0; j < ifcount; j++) delayedout2 << " ";
+            for (int j=0; j < ifcount; j++) os << " ";
 	    os << "set community (";
 	    printCommunityList(os, actn->args);
 	    os << ") additive" << endl;
          } else if (actn->rp_method == dctn_rp_community_delete) {
-            for (int j=0; j < ifcount; j++) delayedout2 << " ";
+            for (int j=0; j < ifcount; j++) os << " ";
            os << "delete community in internode-delete" << endl;
 	 } else
 	    UNIMPLEMENTED_METHOD;
@@ -993,7 +993,7 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
 
       if (actn->rp_attr == dctn_rp_aspath) {
 	 if (actn->rp_method == dctn_rp_aspath_prepend) {
-            for (int j=0; j < ifcount; j++) delayedout2 << " ";
+            for (int j=0; j < ifcount; j++) os << " ";
  	    os << " prepend as-path ";
             Item *plnd = actn->args->head();
 	    os << ((ItemASNO *) plnd)->asno << " ";
