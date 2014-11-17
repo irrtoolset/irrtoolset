@@ -124,19 +124,21 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
     << "      term prefixes {\n";
 
-   IPv6RadixSet::SortedPrefixIterator itr(&nets.members);
+   IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
    ipv6_addr_t addr;
    u_int leng;
+   u_int start;
+   u_int end;
    char buffer[256];
 
-   if (!itr.first(addr, leng)) {
+   if (!itr.first(addr, leng, start, end)) {
      cout << "          then "
           << returnPermitOrDeny(!allow_flag)
           << "\n      }\n   }\n\n";
    } else {
      cout << "         from {\n";
 
-     for (bool ok = itr.first(addr, leng); ok; ok = itr.next(addr, leng)) {
+     for (bool ok = itr.first(addr, leng, start, end); ok; ok = itr.next(addr, leng, start, end)) {
        cout << "            route-filter ";
        cout << ipv62hex(&addr, buffer) << "/" << leng;
        cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
@@ -850,7 +852,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 
 bool JunosConfig::printNeighbor(int import, ASt asno,
 				ASt peerAS, char *neighbor, bool peerGroup,
-				ItemAFI *peer_afi, ItemAFI *filter_afi) {
+				ItemAFI *peer_afi, ItemAFI *filter_afi, char *pset) {
    bool afi_activate = false;
 
    if (! printRouteMap)
@@ -862,11 +864,16 @@ bool JunosConfig::printNeighbor(int import, ASt asno,
    const char *direction = (import == IMPORT) ? "import" : "export";
 
    cout << "protocols {\n"
-	<< "   bgp {\n"
-	<< "      group peer-" << neighbor << " {\n"
-	<< "         type external;\n"
-        << "         peer-as " << peerAS << ";\n"
-	<< "         neighbor " << neighbor << " {\n"
+	<< "   bgp {\n";
+   if (!peerGroup) {
+     cout << "      group peer-" << neighbor << " {\n";
+     cout << "         type external;\n";
+     cout << "         peer-as " << peerAS << ";\n";
+   } else {
+     cout << "      group peers-prng-" << pset << " {\n";
+     cout << "         type external;\n";
+   }
+   cout	<< "         neighbor " << neighbor << " {\n"
 	<< "            " << direction << " ";
 
    if ((exportStatics && import == EXPORT) || supressMartians)
@@ -989,7 +996,7 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
    ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
 
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
-       printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+       printNeighbor(EXPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi, (char *) false);
    }
 }
 
@@ -1060,7 +1067,78 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
    ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
 
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
-       printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi);
+       printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi, (char *) false);
+   } 
+}
+
+void JunosConfig::importPG(ASt asno, MPPrefix *addr, 
+			 ASt peerAS, MPPrefix *peer_addr, char *pset) {
+
+   // Made asno part of the map name if it's not changed by users
+   sprintf(mapName, mapNameFormat, peerAS, mapCount++);
+
+   // get the aut-num object
+   const AutNum *autnum = irr->getAutNum(asno);
+
+   if (!autnum) {
+      cerr << "Error: no object for AS" << asno << endl;
+      return;
+    }
+
+   // get matching import attributes
+   AutNumSelector<AttrImport> itr(autnum, "import", 
+				  NULL, peerAS, peer_addr, addr);
+   AutNumSelector<AttrImport> itr1(autnum, "mp-import",
+				  NULL, peerAS, peer_addr, addr);
+
+   List<FilterAction> *common_list = itr.get_fa_list();
+   common_list->splice(*(itr1.get_fa_list()));
+
+   FilterAction *fa = common_list->head();
+   if (! fa)	{
+   		printPolicyWarning(asno, addr, peerAS, peer_addr, "import/mp-import");
+      	return;
+   }
+
+   ItemList *afi_list = itr.get_afi_list();
+   afi_list->merge(*(itr1.get_afi_list()));
+
+   cout << "policy-options {\n";
+
+   NormalExpression *ne;
+   NormalExpression done;
+   int last;
+
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+		last = 0;
+		for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+
+			ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), peerAS);
+			last = printDeclarations(ne, fa->action, IMPORT);
+			delete ne;
+		}
+   }
+
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+		last = 0;
+   		for (fa = common_list->head(); fa && !last; fa = common_list->next(fa)) {
+			ne = NormalExpression::evaluate(new FilterAFI((ItemAFI *) afi->dup(), fa->filter), peerAS);
+			last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);
+			delete ne;
+		}
+   }
+
+   cout << "   policy-statement " << mapName << " {\n"
+	<< "      term " << mapName << "-catch-rest {\n"
+	<< "         then reject;\n"
+        << "      }\n"
+	<< "   }\n"
+	<< "}\n\n";
+
+   ItemAFI *peer_afi = new ItemAFI(peer_addr->get_afi());
+
+   for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
+       printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), pset, (ItemAFI *) peer_afi, (ItemAFI *) afi, pset);
    } 
 }
 

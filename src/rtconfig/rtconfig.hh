@@ -68,6 +68,13 @@ public:
                         MPPrefix* peerAddr) {
       std::cerr << "Error: import not implemented" << std::endl;
    }
+   virtual void importPG(ASt as,
+                        MPPrefix* addr,
+                        ASt peerAS,
+                        MPPrefix* peerAddr,
+			char *pset) {
+      std::cerr << "Error: import not implemented" << std::endl;
+   }
    virtual void exportP(ASt as,
                         MPPrefix* addr,
                         ASt peerAS,

@@ -76,6 +76,7 @@ public:
       routeMapID = 1;
    }
    void importP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
+   void importPG(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, char* pset);
    void exportP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
    void exportGroup(ASt as, char *pset);
    void importGroup(ASt as, char *pset);
@@ -119,7 +120,7 @@ private:
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
    int          printDeclarations(NormalExpression *ne, PolicyActionList *actn, int import_flag);
    bool         printNeighbor(int import, ASt asno, ASt peerAS, char *neighbor, 
-			      bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);
+			      bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi, char *pset);
    void printAccessList(SetOfIPv6Prefix& nets) {
       bool save = useAclCaches;
       useAclCaches = false;
