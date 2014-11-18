@@ -1855,12 +1855,12 @@ void CiscoXRConfig::importGroup(ASt asno, char * pset) {
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << "\n  remote-as " << *itr()->peering->peerASes << endl;
+              << "\n  remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
      for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO))
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << "\n  remote-as " << *itr()->peering->peerASes << endl;
+              << "\n  remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
 
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
@@ -1961,14 +1961,14 @@ void CiscoXRConfig::exportGroup(ASt asno, char * pset) {
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
          cout << "address-family ipv4 unicast" << endl;
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << "\n  remote-as " << *itr()->peering->peerASes << endl;
+              << "\n  remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
        }
      for (AttrIterator<AttrPeering> itr(prngSet, "mp-peering"); itr; itr++)
        if (typeid(*itr()->peering->peerRtrs) == typeid(FilterRouter)  
             && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
          cout << "address-family ipv6 unicast" << endl;
          cout << " neighbor " << *itr()->peering->peerRtrs  
-              << "\n  remote-as " << *itr()->peering->peerASes << endl;
+              << "\n  remote-as " << ((FilterASNO *)itr()->peering->peerASes)->asno << endl;
        }
      for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        bool afi_activate = false;
