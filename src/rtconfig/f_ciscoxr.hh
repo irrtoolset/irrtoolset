@@ -159,6 +159,7 @@ private:
    int          printPacketFilter(SetOfIPv6Prefix &set);
    inline void  printCommunity(std::ostream &os, unsigned int i);
    void         printCommunityList(std::ostream &os, ItemList *args);
+   int          printCommunitySetList(std::ostream &os, ItemList *args);
    void         printActions(std::ostream &os, PolicyActionList *action, ItemAFI *afi);
    int          print(NormalExpression *ne, PolicyActionList *actn, int import_flag, ItemAFI *afi);
    bool         printNeighbor(int import, ASt asno, ASt peerAS, char *neighbor, bool peerGroup, ItemAFI *peer_afi, ItemAFI *filter_afi);

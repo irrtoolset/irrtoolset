@@ -861,6 +861,16 @@ inline void CiscoXRConfig::printCommunity(ostream &os, unsigned int i) {
    }
 }
 
+int CiscoXRConfig::printCommunitySetList(ostream &os, ItemList *args) {
+
+ int aclID = communityMgr.newID();
+ os << "community-set commset" << aclID << "-permit " << endl;
+ CiscoXRConfig::printCommunityList(os, args);
+ os << endl << "end-set" << endl;
+
+return aclID;
+}
+
 void CiscoXRConfig::printCommunityList(ostream &os, ItemList *args) {
 
 bool first = true;
@@ -880,20 +890,26 @@ bool first = true;
       }
 
       if (typeid(*cmnty) == typeid(ItemWORD)) {
-	 if (!strcasecmp(((ItemWORD *)cmnty)->word, "no_advertise"))
+	 if (!strcasecmp(((ItemWORD *)cmnty)->word, "no_advertise")) {
+            if (first) first=false; else os << ", ";
 	    printCommunity(os, COMMUNITY_NO_ADVERTISE);
-	 else if (!strcasecmp(((ItemWORD *)cmnty)->word, "no_export"))
+	 } else if (!strcasecmp(((ItemWORD *)cmnty)->word, "no_export")) {
+            if (first) first=false; else os << ", ";
 	    printCommunity(os, COMMUNITY_NO_EXPORT);
-	 else if (!strcasecmp(((ItemWORD *)cmnty)->word,"no_export_subconfed"))
+	 } else if (!strcasecmp(((ItemWORD *)cmnty)->word,"no_export_subconfed")) {
+            if (first) first=false; else os << ", ";
 	    printCommunity(os, COMMUNITY_NO_EXPORT_SUBCONFED);
-	 else
+	 } else {
+            if (first) first=false; else os << ", ";
 	    printCommunity(os, COMMUNITY_INTERNET);
+         }
 	 continue;
       }
 
       if (typeid(*cmnty) == typeid(ItemList)) {
 	 int high = ((ItemINT *) ((ItemList *) cmnty)->head())->i;
 	 int low  = ((ItemINT *) ((ItemList *) cmnty)->tail())->i;
+         if (first) first=false; else os << ", ";
 	 printCommunity(os, (high << 16) + low);
 	 continue;
       }
@@ -985,7 +1001,8 @@ void CiscoXRConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI
 	    os << ") additive" << endl;
          } else if (actn->rp_method == dctn_rp_community_delete) {
             for (int j=0; j < ifcount; j++) os << " ";
-           os << "delete community in internode-delete" << endl;
+            int commlist = printCommunitySetList(delayedout, actn->args);
+            os << "delete community in commset-" << commlist << "-permit" << endl;
 	 } else
 	    UNIMPLEMENTED_METHOD;
 	 continue;
