@@ -745,13 +745,16 @@ ListOf2Ints* CiscoXRConfig::printASPaths(regexp_nf& path) {
          CiscoXRConfig::printRE(delayedout, *ri->re, aclID, true);
 	 rc->mark = 1;
 
-         delayedout << "\nend-set" << endl << endl;
-	 delayedout << "exit" << endl << "as-path-set as-set" << aclID << "-deny" << endl;
-         delayedout << "end-set" << endl << endl;
 
       } else {
 	 rc->mark = 0;
       }
+   }
+
+   if (!needNewAclpermit) {
+     delayedout << "\nend-set" << endl << endl;
+     delayedout << "exit" << endl << "as-path-set as-set" << aclID << "-deny" << endl;
+     delayedout << "end-set" << endl << endl;
    }
 
    // pass 2
