@@ -70,6 +70,7 @@ bool CiscoConfig::usePrefixLists = false;
 bool CiscoConfig::eliminateDupMapParts = false;
 bool CiscoConfig::forceTilda = false;
 bool CiscoConfig::emptyLists = false;
+bool CiscoConfig::peerTemplates = false;
 int  CiscoConfig::mapIncrements = 1;
 int  CiscoConfig::mapCount = 1;
 int  CiscoConfig::mapNumbersStartAt = 1;
@@ -1117,12 +1118,14 @@ bool CiscoConfig::printNeighbor(int import,
    // create bgp process 
    cout << "!\nrouter bgp " << asno << "\n!\n";
 
-   if (peerGroup) {
+   if (peerGroup && CiscoConfig::peerTemplates) {
      cout << "template peer-policy " << neighbor <<"\n";
      if (routeMapGenerated)
        cout << " route-map " << mapName << " " << direction << "\n";
      cout << " remove-private-as\n";
      cout << "exit-peer-policy\n!\n";
+   } if (peerGroup && !CiscoConfig::peerTemplates) {
+     cout << " neighbor " << neighbor << " peer-group\n";
    } else {
      cout << " neighbor "   << neighbor << " remote-as " << peerAS << "\n";
    }
@@ -1735,8 +1738,10 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
-           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
-
+           if (!CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs << " peer-group " << pset << "\n";
+           if (CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }
 
@@ -1746,6 +1751,9 @@ void CiscoConfig::importGroup(ASt asno, char * pset) {
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
+           if (!CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs << " peer-group " << pset << "\n";
+           if (CiscoConfig::peerTemplates) 
            cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }
@@ -1827,7 +1835,10 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
-           cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " peer-group " << pset << "\n";
+           if (!CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs << " peer-group " << pset << "\n";
+           if (CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }
 
@@ -1842,6 +1853,9 @@ void CiscoConfig::exportGroup(ASt asno, char * pset) {
               && typeid(*itr()->peering->peerASes) == typeid(FilterASNO)) {
            if (afi_activate)
              cout << indent << " neighbor " << *itr()->peering->peerRtrs << " activate\n";
+           if (!CiscoConfig::peerTemplates) 
+             cout << indent << " neighbor " << *itr()->peering->peerRtrs << " peer-group " << pset << "\n";
+           if (CiscoConfig::peerTemplates) 
            cout << indent << " neighbor " << *itr()->peering->peerRtrs  << " inherit peer-policy " << pset << "\n";
          }
        }

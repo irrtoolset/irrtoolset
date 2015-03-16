@@ -126,6 +126,7 @@ public:
    static bool eliminateDupMapParts;
    static bool forceTilda;
    static bool emptyLists;
+   static bool peerTemplates;
    static int  mapIncrements;
    static int  mapNumbersStartAt;
    static int  mapCount;
