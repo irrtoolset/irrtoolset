@@ -124,22 +124,47 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
     << "      term prefixes {\n";
 
-   IPv6RadixSet::SortedPrefixIterator itr(&nets.members);
+   IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
+   u_int start;
+   u_int end;
    ipv6_addr_t addr;
    u_int leng;
    char buffer[256];
 
-   if (!itr.first(addr, leng)) {
+   if (!itr.first(addr, leng, start, end)) {
      cout << "          then "
           << returnPermitOrDeny(!allow_flag)
           << "\n      }\n   }\n\n";
    } else {
      cout << "         from {\n";
+   }
 
-     for (bool ok = itr.first(addr, leng); ok; ok = itr.next(addr, leng)) {
+   if (compressAcls) {
+      for (bool ok = itr.first(addr, leng, start, end);
+       ok;
+       ok = itr.next(addr, leng, start, end)) {
        cout << "            route-filter ";
        cout << ipv62hex(&addr, buffer) << "/" << leng;
-       cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+        if (start != leng) {
+          if (end != leng || start < leng)
+            cout << " prefix-length-range /" << start << "-/" << end;
+          else
+            cout << " prefix-length-range /" << start << "-/" << start;
+        } else {
+          if (end != leng) cout << " upto /" << end;
+          else cout << " exact";
+        }
+
+       cout  << returnPermitOrDeny(allow_flag) << "\n";
+      }
+
+   } else {
+       for (bool ok = itr.first(addr, leng, start, end); ok; ok = itr.next(addr, leng, start, end)) {
+         cout << "            route-filter ";
+         cout << ipv62hex(&addr, buffer) << "/" << leng;
+         cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+       }
+
      }
 
      cout << "         }\n"
@@ -151,7 +176,6 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
      cout << "      }\n"
           << "   }\n\n";
-   }
    
    return result;
 }
