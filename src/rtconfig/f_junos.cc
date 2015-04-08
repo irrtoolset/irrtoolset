@@ -956,6 +956,11 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
       return;
     }
 
+   if (strcmp(mapName, lastMapName)) {
+      strcpy(lastMapName, mapName);
+      routeMapID = mapNumbersStartAt;
+   }
+
    // get matching export attributes
    AutNumSelector<AttrExport> itr(autnum, "export", 
 				  NULL, peerAS, peer_addr, addr);
@@ -1003,6 +1008,10 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
 	   }
 	}
 
+   if (routeMapID == 1) {
+     if (load_replace) cout << "replace: ";
+   }
+
    cout << "   policy-statement " << mapName << " {\n"
 	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
@@ -1030,6 +1039,11 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
       cerr << "Error: no object for AS" << asno << endl;
       return;
     }
+
+   if (strcmp(mapName, lastMapName)) {
+      strcpy(lastMapName, mapName);
+      routeMapID = mapNumbersStartAt;
+   }
 
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
@@ -1072,6 +1086,10 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 			last = print(ne, fa->action, IMPORT, (ItemAFI *) afi);
 			delete ne;
 		}
+   }
+
+   if (routeMapID == 1) {
+     if (load_replace) cout << "replace: ";
    }
 
    cout << "   policy-statement " << mapName << " {\n"
