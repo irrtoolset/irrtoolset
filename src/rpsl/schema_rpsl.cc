@@ -329,8 +329,10 @@ CMN_ATTRS
 "attr:  member-of        syntax(List Of AS_set_name),                           optional,  multiple, lookup\n"
 "attr:  import           syntax(special,import),                                optional,  multiple\n"
 "attr:  mp-import        syntax(special,mp-import),                             optional,  multiple\n"
+"attr:  import-via                                                              optional,  multiple\n"
 "attr:  export           syntax(special,export),                                optional,  multiple\n"
 "attr:  mp-export        syntax(special,mp-export),                             optional,  multiple\n"
+"attr:  export-via                                                              optional,  multiple\n"
 "attr:  default          syntax(special,default),                               optional,  multiple\n"
 "attr:  mp-default       syntax(special,mp-default),                            optional,  multiple\n"
 CMN_ATTRS
