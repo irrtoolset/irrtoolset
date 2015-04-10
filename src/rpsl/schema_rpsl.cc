@@ -79,6 +79,8 @@ char Schema::dictionary_text[] = "";
 "attr:  source           syntax(rpsl_word),                                     mandatory, single,   internal\n" \
 "attr:  integrity        syntax(rpsl_word),                                     optional, single,   internal\n" \
 "attr:  changed          optional,  multiple\n" \
+"attr:  created          optional,  single\n" \
+"attr:  last-modified    optional,  single\n" \
 "attr:  deleted                                                                 optional,  single, deleted\n"
 
 static char base_text[] = 
