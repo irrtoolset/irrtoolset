@@ -90,6 +90,7 @@ public:
    static bool useAclCaches;
    static bool printRouteMap;
    static bool compressAcls;
+   static bool AndNotOr;
    static bool load_replace;
    static bool usePrefixLists;
    static int  mapIncrements;
