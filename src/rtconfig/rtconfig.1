@@ -275,6 +275,22 @@ except it compresses more aggresively. The %n and %m information is
 lost. But,
 %D, a set of dont care bits representing different %n-%m ranges are
 provided. <mp-filter> is also accepted.
+.IP "@rtconfig set prefix_acl_no = <no>"
+<no> is an integer.
+This command instructs rtconfig to start numbering prefix access lists at <no>.
+The older term "cisco_prefix_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set aspath_acl_no = <no>"
+<no> is an integer.
+This command instructs rtconfig to start numbering aspath access lists at <no>.
+The older term "cisco_aspath_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set pktfilter_acl_no = <no>"
+<no> is an integer.
+This command instructs rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
+The older term "cisco_pktfilter_acl_no" is deprecated but kept as an alias.
+.IP "@rtconfig set community_acl_no = <no>"
+<no> is an integer.
+This command instructs rtconfig to start numbering community access lists at <no>.
+The older term "cisco_community_acl_no" is deprecated but kept as an alias.
 .RE
 .PP
 Cisco specific commands:
@@ -298,22 +314,6 @@ If missing, 1 is used.
 <no> is an integer.
 This command instructs rtconfig to increment route map numbers by <no>.
 If missing, successive route maps are numbered by increments of 1.
-.IP "@rtconfig set prefix_acl_no = <no>"
-<no> is an integer.
-This command instructs rtconfig to start numbering prefix access lists at <no>.
-The older term "cisco_prefix_acl_no" is deprecated but kept as an alias.
-.IP "@rtconfig set aspath_acl_no = <no>"
-<no> is an integer.
-This command instructs rtconfig to start numbering aspath access lists at <no>.
-The older term "cisco_aspath_acl_no" is deprecated but kept as an alias.
-.IP "@rtconfig set pktfilter_acl_no = <no>"
-<no> is an integer.
-This command instructs rtconfig to start numbering inbound/outbound packet filter access lists at <no>.
-The older term "cisco_pktfilter_acl_no" is deprecated but kept as an alias.
-.IP "@rtconfig set community_acl_no = <no>"
-<no> is an integer.
-This command instructs rtconfig to start numbering community access lists at <no>.
-The older term "cisco_community_acl_no" is deprecated but kept as an alias.
 .IP "@rtconfig set community_set_no = <no>"
 <no> is an integer.
 This command instructs rtconfig to start numbering community sets at <no>.

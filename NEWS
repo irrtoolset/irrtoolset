@@ -1,10 +1,30 @@
 Release Notes for IRRToolSet
 ****************************
 
-5.1.0 - 2014-NN-NN
+5.1.0 - 2016-04?-NN
 ------------------
 * Starting with this release, IRRToolSet is going to follow a Semantic
   Versioning scheme: http://semver.org/
+* Initial support for IOS XR config generation, use -config ciscoxr
+* Rename @rtconfig set commands and add JunOS Support:
+  cisco_prefix_acl_no to prefix_acl_no
+  cisco_aspath_acl_no to aspath_acl_no
+  cisco_pktfilter_acl_no to pktfilter_acl_no
+  cisco_community_acl_no to cisco_community_acl_no
+* Cisco IOS improvements:
+  Move from peer-groups to peer templates
+  Add support for community.delete()
+  Reduced default starting id's for community lists, acl's etc from 100 to 50
+  Added support for BGP communities starting with 0:
+  Fix bug where both IPv4 & IPv6 prefixes would be added to the same prefix-list
+* JunOS improvements:
+  -junos_replace to output replace: configuration that can be loaded with "load replace"
+  -junos_and_not_or to make route policies that AND community and prefix-lists to match
+   the rtconfig Cisco behaviour.
+  Increment JunOS policy-statement id's for IPv4/v6 to avoid duplicate id's
+  Add support for IPv6 prefix-length-range to bring it to parity with IPv4
+  Fixed minor configuration output ordering
+  Fix problems with 4-byte AS's
 
 5.0.1
 -----
