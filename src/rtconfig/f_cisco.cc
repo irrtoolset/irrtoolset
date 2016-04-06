@@ -1146,7 +1146,7 @@ bool CiscoConfig::printNeighbor(int import,
        cout << " route-map " << mapName << " " << direction << "\n";
      cout << " remove-private-as\n";
      cout << "exit-peer-policy\n!\n";
-   } if (peerGroup && !CiscoConfig::peerTemplates) {
+   } else if (peerGroup && !CiscoConfig::peerTemplates) {
      cout << " neighbor " << neighbor << " peer-group\n";
    } else {
      cout << " neighbor "   << neighbor << " remote-as " << peerAS << "\n";
