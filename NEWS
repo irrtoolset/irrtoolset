@@ -12,7 +12,7 @@ Release Notes for IRRToolSet
   cisco_pktfilter_acl_no to pktfilter_acl_no
   cisco_community_acl_no to cisco_community_acl_no
 * Cisco IOS improvements:
-  Move from peer-groups to peer templates
+  Support for peer templates with -cisco_peer_templates
   Add support for community.delete()
   Reduced default starting id's for community lists, acl's etc from 100 to 50
   Added support for BGP communities starting with 0:
