@@ -10,7 +10,7 @@ Release Notes for IRRToolSet
   cisco_prefix_acl_no to prefix_acl_no
   cisco_aspath_acl_no to aspath_acl_no
   cisco_pktfilter_acl_no to pktfilter_acl_no
-  cisco_community_acl_no to cisco_community_acl_no
+  cisco_community_acl_no to community_acl_no
 * Cisco IOS improvements:
   Support for peer templates with -cisco_peer_templates
   Add support for community.delete()
