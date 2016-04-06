@@ -959,7 +959,7 @@ void CiscoConfig::printActions(ostream &os, PolicyActionList *actions, ItemAFI *
    }
 
    os << "exit\n"; // exit route map config mode 
-   os << delayoutput.str() << endl;
+   os << delayoutput.str();
    delayoutput.str("");
 
 }
