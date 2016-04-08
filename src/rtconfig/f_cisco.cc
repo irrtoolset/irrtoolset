@@ -848,6 +848,7 @@ void CiscoConfig::printCommunityList(ostream &os, ItemList *args) {
 	 continue;
       }
    }
+   os << endl;
 }
 
 int CiscoConfig::printCommunitySetList(ostream &os, ItemList *args) {
