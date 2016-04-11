@@ -76,7 +76,7 @@ public:
       routeMapID = 1;
    }
    void importP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
-   void importPG(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, char* pset);
+   void importPeerGroup(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr, char* pset);
    void exportP(ASt as, MPPrefix* addr, ASt peerAS, MPPrefix* peerAddr);
    void exportGroup(ASt as, char *pset);
    void importGroup(ASt as, char *pset);

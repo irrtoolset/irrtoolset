@@ -102,7 +102,7 @@ int xx_eof = 0;
 %token <val> TKN_WORD
 
 %token <val> KW_IMPORT
-%token <val> KW_IMPORT_PG
+%token <val> KW_IMPORT_PEERGROUP
 %token <val> KW_EXPORT
 %token <val> KW_EXPORT_GROUP
 %token <val> KW_IMPORT_GROUP
@@ -193,13 +193,13 @@ import_line: KW_IMPORT TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP {
 }
 ;
 
-importpg_line: KW_IMPORT_PG TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP TKN_WORD {
+importpg_line: KW_IMPORT_PEERGROUP TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP TKN_WORD {
    /*
    cout << "!" << endl
         << "!LINE " << yylineno << " -- import" << endl
         << "!" << endl;
    */
-   rtConfig->importPG($2, $3, $4, $5, $6);
+   rtConfig->importPeerGroup($2, $3, $4, $5, $6);
    delete $3;
    delete $5;
 }

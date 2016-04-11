@@ -68,7 +68,7 @@ public:
                         MPPrefix* peerAddr) {
       std::cerr << "Error: import not implemented" << std::endl;
    }
-   virtual void importPG(ASt as,
+   virtual void importPeerGroup(ASt as,
                         MPPrefix* addr,
                         ASt peerAS,
                         MPPrefix* peerAddr,

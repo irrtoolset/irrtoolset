@@ -1071,7 +1071,7 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
    } 
 }
 
-void JunosConfig::importPG(ASt asno, MPPrefix *addr, 
+void JunosConfig::importPeerGroup(ASt asno, MPPrefix *addr, 
 			 ASt peerAS, MPPrefix *peer_addr, char *pset) {
 
    // Made asno part of the map name if it's not changed by users
