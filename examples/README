@@ -1,0 +1,16 @@
+Examples of how to generate IOS, IOS XR & JunOS Configs for some fictional sessions.
+
+private_irr_objects.txt: Contains example RPSL objects
+
+ios-example-input.cfg: Contains the IOS inputs
+xr-example-input.cfg: Contains the IOS XR inputs
+junos-example-input.cfg: Contains the JunOS inputs
+
+Run build_examples.sh to produce the router outputs.  Local machine requires access to RADB.
+
+bgp@localhost:~/irrtoolset/examples$ ./build.sh
+building IOS example config into: ios-example-output.txt
+building IOS XR example config into: xr-example-output.txt
+building JunOS example config into: junos-example-output.txt
+bgp@localhost:~/irrtoolset/examples$
+
