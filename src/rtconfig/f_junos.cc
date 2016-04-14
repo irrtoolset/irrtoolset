@@ -70,6 +70,7 @@ char JunosConfig::mapName[80] = "policy";
 char JunosConfig::mapNameFormat[80] = "policy_%d_%d"; 
 bool JunosConfig::useAclCaches = true;
 bool JunosConfig::compressAcls = true;
+bool JunosConfig::AndNotOr = false;
 bool JunosConfig::load_replace = false;
 bool JunosConfig::usePrefixLists = false;
 int  JunosConfig::mapIncrements = 1;
@@ -830,6 +831,7 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
       
       ListNodeOf2Ints *asp, *cmp, *prp; 
       int i;
+      bool first_policy = true;
 
       if (printRouteMap) {
 	 for (asp = aspath_acls->head(); asp; asp = aspath_acls->next(asp)) {
@@ -850,11 +852,35 @@ int JunosConfig::print(NormalExpression *ne, PolicyActionList *actn,
 		  for (i = asp->start; i <= asp->end; i++)
 		     cout << "            as-path as-path-" << i << ";\n";
 	       
-		  for (i = cmp->start; i <= cmp->end; i++)
-		     cout << "            policy community-pol-" << i << ";\n";
+                  if (JunosConfig::AndNotOr) {
+		    for (i = cmp->start; i <= cmp->end; i++) {
+                       if (first_policy) {
+                         cout << "            policy (";
+                         first_policy = false;
+                       } else {
+                         cout << " && ";
+                       } 
+		       cout << "community-pol-" << i;
+                    }
 
-		  for (i = prp->start; i <= prp->end; i++)
-		     cout << "            policy prefix-list-" << i << ";\n";
+    		    for (i = prp->start; i <= prp->end; i++) {
+                       if (first_policy) {
+                       cout << "            policy (";
+                         first_policy = false;
+                       } else {
+                         cout << " && ";
+                       } 
+                       cout << "prefix-list-" << i;
+                    }
+   
+                    if (!first_policy) cout << ");\n";
+                  } else {
+                    for (i = cmp->start; i <= cmp->end; i++)
+                       cout << " policy community-pol-" << i << ";\n";
+  
+                    for (i = prp->start; i <= prp->end; i++)
+                       cout << " policy prefix-list-" << i << ";\n";
+                  }
 
 		  cout << "         }\n"
 		       << "         then {\n";

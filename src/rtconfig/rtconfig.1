@@ -164,6 +164,12 @@ Causes rtconfig not to assume that ipv4.unicast is the router's default
 address family. IPv4 peers will then have ipv4.unicast explicitly activated 
 and policy will be set in ipv4.unicast address family. Useful when the router 
 is configured with "no bgp default ipv4-unicast". 
+.IP "\-junos_and_not_or"
+This option only affects Juniper configurations.
+Modify rtconfig Junos behaviour to match Cisco - AND community & prefix lists rather than OR'ing them.
+.IP "\-junos_replace"
+This option only affects Juniper configurations.
+Output replace: statements to be used with "load replace" on Junos.
 .RE
 .SH ENVIRONMENT VARIABLES
 .RS
