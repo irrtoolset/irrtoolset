@@ -346,8 +346,7 @@ NormalExpression *NormalExpression::evaluate(const Filter *ptree,
       Debug(Channel(DBG_NE_AFI) << "op1: " << *ne << "\n");
 
       if (ne->is_any() == NEITHER &&
-          ((ne->singleton_flag == NormalTerm::PRFX) || (ne->singleton_flag == NormalTerm::IPV6_PRFX) ||
-           (ne->singleton_flag == -1))) {
+           (ne->singleton_flag == -1)) {
         ne->restrict((FilterAFI *) ptree);
       }
 
