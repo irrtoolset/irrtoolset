@@ -125,10 +125,10 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
     << "      term prefixes {\n";
 
    IPv6RadixSet::SortedPrefixRangeIterator itr(&nets.members);
-   ipv6_addr_t addr;
-   u_int leng;
    u_int start;
    u_int end;
+   ipv6_addr_t addr;
+   u_int leng;
    char buffer[256];
 
    if (!itr.first(addr, leng, start, end)) {
@@ -137,11 +137,34 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
           << "\n      }\n   }\n\n";
    } else {
      cout << "         from {\n";
+   }
 
-     for (bool ok = itr.first(addr, leng, start, end); ok; ok = itr.next(addr, leng, start, end)) {
+   if (compressAcls) {
+      for (bool ok = itr.first(addr, leng, start, end);
+       ok;
+       ok = itr.next(addr, leng, start, end)) {
        cout << "            route-filter ";
        cout << ipv62hex(&addr, buffer) << "/" << leng;
-       cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+        if (start != leng) {
+          if (end != leng || start < leng)
+            cout << " prefix-length-range /" << start << "-/" << end;
+          else
+            cout << " prefix-length-range /" << start << "-/" << start;
+        } else {
+          if (end != leng) cout << " upto /" << end;
+          else cout << " exact";
+        }
+
+       cout  << returnPermitOrDeny(allow_flag) << "\n";
+      }
+
+   } else {
+       for (bool ok = itr.first(addr, leng, start, end); ok; ok = itr.next(addr, leng, start, end)) {
+         cout << "            route-filter ";
+         cout << ipv62hex(&addr, buffer) << "/" << leng;
+         cout  << " exact" << returnPermitOrDeny(allow_flag) << "\n";
+       }
+
      }
 
      cout << "         }\n"
@@ -153,7 +176,6 @@ ListOf2Ints *JunosConfig::printRoutes(SetOfIPv6Prefix& nets) {
 
      cout << "      }\n"
           << "   }\n\n";
-   }
    
    return result;
 }
@@ -939,6 +961,11 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
       return;
     }
 
+   if (strcmp(mapName, lastMapName)) {
+      strcpy(lastMapName, mapName);
+      routeMapID = mapNumbersStartAt;
+   }
+
    // get matching export attributes
    AutNumSelector<AttrExport> itr(autnum, "export", 
 				  NULL, peerAS, peer_addr, addr);
@@ -986,6 +1013,10 @@ void JunosConfig::exportP(ASt asno, MPPrefix *addr,
 	   }
 	}
 
+   if (routeMapID == 1) {
+     if (load_replace) cout << "replace: ";
+   }
+
    cout << "   policy-statement " << mapName << " {\n"
 	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
@@ -1013,6 +1044,11 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
       cerr << "Error: no object for AS" << asno << endl;
       return;
     }
+
+   if (strcmp(mapName, lastMapName)) {
+      strcpy(lastMapName, mapName);
+      routeMapID = mapNumbersStartAt;
+   }
 
    // get matching import attributes
    AutNumSelector<AttrImport> itr(autnum, "import", 
@@ -1057,6 +1093,10 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 		}
    }
 
+   if (routeMapID == 1) {
+     if (load_replace) cout << "replace: ";
+   }
+
    cout << "   policy-statement " << mapName << " {\n"
 	<< "      term " << mapName << "-catch-rest {\n"
 	<< "         then reject;\n"
@@ -1068,7 +1108,7 @@ void JunosConfig::importP(ASt asno, MPPrefix *addr,
 
    for (Item *afi = afi_list->head(); afi; afi = afi_list->next(afi)) {
        printNeighbor(IMPORT, asno, peerAS, peer_addr->get_ip_text(), false, (ItemAFI *) peer_afi, (ItemAFI *) afi, (char *) false);
-   } 
+    } 
 }
 
 void JunosConfig::importPeerGroup(ASt asno, MPPrefix *addr, 
