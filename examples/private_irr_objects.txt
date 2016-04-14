@@ -1,0 +1,23 @@
+peering-set: prng-fictionalinternetexchangev4
+peering: AS1234 203.0.113.2 at 203.0.113.1
+peering: AS4567 203.0.113.3 at 203.0.113.1
+
+peering-set: prng-fictionalinternetexchangev6
+mp-peering: AS1234 2001:DB8:1234::1 at 2001:DB8:1111::1
+mp-peering: AS4567 2001:DB8:1234::1 at 2001:DB8:1111::1
+
+aut-num: AS1111
+export: to prng-fictionalinternetexchangev4 action med=0; community={0:20}; announce (AS-UCNET^10-24 AND community.contains(1111:20));
+mp-export: afi ipv6.unicast to prng-fictionalinternetexchangev6 action med=0;community={0:20}; announce (AS-UCNET^10-24 AND community.contains(1111:20));
+import: { from AS-ANY accept NOT { 10.0.0.0/8^+,169.254.0.0/16^+,172.16.0.0/12^+,192.0.2.0/24^+,192.168.0.0/16^+,198.18.0.0/15^+,203.0.113.0/24^+,0.0.0.0/0,127.0.0.0/8^+,224.0.0.0/3^+};}
+ refine { from AS-ANY action pref = 100; community.delete(1111:20,1111:50,no_export); community.append(1111:100); med=0; accept ANY; }
+  refine {
+  from AS1234 203.0.113.2 at 203.0.113.1 accept (<^AS1234+> AND NOT <AS-ROCHELLE>);
+  from AS4567 203.0.113.3 at 203.0.113.1 action aspath.prepend(AS4567); med=100; accept (<^AS4567+> AND NOT <AS1234+>);
+ }
+mp-import: afi ipv6.unicast {   from AS-ANY action pref = 100;  community.delete(1111:20,1111:50,no_export); community.append(1111:100); med=0; accept ANY AND NOT {::/0}; }
+  refine {
+  from AS1234 2001:DB8:1234::1 at 2001:DB8:1111::1 accept (<^AS1234+> AND NOT <AS-ROCHELLE>);
+  from AS4567 2001:DB8:4567::1 at 2001:DB8:1111::1 action aspath.prepend(AS4567); med=100; accept (<^AS4567+> AND NOT <AS1234+>);
+ }
+
