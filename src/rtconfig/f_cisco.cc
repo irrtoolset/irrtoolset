@@ -856,7 +856,7 @@ int CiscoConfig::printCommunitySetList(ostream &os, ItemList *args) {
    os << "!\nno ip community-list " << aclID << "\n";
    os << "ip community-list " << aclID << " permit ";
    CiscoConfig::printCommunityList(os, args);
-   os << "!\n";
+   os << "\n!\n";
 
 return aclID;
 }
