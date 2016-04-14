@@ -212,6 +212,8 @@ This command will use the named inet-rtr object,
 and configure import/mp-import and export/mp-export policies
 for each of the BGP4 peers of the router 
 (using the peer attribute).
+.IP "@rtconfig importPeerGroup <ASN-1> <rtr-1> <ASN-2> <rtr-2> <peering-set-name>"
+Required when using JunOS to place the import policies inside the correct peer group.
 .IP "@rtconfig importGroup <ASN-1> <peering-set-name>"
 .IP "@rtconfig exportGroup <ASN-1> <peering-set-name>"
 <peering-set-name> is a name of a peering set object.
