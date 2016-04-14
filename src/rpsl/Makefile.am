@@ -35,7 +35,7 @@ nodist_librpsl_la_SOURCES = object_log.l.cc rpsl.l.cc rpsl.y.cc rpsl.y.hh
 dist_man1_MANS = irrtoolset-errors.1
 
 MAINTAINERCLEANFILES = $(nodist_librpsl_la_SOURCES)
-CLEANFILES = *~ *.bak
+CLEANFILES = *~ *.bak *.y.cc *.l.cc *.y.hh
 
 schema_rpsl.cc: rpsl.y.cc
 

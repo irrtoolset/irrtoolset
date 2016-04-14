@@ -31,7 +31,7 @@ nodist_rtconfig_SOURCES = command.l.cc command.y.cc command.y.hh
 dist_man1_MANS = rtconfig.1
 
 MAINTAINERCLEANFILES = $(nodist_rtconfig_SOURCES)
-CLEANFILES = *~ *.bak
+CLEANFILES = *~ *.bak *.l.cc *.y.cc *.y.hh
 
 LDADD = ../libirrtoolset.la @EXTRA_LIBS@
 
