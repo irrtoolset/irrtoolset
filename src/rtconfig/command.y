@@ -102,6 +102,7 @@ int xx_eof = 0;
 %token <val> TKN_WORD
 
 %token <val> KW_IMPORT
+%token <val> KW_IMPORT_PEERGROUP
 %token <val> KW_EXPORT
 %token <val> KW_EXPORT_GROUP
 %token <val> KW_IMPORT_GROUP
@@ -155,6 +156,7 @@ input: input_line '\n'
 ;
 
 input_line: import_line
+| import_peergroup_line
 | export_line
 | export_group_line
 | import_group_line
@@ -186,6 +188,18 @@ import_line: KW_IMPORT TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP {
         << "!" << endl;
    */
    rtConfig->importP($2, $3, $4, $5);
+   delete $3;
+   delete $5;
+}
+;
+
+import_peergroup_line: KW_IMPORT_PEERGROUP TKN_ASNUM TKN_IP TKN_ASNUM TKN_IP TKN_WORD {
+   /*
+   cout << "!" << endl
+        << "!LINE " << yylineno << " -- import" << endl
+        << "!" << endl;
+   */
+   rtConfig->importPeerGroup($2, $3, $4, $5, $6);
    delete $3;
    delete $5;
 }

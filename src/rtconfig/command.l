@@ -87,6 +87,7 @@ typedef struct _KeyWord {
 
 static KeyWord keywords[] = {
 "import",                  KW_IMPORT,
+"importPeerGroup",         KW_IMPORT_PEERGROUP,
 "export",                  KW_EXPORT,
 "exportGroup",             KW_EXPORT_GROUP,
 "importGroup",             KW_IMPORT_GROUP,
