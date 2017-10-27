@@ -36,6 +36,19 @@ AM_INIT_AUTOMAKE([foreign tar-ustar])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+
+# Some versions of GCC 6.x broke -ftree-vrp, so we need to work around this
+if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( 6\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
+  echo detected gcc6: disabling the '"'-ftree-vrp'"' option
+  CFLAGS="${CFLAGS} -fno-tree-vrp"
+  CXXFLAGS="${CFLAGS} -fno-tree-vrp"
+
+  # re-run compiler checks to configure CFLAGS correctly
+  AC_PROG_CXX
+  AC_PROG_CC
+
+fi
+
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AM_PROG_LEX
