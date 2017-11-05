@@ -28,35 +28,26 @@ It is preferred for bug reports and patches to be reported on GitHub.
 
 ### Installation
 
-Standard installation needs a GNU C++ compiler & libreadline. You will also
-need Bison and Flex if you're checking out from git or if you need to change
-the RPSL grammar.
+Standard installation needs a GNU C++ compiler, libreadline, automake,
+autoconf, libtool, bison and flex.
 
-Under Debian/Ubuntu systems, this should suffice:
+Under Debian and Ubuntu systems, this should suffice:
 ```sh
-$ apt-get install build-essential libreadline6-dev
+$ apt-get install build-essential git libtool bison flex automake autoconf libreadline6-dev
 ```
 
 IRRToolSet uses autotools, so installation is as simple as:
 
 ```sh
+$ autoconf -vfi
 $ ./configure
 $ make
 $ make install
 ```
 
-When working from git instead of a tarball, you will additionally need:
-```sh
-$ apt-get install autoconf automake libtool bison flex
-```
-and you should run
-```sh
-$ autoreconf -vfi
-```
-before running  `./configure`.
-
 ### Copyright and licensing
 
 IRRToolSet has a long history and several parties hold copyright to various
-parts of IRRToolSet. The code is licensed under a mixture of MIT & GNU GPLv2+
-licenses. Please consult the `COPYING` file for more information.
+parts of IRRToolSet.  The code is licensed under a mixture of MIT, RIPE NCC
+and GNU GPLv2+ licenses.  Please consult the `COPYING` file for more
+information.
