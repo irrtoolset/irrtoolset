@@ -335,6 +335,7 @@ CMN_ATTRS
 "attr:  export-via                                                              optional,  multiple\n"
 "attr:  default          syntax(special,default),                               optional,  multiple\n"
 "attr:  mp-default       syntax(special,mp-default),                            optional,  multiple\n"
+"attr:  status                                                                  mandatory, single\n"
 CMN_ATTRS
 "attr:  descr                                                                   mandatory, multiple\n"
 "attr:  mnt-by           syntax(list of rpsl_word),                             mandatory, multiple, lookup\n"
