@@ -37,9 +37,9 @@ AM_INIT_AUTOMAKE([foreign tar-ustar])
 AC_PROG_CXX
 AC_PROG_CC
 
-# Some versions of GCC 6.x broke -ftree-vrp, so we need to work around this
-${as_echo_n} "checking for broken gcc6... "
-if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( 6\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
+# Some versions of GCC 6.x/7.x broke -ftree-vrp, so we need to work around this
+${as_echo_n} "checking for broken gcc6/gcc7... "
+if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [67]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
   ${as_echo} "yes: disabling the '-ftree-vrp' option"
   CFLAGS="${CFLAGS} -fno-tree-vrp"
   CXXFLAGS="${CFLAGS} -fno-tree-vrp"
