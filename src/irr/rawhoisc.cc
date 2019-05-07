@@ -98,10 +98,6 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    // see if we should ignore error messages from IRR
    error.ignore(ignore_errors);
 
-   struct sockaddr_in server_sockaddr;
-   struct hostent *hp;
-   int sock;
-
    Trace(TR_WHOIS_QUERY) << "Whois: Open " 
 			 << _host << ":" << _port 
 			 << " source=" << _sources 
@@ -112,24 +108,51 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    strcpy(sources, _sources);
    port = _port;
 
-   hp = gethostbyname(host);
-   if (!hp)
-      error.Die("Error: gethostbyname(%s) failed.\n", host);
+   struct addrinfo hints;
+   struct addrinfo *result, *rp;
+   int sfd, s;
 
-   server_sockaddr.sin_family = AF_INET;
-   memcpy((char *) &(server_sockaddr.sin_addr.s_addr), hp->h_addr, hp->h_length);
-   server_sockaddr.sin_port = htons((u_short) port);
-   
-   sock = socket(AF_INET, SOCK_STREAM, 0);
-   if (sock < 0)
-      error.Die("Error: socket() failed.\n");
 
-   if (connect(sock, (struct sockaddr *) &server_sockaddr, 
-	       sizeof(server_sockaddr)) < 0)
-      error.Die("Error: connect() failed.\n");
+   memset(&hints, 0, sizeof(struct addrinfo));
+   hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+   hints.ai_socktype = SOCK_STREAM;
+   hints.ai_flags = 0;
+   hints.ai_protocol = 0;          /* Any protocol */
 
-   in  = fdopen(sock, "r");
-   out = fdopen(sock, "w");
+
+   char cport[6];
+   sprintf(cport, "%hu", (unsigned short)_port);
+
+   s = getaddrinfo(_host, cport, &hints, &result);
+   if (s != 0) {
+       error.Die("Error: getaddrinfo: %s.\n", gai_strerror(s));
+   }
+
+/* getaddrinfo() returns a list of address structures.
+   Try each address until we successfully bind(2).
+   If socket(2) (or bind(2)) fails, we (close the socket
+   and) try the next address. */
+
+   for (rp = result; rp != NULL; rp = rp->ai_next) {
+       sfd = socket(rp->ai_family, rp->ai_socktype,
+                     rp->ai_protocol);
+       if (sfd == -1)
+           continue;
+
+
+       if (connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1)
+           break;                  /* Success */
+
+        close(sfd);
+   }
+
+   if (rp == NULL) {               /* No address succeeded */
+       error.Die("Could not connect\n");
+       exit(EXIT_FAILURE);
+   }
+
+   in  = fdopen(sfd, "r");
+   out = fdopen(sfd, "w");
    _is_open = 1;
 
    fwrite("!!\n", 1, 3, out);  // keep the connection open
