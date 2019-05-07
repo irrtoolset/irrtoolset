@@ -120,13 +120,12 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    hints.ai_protocol = 0;          /* Any protocol */
 
 
-   char cport[10];
-   sprintf(cport, "%d", _port);
+   char cport[6];
+   sprintf(cport, "%hu", (unsigned short)_port);
 
    s = getaddrinfo(_host, cport, &hints, &result);
    if (s != 0) {
-      fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
-      exit(EXIT_FAILURE);
+       error.Die("Error: getaddrinfo: %s.\n", gai_strerror(s));
    }
 
 /* getaddrinfo() returns a list of address structures.
@@ -148,7 +147,7 @@ void RAWhoisClient::Open(const char *_host, const int _port, const char *_source
    }
 
    if (rp == NULL) {               /* No address succeeded */
-       fprintf(stderr, "Could not connect\n");
+       error.Die("Could not connect\n");
        exit(EXIT_FAILURE);
    }
 
