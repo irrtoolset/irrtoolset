@@ -26,7 +26,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([irrtoolset], [5.1.1], [irrtoolset@lists.isc.org])
+AC_INIT([irrtoolset], [5.1.2], [irrtoolset@lists.isc.org])
 AC_CONFIG_SRCDIR([src/rpsl/rpsl.l])
 AC_CONFIG_HEADERS([src/config.h])
 
