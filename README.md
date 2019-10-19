@@ -39,7 +39,7 @@ $ apt-get install build-essential git libtool bison flex automake autoconf libre
 IRRToolSet uses autotools, so installation is as simple as:
 
 ```sh
-$ autoconf -vfi
+$ autoreconf -i
 $ ./configure
 $ make
 $ make install
