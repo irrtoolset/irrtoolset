@@ -37,12 +37,18 @@ AM_INIT_AUTOMAKE([foreign tar-ustar])
 AC_PROG_CXX
 AC_PROG_CC
 
-# Some versions of GCC 6.x/7.x broke -ftree-vrp, so we need to work around this
-${as_echo_n} "checking for broken gcc6/gcc7... "
-if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [67]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
-  ${as_echo} "yes: disabling the '-ftree-vrp' option"
-  CFLAGS="${CFLAGS} -fno-tree-vrp"
-  CXXFLAGS="${CFLAGS} -fno-tree-vrp"
+# Some versions of GCC 6.x/7.x broke -ftree-vrp, so we need to work around
+# this.  Also the irrtoolset code heavily depends on being able to
+# instantiate NULL objects; GCC8 optimises these checks away because "this"
+# should never be NULL, so we use the -fno-delete-null-pointer-checks
+# optimisation flag to stop this from being optimised away.  This is a hacky
+# workaround, but fixing the problem properly isn't worth it.
+
+${as_echo_n} "checking for gcc6/gcc7/gcc8... "
+if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [678]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
+  ${as_echo} "yes: setting gcc-specific optimisation settings"
+  CFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
+  CXXFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
 
   # re-run compiler checks to configure CFLAGS correctly
   AC_PROG_CXX
