@@ -26,7 +26,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.61])
-AC_INIT([irrtoolset], [5.1.3], [irrtoolset@lists.isc.org])
+AC_INIT([irrtoolset], [5.1.4], [irrtoolset@lists.isc.org])
 AC_CONFIG_SRCDIR([src/rpsl/rpsl.l])
 AC_CONFIG_HEADERS([src/config.h])
 
@@ -45,7 +45,7 @@ AC_PROG_CC
 # workaround, but fixing the problem properly isn't worth it.
 
 ${as_echo_n} "checking for gcc6/gcc7/gcc8... "
-if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [678]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
+if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [6789]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
   ${as_echo} "yes: setting gcc-specific optimisation settings"
   CFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
   CXXFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
