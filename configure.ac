@@ -45,7 +45,7 @@ AC_PROG_CC
 # workaround, but fixing the problem properly isn't worth it.
 
 ${as_echo_n} "checking for gcc6/gcc7/gcc8... "
-if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc | sed -n 's/.*\( [6789]\.[0-9]*\.\).*/\1/p')`" != "X" ]]; then
+if [[ "X`(${CC} --version 2> /dev/null | grep ^gcc)`" != "X" ]]; then
   ${as_echo} "yes: setting gcc-specific optimisation settings"
   CFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
   CXXFLAGS="${CFLAGS} -fno-tree-vrp -fno-delete-null-pointer-checks"
