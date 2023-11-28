@@ -210,8 +210,6 @@ void RAWhoisClient::SetSources(const char *_sources) {
 
    if (*_sources)
       strcpy(sources, _sources);
-   else
-      strcpy(sources, "-*");
 
    Trace(TR_WHOIS_QUERY) << "Whois: SetSources " << sources << endl;
 
