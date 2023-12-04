@@ -208,16 +208,15 @@ void RAWhoisClient::SetSources(const char *_sources) {
    if (! _is_open)
       Open();
 
-   if (*_sources)
+   if (*_sources) {
       strcpy(sources, _sources);
-   else
-      strcpy(sources, "-*");
 
-   Trace(TR_WHOIS_QUERY) << "Whois: SetSources " << sources << endl;
+      Trace(TR_WHOIS_QUERY) << "Whois: SetSources " << sources << endl;
 
-   if (QueryKillResponse("!s%s", sources) == 0) {
-      err = 1;
-      error.error("Error: setting source to %s failed.\n", sources);
+      if (QueryKillResponse("!s%s", sources) == 0) {
+         err = 1;
+         error.error("Error: setting source to %s failed.\n", sources);
+      }
    }
 
    if (current_sources) 
