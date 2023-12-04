@@ -4,13 +4,17 @@
 
 ### Overview
 
- The IRRToolSet is a set of tools to work with Internet routing policies. These
+The IRRToolSet is a set of tools to work with Internet routing policies. These
 policies are stored in Internet Routing Registries (IRR) in the Routing Policy
 Specification Language.
 
 The goal of the IRRToolSet is to make routing information more convenient and
 useful for network engineers, by providing tools for automated router
 configuration, routing policy analysis, and on-going maintenance.
+
+### Status
+
+IRRToolSet is not actively maintained. If you're looking for a fast, efficient, well-maintained IRRDB client, BGPQ4 is an excellent choice: https://github.com/bgp/bgpq4.
 
 ### Website
 
