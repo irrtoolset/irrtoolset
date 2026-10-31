@@ -1,5 +1,4 @@
 #!/bin/sh
-# Install the tools and libraries needed to build IRRToolSet.
 # Set DRY_RUN=1 to print the command instead of running it.
 set -eu
 

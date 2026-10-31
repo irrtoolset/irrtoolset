@@ -2,8 +2,7 @@ set(GEN_RPSL ${CMAKE_CURRENT_BINARY_DIR}/gen/rpsl)
 set(GEN_RTCONFIG ${CMAKE_CURRENT_BINARY_DIR}/gen/rtconfig)
 file(MAKE_DIRECTORY ${GEN_RPSL} ${GEN_RTCONFIG})
 
-# The .l/.y files name their own output files (%option outfile, %output), so
-# the tools must run in the directory the outputs are wanted in.
+# The grammars name their own outputs, so run the tools in the output directory.
 function(irr_bison dir input)
   get_filename_component(name ${input} NAME)
   add_custom_command(
@@ -98,8 +97,7 @@ add_library(irrtoolset STATIC
   ${GEN_RPSL}/rpsl.l.cc
   ${GEN_RPSL}/rpsl.y.cc)
 
-# Sources include "config.h" and each other by path relative to src/, and the
-# generated parsers by bare name (plus their own directories, like -I. did).
+# Headers are included relative to src/; the parsers also need their own directories.
 target_include_directories(irrtoolset PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

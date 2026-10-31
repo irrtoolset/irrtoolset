@@ -22,8 +22,7 @@ include(CheckCXXCompilerFlag)
 find_package(FLEX REQUIRED)
 find_package(BISON REQUIRED)
 
-# The code relies on calling methods on NULL objects, and some GCC 6.x/7.x
-# versions break -ftree-vrp, so keep GCC from optimising either of these.
+# GCC workarounds: the code calls methods on NULL objects, and -ftree-vrp broke in GCC 6/7.
 foreach(flag -fno-tree-vrp -fno-delete-null-pointer-checks)
   string(MAKE_C_IDENTIFIER "HAVE_C${flag}" c_var)
   string(MAKE_C_IDENTIFIER "HAVE_CXX${flag}" cxx_var)
@@ -41,7 +40,6 @@ if(ENABLE_DEBUG)
   add_compile_options(-fno-inline)
 endif()
 
-# config.h
 foreach(header malloc.h memory.h regex.h strings.h string.h sys/time.h unistd.h)
   string(MAKE_C_IDENTIFIER "HAVE_${header}" var)
   string(TOUPPER "${var}" var)
