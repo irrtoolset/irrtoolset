@@ -36,7 +36,7 @@ Debian/Ubuntu, Alpine, Fedora/RHEL, Arch, openSUSE, FreeBSD and macOS (Homebrew)
 
 ```sh
 $ make bootstrap
-$ make
+$ make build
 $ make install
 ```
 
