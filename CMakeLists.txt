@@ -3,10 +3,16 @@ cmake_minimum_required(VERSION 3.16)
 file(STRINGS VERSION IRR_VERSION LIMIT_COUNT 1)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS VERSION)
 
-project(irrtoolset VERSION ${IRR_VERSION} LANGUAGES C CXX)
+# VERSION holds a semver string, e.g. 6.0.0-dev; project() only takes the numeric core.
+if(NOT IRR_VERSION MATCHES "^([0-9]+\\.[0-9]+\\.[0-9]+)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$")
+  message(FATAL_ERROR "VERSION \"${IRR_VERSION}\" is not a valid semantic version")
+endif()
+set(IRR_VERSION_BASE ${CMAKE_MATCH_1})
+
+project(irrtoolset VERSION ${IRR_VERSION_BASE} LANGUAGES C CXX)
 
 set(PACKAGE_NAME "${PROJECT_NAME}")
-set(PACKAGE_VERSION "${PROJECT_VERSION}")
+set(PACKAGE_VERSION "${IRR_VERSION}")
 set(PACKAGE_BUGREPORT "irrtoolset@lists.isc.org")
 
 option(ENABLE_READLINE "Support fancy command line editing" ON)
