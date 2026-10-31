@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/irrtoolset/irrtoolset.svg)](https://travis-ci.org/irrtoolset/irrtoolset)
-
 # IRRToolSet
 
 ### Overview
@@ -32,21 +30,20 @@ It is preferred for bug reports and patches to be reported on GitHub.
 
 ### Installation
 
-Standard installation needs a GNU C++ compiler, libreadline, automake,
-autoconf, libtool, bison and flex.
-
-Under Debian and Ubuntu systems, this should suffice:
-```sh
-$ apt-get install build-essential git libtool bison flex automake autoconf libreadline6-dev
-```
-
-IRRToolSet uses autotools, so installation is as simple as:
+Standard installation needs a C++ compiler, CMake (3.16 or newer), bison,
+flex and, optionally, libreadline. `make bootstrap` installs them on
+Debian/Ubuntu, Alpine, Fedora/RHEL, Arch, openSUSE, FreeBSD and macOS (Homebrew).
 
 ```sh
-$ autoreconf -i
-$ ./configure
+$ make bootstrap
 $ make
 $ make install
+```
+
+To pass options to CMake, use the `CMAKE_ARGS` variable. For example:
+
+```bash
+$ make PREFIX=/usr CMAKE_ARGS=-DENABLE_READLINE=OFF
 ```
 
 ### Copyright and licensing
