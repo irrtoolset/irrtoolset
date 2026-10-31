@@ -25,7 +25,7 @@ install: build
 
 # Generate the example router configs (queries whois.radb.net).
 examples: build
-	RTCONFIG=$(abspath $(BUILD_DIR))/bin/rtconfig ./examples/build_examples.sh
+	RTCONFIG=$(abspath $(BUILD_DIR))/bin/rtconfig OUTDIR=$(abspath $(BUILD_DIR))/examples ./examples/build_examples.sh
 
 clean:
 	-$(CMAKE) --build $(BUILD_DIR) --target clean
